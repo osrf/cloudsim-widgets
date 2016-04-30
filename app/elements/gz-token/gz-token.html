@@ -1,0 +1,123 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="gz-token">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+    </style>
+    <iron-ajax
+      id='ajax'
+      url=''
+      handle-as='json'
+      on-response='hresponse'
+      headers='headers'
+      debounce-duration='300'>
+    </iron-ajax>
+
+    <div>Token: <span>{{title}}</span> </div>
+    <input id=url value="{{url::input}}"></input>url<br>
+<!--    <input id=userId value="{{userId::input}}"></input>userId<br>
+    <input id=password value="{{password::input}}"></input>password<br>
+-->    
+    <input id=data value="{{data::input}}"></input>data (JSON)<br>
+    <div>
+      <button on-tap="tapLogin" id="buttonLogin">login</button>
+      <button on-tap="tapLogout" id="buttonLogout">logout</button>
+      <button on-tap="tapToken" id="buttonToken">token</button>
+      token: {{token}}<br>
+      state: {{state}}
+    </div>
+
+  </template>
+
+  <script>
+
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'gz-token',
+
+      tapLogin: function() {
+        this.state = 'login in'
+        console.log('tapLogin')
+        this.$.ajax.url = this.url + '/login'
+        this.$.ajax.withCredentials = true
+        const head = '{"X-Requested-With": "XMLHttpRequest"' +
+                          ', "Authorization": "Basic ' + btoa(this.userId
+                          + ":" + this.password) + '"}'
+   //     this.$.ajax.headers = head
+        this.$.ajax.generateRequest()
+      },
+
+      tapLogout: function() {
+        this.state = 'login out'
+        console.log('tapLogout')
+        this.$.ajax.url = this.url + '/logout'
+        this.$.ajax.generateRequest()
+      },
+
+      tapToken: function() {
+        this.state = 'getting token'
+        console.log('tapToken')
+        this.$.ajax.url = this.url + '/token'
+        this.$.ajax.params = JSON.parse(this.data)
+        this.$.ajax.withCredentials = true
+        const head = '{"X-Requested-With": "XMLHttpRequest"' +
+                          ', "Authorization": "Basic ' + btoa(this.userId
+                          + ":" + this.password) + '"}'
+   //     this.$.ajax.headers = head
+        this.$.ajax.generateRequest()
+      },
+      hresponse: function(request) {
+        console.log('hresponse, req: ' + request )
+        console.log(request.detail.response)
+        this.token = JSON.stringify(this.$.ajax.lastResponse)
+        console.log(this.token)
+      },
+      attached: function() {
+        console.log('gz-token widget attached!')
+      },
+      properties: {
+        // the title above the widget
+        title: {
+          type: String,
+          value: 'gz-token',
+          notify: true
+        },
+        // the string that contains the terminal output
+        state: {
+          type: String,
+          value: 'ready',
+          notify: true
+        },
+     /*   userId: {
+          type: String,
+          value: 'hugo',
+          notify: true
+        },
+        password: {
+          type: String,
+          value: 'h',
+          notify: true
+        }, */
+        data: {
+          type: String,
+          value: '{"role":"sim_runner"}',
+          notify: true
+        },
+        url: {
+          type: String,
+          value: 'https://localhost:5050',
+          notify: true
+        }
+      }
+    })
+
+  })()
+
+  </script>
+</dom-module>
