@@ -24,10 +24,8 @@ var historyApiFallback = require('connect-history-api-fallback');
 var packageJson = require('./package.json');
 var crypto = require('crypto');
 var ensureFiles = require('./tasks/ensure-files.js');
-var nodemon = require('gulp-nodemon')
 
 // var ghPages = require('gulp-gh-pages');
-console.log('GULP??')
 
 var AUTOPREFIXER_BROWSERS = [
   'ie >= 10',
@@ -216,7 +214,6 @@ gulp.task('clean', function() {
   return del(['.tmp', dist()]);
 });
 
-
 // Watch files for changes & reload
 gulp.task('serve', ['styles', 'elements'], function() {
   browserSync({
@@ -246,60 +243,6 @@ gulp.task('serve', ['styles', 'elements'], function() {
   gulp.watch(['app/elements/**/*.css'], ['elements', reload]);
   gulp.watch(['app/images/**/*'], reload);
 });
-
-// gulp.task('serve', ['browser-sync'], function() {
-//
-//   console.log('gulp serve')
-// })
-//
-//
-//
-// // Watch files for changes & reload
-// gulp.task('browser-sync', ['nodemon'], function() {
-//
-//   browserSync({
-//     port: 8080,
-//     notify: false,
-//     logPrefix: 'PSK',
-//     snippetOptions: {
-//       rule: {
-//         match: '<span id="browser-sync-binding"></span>',
-//         fn: function(snippet) {
-//           return snippet;
-//         }
-//       }
-//     }
-//     // Run as an https by uncommenting 'https: true'
-//     // Note: this uses an unsigned certificate which on first access
-//     //       will present a certificate warning in the browser.
-// //    https: true,
-// //    server: {
-// //      baseDir: ['.tmp', 'app'],
-// //      middleware: [historyApiFallback()]
-//
-//   })
-//   gulp.watch(['server.js'], reload);
-//   gulp.watch(['app/**/*.html'], reload);
-//   gulp.watch(['app/styles/**/*.css'], ['styles', reload]);
-//   gulp.watch(['app/elements/**/*.css'], ['elements', reload]);
-//   gulp.watch(['app/images/**/*'], reload);
-//
-// })
-//
-// //run app using nodemon
-// gulp.task('nodemon',['styles', 'elements'], function(){
-//     nodemon({
-//       script: 'server.js' // , options: '-i client/*'
-//       , ext: 'js html'
-//       , env: { 'NODE_ENV': 'development' }
-//     }).
-//       on('restart', function() {
-//         console.log('restarted!')
-//       }).
-//       on('start', function() {
-//         console.log('start!')
-//       })
-// })
 
 // Build and serve the output from the dist build
 gulp.task('serve:dist', ['default'], function() {

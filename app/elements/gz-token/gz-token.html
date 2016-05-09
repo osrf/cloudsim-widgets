@@ -19,9 +19,9 @@
 
     <div>Token: <span>{{title}}</span> </div>
     <input id=url value="{{url::input}}"></input>url<br>
-<!--    <input id=userId value="{{userId::input}}"></input>userId<br>
+    <input id=userId value="{{userId::input}}"></input>userId<br>
     <input id=password value="{{password::input}}"></input>password<br>
--->    
+
     <input id=data value="{{data::input}}"></input>data (JSON)<br>
     <div>
       <button on-tap="tapLogin" id="buttonLogin">login</button>
@@ -94,7 +94,7 @@
           value: 'ready',
           notify: true
         },
-     /*   userId: {
+        userId: {
           type: String,
           value: 'hugo',
           notify: true
@@ -103,7 +103,7 @@
           type: String,
           value: 'h',
           notify: true
-        }, */
+        },
         data: {
           type: String,
           value: '{"role":"sim_runner"}',

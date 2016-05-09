@@ -11,7 +11,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-styles/typography.html">
 
-<dom-module id="my-list">
+<dom-module id='gz-simlist'>
   <template>
     <style>
       :host {
@@ -23,9 +23,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     </style>
 
+    <div>
+      <div>Simulation run list: <span>{{title}}</span></div>
+      <input id=gzUrl value="{{gzUrl::input}}"></input>url (portal)<br>
+      <input id=token value="{{token::input}}"></input>token<br>
+    </div>
     <ul>
       <template is="dom-repeat" items="{{items}}">
-        <li><span>{{item}}</span></li>
+        <li><span>[{{item.id}}] {{item.name}}, score: {{item.score}}</span></li>
       </template>
     </ul>
   </template>
@@ -35,19 +40,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       'use strict';
 
       Polymer({
-        is: 'my-list',
-
+        is: 'gz-simlist',
         properties: {
           items: {
             type: Array,
-            notify: true,
-          }
+            notify: true
+          },
+	      title: {
+	        type: String,
+          value: 'title',
+	        notify: true
+	        },
+        gzUrl: {
+	        type: String,
+          value: 'https://localhost:4000',
+	        notify: true
+	        }
         },
 
         ready: function() {
+          console.log('gz-simlist ready')
           this.items = [
-            'my-list component',
-            'item 2'
+            {name:'walking', id:'1', score:'1.1'},
+            {name:'manipulation', id:'2', score:'2.2'},
+	    {name:'navigation', id:'3', score:'3.3'}
           ];
         }
       });
