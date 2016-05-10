@@ -144,15 +144,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <paper-material elevation="1">
                 <p>Looking for more Web App layouts? Check out our
                    <a
-href="https://github.com/PolymerElements/app-layout-templates">layouts</a>
+href="https://github.com/PolymerElements/app-layout-templates">
+                   layouts</a>
                    collection. You can also
                     <a
-href="http://polymerelements.github.io/app-layout-templates/">preview</a> them live.</p>
+href="http://polymerelements.github.io/app-layout-templates/">
+                   preview</a> them live.</p>
               </paper-material>
 
             </section>
 
             <section data-route="users">
+
+              <paper-material elevation="1">
+                <gz-auth
+                  id="auth-1"
+                  title="aws instance"
+                  url="https://52.8.189.174:5050" >
+
+                </gz-auth>
+              </paper-material>
+
               <paper-material elevation="1">
                 <h2 class="page-title">Users</h2>
                 <p>This is the users section</p>
@@ -161,6 +173,7 @@ href="http://polymerelements.github.io/app-layout-templates/">preview</a> them l
                 <a href$="{{baseUrl}}users/Chuck">Chuck</a><br>
                 <a href$="{{baseUrl}}users/Sam">Sam</a>
               </paper-material>
+
             </section>
 
             <section data-route="user-info">
