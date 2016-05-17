@@ -55,14 +55,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         tapGrant: function() {
           console.log('tap grant ')
           this.$.ajax.url = this.url + '/grant'
-          this.$.ajax.params = {permission:'hello', readOnly:true}
+          const data = { granterToken: this.token,
+                         grantee: this.grantee,
+                         resource: this.resource,
+                         readOnly: this.readOnly }
+          this.$.ajax.params = data;
           this.$.ajax.generateRequest()
         },
         hresponse: function(request) {
           console.log('hresponse req: ' + request  )
           console.log(request.detail.response)
           let x = JSON.stringify(this.$.ajax.lastResponse)
-          console.log(x)
+          console.log("Response:" + x)
         },
 
         properties: {
@@ -78,7 +82,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	        },
           resource: {
             type: String,
-            value: 'simulation',
+            value: 'gzserver',
 	          notify: true
 	        },
           readOnly: {
