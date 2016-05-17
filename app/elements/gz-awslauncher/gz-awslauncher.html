@@ -1,0 +1,100 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="gz-awslauncher">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      .terminal {
+        height: 200px;
+        overflow: auto;
+      }
+
+    </style>
+    <div>Simulation run: <span>{{title}}</span> </div>
+    <input id=cmdline value="{{cmd::input}}"></input>cmd<br>
+    <input id=ugzUrl value="{{gzUrl::input}}"></input>url<br>
+    <input id=token value="{{token::input}}"></input>token<br>
+    <div>
+      <button on-tap="tapRun" id="buttonRun">run</button>
+      <button on-tap="tapKill"id="buttonKill">kill</button>
+      process {{processPid}} status: {{processStatus}}
+    </div>
+
+    <div>
+      <div id="console" class='terminal' >
+      </div>
+    </div>
+
+  </template>
+
+  <script>
+
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'gz-awslauncher',
+      tapRun: function() {
+        console.log('run!')
+        // this.$.console.innerHTML = ""
+        this.processStatus = "pending"
+        const msg =  {
+          cmd:'run',
+          token: this.token,
+          cmdline:cmdline.value,
+          id:this.title}
+        this.socket.emit('gz-awslauncher', msg)
+      },
+      attached: function() {
+        console.log('gz-awslauncher widget attached!')
+      },
+      tapKill: function()  {
+        const msg = {cmd:'kill', pid: this.processPid}
+        console.log('kill! ' + JSON.stringify(msg))
+        this.socket.emit('gz-awslauncher', msg)
+      },
+      properties: {
+        // the title above the widget
+        title: {
+          type: String,
+          value: 'gz-awslauncher',
+          notify: true
+        },
+        // the string that contains the terminal output
+        processOutput: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        processPid: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        processStatus: {
+          type: String,
+          value: 'ready',
+          notify: true
+        },
+        cmd: {
+          type: String,
+          value: 'gzserver --verbose',
+          notify: true
+        },
+        gzUrl: {
+          type: String,
+          value: 'https://localhost:4000',
+          notify: true
+        },
+        token: {
+          type: String,
+          value: '123456',
+          notify: true
+        }
+      }
+    });
+  })();
+  </script>
+</dom-module>

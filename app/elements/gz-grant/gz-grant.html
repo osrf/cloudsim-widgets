@@ -1,0 +1,107 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<!--
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+-->
+<dom-module id='gz-grant'>
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      span {
+        @apply(--paper-font-body1);
+      }
+    </style>
+    <iron-ajax
+      id="ajax"
+      url=""
+      handle-as="json"
+      on-response="hresponse"
+      headers="headers"
+      debounce-duration="300">
+    </iron-ajax>
+    <div>
+      <div>gz-grant: <span>{{title}}</span></div>
+      <input id=url value="{{url::input}}"></input>server url<br>
+      <input id=grantee value="{{grantee::input}}"></input>grantee user<br>
+      <input id=token value="{{token::input}}"></input>granter token<br>
+      <input id=resource value="{{resource::input}}"></input>resource<br>
+      <input type="checkbox" id=readOnly checked="{{readOnly::change}}"></input>Read only<br>
+    </div>
+    <div>
+      <button on-tap="tapGrant"  id="buttonGrant">Grant</button>
+      <button on-tap="tapRevoke"  id="buttonRevoke">Revoke</button>
+    </div>
+  </template>
+
+  <script>
+    (function() {
+      'use strict';
+
+      Polymer({
+        is: 'gz-grant',
+
+        tapGrant: function() {
+          console.log('tap grant ')
+          this.$.ajax.url = this.url + '/grant'
+          this.$.ajax.params = {permission:'hello', readOnly:true}
+          this.$.ajax.generateRequest()
+        },
+        hresponse: function(request) {
+          console.log('hresponse req: ' + request  )
+          console.log(request.detail.response)
+          let x = JSON.stringify(this.$.ajax.lastResponse)
+          console.log(x)
+        },
+
+        properties: {
+          title: {
+	          type: String,
+            value: 'grant it to me!',
+	          notify: true
+	        },
+          url: {
+	          type: String,
+            value: 'https://localhost:8080',
+	          notify: true
+	        },
+          resource: {
+            type: String,
+            value: 'simulation',
+	          notify: true
+	        },
+          readOnly: {
+            type: Boolean,
+            value: true,
+	          notify: true
+	        },
+          token: {
+            type: String,
+            value: '',
+	          notify: true
+	        },
+          grantee: {
+            type: String,
+            value: 'Bob',
+	          notify: true
+          }
+        },
+
+        ready: function() {
+          console.log('gz-grant ready')
+        }
+      });
+    })();
+  </script>
+</dom-module>

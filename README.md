@@ -5,14 +5,6 @@ This project is based on the Polymer Starter Kit.
 
 > A starting point for building web applications with Polymer 1.0
 
-### Install and run
-
-With Node.js installed, run the following one liner from the root of your Polymer Starter Kit download:
-
-```sh
-npm install -g gulp bower && npm install && bower install
-```
-
 #### Prerequisites (for everyone)
 
 The full starter kit requires the following major dependencies:
@@ -32,6 +24,16 @@ node --version
 
 The version should be at or above 0.12.x.
 
+### Install and run
+
+With Node.js installed, run the following one liner from the root of your Polymer Starter Kit download:
+
+```sh
+sudo npm install -g gulp bower
+npm install
+bower install
+```
+
 ### Design
 
 The idea is to have independent reusable components that you can use to build
@@ -39,28 +41,32 @@ different systems (run a simulation contest, perform cloud experiments, share
 simulations with the community).
 
 Components can be run from the local machine, and point to different servers.
-Components live in the app/elements folder/
+Components live in the `app/elements` folder.
 
 #### gz-auth
 
 Add and remove users to the authentication server. This needs a server that
-implements the authentication (see cloudsim-auth)
+implements the authentication (see
+[`cloudsim-auth`](https://bitbucket.org/osrf/cloudsim-auth)).
 
 #### gz-launcher
 
 This widget allows to start and stop gzserver instances on a machine. The server
- component is cloudsim-sim.
+ component is [`cloudsim-sim`](https://bitbucket.org/osrf/cloudsim-sim).
 
 #### gz-simlist
 
 This widget displays the list of simulations that a user has acccess to. It
-connects to the cloudsim-portal server
+connects to the
+[`cloudsim-portal`](https://bitbucket.org/osrf/cloudsim-portal) server.
 
 #### gz-token
 
 This widget allows the user to log in the system and get identity tokens from
-the cloudsim-auth server. These tokens are required when performing requests
-to cloudsim-protal and cloudsim-sim servers.
+the [`cloudsim-auth`](https://bitbucket.org/osrf/cloudsim-auth) server. These
+tokens are required when performing requests to
+[`cloudsim-portal`](https://bitbucket.org/osrf/cloudsim-portal) and
+[`cloudsim-sim`](https://bitbucket.org/osrf/cloudsim-sim) servers.
 
 ### Usage
 
