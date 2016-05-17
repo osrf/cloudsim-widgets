@@ -8,14 +8,19 @@
       }
 
     </style>
-    <div>users: <span>{{title}}</span> </div>
-    <div>
-      <input id=url value="{{url::input}}"></input>url<br>
+    <div><h1>Authentication widget: <span>{{title}}</span></h1> </div>
+
+    <div id="feedback" style="display:none">
+        <span id="feedback_text"/>
     </div>
-    Users
-    <button id="button_add"  on-tap = "tapAdd" >+</button>
-    <button id="button_rem"  on-tap = "tapRem" >-</button>
-    <button id="button_hide" on-tap = "tapHide" style="display:none;" >X</button>
+
+    <div>
+      Auth server URL: <input id=url value="{{url::input}}"></input><br>
+    </div>
+
+    <button id="button_add"  on-tap = "tapAdd" >Add user</button>
+    <button id="button_rem"  on-tap = "tapRem" >Remove user</button>
+    <button id="button_hide" on-tap = "tapHide" style="display:none;" >Cancel</button>
 
     <div id="div_add_user" style="display:none">
         <input id="user"  type="text" placeholder="user name"/><br>
@@ -40,35 +45,40 @@
 
     Polymer({
       is: 'gz-auth',
+      // Attached
       attached: function() {
-        console.log('gz-auth widget attached!')
+        console.log('gz-auth widget [' + this.title + '] attached!')
       },
-      tapX: function()  {
-        console.log('tapX')
-      },
+      // Cancel tapped
       tapHide: function() {
         this.$.div_rem_user.style.display = 'none'
         this.$.div_add_user.style.display = 'none'
         this.$.button_hide.style.display = 'none'
         this.$.button_add.style.display = ''
         this.$.button_rem.style.display = ''
+        this.$.feedback.style.display = 'none'
       },
+      // Add user
       tapAdd: function() {
         this.$.div_add_user.style.display = 'block'
         this.$.div_rem_user.style.display = 'none'
         this.$.button_hide.style.display = ''
         this.$.button_add.style.display = 'none'
         this.$.button_rem.style.display = 'none'
+        this.$.feedback.style.display = 'none'
         this.$.user.focus()
       },
+      // Remove user
       tapRem: function() {
         this.$.div_add_user.style.display = 'none'
         this.$.div_rem_user.style.display = ''
         this.$.button_hide.style.display = ''
         this.$.button_add.style.display = 'none'
         this.$.button_rem.style.display = 'none'
+        this.$.feedback.style.display = 'none'
         this.$.ruser.focus()
       },
+      // Register user
       tapRegisterUser: function() {
         // username can't be empty
         var user = this.$.user.value;
@@ -81,7 +91,9 @@
         }
         if (user === "")
         {
-          alert("User name can't be empty");
+          self.$.feedback.style.display = ''
+          self.$.feedback.style.color = 'red'
+          self.$.feedback_text.textContent = "User name can't be empty"
           return;
         }
         // verify passwords
@@ -89,33 +101,44 @@
         var pass2 = this.$.pass2.value;
         if (pass != pass2)
         {
-          alert("Passwords don't match");
+          self.$.feedback.style.display = ''
+          self.$.feedback.style.color = 'red'
+          self.$.feedback_text.textContent = "Passwords don't match"
           return;
         }
         if(pass === "")
         {
-          alert("Password can't be empty");
+          self.$.feedback.style.display = ''
+          self.$.feedback.style.color = 'red'
+          self.$.feedback_text.textContent = "Password can't be empty"
           return;
         }
 
         var x = this.post("/register", {"user":user, "password": pass}, function(err, res){
           console.log(res);
           if(err) {
-              alert("Error connecting to server: " + err);
-              return;
+            self.$.feedback.style.display = ''
+            self.$.feedback.style.color = 'red'
+            self.$.feedback_text.textContent = "Error connecting to server: " + err
+            return;
           }
           var j = JSON.parse(res)
           if(j.success)
           {
-              alert('User ' + user + ' registered successfully');
-              close() // div.style.display = 'none';
+            self.$.feedback.style.display = ''
+            self.$.feedback.style.color = 'blue'
+            self.$.feedback_text.textContent = 'User "' + user + '" registered successfully';
+            close() // div.style.display = 'none';
           }
           else
           {
-              alert('Error: ' + j.error);
+            self.$.feedback.style.display = ''
+            self.$.feedback.style.color = 'red'
+            self.$.feedback_text.textContent = 'Error: ' + j.error
           }
         });
       },
+      // Unregister user
       tapUnregisterUser: function() {
         var user = this.$.ruser.value;
         var self = this;
@@ -127,34 +150,45 @@
         }
         if (user === "")
         {
-            alert("User name can't be empty");
-            return;
+          self.$.feedback.style.display = ''
+          self.$.feedback.style.color = 'red'
+          self.$.feedback_text.textContent = "User name can't be empty"
+          return;
         }
         var pass = this.$.rpass.value;
         if (pass === "")
         {
-            alert("Password is empty");
-            return;
+          self.$.feedback.style.display = ''
+          self.$.feedback.style.color = 'red'
+          self.$.feedback_text.textContent = "Password is empty"
+          return;
         }
         // user already exists
         var x = this.post("/unregister", {"user":user, "password": pass}, function(err, res){
           if(err) {
-              alert("Error connecting to server: " + err);
-              return;
+            self.$.feedback.style.display = ''
+            self.$.feedback.style.color = 'red'
+            self.$.feedback_text.textContent = "Error connecting to server: " + err
+            return;
           }
           var j = JSON.parse(res)
           if(j.success)
           {
-             alert('User ' + user + ' unregistered successfully');
-             close()
+            self.$.feedback.style.display = ''
+            self.$.feedback.style.color = 'blue'
+            self.$.feedback_text.textContent = 'User "' + user + '" unregistered successfully'
+            close()
           }
           else
           {
-             alert(j.error);
+            self.$.feedback.style.display = ''
+            self.$.feedback.style.color = 'red'
+            self.$.feedback_text.textContent = j.error
           }
         });
       },
 
+      // Helper function for posting http requests
       post: function (route, data, cb) {
         console.log('data ' + data);
         var xmlhttp;
@@ -164,25 +198,26 @@
               " STATUS: " + xmlhttp.status);
             if (xmlhttp.readyState==4)
             {
-                if(xmlhttp.status == 500) cb("500 Internal Server Error");
-                if(xmlhttp.status == 501) cb("501 Not Implemented");
-                if(xmlhttp.status == 502) cb("502 Bad Gateway");
-                if(xmlhttp.status == 503) cb("503 Service Unavailable");
-                if(xmlhttp.status == 504) cb("504 Gateway Timeout");
-                if(xmlhttp.status == 505) cb("505 HTTP Version Not Supported");
-                if(xmlhttp.status == 506) cb("506 Transparent content " +
-                  "negotiation for the request results in a circular reference.");
-                if(xmlhttp.status == 507) cb("507 Insufficient Storage (WebDAV)");
-                if(xmlhttp.status == 508) cb("508 Loop Detected (WebDAV)");
-                if(xmlhttp.status == 509) cb("509 Bandwidth Limit Exceeded (Apache bw/limited extension)");
-                if(xmlhttp.status == 510) cb("510 Further extensions to the " +
-                  "request are required for the server to fulfil it.");
-                if(xmlhttp.status == 511) cb("511 Network Authentication Required");
+              if(xmlhttp.status == 0) cb("Something went wrong, does the server exist?");
+              if(xmlhttp.status == 500) cb("500 Internal Server Error");
+              if(xmlhttp.status == 501) cb("501 Not Implemented");
+              if(xmlhttp.status == 502) cb("502 Bad Gateway");
+              if(xmlhttp.status == 503) cb("503 Service Unavailable");
+              if(xmlhttp.status == 504) cb("504 Gateway Timeout");
+              if(xmlhttp.status == 505) cb("505 HTTP Version Not Supported");
+              if(xmlhttp.status == 506) cb("506 Transparent content " +
+                "negotiation for the request results in a circular reference.");
+              if(xmlhttp.status == 507) cb("507 Insufficient Storage (WebDAV)");
+              if(xmlhttp.status == 508) cb("508 Loop Detected (WebDAV)");
+              if(xmlhttp.status == 509) cb("509 Bandwidth Limit Exceeded (Apache bw/limited extension)");
+              if(xmlhttp.status == 510) cb("510 Further extensions to the " +
+                "request are required for the server to fulfil it.");
+              if(xmlhttp.status == 511) cb("511 Network Authentication Required");
 
-                if(xmlhttp.status >= 200 && xmlhttp.status < 300) {
-                    var r = xmlhttp.responseText;
-                    cb(null, r)
-                }
+              if(xmlhttp.status >= 200 && xmlhttp.status < 300) {
+                  var r = xmlhttp.responseText;
+                  cb(null, r)
+              }
             }
         }
         const completeUrl = this.url + route
@@ -198,6 +233,7 @@
           value: 'gz-auth0',
           notify: true
         },
+        // Server URL
         url: {
           type: String,
           value: 'https://localhost:5050',
