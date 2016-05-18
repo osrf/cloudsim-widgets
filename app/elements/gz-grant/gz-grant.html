@@ -41,6 +41,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </iron-ajax>
 
     <div><h1>{{title}}</h1></div>
+    <div><h4>{{caption}}</h4></div>
 
     <div id="feedback" style="display:none">
       <span id="feedback_text"/>
@@ -107,7 +108,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         properties: {
           title: {
 	          type: String,
-            value: 'Permission granting tool',
+            value: 'Permission granting tool (gz-grant)',
+	          notify: true
+	        },
+          caption: {
+	          type: String,
+            value: 'Grant / revoke permission to read / write to a resouce. The grantee must have at least the target permission.',
 	          notify: true
 	        },
           url: {

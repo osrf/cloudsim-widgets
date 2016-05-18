@@ -8,7 +8,8 @@
       }
 
     </style>
-    <div><h1><span>{{title}}</span></h1> </div>
+    <div><h1>{{title}}</h1></div>
+    <div><h4>{{caption}}</h4></div>
 
     <div id="feedback" style="display:none">
         <span id="feedback_text"/>
@@ -230,7 +231,13 @@
         // the title above the widget
         title: {
           type: String,
-          value: 'Authentication (gz-auth)',
+          value: 'Create / remove accounts (gz-auth)',
+          notify: true
+        },
+        // the caption under the title
+        caption: {
+          type: String,
+          value: 'Add and remove users to the authentication server. This needs a server that implements the authentication (see cloudsim-auth).',
           notify: true
         },
         // Server URL
