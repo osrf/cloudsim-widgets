@@ -22,6 +22,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       span {
         @apply(--paper-font-body1);
       }
+
+      #gui {
+        max-width:25em
+      }
+
+      #gui > input{
+        float:right;
+      }
     </style>
     <iron-ajax
       id="ajax"
@@ -31,12 +39,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       headers="headers"
       debounce-duration="300">
     </iron-ajax>
-    <div>
-      <div>gz-grant: <span>{{title}}</span></div>
-      <input id=url value="{{url::input}}"></input>server url<br>
-      <input id=grantee value="{{grantee::input}}"></input>grantee user<br>
-      <input id=token value="{{token::input}}"></input>granter token<br>
-      <input id=resource value="{{resource::input}}"></input>resource<br>
+
+    <div><h1>{{title}}</h1></div>
+
+    <div id="feedback" style="display:none">
+      <span id="feedback_text"/>
+    </div>
+
+    <div id="gui">
+      Server URL:<input id=url value="{{url::input}}"></input><br>
+      Granter token<input id=token value="{{token::input}}"></input><br>
+      Grantee username:<input id=grantee value="{{grantee::input}}"></input><br>
+      Resource:<input id=resource value="{{resource::input}}"></input><br>
       <input type="checkbox" id=readOnly checked="{{readOnly::change}}"></input>Read only<br>
     </div>
     <div>
@@ -62,17 +76,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.$.ajax.params = data;
           this.$.ajax.generateRequest()
         },
-        hresponse: function(request) {
-          console.log('hresponse req: ' + request  )
-          console.log(request.detail.response)
-          let x = JSON.stringify(this.$.ajax.lastResponse)
-          console.log("Response:" + x)
+        hresponse: function(req) {
+          this.$.feedback.style.display = ''
+
+          let res = this.$.ajax.lastResponse
+          const success = res.success
+          const msg = res.msg
+          if (!success)
+          {
+            this.$.feedback.style.color = 'red'
+          }
+          else
+          {
+            this.$.feedback.style.color = 'blue'
+          }
+
+          this.$.feedback_text.textContent = msg
         },
 
         properties: {
           title: {
 	          type: String,
-            value: 'grant it to me!',
+            value: 'Permission granting tool',
 	          notify: true
 	        },
           url: {
@@ -92,7 +117,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	        },
           token: {
             type: String,
-            value: '',
+            value: 'toto@osrf.org',
 	          notify: true
 	        },
           grantee: {
