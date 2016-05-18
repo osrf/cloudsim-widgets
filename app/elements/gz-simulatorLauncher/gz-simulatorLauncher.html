@@ -11,7 +11,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-styles/typography.html">
 
-<dom-module id='gz-simlist'>
+<dom-module id='gz-simulatorLauncher'>
   <template>
     <style>
       :host {
@@ -51,7 +51,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       'use strict';
 
       Polymer({
-        is: 'gz-simlist',
+        is: 'gz-simulatorLauncher',
 
         tapGet: function() {
           console.log('tap')
@@ -76,7 +76,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           },
 	      title: {
 	        type: String,
-          value: 'Simulation machines (gz-simlist)',
+          value: 'Simulation machines (gz-simulatorLauncher)',
 	        notify: true
 	        },
         url: {
@@ -92,7 +92,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
 
         ready: function() {
-          console.log('gz-simlist ready')
+          console.log('gz-simulatorLauncher ready')
           this.items = [];
         }
       });
