@@ -1,0 +1,101 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+<dom-module id='gz-simulatorLauncher'>
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      span {
+        @apply(--paper-font-body1);
+      }
+    </style>
+
+    <iron-ajax
+      id="ajax"
+      url=""
+      handle-as="json"
+      on-response="hresponse"
+      headers="headers"
+      debounce-duration="300">
+    </iron-ajax>
+
+    <div id="gui">
+      <div><h1><span>{{title}}</span></h1></div>
+      <input id=url value="{{url::input}}"></input>url (portal)<br>
+      <input id=token value="{{token::input}}"></input>token<br>
+    </div>
+    <ul>
+      <template is="dom-repeat" items="{{items}}">
+        <li><span>[{{item.id}}], {{item.region}}, {{item.status}}, {{item.owner.username}}</span></li>
+      </template>
+    </ul>
+     <button on-tap="tapGet"  id="buttonGet">Get</button>
+     <button on-tap="tapAdd"  id="buttonAdd">Get</button>
+  </template>
+
+  <script>
+    (function() {
+      'use strict';
+
+      Polymer({
+        is: 'gz-simulatorLauncher',
+
+        tapGet: function() {
+          console.log('tap')
+          this.$.ajax.url = this.url + '/simulators'
+          const data = { token: this.token}
+          this.$.ajax.params = data;
+          this.$.ajax.body = {token:token}
+          this.$.ajax.generateRequest()
+        },
+        hresponse: function(req) {
+          let res = this.$.ajax.lastResponse
+          console.log(res)
+          this.items = res;
+
+
+
+        },
+        properties: {
+          items: {
+            type: Array,
+            notify: true
+          },
+	      title: {
+	        type: String,
+          value: 'Simulation machines (gz-simulatorLauncher)',
+	        notify: true
+	        },
+        url: {
+	        type: String,
+          value: 'https://localhost:4000',
+	        notify: true
+	        },
+	       token: {
+	        type: String,
+          value: 'xxxadminxxx',
+	        notify: true
+	        }
+        },
+
+        ready: function() {
+          console.log('gz-simulatorLauncher ready')
+          this.items = [];
+        }
+      });
+    })();
+  </script>
+</dom-module>
