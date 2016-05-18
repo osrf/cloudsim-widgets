@@ -67,7 +67,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         is: 'gz-grant',
 
         tapGrant: function() {
-          console.log('tap grant ')
           this.$.ajax.url = this.url + '/grant'
           const data = { granterToken: this.token,
                          grantee: this.grantee,
@@ -76,6 +75,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.$.ajax.params = data;
           this.$.ajax.generateRequest()
         },
+
+        tapRevoke: function() {
+          this.$.ajax.url = this.url + '/revoke'
+          const data = { granterToken: this.token,
+                         grantee: this.grantee,
+                         resource: this.resource,
+                         readOnly: this.readOnly }
+          this.$.ajax.params = data;
+          this.$.ajax.generateRequest()
+        },
+
         hresponse: function(req) {
           this.$.feedback.style.display = ''
 
