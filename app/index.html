@@ -74,9 +74,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <!-- Drawer Content -->
         <paper-menu attr-for-selected="data-route" selected="[[route]]">
-          <a data-route="home" href="{{baseUrl}}">
-            <iron-icon icon="home"></iron-icon>
-            <span>Home</span>
+          <a data-route="portfolio" href="{{baseUrl}}portfolio">
+            <iron-icon icon="settings"></iron-icon>
+            <span>Portfolio</span>
           </a>
 
           <a data-route="users" href="{{baseUrl}}users">
@@ -89,9 +89,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <span>Contact</span>
           </a>
 
-          <a data-route="entryPage" href="{{baseUrl}}entryPage">
-            <iron-icon icon="info"></iron-icon>
-            <span>Entry Page</span>
+          <a data-route="home" href="{{baseUrl}}home">
+            <iron-icon icon="home"></iron-icon>
+            <span>Home</span>
           </a>
         </paper-menu>
       </paper-scroll-header-panel>
@@ -122,33 +122,48 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <!-- Main Content -->
         <div class="content">
           <iron-pages attr-for-selected="data-route" selected="{{route}}">
-            <section data-route="home">
+            <section data-route="portfolio">
 
               <paper-material elevation="1">
                 <gz-auth
-                  id="auth-0"
                   gui=true
+                  config=true
                 ></gz-auth>
               </paper-material>
 
               <paper-material elevation="1">
-                <gz-token id="token-0"></gz-token>
+                <gz-token
+                  gui=true
+                  config=true
+              ></gz-token>
               </paper-material>
 
               <paper-material elevation="1">
-                <gz-grant id="gz-grant-0"></gz-grant>
+                <gz-grant
+                  gui=true
+                  config=true
+                ></gz-grant>
               </paper-material>
 
               <paper-material elevation="1">
-                <gz-simulatorLauncher></gz-simulatorLauncher>
+                <gz-simulatorLauncher
+                  gui=true
+                  config=true
+                ></gz-simulatorLauncher>
               </paper-material>
 
               <paper-material elevation="1">
-                <gz-simlist></gz-simlist>
+                <gz-simlist
+                  gui=true
+                  config=true
+                ></gz-simlist>
               </paper-material>
 
               <paper-material elevation="1">
-                <gz-launcher id="launcher-0"></gz-launcher>
+                <gz-launcher
+                  gui=true
+                  config=true
+                ></gz-launcher>
               </paper-material>
 
 <!--
@@ -197,7 +212,7 @@ href="http://polymerelements.github.io/app-layout-templates/">
 
             </section>
 
-            <section data-route="entryPage">
+            <section data-route="home">
               <gz-home/>
             </section>
 
