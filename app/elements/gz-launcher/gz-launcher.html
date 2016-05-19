@@ -6,24 +6,47 @@
       :host {
         display: block;
       }
+
+      #gui {
+        max-width:25em
+      }
+
+      #gui > input{
+        float:right;
+      }
+
       .terminal {
-        height: 200px;
+        height: 25em;
         overflow: auto;
+        background-color: #300a24;
+        color: white;
+        padding: 1em;
+        font-family: Ubuntu;
       }
 
     </style>
-    <div>Simulation run: <span>{{title}}</span> </div>
-    <input id=cmdline value="{{cmd::input}}"></input>cmd<br>
-    <input id=ugzUrl value="{{gzUrl::input}}"></input>url<br>
-    <input id=token value="{{token::input}}"></input>token<br>
-    <div>
-      <button on-tap="tapRun" id="buttonRun">run</button>
-      <button on-tap="tapKill"id="buttonKill">kill</button>
-      process {{processPid}} status: {{processStatus}}
+
+    <div><h1>{{title}}</h1></div>
+    <div><h4>{{caption}}</h4></div>
+
+    <div id="feedback" style="display:none">
+      <span id="feedback_text"/>
+    </div>
+
+    <div id="gui">
+      Simulation server URL:<input id=ugzUrl value="{{gzUrl::input}}"></input><br>
+      User token:<input id=token value="{{token::input}}"></input><br>
+      Command:<input id=cmdline value="{{cmd::input}}"></input><br>
+
+      <button on-tap="tapRun" id="buttonRun">Run</button>
+      <button on-tap="tapKill"id="buttonKill" style="display:none">Kill</button>
+    </div>
+    <div id="currentProcess" style="display:none; text-align:center">
+      <h4>Process id: {{processPid}} - Status: {{processStatus}}</h4>
     </div>
 
     <div>
-      <div id="console" class='terminal' >
+      <div id="console" class='terminal'  style="display:none">
       </div>
     </div>
 
@@ -40,9 +63,20 @@
     Polymer({
       is: 'gz-launcher',
       tapRun: function() {
-        console.log('run!')
-        // this.$.console.innerHTML = ""
-        this.processStatus = "pending"
+        this.connect()
+
+        // Disable running
+        this.$.ugzUrl.disabled = true
+        this.$.token.disabled = true
+        this.$.cmdline.disabled = true
+        this.$.buttonRun.style.display = 'none'
+        this.$.buttonKill.style.display = ''
+
+        // Show current process
+        this.$.currentProcess.style.display = ''
+        this.processStatus = "Pending"
+
+        // Emit
         const msg =  {
           cmd:'run',
           token: this.token,
@@ -52,6 +86,10 @@
       },
       attached: function() {
         console.log('gz-launcher widget attached!')
+        this.connect()
+      },
+      connect: function() {
+        // Initialize socket
         let socket = io(this.gzUrl)
         let that = this
         this.socket = socket
@@ -61,14 +99,11 @@
           socket.on('authenticated', function () {
             console.log('socketio authenticated')
             socket.on('gz-launcher', function (msg) {
-              // console.log("gz-launcher: " + JSON.stringify(msg))
-              // that.$.console.innerHTML = msg.output
-              that.processStatus = msg.state
-              if(msg.output) {
-                that.processOutput = msg.output
-                that.$.console.innerHTML = msg.output
-              }
+              // Show current process
+              that.$.currentProcess.style.display = ''
               that.processPid = msg.pid
+              that.processStatus = msg.state
+
               if (msg.state === 'ready') {
                 that.$.buttonRun.disabled = false
                 that.$.buttonKill.disabled = true
@@ -76,10 +111,25 @@
               if (msg.state === 'running') {
                 that.$.buttonRun.disabled = false
                 that.$.buttonKill.disabled = false
+
+                // Fill terminal
+                that.$.console.style.display = ''
+                if(msg.output) {
+                  that.processOutput = msg.output
+                  that.$.console.innerHTML = msg.output
+                }
               }
               if (msg.state === 'closed') {
-                that.$.buttonRun.disabled = false
-                that.$.buttonKill.disabled = false
+                // Reenable fields
+                that.$.ugzUrl.disabled = false
+                that.$.token.disabled = false
+                that.$.cmdline.disabled = false
+                that.$.buttonRun.style.display = ''
+                that.$.buttonKill.style.display = 'none'
+
+                // Clear terminal
+                that.$.console.style.display = 'none'
+                that.$.console.innerHTML = ''
               }
             })
           }).emit('authenticate', authMsg); // send the jwt
@@ -87,14 +137,19 @@
       },
       tapKill: function()  {
         const msg = {cmd:'kill', pid: this.processPid}
-        console.log('kill! ' + JSON.stringify(msg))
         this.socket.emit('gz-launcher', msg)
       },
       properties: {
         // the title above the widget
         title: {
           type: String,
-          value: 'gz-launcher',
+          value: 'Launch a simulation (gz-launcher)',
+          notify: true
+        },
+        // the caption below the title
+        caption: {
+          type: String,
+          value: 'Run a command on the simulation server.',
           notify: true
         },
         // the string that contains the terminal output
@@ -120,12 +175,12 @@
         },
         gzUrl: {
           type: String,
-          value: 'https://localhost:4000',
+          value: 'https://localhost:8080',
           notify: true
         },
         token: {
           type: String,
-          value: '123456',
+          value: 'xxxadminxxx',
           notify: true
         }
       }
