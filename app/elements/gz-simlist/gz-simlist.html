@@ -18,11 +18,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         display: block;
       }
 
-      #gui {
-        max-width:25em
+      #whole {
+        border: solid 1px;
+        padding: 0.5em
       }
 
-      #gui > input{
+      #config {
+        max-width:20em;
+        font-size:"0.8em"
+      }
+
+      #config > div{
+        padding-top:0.5em;
+      }
+
+      #config > div > input{
         float:right;
       }
 
@@ -41,44 +51,56 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       debounce-duration="300">
     </iron-ajax>
 
-    <div><h1>{{title}}</h1></div>
-    <div><h4>{{caption}}</h4></div>
+    <div id="whole">
+      <div id="config">
 
-    <div id="feedback" style="display:none">
-      <span id="feedback_text"/>
-    </div>
+        <div><h4>{{caption}}</h4></div>
 
-    <div id="gui">
-      Portal server URL:<input id=url value="{{url::input}}"></input><br>
-      User token:<input id=token value="{{token::input}}"></input><br>
-    </div>
-    <table id="listTable" style="display:none" border="0">
-    <tr>
-       <td>id</td>
-       <td>region</td>
-       <td>machine ip</td>
-       <td>status</td>
-       <td>launch date</td>
-       <td>termination date</td>
-       <td>owner</td>
-       <td>users</td>
-       <td>simulations</td>
-    </tr>
-    <template is="dom-repeat" items="{{items}}">
-      <tr class="itemRow">
-        <td>{{item.id}}</td>
-        <td>{{item.region}}</td>
-        <td>{{item.machine_ip}}</td>
-        <td>{{item.status}}</td>
-        <td>{{item.launch_date}}</td>
-        <td>{{item.termination_date}}</td>
-        <td>{{item.owner.username}}</td>
-        <td>{{item.users}}</td> <!-- list -->
-        <td>{{item.simulations}}</td><!-- list -->
-      </tr>
-    </template>
-    </table>
-     <button on-tap="tapGet"  id="buttonGet">Get list of simulators</button>
+        <div>
+          Portal server URL:<input id=url value="{{url::input}}"></input>
+        </div>
+        <div>
+          User token:<input id=token value="{{token::input}}"></input>
+        </div>
+        <button on-tap="tapGet"  id="buttonGet">Get list of simulators</button>
+       </div> <!-- /config -->
+
+        <div id="gui">
+
+          <div><h1>{{title}}</h1></div>
+
+          <div id="feedback" style="display:none">
+            <span id="feedback_text"/>
+          </div>
+
+          <table id="listTable" style="display:none" border="0">
+            <tr>
+               <td>id</td>
+               <td>region</td>
+               <td>machine ip</td>
+               <td>status</td>
+               <td>launch date</td>
+               <td>termination date</td>
+               <td>owner</td>
+               <td>users</td>
+               <td>simulations</td>
+            </tr>
+            <template is="dom-repeat" items="{{items}}">
+              <tr class="itemRow">
+                <td>{{item.id}}</td>
+                <td>{{item.region}}</td>
+                <td>{{item.machine_ip}}</td>
+                <td>{{item.status}}</td>
+                <td>{{item.launch_date}}</td>
+                <td>{{item.termination_date}}</td>
+                <td>{{item.owner.username}}</td>
+                <td>{{item.users}}</td> <!-- list -->
+                <td>{{item.simulations}}</td><!-- list -->
+              </tr>
+            </template>
+          </table>
+        </div><!-- /gui -->
+      </div><!-- /whole -->
   </template>
 
   <script>
@@ -87,6 +109,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       Polymer({
         is: 'gz-simlist',
+
+        // Triggered when the "gui" property is changed
+        _guiChanged: function(newValue, oldValue) {
+          this.$.gui.style.display = newValue ? '' : 'none'
+        },
+        // Triggered when the "config" property is changed
+        _configChanged: function(newValue, oldValue) {
+          this.$.config.style.display = newValue ? '' : 'none'
+        },
+        // Triggered when the "border" property is changed
+        _borderChanged: function(newValue, oldValue) {
+          this.$.whole.style.border = newValue ? 'solid 1px' : 'none'
+        },
 
         tapGet: function() {
           this.$.listTable.style.display = 'none'
@@ -155,7 +190,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	        type: String,
           value: 'xxxadminxxx',
 	        notify: true
-	        }
+	        },
+          gui: {
+            type: Boolean,
+            value: false,
+            observer: '_guiChanged'
+          },
+          config: {
+            type: Boolean,
+            value: false,
+            observer: '_configChanged'
+          },
+          border: {
+            type: Boolean,
+            value: false,
+            observer: '_borderChanged'
+          }
         },
 
         ready: function() {

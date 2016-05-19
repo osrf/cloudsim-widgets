@@ -8,32 +8,36 @@
       }
 
     </style>
-    <div><h1>{{title}}</h1></div>
-    <div><h4>{{caption}}</h4></div>
 
-    <div id="feedback" style="display:none">
-        <span id="feedback_text"/>
-    </div>
-
-    <div>
+    <div id="config">
       Auth server URL: <input id=url value="{{url::input}}"></input><br>
     </div>
 
-    <button id="button_add"  on-tap = "tapAdd" >Add user</button>
-    <button id="button_rem"  on-tap = "tapRem" >Remove user</button>
-    <button id="button_hide" on-tap = "tapHide" style="display:none;" >Cancel</button>
+    <div id="gui">
 
-    <div id="div_add_user" style="display:none">
-        <input id="user"  type="text" placeholder="user name"/><br>
-        <input id="pass1" type="password" placeholder="password"/><br>
-        <input id="pass2" type="password" placeholder="confirm password"/><br>
-        <button on-click="tapRegisterUser" >Register</button>
-    </div>
+      <div><h1>{{title}}</h1></div>
+      <div><h4>{{caption}}</h4></div>
 
-    <div id="div_rem_user" style="display:none">
-        <input id="ruser"  type="text" placeholder="user name"/><br>
-        <input id="rpass" type="password" placeholder="password"/><br>
-        <button on-tap="tapUnregisterUser" >Unregister</button>
+      <div id="feedback" style="display:none">
+          <span id="feedback_text"/>
+      </div>
+
+      <button id="button_add"  on-tap = "tapAdd" >Add user</button>
+      <button id="button_rem"  on-tap = "tapRem" >Remove user</button>
+      <button id="button_hide" on-tap = "tapHide" style="display:none;" >Cancel</button>
+
+      <div id="div_add_user" style="display:none">
+          <input id="user"  type="text" placeholder="user name"/><br>
+          <input id="pass1" type="password" placeholder="password"/><br>
+          <input id="pass2" type="password" placeholder="confirm password"/><br>
+          <button on-click="tapRegisterUser" >Register</button>
+      </div>
+
+      <div id="div_rem_user" style="display:none">
+          <input id="ruser"  type="text" placeholder="user name"/><br>
+          <input id="rpass" type="password" placeholder="password"/><br>
+          <button on-tap="tapUnregisterUser" >Unregister</button>
+      </div>
     </div>
 
   </template>
@@ -49,6 +53,14 @@
       // Attached
       attached: function() {
         console.log('gz-auth widget [' + this.title + '] attached!')
+      },
+      // Triggered when the "gui" property is changed
+      _guiChanged: function(newValue, oldValue) {
+        this.$.gui.style.display = newValue ? '' : 'none'
+      },
+      // Triggered when the "config" property is changed
+      _configChanged: function(newValue, oldValue) {
+        this.$.config.style.display = newValue ? '' : 'none'
       },
       // Cancel tapped
       tapHide: function() {
@@ -245,6 +257,16 @@
           type: String,
           value: 'https://localhost:5050',
           notify: true
+        },
+        gui: {
+          type: Boolean,
+          value: false,
+          observer: '_guiChanged'
+        },
+        config: {
+          type: Boolean,
+          value: false,
+          observer: '_configChanged'
         }
       }
     });

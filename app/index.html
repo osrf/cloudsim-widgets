@@ -88,6 +88,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <iron-icon icon="mail"></iron-icon>
             <span>Contact</span>
           </a>
+
+          <a data-route="entryPage" href="{{baseUrl}}entryPage">
+            <iron-icon icon="info"></iron-icon>
+            <span>Entry Page</span>
+          </a>
         </paper-menu>
       </paper-scroll-header-panel>
 
@@ -120,11 +125,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <section data-route="home">
 
               <paper-material elevation="1">
-                <gz-auth id="auth-0"></gz-auth>
+                <gz-auth
+                  id="auth-0"
+                  gui=true
+                ></gz-auth>
               </paper-material>
 
               <paper-material elevation="1">
-                <gz-token id="token-0"></gz-auth>
+                <gz-token id="token-0"></gz-token>
               </paper-material>
 
               <paper-material elevation="1">
@@ -172,8 +180,9 @@ href="http://polymerelements.github.io/app-layout-templates/">
                 <gz-auth
                   id="auth-1"
                   title="aws instance"
-                  url="https://52.8.189.174:5050" >
-
+                  url="https://52.8.189.174:5050"
+                  gui=true
+                >
                 </gz-auth>
               </paper-material>
 
@@ -186,6 +195,10 @@ href="http://polymerelements.github.io/app-layout-templates/">
                 <a href$="{{baseUrl}}users/Sam">Sam</a>
               </paper-material>
 
+            </section>
+
+            <section data-route="entryPage">
+              <gz-home/>
             </section>
 
             <section data-route="user-info">

@@ -1,0 +1,109 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="gz-home">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+    </style>
+
+
+    <div id="config">
+  config goes here?
+    </div>
+    <div><h1>Welcome to Cloudsim!</h1></div>
+
+    <gz-auth
+      id="authwidget"
+      title="Create an account"
+      caption=""
+      url={{authurl}}
+      gui
+    >
+    </gz-auth>
+
+    <gz-token
+      id="tokenwidget"
+      title="Login"
+      url={{authurl}}
+      gui
+      border
+      on-login="loginEvent"
+      on-logout="logoutEvent"
+    ></gz-token>
+
+   <div id="machines" style="display:none">
+     <gz-simulatorLauncher
+       id="simulatorlauncherwidget"
+       title="launch a new Gazebo machine"
+       url={{portalurl}}
+       gui
+       border
+     ></gz-simulatorLauncher>
+
+     <gz-simlist
+       id="simlistwidget"
+       title="your machines"
+       url={{portalurl}}
+       gui
+       border
+     ></gz-simlist>
+
+   </div>
+  </template>
+
+  <script>
+
+
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'gz-home',
+      // Attached
+      attached: function() {
+        console.log('gz-home widget [' + this.title + '] attached!')
+      },
+      loginEvent(e) {
+        // Show widgets
+        this.$.machines.style.display = ''
+
+        // Ask for list of simulators
+        this.$.simlistwidget.tapGet()
+      },
+      logoutEvent(e) {
+        // Show widgets
+        this.$.machines.style.display = 'none'
+      },
+      properties: {
+        // the title above the widget
+        title: {
+          type: String,
+          value: 'Create / remove accounts (gz-home)',
+          notify: true
+        },
+        // the caption under the title
+        caption: {
+          type: String,
+          value: 'Add and remove users to the authentication server. This needs a server that implements the authentication (see cloudsim-auth).',
+          notify: true
+        },
+        // Server URL
+        authurl: {
+          type: String,
+          value: 'https://localhost:5050',
+          notify: true
+        },
+        portalurl: {
+          type: String,
+          value: 'https://localhost:4000',
+          notify: true
+        }
+
+      }
+    });
+  })();
+  </script>
+</dom-module>

@@ -7,11 +7,20 @@
         display: block;
       }
 
-      #gui {
-        max-width:25em
+      #whole {
+        border: solid 1px;
+        padding: 0.5em
       }
 
-      #gui > input{
+      #config {
+        max-width:20em
+      }
+
+      #config > div{
+        padding-top:0.5em;
+      }
+
+      #config > div > input{
         float:right;
       }
 
@@ -21,30 +30,37 @@
       url=''
       handle-as='json'
       on-response='hresponse'
+      on-error="herror"
       headers='headers'
       debounce-duration='300'>
     </iron-ajax>
 
-    <div><h1>{{title}}</h1></div>
-    <div><h4>{{caption}}</h4></div>
+    <div id="whole">
+      <div id="config">
+        <div><h4>{{caption}}</h4></div>
 
-    <div id="feedback" style="display:none">
-      <span id="feedback_text"/>
-    </div>
+        <div>
+          Auth server URL:<input id=url value="{{url::input}}"></input>
+        </div>
+        <div>
+          Data (JSON):<input id=data value="{{data::input}}"></input>
+        </div>
+        <button on-tap="tapToken" id="buttonToken">token</button>
+        <div>
+          Token: {{token}}
+        </div>
+      </div>
 
-    <div id="gui">
-      Auth server URL:<input id=url value="{{url::input}}"></input><br>
-
-      Data (JSON):<input id=data value="{{data::input}}"></input><br>
-    </div>
-    <div>
-      <button on-tap="tapLogin" id="buttonLogin">login</button>
-      <button on-tap="tapLogout" id="buttonLogout">logout</button>
-      <button on-tap="tapToken" id="buttonToken">token</button>
-    </div>
-    <div>
-      State: {{state}}<br>
-      Token: {{token}}
+      <div id="gui">
+        <div><h1>{{title}}</h1></div>
+        <div id="feedback" style="display:none">
+          <span id="feedback_text"/>
+        </div>
+        <div>
+          <button on-tap="tapLogin" id="buttonLogin">login</button>
+          <button on-tap="tapLogout" id="buttonLogout">logout</button>
+        </div>
+      </div>
     </div>
 
   </template>
@@ -65,6 +81,7 @@
       },
 
       tapLogout: function() {
+        this.$.feedback.style.display = 'none'
         this.state = 'Requesting logout'
         this.$.ajax.url = this.url + '/logout'
         this.$.ajax.generateRequest()
@@ -82,28 +99,46 @@
 
         let res = this.$.ajax.lastResponse
 
-        const success = res.login == "success" ? true : false
-        if (!success)
-        {
-          this.$.feedback.style.color = 'red'
-          this.$.feedback_text.textContent = "Fail!"
+        if (res.login) {
+          const success = res.login == "success" ? true : false
+          if (!success)
+          {
+            this.$.feedback.style.color = 'red'
+            this.$.feedback_text.textContent = "Fail!"
+          }
+          else
+          {
+            this.user = res.user
+            this.token = res.token
+            this.$.feedback.style.color = 'blue'
+            this.$.feedback_text.textContent = "User \"" + this.user + "\" logged in!"
+            this.fire('login', {user: res.user})
+          }
         }
-        else
-        {
-          this.$.feedback.style.color = 'blue'
-          this.$.feedback_text.textContent = "Success!"
-        }
-
 
         // Fill state
-        this.state = 'login in'
         console.log('hresponse, req: ' + request )
         console.log(request.detail.response)
-        this.token = JSON.stringify(res)
+        //  this.token = JSON.stringify(res)
         console.log(this.token)
+      },
+      herror: function(err) {
+        this.fire('logout')
       },
       attached: function() {
         console.log('gz-token widget attached!')
+      },
+      // Triggered when the "gui" property is changed
+      _guiChanged: function(newValue, oldValue) {
+        this.$.gui.style.display = newValue ? '' : 'none'
+      },
+      // Triggered when the "config" property is changed
+      _configChanged: function(newValue, oldValue) {
+        this.$.config.style.display = newValue ? '' : 'none'
+      },
+      // Triggered when the "border" property is changed
+      _borderChanged: function(newValue, oldValue) {
+        this.$.whole.style.border = newValue ? 'solid 1px' : 'none'
       },
       properties: {
         // the title above the widget
@@ -112,16 +147,15 @@
           value: 'Log into existing account (gz-token)',
           notify: true
         },
+        user: {
+          type: String,
+          value: '',
+          notify: true
+        },
         // the caption under the title
         caption: {
           type: String,
           value: 'This widget allows the user to log into the system and get identity tokens from the cloudsim-auth server. These tokens are required when performing requests to cloudsim-portal and cloudsim-sim servers. A popup will show up to input username and password.',
-          notify: true
-        },
-        // the string that contains the terminal output
-        state: {
-          type: String,
-          value: 'ready',
           notify: true
         },
         data: {
@@ -133,6 +167,21 @@
           type: String,
           value: 'https://localhost:5050',
           notify: true
+        },
+        gui: {
+          type: Boolean,
+          value: false,
+          observer: '_guiChanged'
+        },
+        config: {
+          type: Boolean,
+          value: false,
+          observer: '_configChanged'
+        },
+        border: {
+          type: Boolean,
+          value: false,
+          observer: '_borderChanged'
         }
       }
     })
