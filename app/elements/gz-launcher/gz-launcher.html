@@ -7,11 +7,20 @@
         display: block;
       }
 
-      #gui {
-        max-width:25em
+      #whole {
+        border: solid 1px;
+        padding: 0.5em
       }
 
-      #gui > input{
+      #config {
+        max-width:20em
+      }
+
+      #config > div{
+        padding-top:0.5em;
+      }
+
+      #config > div > input{
         float:right;
       }
 
@@ -26,29 +35,45 @@
 
     </style>
 
-    <div><h1>{{title}}</h1></div>
-    <div><h4>{{caption}}</h4></div>
+    <div id="whole">
+      <div id="config">
+        <div><h4>{{caption}}</h4></div>
 
-    <div id="feedback" style="display:none">
-      <span id="feedback_text"/>
-    </div>
+        <div>
+          Simulation URL:<input id=url value="{{url::input}}"></input>
+        </div>
+        <div>
+          User token:<input id=token value="{{token::input}}"></input>
+        </div>
+        <div>
+          Command:<input id=cmdline value="{{cmd::input}}"></input>
+        </div>
 
-    <div id="gui">
-      Simulation server URL:<input id=ugzUrl value="{{gzUrl::input}}"></input><br>
-      User token:<input id=token value="{{token::input}}"></input><br>
-      Command:<input id=cmdline value="{{cmd::input}}"></input><br>
 
-      <button on-tap="tapRun" id="buttonRun">Run</button>
-      <button on-tap="tapKill"id="buttonKill" style="display:none">Kill</button>
-    </div>
-    <div id="currentProcess" style="display:none; text-align:center">
-      <h4>Process id: {{processPid}} - Status: {{processStatus}}</h4>
-    </div>
+      </div>
+      <div id="gui">
+        <div><h1>{{title}}</h1></div>
 
-    <div>
-      <div id="console" class='terminal'  style="display:none">
+        <div id="feedback" style="display:none">
+          <span id="feedback_text"/>
+        </div>
+
+        <button on-tap="tapRun" id="buttonRun">Run</button>
+        <button on-tap="tapKill"id="buttonKill" style="display:none">Kill</button>
+
+
+        <div id="currentProcess" style="display:none; text-align:center">
+          <h4>Process id: {{processPid}} - Status: {{processStatus}}</h4>
+        </div>
+
+        <div>
+          <div id="console" class='terminal'  style="display:none">
+          </div>
+        </div>
+
       </div>
     </div>
+
 
   </template>
 
@@ -66,7 +91,7 @@
         this.connect()
 
         // Disable running
-        this.$.ugzUrl.disabled = true
+        this.$.url.disabled = true
         this.$.token.disabled = true
         this.$.cmdline.disabled = true
         this.$.buttonRun.style.display = 'none'
@@ -80,7 +105,7 @@
         const msg =  {
           cmd:'run',
           token: this.token,
-          cmdline:cmdline.value,
+          cmdline: this.cmd,
           id:this.title}
         this.socket.emit('gz-launcher', msg)
       },
@@ -88,9 +113,21 @@
         console.log('gz-launcher widget attached!')
         this.connect()
       },
+      // Triggered when the "gui" property is changed
+      _guiChanged: function(newValue, oldValue) {
+        this.$.gui.style.display = newValue ? '' : 'none'
+      },
+      // Triggered when the "config" property is changed
+      _configChanged: function(newValue, oldValue) {
+        this.$.config.style.display = newValue ? '' : 'none'
+      },
+      // Triggered when the "border" property is changed
+      _borderChanged: function(newValue, oldValue) {
+        this.$.whole.style.border = newValue ? 'solid 1px' : 'none'
+      },
       connect: function() {
         // Initialize socket
-        let socket = io(this.gzUrl)
+        let socket = io(this.url)
         let that = this
         this.socket = socket
         const authMsg = {token: this.token}
@@ -121,7 +158,7 @@
               }
               if (msg.state === 'closed') {
                 // Reenable fields
-                that.$.ugzUrl.disabled = false
+                that.$.url.disabled = false
                 that.$.token.disabled = false
                 that.$.cmdline.disabled = false
                 that.$.buttonRun.style.display = ''
@@ -173,7 +210,7 @@
           value: 'gzserver --verbose',
           notify: true
         },
-        gzUrl: {
+        url: {
           type: String,
           value: 'https://localhost:8080',
           notify: true
@@ -182,6 +219,21 @@
           type: String,
           value: 'xxxadminxxx',
           notify: true
+        },
+        gui: {
+          type: Boolean,
+          value: false,
+          observer: '_guiChanged'
+        },
+        config: {
+          type: Boolean,
+          value: false,
+          observer: '_configChanged'
+        },
+        border: {
+          type: Boolean,
+          value: false,
+          observer: '_borderChanged'
         }
       }
     });

@@ -36,6 +36,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         float:right;
       }
 
+      th{
+        background-color:#ccc
+      }
+
       span {
         @apply(--paper-font-body1);
       }
@@ -75,27 +79,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           <table id="listTable" style="display:none" border="0">
             <tr>
-               <td>id</td>
-               <td>region</td>
-               <td>machine ip</td>
-               <td>status</td>
-               <td>launch date</td>
-               <td>termination date</td>
-               <td>owner</td>
-               <td>users</td>
-               <td>simulations</td>
+               <td><h1>Machines</h1></td>
             </tr>
+
             <template is="dom-repeat" items="{{items}}">
-              <tr class="itemRow">
-                <td>{{item.id}}</td>
-                <td>{{item.region}}</td>
-                <td>{{item.machine_ip}}</td>
-                <td>{{item.status}}</td>
-                <td>{{item.launch_date}}</td>
-                <td>{{item.termination_date}}</td>
-                <td>{{item.owner.username}}</td>
-                <td>{{item.users}}</td> <!-- list -->
-                <td>{{item.simulations}}</td><!-- list -->
+              <tr>
+                <td>
+                <table>
+                  <tr>
+                     <th>id</th>
+                     <th>region</th>
+                     <th>status</th>
+                     <th>launch date</th>
+                     <th>termination date</th>
+                   <!--  <th>owner</th>
+                     <th>users</th>
+                     <th>simulations</th>
+                   -->
+                  </tr>
+                  <tr>
+                     <td>{{item.id}}</td>
+                     <td>{{item.region}}</td>
+                     <td>{{item.status}}</td>
+                     <td>{{item.launch_date}}</td>
+                     <td>{{item.termination_date}}</td>
+                    <!--  <td>{{item.owner}}</td>
+                     <td>{{item.users}}</td>
+                     <td>{{item.simulations}}</td>
+                    -->
+                  </tr>
+                </table>
+                <br><br>
+
+                <gz-launcher
+                  title="{{item.machine_ip}}"
+                  url="https://{{item.machine_ip}}"
+                  gui
+                  border
+                ></gz-launcher>
+                </td>
               </tr>
             </template>
           </table>
