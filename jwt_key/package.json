@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^2.0.0",
     "jsonwebtoken": "^5.7.0",
     "node-rsa": "^0.3.2"
   }
