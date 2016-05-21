@@ -1,15 +1,11 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 
 <dom-module id="gz-token">
   <template>
     <style>
       :host {
         display: block;
-      }
-
-      #whole {
-        border: solid 1px;
-        padding: 0.5em
       }
 
       #config {
@@ -35,31 +31,31 @@
       debounce-duration='300'>
     </iron-ajax>
 
-    <div id="whole">
-      <div id="config">
-        <div><h4>{{caption}}</h4></div>
+    <div id="config">
+      <div><h4>{{caption}}</h4></div>
 
-        <div>
-          Auth server URL:<input id=url value="{{url::input}}"></input>
-        </div>
-        <div>
-          Data (JSON):<input id=data value="{{data::input}}"></input>
-        </div>
-        <button on-tap="tapToken" id="buttonToken">token</button>
-        <div>
-          Token: {{token}}
-        </div>
+      <div>
+        Auth server URL:<input id=url value="{{url::input}}"></input>
       </div>
+      <div>
+        Data (JSON):<input id=data value="{{data::input}}"></input>
+      </div>
+      <div>
+        <button on-tap="tapToken" id="buttonToken">token</button>
+      </div>
+      <div>
+        Token: {{token}}
+      </div>
+    </div>
 
-      <div id="gui">
-        <div><h1>{{title}}</h1></div>
-        <div id="feedback" style="display:none">
-          <span id="feedback_text"/>
-        </div>
-        <div>
-          <button on-tap="tapLogin" id="buttonLogin">login</button>
-          <button on-tap="tapLogout" id="buttonLogout">logout</button>
-        </div>
+    <div id="gui">
+      <div><h1>{{title}}</h1></div>
+      <div id="feedback" style="display:none">
+        <span id="feedback_text"/>
+      </div>
+      <div>
+        <button on-tap="tapLogin" id="buttonLogin">login</button>
+        <button on-tap="tapLogout" id="buttonLogout">logout</button>
       </div>
     </div>
 
@@ -108,10 +104,9 @@
           }
           else
           {
-            this.user = res.user
             this.token = res.token
             this.$.feedback.style.color = 'blue'
-            this.$.feedback_text.textContent = "User \"" + this.user + "\" logged in!"
+            this.$.feedback_text.textContent = "User \"" + res.user + "\" logged in!"
             this.fire('login', {user: res.user})
           }
         }
@@ -136,20 +131,11 @@
       _configChanged: function(newValue, oldValue) {
         this.$.config.style.display = newValue ? '' : 'none'
       },
-      // Triggered when the "border" property is changed
-      _borderChanged: function(newValue, oldValue) {
-        this.$.whole.style.border = newValue ? 'solid 1px' : 'none'
-      },
       properties: {
         // the title above the widget
         title: {
           type: String,
           value: 'Log into existing account (gz-token)',
-          notify: true
-        },
-        user: {
-          type: String,
-          value: '',
           notify: true
         },
         // the caption under the title
@@ -178,11 +164,6 @@
           value: false,
           observer: '_configChanged'
         },
-        border: {
-          type: Boolean,
-          value: false,
-          observer: '_borderChanged'
-        }
       }
     })
 
