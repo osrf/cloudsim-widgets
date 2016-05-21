@@ -42,9 +42,11 @@ TODO: We should be able to make this less complicated (relying on CDNs?)
 
 1. Make sure our example is within this directory structure:
 
+    ~~~
     <path>/elements/gz-token/gz-token.html
     <path>/elements/gz-token/example.html
     <path>/../../bower_components/<bunch of components>
+    ~~~
 
 2. From path, run a server:
 
@@ -54,7 +56,3 @@ TODO: We should be able to make this less complicated (relying on CDNs?)
 3. On your browser, check the page:
 
     http://localhost:8080/elements/gz-token/example.html
-
-
-
-
