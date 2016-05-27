@@ -53,14 +53,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       debounce-duration="300">
     </iron-ajax>
     <div id="whole">
-      <div><h1>{{title}}</h1></div>
-      <div><h4>{{caption}}</h4></div>
 
       <div id="feedback" style="display:none">
         <span id="feedback_text"/>
       </div>
 
       <div id="config">
+        <div><h4>{{caption}}</h4></div>
         <div>
           Server URL:<input id=url value="{{url::input}}"></input>
         </div>
@@ -81,6 +80,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
       </div>
       <div id="gui">
+        <div><h1>{{title}}</h1></div>
         <button on-tap="tapGrant"  id="buttonGrant">Grant</button>
         <button on-tap="tapRevoke"  id="buttonRevoke">Revoke</button>
       </div>
