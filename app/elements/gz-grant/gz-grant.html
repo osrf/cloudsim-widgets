@@ -30,6 +30,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       #gui > input{
         float:right;
       }
+
+      #config {
+        max-width:20em
+      }
+
+      #config > div{
+        padding-top:0.5em;
+      }
+
+      #config > div > input{
+        float:right;
+      }
+
     </style>
     <iron-ajax
       id="ajax"
@@ -39,24 +52,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       headers="headers"
       debounce-duration="300">
     </iron-ajax>
+    <div id="whole">
+      <div><h1>{{title}}</h1></div>
+      <div><h4>{{caption}}</h4></div>
 
-    <div><h1>{{title}}</h1></div>
-    <div><h4>{{caption}}</h4></div>
+      <div id="feedback" style="display:none">
+        <span id="feedback_text"/>
+      </div>
 
-    <div id="feedback" style="display:none">
-      <span id="feedback_text"/>
-    </div>
-
-    <div id="gui">
-      Server URL:<input id=url value="{{url::input}}"></input><br>
-      Granter token<input id=token value="{{token::input}}"></input><br>
-      Grantee username:<input id=grantee value="{{grantee::input}}"></input><br>
-      Resource:<input id=resource value="{{resource::input}}"></input><br>
-      <input type="checkbox" id=readOnly checked="{{readOnly::change}}"></input>Read only<br>
-    </div>
-    <div>
-      <button on-tap="tapGrant"  id="buttonGrant">Grant</button>
-      <button on-tap="tapRevoke"  id="buttonRevoke">Revoke</button>
+      <div id="config">
+        <div>
+          Server URL:<input id=url value="{{url::input}}"></input>
+        </div>
+        <div>
+          Granter token<input id=token value="{{token::input}}"></input>
+        </div>
+        <div>
+          Grantee username:<input id=grantee value="{{grantee::input}}"></input>
+        </div>
+        <div>
+          Resource:<input id=resource value="{{resource::input}}"></input>
+        </div>
+        <div>
+          <input type="checkbox"
+               id=readOnly
+               checked="{{readOnly::change}}">
+          </input>Read only
+        </div>
+      </div>
+      <div id="gui">
+        <button on-tap="tapGrant"  id="buttonGrant">Grant</button>
+        <button on-tap="tapRevoke"  id="buttonRevoke">Revoke</button>
+      </div>
     </div>
   </template>
 
@@ -67,6 +94,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       Polymer({
         is: 'gz-grant',
 
+        // Triggered when the "gui" property is changed
+        _guiChanged: function(newValue, oldValue) {
+          this.$.gui.style.display = newValue ? '' : 'none'
+        },
+        // Triggered when the "config" property is changed
+        _configChanged: function(newValue, oldValue) {
+          this.$.config.style.display = newValue ? '' : 'none'
+        },
+        // Triggered when the "border" property is changed
+        _borderChanged: function(newValue, oldValue) {
+          this.$.whole.style.border = newValue ? 'solid 1px' : 'none'
+        },
+        attached: function() {
+          console.log('gz-grant widget attached!')
+        },
         tapGrant: function() {
           this.$.ajax.url = this.url + '/grant'
           const data = { granterToken: this.token,
@@ -140,11 +182,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: String,
             value: 'Bob',
 	          notify: true
-          }
-        },
+          },
 
-        ready: function() {
-          console.log('gz-grant ready')
+          gui: {
+            type: Boolean,
+            value: false,
+            observer: '_guiChanged'
+          },
+          config: {
+            type: Boolean,
+            value: false,
+            observer: '_configChanged'
+          },
+          border: {
+            type: Boolean,
+            value: false,
+            observer: '_borderChanged'
+          },
+
         }
       });
     })();
