@@ -1,6 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 
-<dom-module id="gz-auth">
+<dom-module id="gz-accounts">
   <template>
     <style>
       :host {
@@ -49,10 +50,10 @@
     'use strict';
 
     Polymer({
-      is: 'gz-auth',
+      is: 'gz-accounts',
       // Attached
       attached: function() {
-        console.log('gz-auth widget [' + this.title + '] attached!')
+        console.log('gz-accounts widget [' + this.title + '] attached!')
       },
       // Triggered when the "gui" property is changed
       _guiChanged: function(newValue, oldValue) {
@@ -243,7 +244,7 @@
         // the title above the widget
         title: {
           type: String,
-          value: 'Create / remove accounts (gz-auth)',
+          value: 'Create / remove accounts (gz-accounts)',
           notify: true
         },
         // the caption under the title

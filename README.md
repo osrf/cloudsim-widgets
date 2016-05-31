@@ -43,7 +43,7 @@ simulations with the community).
 Components can be run from the local machine, and point to different servers.
 Components live in the `app/elements` folder.
 
-#### gz-auth
+#### gz-accounts
 
 Add and remove users to the authentication server. This needs a server that
 implements the authentication (see
