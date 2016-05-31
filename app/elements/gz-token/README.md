@@ -1,9 +1,13 @@
 # Overview
 
 This widget allows the user to log into the system and get identity tokens from
-the cloudsim-auth server. These tokens are required when performing requests to
-cloudsim-portal and cloudsim-sim servers. A popup will show up to input username
-and password.
+a
+[cloudsim-auth](https://bitbucket.org/osrf/cloudsim-auth)
+server. These tokens are required when performing requests to
+[cloudsim-portal](https://bitbucket.org/osrf/cloudsim-portal)
+and
+[cloudsim-sim](https://bitbucket.org/osrf/cloudsim-sim)
+servers. A popup will show up to input username and password.
 
 Example:
 
@@ -25,7 +29,7 @@ Properties go inside the tag.
 | url | String | https://localhost:5050 | Auth server URL |
 | title | String | ... | Title to be displayed in the GUI |
 | caption | String | ... | Caption |
-| data | String | .. | JSON data to be passed into the token. |
+| data | String | ... | JSON data to be passed into the token. |
 | gui | Boolean | false | Display simple GUI. |
 | config | Boolean | false | Display configuration input fields. |
 
@@ -42,8 +46,8 @@ TODO: We should be able to make this less complicated (relying on CDNs?)
 
 1. Make sure our example is within this directory structure:
 
-        <path>/elements/gz-token/gz-token.html
-        <path>/elements/gz-token/example.html
+        <path>/gz-token.html
+        <path>/example.html
         <path>/../../bower_components/<bunch of components>
 
 2. From path, run a server:
@@ -53,4 +57,4 @@ TODO: We should be able to make this less complicated (relying on CDNs?)
 
 3. On your browser, check the page:
 
-    http://localhost:8080/elements/gz-token/example.html
+    http://localhost:8080/example.html
