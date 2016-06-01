@@ -1,13 +1,3 @@
-<!--
-@license
-Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
--->
-
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-styles/typography.html">
 
@@ -16,11 +6,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <style>
       :host {
         display: block;
-      }
-
-      #whole {
-        border: solid 1px;
-        padding: 0.5em
       }
 
       #config {
@@ -55,74 +40,71 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       debounce-duration="300">
     </iron-ajax>
 
-    <div id="whole">
-      <div id="config">
+    <div id="config">
 
-        <div><h4>{{caption}}</h4></div>
+      <div><h4>{{caption}}</h4></div>
 
-        <div>
-          Portal server URL:<input id=url value="{{url::input}}"></input>
+      <div>
+        Portal server URL:<input id=url value="{{url::input}}"></input>
+      </div>
+      <div>
+        User token:<input id=token value="{{token::input}}"></input>
+      </div>
+      <button on-tap="tapGet"  id="buttonGet">Get list of simulators</button>
+     </div> <!-- /config -->
+
+      <div id="gui">
+
+        <div><h1>{{title}}</h1></div>
+
+        <div id="feedback" style="display:none">
+          <span id="feedback_text"/>
         </div>
-        <div>
-          User token:<input id=token value="{{token::input}}"></input>
-        </div>
-        <button on-tap="tapGet"  id="buttonGet">Get list of simulators</button>
-       </div> <!-- /config -->
 
-        <div id="gui">
+        <table id="listTable" style="display:none" border="0">
+          <tr>
+             <td><h1>Machines</h1></td>
+          </tr>
 
-          <div><h1>{{title}}</h1></div>
-
-          <div id="feedback" style="display:none">
-            <span id="feedback_text"/>
-          </div>
-
-          <table id="listTable" style="display:none" border="0">
+          <template is="dom-repeat" items="{{items}}">
             <tr>
-               <td><h1>Machines</h1></td>
+              <td>
+              <table>
+                <tr>
+                   <th>id</th>
+                   <th>region</th>
+                   <th>status</th>
+                   <th>launch date</th>
+                   <th>termination date</th>
+                 <!--  <th>owner</th>
+                   <th>users</th>
+                   <th>simulations</th>
+                 -->
+                </tr>
+                <tr>
+                   <td>{{item.id}}</td>
+                   <td>{{item.region}}</td>
+                   <td>{{item.status}}</td>
+                   <td>{{item.launch_date}}</td>
+                   <td>{{item.termination_date}}</td>
+                  <!--  <td>{{item.owner}}</td>
+                   <td>{{item.users}}</td>
+                   <td>{{item.simulations}}</td>
+                  -->
+                </tr>
+              </table>
+              <br><br>
+
+              <gz-launcher
+                title="{{item.machine_ip}}"
+                url="https://{{item.machine_ip}}"
+                gui
+              ></gz-launcher>
+              </td>
             </tr>
-
-            <template is="dom-repeat" items="{{items}}">
-              <tr>
-                <td>
-                <table>
-                  <tr>
-                     <th>id</th>
-                     <th>region</th>
-                     <th>status</th>
-                     <th>launch date</th>
-                     <th>termination date</th>
-                   <!--  <th>owner</th>
-                     <th>users</th>
-                     <th>simulations</th>
-                   -->
-                  </tr>
-                  <tr>
-                     <td>{{item.id}}</td>
-                     <td>{{item.region}}</td>
-                     <td>{{item.status}}</td>
-                     <td>{{item.launch_date}}</td>
-                     <td>{{item.termination_date}}</td>
-                    <!--  <td>{{item.owner}}</td>
-                     <td>{{item.users}}</td>
-                     <td>{{item.simulations}}</td>
-                    -->
-                  </tr>
-                </table>
-                <br><br>
-
-                <gz-launcher
-                  title="{{item.machine_ip}}"
-                  url="https://{{item.machine_ip}}"
-                  gui
-                  border
-                ></gz-launcher>
-                </td>
-              </tr>
-            </template>
-          </table>
-        </div><!-- /gui -->
-      </div><!-- /whole -->
+          </template>
+        </table>
+      </div><!-- /gui -->
   </template>
 
   <script>
@@ -139,10 +121,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Triggered when the "config" property is changed
         _configChanged: function(newValue, oldValue) {
           this.$.config.style.display = newValue ? '' : 'none'
-        },
-        // Triggered when the "border" property is changed
-        _borderChanged: function(newValue, oldValue) {
-          this.$.whole.style.border = newValue ? 'solid 1px' : 'none'
         },
 
         tapGet: function() {
@@ -193,42 +171,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: Array,
             notify: true
           },
-	      title: {
-	        type: String,
-          value: 'Get list of simulator machines (gz-simlist)',
-	        notify: true
-	        },
-	      caption: {
-	        type: String,
-          value: 'This widget displays the list of simulations that a user has acccess to. It connects to the cloudsim-portal server.',
-	        notify: true
-	        },
-        url: {
-	        type: String,
-          value: 'https://localhost:4000',
-	        notify: true
-	        },
-	       token: {
-	        type: String,
-          value: 'xxxadminxxx',
-	        notify: true
-	        },
-          gui: {
-            type: Boolean,
-            value: false,
-            observer: '_guiChanged'
+          title: {
+            type: String,
+            value: 'Get list of simulator machines (gz-simlist)',
+            notify: true
+            },
+          caption: {
+            type: String,
+            value: 'This widget displays the list of simulations that a user has acccess to. It connects to the cloudsim-portal server.',
+            notify: true
+            },
+          url: {
+            type: String,
+            value: 'https://localhost:4000',
+            notify: true
+            },
+          token: {
+            type: String,
+            value: 'xxxadminxxx',
+            notify: true
+            },
+           gui: {
+              type: Boolean,
+              value: false,
+              observer: '_guiChanged'
+            },
+           config: {
+              type: Boolean,
+              value: false,
+              observer: '_configChanged'
+            }
           },
-          config: {
-            type: Boolean,
-            value: false,
-            observer: '_configChanged'
-          },
-          border: {
-            type: Boolean,
-            value: false,
-            observer: '_borderChanged'
-          }
-        },
 
         ready: function() {
           console.log('gz-simlist ready')
