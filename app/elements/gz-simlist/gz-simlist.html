@@ -111,12 +111,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </table>
                 <br><br>
 
-                <gz-launcher
+                <gz-cmd
                   title="{{item.machine_ip}}"
                   url="https://{{item.machine_ip}}"
+                  cmd="gzserver --verbose"
                   gui
                   border
-                ></gz-launcher>
+                ></gz-cmd>
                 </td>
               </tr>
             </template>

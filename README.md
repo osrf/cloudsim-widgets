@@ -49,9 +49,9 @@ Add and remove users to the authentication server. This needs a server that
 implements the authentication (see
 [`cloudsim-auth`](https://bitbucket.org/osrf/cloudsim-auth)).
 
-#### gz-launcher
+#### gz-cmd
 
-This widget allows to start and stop gzserver instances on a machine. The server
+This widget allows to run command line commands on a machine. The server
  component is [`cloudsim-sim`](https://bitbucket.org/osrf/cloudsim-sim).
 
 #### gz-simlist
