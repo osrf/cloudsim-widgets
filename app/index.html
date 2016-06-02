@@ -16,7 +16,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="generator" content="Polymer Starter Kit">
-  <title>Cloudsim Starter Kit</title>
+  <title>The Cloudsim</title>
 
   <!-- Place favicon.ico in the `app/` directory -->
 
@@ -69,30 +69,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <!-- Drawer Toolbar -->
         <paper-toolbar id="drawerToolbar">
-          <span class="menu-name">Menu</span>
+          <span class="menu-name">Competition Name</span>
         </paper-toolbar>
 
         <!-- Drawer Content -->
         <paper-menu attr-for-selected="data-route" selected="[[route]]">
-          <a data-route="portfolio" href="{{baseUrl}}portfolio">
-            <iron-icon icon="settings"></iron-icon>
-            <span>Portfolio</span>
+          <a data-route="overview" href="{{baseUrl}}overview">
+            <iron-icon icon="icons:info-outline"></iron-icon>
+            <span>Overview</span>
           </a>
 
-          <a data-route="users" href="{{baseUrl}}users">
-            <iron-icon icon="info"></iron-icon>
-            <span>Users</span>
+          <a data-route="simulations" href="{{baseUrl}}simulations">
+            <iron-icon icon="icons:cloud"></iron-icon>
+            <span>Simulations</span>
           </a>
 
-          <a data-route="contact" href="{{baseUrl}}contact">
-            <iron-icon icon="mail"></iron-icon>
-            <span>Contact</span>
-          </a>
-
-          <a data-route="home" href="{{baseUrl}}home">
-            <iron-icon icon="home"></iron-icon>
-            <span>Home</span>
-          </a>
         </paper-menu>
       </paper-scroll-header-panel>
 
@@ -105,12 +96,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <span class="space"></span>
 
           <!-- Toolbar icons -->
-          <paper-icon-button icon="refresh"></paper-icon-button>
-          <paper-icon-button icon="search"></paper-icon-button>
+          <div class="top top-container">
+            <cs-signupbutton
+              id="signupbutton"
+            ></cs-signupbutton>
+            <gz-token
+              id="loginbutton"
+              loginbutton
+              on-login="loginEvent"
+            ></gz-token>
+            <gz-token
+              id="logoutbutton"
+              logoutbutton
+              on-logout="logoutEvent"
+              style="display:none"
+            ></gz-token>
+          </div>
 
           <!-- Application name -->
           <div class="middle middle-container">
-            <div class="app-name">Cloudsim construction set</div>
+            <div class="app-name">CloudSim</div>
           </div>
 
           <!-- Application sub title -->
@@ -122,132 +127,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <!-- Main Content -->
         <div class="content">
           <iron-pages attr-for-selected="data-route" selected="{{route}}">
-            <section data-route="portfolio">
-              <paper-material elevation="1">
-                <gz-accounts
-                  gui=true
-                  config=true
-                ></gz-accounts>
-              </paper-material>
 
-              <paper-material elevation="1">
-                <gz-token
-                  gui=true
-                  config=true
-              ></gz-token>
-              </paper-material>
-
-              <paper-material elevation="1">
-                <gz-grant
-                  gui=true
-                  config=true
-                ></gz-grant>
-              </paper-material>
-
-              <paper-material elevation="1">
-                <gz-simulatorLauncher
-                  gui=true
-                  config=true
-                ></gz-simulatorLauncher>
-              </paper-material>
-              <paper-material elevation="1">
-                <gz-simlist
-                  gui=true
-                  config=true
-                ></gz-simlist>
-              </paper-material>
-
-              <paper-material elevation="1">
-                <gz-launcher
-                  gui=true
-                  config=true
-                ></gz-launcher>
-              </paper-material>
-
-
-
-              <paper-material elevation="1">
-                <my-greeting></my-greeting>
-              </paper-material>
-
-              <paper-material elevation="1">
-                <p>Looking for more Web App layouts? Check out our
-                   <a
-href="https://github.com/PolymerElements/app-layout-templates">
-                   layouts</a>
-                   collection. You can also
-                    <a
-href="http://polymerelements.github.io/app-layout-templates/">
-                   preview</a> them live.</p>
-              </paper-material>
+            <section data-route="overview">
+              Info about the competititon
             </section>
 
-            <section data-route="users">
-
-              <paper-material elevation="1">
-                <gz-accounts
-                  id="auth-1"
-                  title="aws instance"
-                  url="https://52.8.189.174:5050"
-                  gui=true
-                >
-                </gz-accounts>
-              </paper-material>
-
-              <paper-material elevation="1">
-                <h2 class="page-title">Users</h2>
-                <p>This is the users section</p>
-                <a href$="{{baseUrl}}users/Addy">Addy</a><br>
-                <a href$="{{baseUrl}}users/Rob">Rob</a><br>
-                <a href$="{{baseUrl}}users/Chuck">Chuck</a><br>
-                <a href$="{{baseUrl}}users/Sam">Sam</a>
-              </paper-material>
-
+            <section data-route="simulations">
+              List of simulations
             </section>
 
-            <section data-route="home">
-              <gz-home/>
+            <section data-route="signup">
+              <gz-accounts
+                gui
+                createaccount
+              >
+              </gz-accounts>
             </section>
 
-            <section data-route="user-info">
-              <paper-material elevation="1">
-                <h2 class="page-title">User: {{params.name}}</h2>
-                <div>This is {{params.name}}'s section</div>
-              </paper-material>
-            </section>
-
-            <section data-route="contact">
-              <paper-material elevation="1">
-                <h2 class="page-title">Contact</h2>
-                <p>This is the contact section</p>
-              </paper-material>
-            </section>
           </iron-pages>
         </div>
       </paper-scroll-header-panel>
     </paper-drawer-panel>
-
-    <paper-toast id="toast">
-      <span class="toast-hide-button" role="button" tabindex="0" onclick="app.$.toast.hide()">Ok</span>
-    </paper-toast>
-
-    <!-- Uncomment next block to enable Service Worker support (1/2) -->
-    <!--
-    <paper-toast id="caching-complete"
-                 duration="6000"
-                 text="Caching complete! This app will work offline.">
-    </paper-toast>
-
-    <platinum-sw-register auto-register
-                          clients-claim
-                          skip-waiting
-                          base-uri="bower_components/platinum-sw/bootstrap"
-                          on-service-worker-installed="displayInstalledToast">
-      <platinum-sw-cache default-cache-strategy="fastest"
-                         cache-config-file="cache-config.json">
-      </platinum-sw-cache>
-    </platinum-sw-register>
-    -->
 
   </template>
 

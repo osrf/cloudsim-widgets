@@ -4,10 +4,6 @@
 <dom-module id="gz-token">
   <template>
     <style>
-      :host {
-        display: block;
-      }
-
       #config {
         max-width:20em
       }
@@ -19,7 +15,6 @@
       #config > div > input{
         float:right;
       }
-
     </style>
     <iron-ajax
       id='ajax'
@@ -32,7 +27,12 @@
     </iron-ajax>
 
     <div id="config">
+      <div><h1>{{title}}</h1></div>
       <div><h4>{{caption}}</h4></div>
+
+      <div id="feedback" style="display:none">
+        <span id="feedback_text"/>
+      </div>
 
       <div>
         Auth server URL:<input id=url value="{{url::input}}"></input>
@@ -48,16 +48,17 @@
       </div>
     </div>
 
-    <div id="gui">
-      <div><h1>{{title}}</h1></div>
-      <div id="feedback" style="display:none">
-        <span id="feedback_text"/>
-      </div>
-      <div>
-        <button on-tap="tapLogin" id="buttonLogin">login</button>
-        <button on-tap="tapLogout" id="buttonLogout">logout</button>
-      </div>
-    </div>
+    <!-- LOGIN -->
+    <paper-button raised on-tap="tapLogin" id="loginbutton">
+      <iron-icon icon="social:person"></iron-icon>
+      Log in
+    </paper-button>
+
+    <!-- LOGOUT -->
+    <paper-button raised on-tap="tapLogout" id="logoutbutton">
+      <iron-icon icon="icons:exit-to-app"></iron-icon>
+      Log out
+    </paper-button>
 
   </template>
 
@@ -82,7 +83,6 @@
         this.$.ajax.url = this.url + '/logout'
         this.$.ajax.generateRequest()
       },
-
       tapToken: function() {
         this.state = 'Getting token'
         this.$.ajax.url = this.url + '/token'
@@ -112,10 +112,7 @@
         }
 
         // Fill state
-        console.log('hresponse, req: ' + request )
         console.log(request.detail.response)
-        //  this.token = JSON.stringify(res)
-        console.log(this.token)
       },
       herror: function(err) {
         this.fire('logout')
@@ -123,13 +120,17 @@
       attached: function() {
         console.log('gz-token widget attached!')
       },
-      // Triggered when the "gui" property is changed
-      _guiChanged: function(newValue, oldValue) {
-        this.$.gui.style.display = newValue ? '' : 'none'
-      },
       // Triggered when the "config" property is changed
       _configChanged: function(newValue, oldValue) {
         this.$.config.style.display = newValue ? '' : 'none'
+      },
+      // Triggered when the "loginbutton" property is changed
+      _loginbuttonChanged: function(newValue, oldValue) {
+        this.$.loginbutton.style.display = newValue ? '' : 'none'
+      },
+      // Triggered when the "logoutbutton" property is changed
+      _logoutbuttonChanged: function(newValue, oldValue) {
+        this.$.logoutbutton.style.display = newValue ? '' : 'none'
       },
       properties: {
         // the title above the widget
@@ -154,15 +155,20 @@
           value: 'https://localhost:5050',
           notify: true
         },
-        gui: {
-          type: Boolean,
-          value: false,
-          observer: '_guiChanged'
-        },
         config: {
           type: Boolean,
           value: false,
           observer: '_configChanged'
+        },
+        loginbutton: {
+          type: Boolean,
+          value: false,
+          observer: '_loginbuttonChanged'
+        },
+        logoutbutton: {
+          type: Boolean,
+          value: false,
+          observer: '_logoutbuttonChanged'
         },
       }
     })
