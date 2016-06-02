@@ -93,34 +93,16 @@
                   <table>
                     <tr>
                        <th>id</th>
-                       <th>region</th>
                        <th>status</th>
-                       <th>launch date</th>
-                       <th>termination date</th>
-                     <!--  <th>owner</th>
-                       <th>users</th>
-                       <th>simulations</th>
-                     -->
+                       <th></th>
                     </tr>
                     <tr>
                        <td>{{item.id}}</td>
-                       <td>{{item.region}}</td>
                        <td>{{item.status}}</td>
-                       <td>{{item.launch_date}}</td>
-                       <td>{{item.termination_date}}</td>
-                      <!--  <td>{{item.owner}}</td>
-                       <td>{{item.users}}</td>
-                       <td>{{item.simulations}}</td>
-                      -->
+                       <td><button on-tap="tapRemove"  id="buttonRemove">Remove from queue</button></td>
                     </tr>
                   </table>
                   <br><br>
-
-                  <gz-launcher
-                    title="{{item.machine_ip}}"
-                    url="https://{{item.machine_ip}}"
-                    gui
-                  ></gz-launcher>
                   </td>
                 </tr>
               </template>
@@ -152,7 +134,7 @@
           this.$.feedback.style.color = 'blue'
           this.$.feedback_text.textContent = "Asking the server."
 
-          this.$.ajax.url = this.url + '/simulators'
+          this.$.ajax.url = this.url + '/simulations'
           const data = { token: this.token}
           this.$.ajax.params = data;
           this.$.ajax.body = {token:token}
@@ -168,17 +150,17 @@
           if (!res)
           {
             this.$.feedback.style.color = 'red'
-            this.$.feedback_text.textContent = "Failed to retrieve list of simulators."
+            this.$.feedback_text.textContent = "Failed to retrieve list of simulations."
           }
           else if (res.length == 0)
           {
             this.$.feedback.style.color = 'blue'
-            this.$.feedback_text.textContent = "There are no simulators for this user."
+            this.$.feedback_text.textContent = "There are no simulations for this user."
           }
           else
           {
             this.$.feedback.style.color = 'blue'
-            this.$.feedback_text.textContent = "See list of simulators below."
+            this.$.feedback_text.textContent = "See list of simulations below."
             this.$.listTable.style.display = ''
           }
         },
