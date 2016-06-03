@@ -54,10 +54,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </iron-ajax>
     <div id="whole">
 
-      <div id="feedback" style="display:none">
-        <span id="feedback_text"/>
-      </div>
-
       <div id="config">
         <div><h4>{{caption}}</h4></div>
         <div>
@@ -67,22 +63,30 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           Granter token<input id=token value="{{token::input}}"></input>
         </div>
         <div>
-          Grantee username:<input id=grantee value="{{grantee::input}}"></input>
+          Grantee username:<input id=grantee value="{{grantee::input}}">
+                           </input>
         </div>
         <div>
           Resource:<input id=resource value="{{resource::input}}"></input>
         </div>
         <div>
-          <input type="checkbox"
-               id=readOnly
-               checked="{{readOnly::change}}">
+          <input
+            type="checkbox"
+            id=readOnly
+            checked="{{readOnly::change}}">
           </input>Read only
         </div>
       </div>
       <div id="gui">
         <div><h1>{{title}}</h1></div>
-        <button on-tap="tapGrant"  id="buttonGrant">Grant</button>
-        <button on-tap="tapRevoke"  id="buttonRevoke">Revoke</button>
+
+        <div id="feedback" style="display:none">
+          <span id="feedback_text"/>
+        </div>
+        <div>
+          <button on-tap="tapGrant"  id="buttonGrant">Grant</button>
+          <button on-tap="tapRevoke"  id="buttonRevoke">Revoke</button>
+        </div>
       </div>
     </div>
   </template>
@@ -155,7 +159,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 	        },
           caption: {
 	          type: String,
-            value: 'Grant / revoke permission to read / write to a resouce. The grantee must have at least the target permission.',
+            value: 'Grant / revoke permission to read / write to a resouce.\
+ The grantee must have at least the target permission.',
 	          notify: true
 	        },
           url: {
