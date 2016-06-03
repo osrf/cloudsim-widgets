@@ -92,7 +92,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <!-- Main Toolbar -->
 
         <div>
-          <cs-toptoolbar>
+          <cs-toptoolbar id="toptoolbar"></cs-toptoolbar>
         </div>
 
         <!-- Main Content -->
@@ -133,11 +133,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </section>
 
             <section data-route="signup">
-              <gz-accounts
-                gui
-                createaccount
-              >
-              </gz-accounts>
+              <cs-signuppage id="signuppage"></cs-signuppage>
             </section>
 
           </iron-pages>
