@@ -48,6 +48,11 @@
       </div>
     </div>
 
+    <!-- USERNAME -->
+    <paper-button flat on-tap="tapUsername" id="usernamelabel">
+      {{username}}
+    </paper-button>
+
     <!-- LOGIN -->
     <paper-button raised on-tap="tapLogin" id="loginbutton">
       <iron-icon icon="social:person"></iron-icon>
@@ -83,6 +88,12 @@
         this.$.ajax.url = this.url + '/logout'
         this.$.ajax.generateRequest()
       },
+
+      tapUsername: function() {
+        this.state = ''
+        this.fire('userprofile', {user: this.username})
+      },
+
       tapToken: function() {
         this.state = 'Getting token'
         this.$.ajax.url = this.url + '/token'
@@ -105,9 +116,13 @@
           else
           {
             this.token = res.token
+console.log("B    " + this.username)
+            this.set("username", res.user)
+console.log("A    " + this.username)
+
             this.$.feedback.style.color = 'blue'
-            this.$.feedback_text.textContent = "User \"" + res.user + "\" logged in!"
-            this.fire('login', {user: res.user})
+            this.$.feedback_text.textContent = "User \"" + this.username + "\" logged in!"
+            this.fire('login', {user: this.username})
           }
         }
 
@@ -131,6 +146,10 @@
       // Triggered when the "logoutbutton" property is changed
       _logoutbuttonChanged: function(newValue, oldValue) {
         this.$.logoutbutton.style.display = newValue ? '' : 'none'
+      },
+      // Triggered when the "usernamelabel" property is changed
+      _usernamelabelChanged: function(newValue, oldValue) {
+        this.$.usernamelabel.style.display = newValue ? '' : 'none'
       },
       properties: {
         // the title above the widget
@@ -170,6 +189,16 @@
           value: false,
           observer: '_logoutbuttonChanged'
         },
+        usernamelabel: {
+          type: Boolean,
+          value: false,
+          observer: '_usernamelabelChanged'
+        },
+        username: {
+          type: String,
+          value: 'placeholder',
+          notify: true
+        }
       }
     })
 
