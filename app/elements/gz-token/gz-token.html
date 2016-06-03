@@ -48,23 +48,6 @@
       </div>
     </div>
 
-    <!-- USERNAME -->
-    <paper-button flat on-tap="tapUsername" id="usernamelabel">
-      {{username}}
-    </paper-button>
-
-    <!-- LOGIN -->
-    <paper-button raised on-tap="tapLogin" id="loginbutton">
-      <iron-icon icon="social:person"></iron-icon>
-      Log in
-    </paper-button>
-
-    <!-- LOGOUT -->
-    <paper-button raised on-tap="tapLogout" id="logoutbutton">
-      <iron-icon icon="icons:exit-to-app"></iron-icon>
-      Log out
-    </paper-button>
-
   </template>
 
   <script>
@@ -116,10 +99,7 @@
           else
           {
             this.token = res.token
-console.log("B    " + this.username)
             this.set("username", res.user)
-console.log("A    " + this.username)
-
             this.$.feedback.style.color = 'blue'
             this.$.feedback_text.textContent = "User \"" + this.username + "\" logged in!"
             this.fire('login', {user: this.username})
@@ -178,21 +158,6 @@ console.log("A    " + this.username)
           type: Boolean,
           value: false,
           observer: '_configChanged'
-        },
-        loginbutton: {
-          type: Boolean,
-          value: false,
-          observer: '_loginbuttonChanged'
-        },
-        logoutbutton: {
-          type: Boolean,
-          value: false,
-          observer: '_logoutbuttonChanged'
-        },
-        usernamelabel: {
-          type: Boolean,
-          value: false,
-          observer: '_usernamelabelChanged'
         },
         username: {
           type: String,
