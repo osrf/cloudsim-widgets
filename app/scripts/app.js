@@ -46,9 +46,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   // The appName is moved to top and shrunk on condensing. The bottom sub title
   // is shrunk to nothing on condensing.
   window.addEventListener('paper-header-transform', function(e) {
-    var appName = Polymer.dom(document).querySelector('#mainToolbar .app-name');
-    var middleContainer = Polymer.dom(document).querySelector('#mainToolbar .middle-container');
-    var bottomContainer = Polymer.dom(document).querySelector('#mainToolbar .bottom-container');
+    var appName = Polymer.dom(document).querySelector('#toptoolbar').querySelector('#mainToolbar .app-name');
+    var middleContainer = Polymer.dom(document).querySelector('#toptoolbar').querySelector('#mainToolbar .middle-container');
+    var bottomContainer = Polymer.dom(document).querySelector('#toptoolbar').querySelector('#mainToolbar .bottom-container');
     var detail = e.detail;
     var heightDiff = detail.height - detail.condensedHeight;
     var yRatio = Math.min(1, detail.y / heightDiff);
@@ -67,6 +67,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Scale middleContainer appName
     Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', appName);
+  });
+
+  window.addEventListener('login', function() {
+    // Open simulator list on login
+    var dashboard = Polymer.dom(document).querySelector('#dashboard');
+
+  });
+
+  window.addEventListener('register', function() {
+    // Login when registered
+    var token = Polymer.dom(document).querySelector('#toptoolbar').querySelector('#token');
+    token.tapLogin()
   });
 
   // Scroll page to top and expand header

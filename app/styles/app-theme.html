@@ -36,17 +36,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     --accent-color: #ff4081;
     --light-accent-color: #ff80ab;
     --dark-accent-color: #f50057;
-
-    /* Components */
-
-    /* paper-drawer-panel */
-    --drawer-menu-color: #ffffff;
-    --drawer-border-color: 1px solid #ccc;
-    --drawer-toolbar-border-color: 1px solid rgba(0, 0, 0, 0.22);
-
-    /* paper-menu */
-    --paper-menu-background-color: #fff;
-    --menu-link-color: #111111;
   }
 
   /* General styles */
@@ -60,51 +49,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     @apply(--layout-flex);
   }
 
-  #drawerToolbar {
-    color: var(--secondary-text-color);
-    background-color: var(--drawer-menu-color);
-    border-bottom: var(--drawer-toolbar-border-color);
-  }
-
-  #drawerToolbar .menu-name {
-    @apply(--paper-font-title);
-  }
-
   paper-scroll-header-panel {
     height: 100%;
   }
-
-  paper-menu {
-    --paper-menu-selected-item: {
-      color: var(--primary-color);
-    }
-
-    --paper-menu-focused-item-after: {
-      background: var(--primary-color);
-    }
-  }
-
-  paper-menu iron-icon {
-    margin-right: 33px;
-    opacity: 0.54;
-  }
-
-  paper-menu a {
-    @apply(--layout-horizontal);
-    @apply(--layout-center);
-
-    text-decoration: none;
-    color: var(--menu-link-color);
-    font-family: 'Roboto', 'Noto', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 24px;
-    min-height: 48px;
-    padding: 0 16px;
-  }
-
 
   /* Height of the scroll area */
   .content {
@@ -135,28 +82,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   /* Breakpoints */
 
-  /* Small */
-  @media (max-width: 600px) {
-
-    #drawer .paper-toolbar {
-      margin-left: 16px;
-    }
-
-    paper-material {
-      --menu-container-display: none;
-      width: calc(97.33% - 32px);
-      padding-left: 16px;
-      padding-right: 16px;
-    }
-
-  }
-
   /* Tablet+ */
   @media (min-width: 601px) {
-
-    #drawer.paper-drawer-panel > [drawer] {
-      border-right: 1px solid rgba(0, 0, 0, 0.14);
-    }
 
     iron-pages {
       padding: 48px 62px;

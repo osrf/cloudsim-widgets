@@ -112,7 +112,6 @@
             self.$.feedback.style.color = 'blue'
             self.$.feedback_text.textContent = msg
             self.fire('register', {success: true, user: _user, msg: msg})
-            close() // div.style.display = 'none';
           }
           else
           {
@@ -143,7 +142,6 @@
             self.$.feedback.style.color = 'blue'
             self.$.feedback_text.textContent = 'User "' + _user + '" unregistered successfully'
             self.fire('unregister', {success: true, user: _user, msg: msg})
-            close()
           }
           else
           {
