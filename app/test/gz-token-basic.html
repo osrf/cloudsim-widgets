@@ -12,37 +12,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <html>
 <head>
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-  <title>gz-launcher</title>
+  <title>gz-token-basic</title>
 
-  <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
   <script src="../bower_components/web-component-tester/browser.js"></script>
 
-  <!-- Step 1: import the element to test -->
-  <link rel="import" href="../elements/gz-launcher/gz-launcher.html">
+  <!-- Import the element to test -->
+  <link rel="import" href="../elements/gz-token/gz-token.html">
 
 </head>
 <body>
 
-<test-fixture id="basic">
-  <template>
-    <gz-launcher></gz-launcher>
-  </template>
-</test-fixture>
+  <test-fixture id="basic">
+    <template>
+       <gz-token></gz-token>
+    </template>
+  </test-fixture>
 
-<script>
-  suite('gz-launcher tests', function() {
-    var element;
-
-    setup(function() {
-      element = fixture('basic');
+  <script>
+    suite('gz-token tests', function() {
+      var list, listItems;
+      setup(function() {
+        token = fixture('basic');
+      });
+      test('Login', function() {
+        assert.equal(token.url, "https://localhost:5050");
+        assert.equal(token.username, "placeholder");
+      });
     });
-
-    test('', function() {
-
-    });
-
-  });
-</script>
+  </script>
 
 </body>
 </html>

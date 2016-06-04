@@ -30,19 +30,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </test-fixture>
 
   <script>
-
     suite('my-greeting tests', function() {
       var greeting, header;
-
       setup(function() {
         greeting = fixture('basic');
       });
-
       test('Welcome!', function() {
-        header = greeting.$$('h2');
+        header = greeting.$$('h1');
         assert.equal(header.textContent, 'Welcome!');
       });
-
     });
   </script>
 
