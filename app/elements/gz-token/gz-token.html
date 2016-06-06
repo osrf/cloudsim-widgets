@@ -105,9 +105,10 @@
           else
           {
             this.token = res.token
+            this.set("username", res.user)
             this.$.feedback.style.color = 'blue'
-            this.$.feedback_text.textContent = "User \"" + res.user + "\" logged in!"
-            this.fire('login', {user: res.user})
+            this.$.feedback_text.textContent = "User \"" + this.username + "\" logged in!"
+            this.fire('login', {user: this.username})
           }
         }
 
@@ -164,6 +165,11 @@
           value: false,
           observer: '_configChanged'
         },
+        username: {
+          type: String,
+          value: 'placeholder',
+          notify: true
+        }
       }
     })
 

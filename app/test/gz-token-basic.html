@@ -12,37 +12,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <html>
 <head>
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-  <title>my-greeting-basic</title>
+  <title>gz-token-basic</title>
 
   <script src="../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
   <script src="../bower_components/web-component-tester/browser.js"></script>
 
   <!-- Import the element to test -->
-  <link rel="import" href="../elements/my-greeting/my-greeting.html">
+  <link rel="import" href="../elements/gz-token/gz-token.html">
 
 </head>
 <body>
 
   <test-fixture id="basic">
     <template>
-      <my-greeting></my-greeting>
+       <gz-token></gz-token>
     </template>
   </test-fixture>
 
   <script>
-
-    suite('my-greeting tests', function() {
-      var greeting, header;
-
+    suite('gz-token tests', function() {
+      var list, listItems;
       setup(function() {
-        greeting = fixture('basic');
+        token = fixture('basic');
       });
-
-      test('Welcome!', function() {
-        header = greeting.$$('h1');
-        assert.equal(header.textContent, 'Welcome!');
+      test('Login', function() {
+        assert.equal(token.url, "https://localhost:5050");
+        assert.equal(token.username, "placeholder");
       });
-
     });
   </script>
 
