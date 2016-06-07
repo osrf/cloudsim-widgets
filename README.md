@@ -1,7 +1,8 @@
 [ ![Codeship Status for osrf/cloudsim-widgets](https://codeship.com/projects/17ac82b0-0e62-0134-df85-7ab2ad815cc6/status?branch=default)](https://codeship.com/projects/156369)
 
 
-![](https://cloud.githubusercontent.com/assets/110953/7877439/6a69d03e-0590-11e5-9fac-c614246606de.png)
+![](cloudsim.png)
+
 ## Cloudsim construction set
 
 This project is based on the Polymer Starter Kit.
