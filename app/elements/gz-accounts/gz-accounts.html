@@ -251,6 +251,10 @@
                   cb(null, r)
               }
             }
+            else
+            {
+              if(xmlhttp.status == 404) cb("404");
+            }
         }
         const completeUrl = this.url + route
         xmlhttp.open("POST", completeUrl, true);

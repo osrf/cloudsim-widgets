@@ -25,6 +25,9 @@ var packageJson = require('./package.json');
 var crypto = require('crypto');
 var ensureFiles = require('./tasks/ensure-files.js');
 
+const dotenv = require('dotenv');
+dotenv.config()
+
 // var ghPages = require('gulp-gh-pages');
 
 var AUTOPREFIXER_BROWSERS = [
@@ -234,7 +237,22 @@ gulp.task('serve', ['styles', 'elements'], function() {
     https: true,
     server: {
       baseDir: ['.tmp', 'app'],
-      middleware: [historyApiFallback()]
+      middleware: [historyApiFallback(), function(req, res, next){
+        if (req.originalUrl === "/scripts/config.js") {
+          // Read from .env
+          const resp = `
+
+            function getConfig() {
+                'use strict'
+                 return {auth: "${process.env.CLOUDSIM_AUTH_URL}" }
+            }
+
+          `
+          console.log('serving config: ' + resp)
+          res.end(resp)
+        }
+        next();
+      }]
     }
   });
 

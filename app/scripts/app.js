@@ -39,6 +39,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   // See https://github.com/Polymer/polymer/issues/1381
   window.addEventListener('WebComponentsReady', function() {
     // imports are loaded and elements have been registered
+    var toolbar = Polymer.dom(document).querySelector('#toptoolbar');
+    var signuppage = Polymer.dom(document).querySelector('#signuppage');
+    toolbar.authurl = getConfig().auth;
+    signuppage.url = getConfig().auth;
   });
 
   // Main area's paper-scroll-header-panel custom condensing transformation of

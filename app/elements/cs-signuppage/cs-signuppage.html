@@ -6,6 +6,7 @@
 
     <gz-accounts
       id="accounts"
+      url={{url}}
       on-register="onRegister"
     ></gz-accounts>
 
@@ -81,6 +82,14 @@
         this.$.feedback.style.color = success ? 'blue' : 'red'
         this.$.feedback_text.textContent = msg
       },
+
+      properties: {
+        url: {
+          type: String,
+          value: 'https://localhost:5050',
+          notify: true
+        },
+      }
     });
   })();
   </script>

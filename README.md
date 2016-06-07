@@ -73,6 +73,14 @@ tokens are required when performing requests to
 
 ### Usage
 
+Configure server URL:
+
+1. Create a`.env` file
+
+1. Add urls to it, for example:
+
+    CLOUDSIM_AUTH_URL="https://<ip>:<port>"
+
 To start:
 
 ```sh
