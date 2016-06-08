@@ -243,8 +243,12 @@ gulp.task('serve', ['styles', 'elements'], function() {
           const resp = `
 
             function getConfig() {
-                'use strict'
-                 return {auth: "${process.env.CLOUDSIM_AUTH_URL}" }
+              'use strict'
+               return {
+                 auth: "${process.env.CLOUDSIM_AUTH_URL}",
+                 portal: "${process.env.CLOUDSIM_PORTAL_URL}",
+                 sim: "${process.env.CLOUDSIM_SIM_URL}"
+               }
             }
 
           `

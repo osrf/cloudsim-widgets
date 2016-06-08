@@ -17,6 +17,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       :host {
         display: block;
       }
+
       span,
       input {
         @apply(--paper-font-body2);
@@ -32,8 +33,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script>
     (function() {
       'use strict';
+
       Polymer({
         is: 'my-greeting',
+
         properties: {
           greeting: {
             type: String,

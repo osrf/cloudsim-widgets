@@ -99,7 +99,7 @@
           else
           {
             this.token = res.token
-            this.set("username", res.user)
+            this.set("username", res.username)
             this.$.feedback.style.color = 'blue'
             this.$.feedback_text.textContent = "User \"" + this.username + "\" logged in!"
             this.fire('login', {user: this.username})

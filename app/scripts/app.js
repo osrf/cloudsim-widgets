@@ -40,9 +40,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   window.addEventListener('WebComponentsReady', function() {
     // imports are loaded and elements have been registered
     var toolbar = Polymer.dom(document).querySelector('#toptoolbar');
-    var signuppage = Polymer.dom(document).querySelector('#signuppage');
     toolbar.authurl = getConfig().auth;
+
+    var signuppage = Polymer.dom(document).querySelector('#signuppage');
     signuppage.url = getConfig().auth;
+
+    var accounts = Polymer.dom(document).querySelector('#portfolio-accounts');
+    accounts.url = getConfig().auth;
+
+    var token = Polymer.dom(document).querySelector('#portfolio-token');
+    token.url = getConfig().auth;
+
+    var grant = Polymer.dom(document).querySelector('#portfolio-grant');
+    grant.url = getConfig().sim;
+
+    var simulatorLauncher = Polymer.dom(document).querySelector('#portfolio-simulatorLauncher');
+    simulatorLauncher.url = getConfig().portal;
+
+    var simlist = Polymer.dom(document).querySelector('#portfolio-simlist');
+    simlist.url = getConfig().portal;
+
+    var launcher = Polymer.dom(document).querySelector('#portfolio-launcher');
+    launcher.url = getConfig().sim;
+
+    var simulationQueue = Polymer.dom(document).querySelector('#portfolio-simulationQueue');
+    simulationQueue.url = getConfig().sim;
   });
 
   // Main area's paper-scroll-header-panel custom condensing transformation of
