@@ -125,6 +125,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <section data-route="portfolio">
               <paper-material elevation="1">
                 <gz-accounts
+                  id="portfolio-accounts"
                   gui=true
                   config=true
                 ></gz-accounts>
@@ -132,6 +133,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
               <paper-material elevation="1">
                 <gz-token
+                  id="portfolio-token"
                   gui=true
                   config=true
               ></gz-token>
@@ -139,6 +141,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
               <paper-material elevation="1">
                 <gz-grant
+                  id="portfolio-grant"
                   gui=true
                   config=true
                 ></gz-grant>
@@ -146,12 +149,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
               <paper-material elevation="1">
                 <gz-simulatorLauncher
+                  id="portfolio-simulatorLauncher"
                   gui=true
                   config=true
                 ></gz-simulatorLauncher>
               </paper-material>
               <paper-material elevation="1">
                 <gz-simlist
+                  id="portfolio-simlist"
                   gui=true
                   config=true
                 ></gz-simlist>
@@ -159,6 +164,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
               <paper-material elevation="1">
                 <gz-launcher
+                  id="portfolio-launcher"
                   gui=true
                   config=true
                 ></gz-launcher>
@@ -166,6 +172,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
               <paper-material elevation="1">
                 <gz-simulationQueue
+                  id="portfolio-simulationQueue"
                   gui=true
                   config=true
                 ></gz-simulationQueue>
@@ -259,6 +266,10 @@ href="http://polymerelements.github.io/app-layout-templates/">
   </template>
 
   <!-- build:js scripts/app.js -->
+
+  <!-- this is generated for us in the gulp file -->
+  <script src="scripts/config.js"></script>
+
   <script src="scripts/app.js"></script>
   <!-- endbuild-->
 <script id="__bs_script__">//<![CDATA[

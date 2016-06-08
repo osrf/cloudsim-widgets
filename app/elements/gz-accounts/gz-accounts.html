@@ -92,6 +92,67 @@
         this.$.feedback.style.display = 'none'
         this.$.ruser.focus()
       },
+      registerUser: function(_user, _pass) {
+        var self = this;
+        var x = this.post("/register", {"user":_user, "password": _pass}, function(err, res){
+          console.log(res);
+          if(err) {
+            let msg = "Error connecting to server: " + err
+            self.$.feedback.style.display = ''
+            self.$.feedback.style.color = 'red'
+            self.$.feedback_text.textContent = msg
+            self.fire('register', {success: false, user: _user, msg: msg})
+            return;
+          }
+          var j = JSON.parse(res)
+          if(j.success)
+          {
+            let msg = 'User "' + _user + '" registered successfully';
+            self.$.feedback.style.display = ''
+            self.$.feedback.style.color = 'blue'
+            self.$.feedback_text.textContent = msg
+            self.fire('register', {success: true, user: _user, msg: msg})
+          }
+          else
+          {
+            let msg = 'Error: ' + j.error
+            self.$.feedback.style.display = ''
+            self.$.feedback.style.color = 'red'
+            self.$.feedback_text.textContent = msg
+            self.fire('register', {success: false, user: _user, msg: msg})
+          }
+        });
+      },
+      unregisterUser: function(_user, _pass) {
+        var self = this;
+        var x = this.post("/unregister", {"user":_user, "password": _pass}, function(err, res){
+          if(err) {
+            let msg = "Error connecting to server: " + err
+            self.$.feedback.style.display = ''
+            self.$.feedback.style.color = 'red'
+            self.$.feedback_text.textContent = msg
+            self.fire('unregister', {success: false, user: _user, msg: msg})
+            return;
+          }
+          var j = JSON.parse(res)
+          if(j.success)
+          {
+            let msg = 'User "' + _user + '" unregistered successfully'
+            self.$.feedback.style.display = ''
+            self.$.feedback.style.color = 'blue'
+            self.$.feedback_text.textContent = 'User "' + _user + '" unregistered successfully'
+            self.fire('unregister', {success: true, user: _user, msg: msg})
+          }
+          else
+          {
+            let msg = j.error
+            self.$.feedback.style.display = ''
+            self.$.feedback.style.color = 'red'
+            self.$.feedback_text.textContent = msg
+            self.fire('unregister', {success: false, user: _user, msg: msg})
+          }
+        });
+      },
       // Register user
       tapRegisterUser: function() {
         // username can't be empty
@@ -128,29 +189,7 @@
           return;
         }
 
-        var x = this.post("/register", {"user":user, "password": pass}, function(err, res){
-          console.log(res);
-          if(err) {
-            self.$.feedback.style.display = ''
-            self.$.feedback.style.color = 'red'
-            self.$.feedback_text.textContent = "Error connecting to server: " + err
-            return;
-          }
-          var j = JSON.parse(res)
-          if(j.success)
-          {
-            self.$.feedback.style.display = ''
-            self.$.feedback.style.color = 'blue'
-            self.$.feedback_text.textContent = 'User "' + user + '" registered successfully';
-            close() // div.style.display = 'none';
-          }
-          else
-          {
-            self.$.feedback.style.display = ''
-            self.$.feedback.style.color = 'red'
-            self.$.feedback_text.textContent = 'Error: ' + j.error
-          }
-        });
+        this.registerUser(user, pass)
       },
       // Unregister user
       tapUnregisterUser: function() {
@@ -177,29 +216,8 @@
           self.$.feedback_text.textContent = "Password is empty"
           return;
         }
-        // user already exists
-        var x = this.post("/unregister", {"user":user, "password": pass}, function(err, res){
-          if(err) {
-            self.$.feedback.style.display = ''
-            self.$.feedback.style.color = 'red'
-            self.$.feedback_text.textContent = "Error connecting to server: " + err
-            return;
-          }
-          var j = JSON.parse(res)
-          if(j.success)
-          {
-            self.$.feedback.style.display = ''
-            self.$.feedback.style.color = 'blue'
-            self.$.feedback_text.textContent = 'User "' + user + '" unregistered successfully'
-            close()
-          }
-          else
-          {
-            self.$.feedback.style.display = ''
-            self.$.feedback.style.color = 'red'
-            self.$.feedback_text.textContent = j.error
-          }
-        });
+
+        this.unregisterUser(user, pass);
       },
 
       // Helper function for posting http requests
@@ -232,6 +250,10 @@
                   var r = xmlhttp.responseText;
                   cb(null, r)
               }
+            }
+            else
+            {
+              if(xmlhttp.status == 404) cb("404");
             }
         }
         const completeUrl = this.url + route
