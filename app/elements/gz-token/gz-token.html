@@ -117,6 +117,7 @@
         this.fire('logout')
       },
       attached: function() {
+        window.gztoken = this
         console.log('gz-token widget attached!')
       },
       // Triggered when the "config" property is changed

@@ -99,8 +99,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   });
 
   window.addEventListener('login', function() {
-    // Open simulator list on login
-    var dashboard = Polymer.dom(document).querySelector('#dashboard');
+    // Pass token to dashboard (TODO: this can probably be done more automatically)
+    var dashboard = Polymer.dom(document).querySelector('#dashboard').token = window.gztoken.token;
 
   });
 

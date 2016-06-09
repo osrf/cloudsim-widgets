@@ -11,7 +11,6 @@
      url={{portalurl}}
      token={{token}}
      on-launched="onLaunched"
-config
    ></gz-simulatorLauncher>
 
     <!-- Look into doing this with a custom validator or paper-input-error -->
@@ -19,9 +18,9 @@ config
       <span id="feedback_text"/>
     </div>
 
-    <paper-input label="Region" id="region"></paper-input>
-    <paper-input label="Machine image" id="machineImage"></paper-input>
-    <paper-input label="Hardware" id="hardware"></paper-input>
+    <paper-input label="Region" id="region" value="us-west-1"></paper-input>
+    <paper-input label="Machine image" id="machineImage" value="ami-610c7801"></paper-input>
+    <paper-input label="Hardware" id="hardware" value="g2.2xlarge"></paper-input>
 
     <paper-button raised id="launchbutton" on-tap="tapLaunch">
       <iron-icon icon="hardware:computer"></iron-icon>
@@ -65,11 +64,21 @@ config
       },
       onLaunched: function(e) {
         let success = e.detail.success
-        let msg = e.detail.msg
+        let msg = e.detail.message
+
+        if (!success)
+        {
+          this.$.feedback.style.display = ''
+          this.$.feedback.style.color = 'red'
+          this.$.feedback_text.textContent = msg
+          return;
+        }
+
+        const machineInfo = e.detail.machineInfo;
 
         this.$.feedback.style.display = ''
-        this.$.feedback.style.color = success ? 'blue' : 'red'
-        this.$.feedback_text.textContent = msg
+        this.$.feedback.style.color = 'blue'
+        this.$.feedback_text.textContent = JSON.stringify(machineInfo)
       },
       properties: {
         portalurl: {
