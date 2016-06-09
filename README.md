@@ -99,6 +99,22 @@ This runs the unit tests defined in the `app/test` directory through [web-compon
 
 To run tests Java 7 or higher is required. To update Java go to http://www.oracle.com/technetwork/java/javase/downloads/index.html and download ***JDK*** and install it.
 
+
+##### Run individual tests
+
+1. Install polymer-cli
+
+    sudo npm install -g polymer-cli
+
+1. Start serving (it can be from the root dir `cloudsim-widgets`)
+
+    polymer serve
+
+1. Open the browser to trigger a test case, for example:
+
+    http://localhost:8080/app/test/gz-token-basic.html
+
+
 #### Build & Vulcanize
 
 ```sh
