@@ -19,7 +19,7 @@
     <paper-input label="Password" id="pass1" type="password"></paper-input>
     <paper-input label="Confirm password" id="pass2" type="password"></paper-input>
 
-    <paper-button raised on-click="tapRegisterUser">
+    <paper-button raised on-tap="tapRegisterUser">
       Create account
     </paper-button>
 
@@ -40,12 +40,6 @@
         // username can't be empty
         var user = this.$.user.value;
         var self = this;
-        var close = function() {
-          self.$.div_add_user.style.display = 'none'
-          self.$.button_hide.style.display = 'none'
-          self.$.button_add.style.display = ''
-          self.$.button_rem.style.display = ''
-        }
         if (user === "")
         {
           self.$.feedback.style.display = ''
@@ -63,7 +57,7 @@
           self.$.feedback_text.textContent = "Passwords don't match"
           return;
         }
-        if(pass === "")
+        if (pass === "")
         {
           self.$.feedback.style.display = ''
           self.$.feedback.style.color = 'red'

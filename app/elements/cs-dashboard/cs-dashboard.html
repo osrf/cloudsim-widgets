@@ -1,0 +1,89 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-dashboard">
+  <style>
+  </style>
+  <template>
+
+   <gz-simulatorLauncher
+     id="simulatorlauncher"
+     url={{portalurl}}
+     token={{token}}
+     on-launched="onLaunched"
+config
+   ></gz-simulatorLauncher>
+
+    <!-- Look into doing this with a custom validator or paper-input-error -->
+    <div id="feedback" style="display:none">
+      <span id="feedback_text"/>
+    </div>
+
+    <paper-input label="Region" id="region"></paper-input>
+    <paper-input label="Machine image" id="machineImage"></paper-input>
+    <paper-input label="Hardware" id="hardware"></paper-input>
+
+    <paper-button raised id="launchbutton" on-tap="tapLaunch">
+      <iron-icon icon="hardware:computer"></iron-icon>
+      Launch a machine!
+    </paper-button>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-dashboard',
+      // Attached
+      attached: function() {
+        console.log('cs-dashboard widget attached!')
+      },
+      tapLaunch() {
+        // Get user input info
+        let region = this.$.region.value;
+        let machineImage = this.$.machineImage.value;
+        let hardware = this.$.hardware.value;
+
+        if (region == "" ||
+            machineImage == "" ||
+            hardware == "")
+        {
+          this.$.feedback.style.display = ''
+          this.$.feedback.style.color = 'red'
+          this.$.feedback_text.textContent = "All fields are required."
+          return;
+        }
+
+        // Send request to gz-simulatorLauncher
+        this.$.feedback.style.display = ''
+        this.$.feedback.style.color = 'blue'
+        this.$.feedback_text.textContent = "Request to launch machine has been sent."
+
+        this.$.simulatorlauncher.launchMachine(region, machineImage, hardware);
+      },
+      onLaunched: function(e) {
+        let success = e.detail.success
+        let msg = e.detail.msg
+
+        this.$.feedback.style.display = ''
+        this.$.feedback.style.color = success ? 'blue' : 'red'
+        this.$.feedback_text.textContent = msg
+      },
+      properties: {
+        portalurl: {
+          type: String,
+          value: 'https://localhost:4000',
+          notify: true
+        },
+        token: {
+          type: String,
+          value: 'placeholder',
+          notify: true
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>

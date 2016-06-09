@@ -45,6 +45,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var signuppage = Polymer.dom(document).querySelector('#signuppage');
     signuppage.url = getConfig().auth;
 
+    var dashboard = Polymer.dom(document).querySelector('#dashboard');
+    dashboard.portalurl = getConfig().portal;
+
     var accounts = Polymer.dom(document).querySelector('#portfolio-accounts');
     accounts.url = getConfig().auth;
 

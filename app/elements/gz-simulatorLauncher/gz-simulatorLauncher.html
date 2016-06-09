@@ -18,11 +18,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         display: block;
       }
 
-      #whole {
-        border: solid 1px;
-        padding: 0.5em
-      }
-
       #config {
         max-width:20em;
         font-size:"0.8em"
@@ -46,46 +41,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       url=""
       handle-as="json"
       on-response="hresponse"
-      headers="headers"
+      on-error="herror"
+      requestHeaders='{"Authorization": "{{token}}"}'
       method="POST"
       content-type="application/json"
       debounce-duration="300">
     </iron-ajax>
 
-    <div id="whole">
-      <div id="config">
-        <h4>{{caption}}</h4>
-
-        <div>
-            Portal URL:<input id=url value="{{url::input}}"></input>
-        </div>
-        <div>
-            User token:<input id=token value="{{token::input}}"></input>
-        </div>
-        <div>
-            Region:<input id=region value="{{region::input}}"></input>
-        </div>
-        <div>
-            Machine image:<input id=machineImage value="{{machineImage::input}}"></input>
-        </div>
-        <div>
-            Hardware:<input id=hardware value="{{hardware::input}}"></input>
-        </div>
+    <div id="config">
+      <div><h1>{{title}}</h1></div>
+      <h4>{{caption}}</h4>
+      <div id="feedback" style="display:none">
+        <span id="feedback_text"/>
       </div>
 
-      <div id="gui">
-        <div><h1>{{title}}</h1></div>
-
-        <div id="feedback" style="display:none">
-          <span id="feedback_text"/>
-        </div>
-        <ul>
-          <template is="dom-repeat" items="{{items}}">
-            <li><span>[{{item.id}}], {{item.region}}, {{item.status}}, {{item.owner.username}}</span></li>
-          </template>
-        </ul>
-         <button on-tap="tapAdd"  id="buttonAdd">Launch!</button>
+      <div>
+          Portal URL:<input id=url value="{{url::input}}"></input>
       </div>
+      <div>
+          User token:<input id=token value="{{token::input}}"></input>
+      </div>
+      <div>
+          Region:<input id=region value="{{region::input}}"></input>
+      </div>
+      <div>
+          Machine image:<input id=machineImage value="{{machineImage::input}}"></input>
+      </div>
+      <div>
+          Hardware:<input id=hardware value="{{hardware::input}}"></input>
+      </div>
+
+      <ul>
+        <template is="dom-repeat" items="{{items}}">
+          <li><span>[{{item.id}}], {{item.region}}, {{item.status}}, {{item.owner.username}}</span></li>
+        </template>
+      </ul>
+      <button on-tap="tapAdd"  id="buttonAdd">Launch!</button>
     </div>
   </template>
 
@@ -99,20 +90,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           console.log('gz-simulatorLauncher widget attached!')
           this.items = [];
         },
-        // Triggered when the "gui" property is changed
-        _guiChanged: function(newValue, oldValue) {
-          this.$.gui.style.display = newValue ? '' : 'none'
-        },
         // Triggered when the "config" property is changed
         _configChanged: function(newValue, oldValue) {
           this.$.config.style.display = newValue ? '' : 'none'
         },
-        // Triggered when the "border" property is changed
-        _borderChanged: function(newValue, oldValue) {
-          this.$.whole.style.border = newValue ? 'solid 1px' : 'none'
-        },
 
         tapAdd: function() {
+          // Check config fields
           if (this.url == "" ||
               this.token == "" ||
               this.region == "" ||
@@ -125,26 +109,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             return;
           }
 
+          this.launchMachine(this.region, this.machineImage, this.hardware);
+        },
+        // Request portal to launch a machine
+        launchMachine: function(_region, _machineImage, _hardware) {
+
           this.$.ajax.url = this.url + '/simulators'
           const data = {
               token: this.token,
-              region: this.region,
-              machineImage: this.machineImage,
-              hardware: this.hardware
+              region: _region,
+              machineImage: _machineImage,
+              hardware: _hardware
           }
+          this.$.ajax.headers.authorization = this.token
+console.log("RequestHeaders " + JSON.stringify(this.$.ajax.requestHeaders))
           this.$.ajax.body = data
           this.$.ajax.generateRequest()
         },
         hresponse: function(req) {
           let res = this.$.ajax.lastResponse
+console.log("Response received by gz-simulatorLauncher " + JSON.stringify(res))
           this.items = res;
 
           this.$.feedback.style.display = ''
 
           if (!res)
           {
+            let msg = "Failed to launch simulator."
+
+            // Local feedback for config
+            this.$.feedback.style.display = ''
             this.$.feedback.style.color = 'red'
-            this.$.feedback_text.textContent = "Failed to launch simulator."
+            this.$.feedback_text.textContent = msg
+
+            // Feedback to other widgets
+            this.fire('launched', {success: false, msg: msg})
           }
           else
           {
@@ -157,9 +156,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             txt += "<li> Termination date: " + res.termination_date + "</li>"
             txt += "<li> Machine ip: " + res.machine_ip + "</li>"
             txt += "<li> Machine id: " + res.machine_id + "</li>"
+
+            // Local feedback for config
             this.$.feedback.style.color = 'blue'
             this.$.feedback_text.innerHTML = txt
+
+            // Feedback to other widgets
+            this.fire('launched', {success: false, machineInfo: res, msg: msg})
           }
+        },
+        herror: function(err) {
+          let res = this.$.ajax.lastResponse
+          console.log(res)
         },
         properties: {
           items: {
@@ -201,21 +209,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           value: 'g2.2xlarge',
 	        notify: true
 	        },
-        gui: {
-          type: Boolean,
-          value: false,
-          observer: '_guiChanged'
-        },
         config: {
           type: Boolean,
           value: false,
           observer: '_configChanged'
         },
-        border: {
-          type: Boolean,
-          value: false,
-          observer: '_borderChanged'
-        }
       }
       });
     })();
