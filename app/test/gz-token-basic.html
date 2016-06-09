@@ -57,7 +57,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         token = fixture('basic');
       });
 
-      test('Login', function() {
+      // Pass function(done) so the test waits for done()
+      test('Trigger login and check username is changed and login event fired', function(done) {
 
         // Check variables
         assert.equal(token.url, "/responds_to_login");
@@ -69,8 +70,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Fake server responds
         server.respond();
 
-        // Check new username
-        token.addEventListener("login", function(event) {
+        // Listen to login event
+        token.addEventListener("login", function(e) {
+          assert.equal(e.detail.user, "name-of-logged-user");
           assert.equal(token.username, "name-of-logged-user");
           done();
         });
