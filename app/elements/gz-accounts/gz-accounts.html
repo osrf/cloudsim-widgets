@@ -92,7 +92,7 @@
         this.$.feedback.style.display = 'none'
         this.$.ruser.focus()
       },
-      negisterUser: function(_user, _pass) {
+      registerUser: function(_user, _pass) {
         var self = this;
         var x = this.post("/register", {"user":_user, "password": _pass}, function(err, res){
           console.log(res);
