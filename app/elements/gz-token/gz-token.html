@@ -77,6 +77,11 @@
       },
 
       tapLogout: function() {
+
+        if (window.navigator.userAgent.toLowerCase().indexOf("firefox") >= 0) {
+          window.location = this.url.replace("https://", "https://toto:fakefake@") + "/logout"
+          return;
+        }
         this.$.feedback.style.display = 'none'
         this.state = 'Requesting logout'
         this.$.ajax.url = this.url + '/logout'
