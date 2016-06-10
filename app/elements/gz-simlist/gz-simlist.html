@@ -10,7 +10,8 @@
 
       #config {
         max-width:40em;
-        font-size:"0.8em"
+        font-size:0.8em;
+        border: 1px solid;
       }
 
       #config > div{
@@ -41,6 +42,7 @@
 
     <div id="config">
 
+      <div><h1>{{title}}</h1></div>
       <div><h4>{{caption}}</h4></div>
 
       <div>
@@ -50,60 +52,55 @@
         User token:<input id=token value="{{token::input}}"></input>
       </div>
       <button on-tap="tapGet"  id="buttonGet">Get list of simulators</button>
-     </div> <!-- /config -->
 
-      <div id="gui">
+      <div id="feedback" style="display:none">
+        <span id="feedback_text"/>
+      </div>
 
-        <div><h1>{{title}}</h1></div>
+      <table id="listTable" style="display:none" border="0">
+        <tr>
+           <td><h1>Machines</h1></td>
+        </tr>
 
-        <div id="feedback" style="display:none">
-          <span id="feedback_text"/>
-        </div>
-
-        <table id="listTable" style="display:none" border="0">
+        <template is="dom-repeat" items="{{items}}">
           <tr>
-             <td><h1>Machines</h1></td>
+            <td>
+            <table>
+              <tr>
+                 <th>id</th>
+                 <th>region</th>
+                 <th>status</th>
+                 <th>launch date</th>
+                 <th>termination date</th>
+               <!--  <th>owner</th>
+                 <th>users</th>
+                 <th>simulations</th>
+               -->
+              </tr>
+              <tr>
+                 <td>{{item.id}}</td>
+                 <td>{{item.region}}</td>
+                 <td>{{item.status}}</td>
+                 <td>{{item.launch_date}}</td>
+                 <td>{{item.termination_date}}</td>
+                <!--  <td>{{item.owner}}</td>
+                 <td>{{item.users}}</td>
+                 <td>{{item.simulations}}</td>
+                -->
+              </tr>
+            </table>
+            <br><br>
+
+            <gz-launcher
+              title="{{item.machine_ip}}"
+              url="https://{{item.machine_ip}}"
+              gui
+            ></gz-launcher>
+            </td>
           </tr>
-
-          <template is="dom-repeat" items="{{items}}">
-            <tr>
-              <td>
-              <table>
-                <tr>
-                   <th>id</th>
-                   <th>region</th>
-                   <th>status</th>
-                   <th>launch date</th>
-                   <th>termination date</th>
-                 <!--  <th>owner</th>
-                   <th>users</th>
-                   <th>simulations</th>
-                 -->
-                </tr>
-                <tr>
-                   <td>{{item.id}}</td>
-                   <td>{{item.region}}</td>
-                   <td>{{item.status}}</td>
-                   <td>{{item.launch_date}}</td>
-                   <td>{{item.termination_date}}</td>
-                  <!--  <td>{{item.owner}}</td>
-                   <td>{{item.users}}</td>
-                   <td>{{item.simulations}}</td>
-                  -->
-                </tr>
-              </table>
-              <br><br>
-
-              <gz-launcher
-                title="{{item.machine_ip}}"
-                url="https://{{item.machine_ip}}"
-                gui
-              ></gz-launcher>
-              </td>
-            </tr>
-          </template>
-        </table>
-      </div><!-- /gui -->
+        </template>
+      </table>
+    </div><!-- /config -->
   </template>
 
   <script>
@@ -113,10 +110,6 @@
       Polymer({
         is: 'gz-simlist',
 
-        // Triggered when the "gui" property is changed
-        _guiChanged: function(newValue, oldValue) {
-          this.$.gui.style.display = newValue ? '' : 'none'
-        },
         // Triggered when the "config" property is changed
         _configChanged: function(newValue, oldValue) {
           this.$.config.style.display = newValue ? '' : 'none'
@@ -146,19 +139,37 @@
 
           if (!res)
           {
+            const msg = "Failed to retrieve list of simulators."
+
+            // Local feedback for config
             this.$.feedback.style.color = 'red'
-            this.$.feedback_text.textContent = "Failed to retrieve list of simulators."
+            this.$.feedback_text.textContent = msg
+
+            // Feedback to other widgets
+            this.fire('simulatorlistupdated', {success: false, msg: msg})
           }
           else if (res.length == 0)
           {
+            const msg = "There are no simulators for this user."
+
+            // Local feedback for config
             this.$.feedback.style.color = 'blue'
-            this.$.feedback_text.textContent = "There are no simulators for this user."
+            this.$.feedback_text.textContent = msg
+
+            // Feedback to other widgets
+            this.fire('simulatorlistupdated', {success: true, items: this.items})
           }
           else
           {
+            const msg = "See list of simulators below."
+
+            // Local feedback for config
             this.$.feedback.style.color = 'blue'
-            this.$.feedback_text.textContent = "See list of simulators below."
+            this.$.feedback_text.textContent = msg
             this.$.listTable.style.display = ''
+
+            // Feedback to other widgets
+            this.fire('simulatorlistupdated', {success: true, items: this.items})
           }
         },
         herror: function(err) {
@@ -191,11 +202,6 @@
             type: String,
             value: 'xxxadminxxx',
             notify: true
-            },
-           gui: {
-              type: Boolean,
-              value: false,
-              observer: '_guiChanged'
             },
            config: {
               type: Boolean,

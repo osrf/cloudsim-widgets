@@ -3,15 +3,103 @@
 
 <dom-module id="cs-dashboard">
   <style>
+      :host {
+        display: block;
+        @apply(--paper-font-common-base);
+      }
+      app-toolbar {
+        background-color: var(--google-green-700);
+        box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
+        font-weight: bold;
+        color: white;
+        z-index: 1;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+      }
+      app-toolbar paper-icon-button {
+        --paper-icon-button-ink-color: white;
+      }
+      iron-list {
+        padding-top: 64px;
+        --iron-list-items-container: {
+          max-width: 800px;
+          margin: auto;
+          margin-top: 60px;
+          margin-bottom: 60px;
+          border-bottom: 1px solid #ddd;
+        };
+      }
+      .item {
+        @apply(--layout-horizontal);
+        padding: 20px;
+        background-color: white;
+        border: 1px solid #ddd;
+        cursor: pointer;
+        margin-bottom: 10px;
+      }
+      .avatar {
+        height: 40px;
+        width: 40px;
+        border-radius: 20px;
+        box-sizing: border-box;
+        background-color: #DDD;
+      }
+      .pad {
+        padding: 0 16px;
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+      }
+      .primary {
+        font-size: 16px;
+        font-weight: bold;
+      }
+      .shortText, .longText {
+        font-size: 14px;
+      }
+      .longText {
+        color: gray;
+        display: none;
+      }
+      .item:hover .shortText::after {
+        content: ' [+]';
+        color: gray;
+      }
+      .item.expanded:hover .shortText::after {
+        content: '';
+      }
+      .item.expanded .longText {
+        display: block;
+      }
+      .item.expanded:hover .longText::after {
+        content: ' [–]';
+      }
+      .spacer {
+        @apply(--layout-flex);
+      }
+      @media (max-width: 460px) {
+        paper-toolbar .bottom.title {
+          font-size: 14px;
+        }
+      }
   </style>
   <template>
 
-   <gz-simulatorLauncher
-     id="simulatorlauncher"
-     url={{portalurl}}
-     token={{token}}
-     on-launched="onLaunched"
-   ></gz-simulatorLauncher>
+    <!-- For launching new machines-->
+    <gz-simulatorLauncher
+      id="simulatorlauncher"
+      url={{portalurl}}
+      token={{token}}
+      on-launched="onLaunched"
+    ></gz-simulatorLauncher>
+
+    <!-- For retrieving list of machines-->
+    <gz-simlist
+      id="simlist"
+      token={{token}}
+      on-simulatorlistupdated="onSimulatorListUpdated"
+    ></gz-simlist>
 
     <!-- Look into doing this with a custom validator or paper-input-error -->
     <div id="feedback" style="display:none">
@@ -27,18 +115,36 @@
       Launch a machine!
     </paper-button>
 
-<br>
-<br>
-<br>
-<br>
-<br>
+    <br>
+    <br>
+    <br>
+    <br>
 
-   <gz-simlist
-     id="simlist"
-     token={{token}}
-     gui
-     config
-   ></gz-simlist>
+    <paper-button raised id="refreshbutton" on-tap="tapRefresh">
+      <iron-icon icon="icons:refresh"></iron-icon>
+      Refresh
+    </paper-button>
+
+    <iron-list id="list" items="[[listitems]]" as="item" selection-enabled multi-selection>
+      <template>
+        <div class$="[[getClassForItem(item, selected)]]" tabindex$="[[tabIndex]]">
+          <div>
+            <iron-icon class="avatar" icon="hardware:computer"></iron-icon>
+            <div class="pad">
+              <div class="primary">[[item.id]]</div>
+              <div class="shortText">[[item.status]]</div>
+              <div class="longText">
+                  Launch date: [[item.launch_date]]<br>
+                  Termination date: [[item.termination_date]]<br>
+                  Owner: [[item.owner.username]]<br>
+                  Users: [[item.users]]<br>
+                  Simulations: [[item.simulations]]<br>
+               </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </iron-list>
 
   </template>
 
@@ -51,6 +157,7 @@
       // Attached
       attached: function() {
         console.log('cs-dashboard widget attached!')
+        this.$.list.scrollTarget = this.ownerDocument.documentElement;
       },
       tapLaunch() {
         // Get user input info
@@ -93,6 +200,32 @@
         this.$.feedback.style.color = 'blue'
         this.$.feedback_text.textContent = JSON.stringify(machineInfo)
       },
+      onSimulatorListUpdated: function(e) {
+        if (e.detail.success)
+        {
+          this.updateList(e.detail.items);
+        }
+      },
+      updateList: function(items) {
+        this.listitems = []
+        items.forEach(function(item, index){
+
+          // Polymer issue #3682
+          // https://github.com/Polymer/polymer/issues/3682
+          // Consecutive updates only work asynchronously
+          var that = this;
+          setTimeout(function () {
+            that.push('listitems', item);
+          }, 100);
+
+        }.bind(this));
+      },
+      tapRefresh() {
+        this.$.simlist.tapGet();
+      },
+      getClassForItem: function(item, selected) {
+        return selected ? 'item expanded' : 'item';
+      },
       properties: {
         portalurl: {
           type: String,
@@ -102,6 +235,11 @@
         token: {
           type: String,
           value: 'placeholder',
+          notify: true
+        },
+        listitems: {
+          type: Array,
+          value: [],
           notify: true
         },
       },
