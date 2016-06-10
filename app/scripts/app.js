@@ -100,7 +100,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   window.addEventListener('login', function() {
     // Pass token to dashboard (TODO: this can probably be done more automatically)
-    var dashboard = Polymer.dom(document).querySelector('#dashboard').token = window.gztoken.token;
+    var dashboard = Polymer.dom(document).querySelector('#dashboard');
+    dashboard.token = window.gztoken.token;
+
+    // Open dashboard
+    app.route = "dashboard"
+    dashboard.$.simlist.tapGet()
 
   });
 

@@ -9,12 +9,12 @@
       }
 
       #config {
-        max-width:20em;
+        max-width:40em;
         font-size:"0.8em"
       }
 
       #config > div{
-        padding-top:0.5em;
+        padding-top:1em;
       }
 
       #config > div > input{
@@ -36,7 +36,6 @@
       handle-as="json"
       on-response="hresponse"
       on-error="herror"
-      headers="headers"
       debounce-duration="300">
     </iron-ajax>
 
@@ -130,9 +129,11 @@
           this.$.feedback.style.color = 'blue'
           this.$.feedback_text.textContent = "Asking the server."
 
+          // Send request
           this.$.ajax.url = this.url + '/simulators'
-          const data = { token: this.token}
+          const data = {token: this.token}
           this.$.ajax.params = data;
+          this.$.ajax.headers.authorization = this.token
           this.$.ajax.body = {token:token}
           this.$.ajax.generateRequest()
         },
