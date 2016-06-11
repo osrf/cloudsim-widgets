@@ -29,7 +29,7 @@
           margin-top: 60px;
           margin-bottom: 60px;
           border-bottom: 1px solid #ddd;
-        };
+        }
       }
       .item {
         @apply(--layout-horizontal);
@@ -75,6 +75,9 @@
       .item.expanded:hover .longText::after {
         content: ' [–]';
       }
+      .killButton > iron-icon {
+        --iron-icon-fill-color: #f00;
+      }
       .spacer {
         @apply(--layout-flex);
       }
@@ -92,6 +95,7 @@
       url={{portalurl}}
       token={{token}}
       on-launched="onLaunched"
+      on-killed="onKilled"
     ></gz-simulatorLauncher>
 
     <!-- For retrieving list of machines-->
@@ -101,7 +105,6 @@
       on-simulatorlistupdated="onSimulatorListUpdated"
     ></gz-simlist>
 
-    <!-- Look into doing this with a custom validator or paper-input-error -->
     <div id="feedback" style="display:none">
       <span id="feedback_text"/>
     </div>
@@ -141,6 +144,10 @@
                   Simulations: [[item.simulations]]<br>
                </div>
             </div>
+            <paper-button raised class="killButton" on-tap="tapKill" id="[[item.id]]"">
+              <iron-icon icon="icons:close"></iron-icon>
+              Kill
+            </paper-button>
           </div>
         </div>
       </template>
@@ -183,6 +190,8 @@
         this.$.simulatorlauncher.launchMachine(region, machineImage, hardware);
       },
       onLaunched: function(e) {
+        this.tapRefresh()
+
         let success = e.detail.success
         let msg = e.detail.message
 
@@ -194,11 +203,25 @@
           return;
         }
 
-        const machineInfo = e.detail.machineInfo;
+        this.$.feedback.style.display = 'none'
+        // const machineInfo = e.detail.machineInfo;
 
+        // this.$.feedback.style.display = ''
+        // this.$.feedback.style.color = 'blue'
+        // this.$.feedback_text.textContent = JSON.stringify(machineInfo)
+      },
+      tapKill(e) {
+        let id = e.target.id
+
+        // Send request to gz-simulatorLauncher
         this.$.feedback.style.display = ''
         this.$.feedback.style.color = 'blue'
-        this.$.feedback_text.textContent = JSON.stringify(machineInfo)
+        this.$.feedback_text.textContent = "Request to kill machine has been sent."
+
+        this.$.simulatorlauncher.killMachine(id);
+      },
+      onKilled: function(e) {
+        this.tapRefresh()
       },
       onSimulatorListUpdated: function(e) {
         if (e.detail.success)
