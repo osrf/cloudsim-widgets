@@ -1,15 +1,10 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
-<dom-module id="gz-launcher">
+<dom-module id="gz-cmd">
   <template>
     <style>
       :host {
         display: block;
-      }
-
-      #whole {
-        border: solid 1px;
-        padding: 0.5em
       }
 
       #config {
@@ -35,45 +30,42 @@
 
     </style>
 
-    <div id="whole">
-      <div id="config">
-        <div><h4>{{caption}}</h4></div>
+    <div id="config">
+      <div><h4>{{caption}}</h4></div>
 
-        <div>
-          Simulation URL:<input id=url value="{{url::input}}"></input>
-        </div>
-        <div>
-          User token:<input id=token value="{{token::input}}"></input>
-        </div>
-        <div>
-          Command:<input id=cmdline value="{{cmd::input}}"></input>
-        </div>
-
-
+      <div>
+        Simulation URL:<input id=url value="{{url::input}}"></input>
       </div>
-      <div id="gui">
-        <div><h1>{{title}}</h1></div>
-
-        <div id="feedback" style="display:none">
-          <span id="feedback_text"/>
-        </div>
-
-        <button on-tap="tapRun" id="buttonRun">Run</button>
-        <button on-tap="tapKill"id="buttonKill" style="display:none">Kill</button>
-
-
-        <div id="currentProcess" style="display:none; text-align:center">
-          <h4>Process id: {{processPid}} - Status: {{processStatus}}</h4>
-        </div>
-
-        <div>
-          <div id="console" class='terminal'  style="display:none">
-          </div>
-        </div>
-
+      <div>
+        User token:<input id=token value="{{token::input}}"></input>
       </div>
+      <div>
+        Command:<input id=cmdline value="{{cmd::input}}"></input>
+      </div>
+
+
     </div>
+    <div id="gui">
+      <div><h1>{{title}}</h1></div>
 
+      <div id="feedback" style="display:none">
+        <span id="feedback_text"/>
+      </div>
+
+      <button on-tap="tapRun" id="buttonRun">Run</button>
+      <button on-tap="tapKill"id="buttonKill" style="display:none">Kill</button>
+
+
+      <div id="currentProcess" style="display:none; text-align:center">
+        <h4>Process id: {{processPid}} - Status: {{processStatus}}</h4>
+      </div>
+
+      <div>
+        <div id="console" class='terminal'  style="display:none">
+        </div>
+      </div>
+
+    </div>
 
   </template>
 
@@ -86,7 +78,7 @@
     'use strict';
 
     Polymer({
-      is: 'gz-launcher',
+      is: 'gz-cmd',
       tapRun: function() {
         this.connect()
 
@@ -107,10 +99,10 @@
           token: this.token,
           cmdline: this.cmd,
           id:this.title}
-        this.socket.emit('gz-launcher', msg)
+        this.socket.emit('gz-cmd', msg)
       },
       attached: function() {
-        console.log('gz-launcher widget attached!')
+        console.log('gz-cmd widget attached!')
         this.connect()
       },
       // Triggered when the "gui" property is changed
@@ -120,10 +112,6 @@
       // Triggered when the "config" property is changed
       _configChanged: function(newValue, oldValue) {
         this.$.config.style.display = newValue ? '' : 'none'
-      },
-      // Triggered when the "border" property is changed
-      _borderChanged: function(newValue, oldValue) {
-        this.$.whole.style.border = newValue ? 'solid 1px' : 'none'
       },
       connect: function() {
         // Initialize socket
@@ -135,7 +123,7 @@
           console.log('authenticate: ' + authMsg )
           socket.on('authenticated', function () {
             console.log('socketio authenticated')
-            socket.on('gz-launcher', function (msg) {
+            socket.on('gz-cmd', function (msg) {
               // Show current process
               that.$.currentProcess.style.display = ''
               that.processPid = msg.pid
@@ -174,13 +162,13 @@
       },
       tapKill: function()  {
         const msg = {cmd:'kill', pid: this.processPid}
-        this.socket.emit('gz-launcher', msg)
+        this.socket.emit('gz-cmd', msg)
       },
       properties: {
         // the title above the widget
         title: {
           type: String,
-          value: 'Launch a simulation (gz-launcher)',
+          value: 'Launch a simulation (gz-cmd)',
           notify: true
         },
         // the caption below the title
@@ -207,7 +195,7 @@
         },
         cmd: {
           type: String,
-          value: 'gzserver --verbose',
+          value: 'echo "Hello Cloudsim!\"',
           notify: true
         },
         url: {
@@ -230,11 +218,6 @@
           value: false,
           observer: '_configChanged'
         },
-        border: {
-          type: Boolean,
-          value: false,
-          observer: '_borderChanged'
-        }
       }
     });
   })();

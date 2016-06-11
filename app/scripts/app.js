@@ -54,8 +54,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var simlist = Polymer.dom(document).querySelector('#portfolio-simlist');
     simlist.url = getConfig().portal;
 
-    var launcher = Polymer.dom(document).querySelector('#portfolio-launcher');
-    launcher.url = getConfig().sim;
+    var cmd = Polymer.dom(document).querySelector('#portfolio-cmd');
+    cmd.url = getConfig().sim;
 
     var simulationQueue = Polymer.dom(document).querySelector('#portfolio-simulationQueue');
     simulationQueue.url = getConfig().sim;
