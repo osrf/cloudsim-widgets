@@ -110,8 +110,8 @@
     </div>
 
     <paper-input label="Region" id="region" value="us-west-1"></paper-input>
-    <paper-input label="Machine image" id="machineImage" value="ami-610c7801"></paper-input>
-    <paper-input label="Hardware" id="hardware" value="g2.2xlarge"></paper-input>
+    <paper-input label="Machine image" id="machineImage" value="ami-854e0be5"></paper-input>
+    <paper-input label="Hardware" id="hardware" value="t2.small"></paper-input>
 
     <paper-button raised id="launchbutton" on-tap="tapLaunch">
       <iron-icon icon="hardware:computer"></iron-icon>
@@ -130,18 +130,26 @@
 
     <iron-list id="list" items="[[listitems]]" as="item" selection-enabled multi-selection>
       <template>
-        <div class$="[[getClassForItem(item, selected)]]" tabindex$="[[tabIndex]]">
-          <div>
+        <div>
+          <div class$="[[getClassForItem(item, selected)]]" tabindex$="[[tabIndex]]">
             <iron-icon class="avatar" icon="hardware:computer"></iron-icon>
             <div class="pad">
-              <div class="primary">[[item.id]]</div>
+              <div class="primary">[[item.machine_ip]]</div>
               <div class="shortText">[[item.status]]</div>
               <div class="longText">
+                  ID: [[item.id]]<br>
                   Launch date: [[item.launch_date]]<br>
                   Termination date: [[item.termination_date]]<br>
                   Owner: [[item.owner.username]]<br>
                   Users: [[item.users]]<br>
                   Simulations: [[item.simulations]]<br>
+
+                  <gz-launcher
+                    title="{{item.machine_ip}}"
+                    url="https://{{item.machine_ip}}"
+                    gui
+                  ></gz-launcher>
+
                </div>
             </div>
             <paper-button raised class="killButton" on-tap="tapKill" id="[[item.id]]"">
