@@ -1,0 +1,125 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-menu">
+  <style>
+    :host {
+      /* paper-drawer-panel */
+      --drawer-menu-color: #ffffff;
+      --drawer-border-color: 1px solid #ccc;
+      --drawer-toolbar-border-color: 1px solid rgba(0, 0, 0, 0.22);
+
+      /* paper-menu */
+      --paper-menu-background-color: #fff;
+      --menu-link-color: #111111;
+    }
+
+    #drawerToolbar {
+      color: var(--secondary-text-color);
+      background-color: var(--drawer-menu-color);
+      border-bottom: var(--drawer-toolbar-border-color);
+    }
+
+    #drawerToolbar .menu-name {
+      @apply(--paper-font-title);
+    }
+
+    paper-menu {
+      --paper-menu-selected-item: {
+        color: var(--primary-color);
+      }
+
+      --paper-menu-focused-item-after: {
+        background: var(--primary-color);
+      }
+    }
+
+    paper-menu iron-icon {
+      margin-right: 33px;
+      opacity: 0.54;
+    }
+
+    paper-menu a {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+
+      text-decoration: none;
+      color: var(--menu-link-color);
+      font-family: 'Roboto', 'Noto', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 24px;
+      min-height: 48px;
+      padding: 0 16px;
+    }
+
+    /* Small */
+    @media (max-width: 600px) {
+
+      #drawer .paper-toolbar {
+        margin-left: 16px;
+      }
+
+      paper-material {
+        --menu-container-display: none;
+        width: calc(97.33% - 32px);
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+    }
+
+    /* Tablet+ */
+    @media (min-width: 601px) {
+
+      #drawer.paper-drawer-panel > [drawer] {
+        border-right: 1px solid rgba(0, 0, 0, 0.14);
+      }
+    }
+  </style>
+  <template>
+    <!-- Drawer Toolbar -->
+    <paper-toolbar id="drawerToolbar">
+      <span class="menu-name">Competition Name</span>
+    </paper-toolbar>
+
+    <!-- Drawer Content -->
+    <paper-menu attr-for-selected="data-route" selected="[[route]]">
+      <a data-route="portfolio" href="{{baseUrl}}portfolio">
+        <iron-icon icon="settings"></iron-icon>
+        <span>Portfolio</span>
+      </a>
+
+      <a data-route="users" href="{{baseUrl}}users">
+        <iron-icon icon="info"></iron-icon>
+        <span>Users</span>
+      </a>
+
+      <a data-route="contact" href="{{baseUrl}}contact">
+        <iron-icon icon="mail"></iron-icon>
+        <span>Contact</span>
+      </a>
+
+      <a data-route="home" href="{{baseUrl}}home">
+        <iron-icon icon="home"></iron-icon>
+        <span>Home</span>
+      </a>
+
+    </paper-menu>
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-menu',
+      // Attached
+      attached: function() {
+        console.log('cs-menu widget [' + this.title + '] attached!')
+      },
+    });
+  })();
+  </script>
+</dom-module>
