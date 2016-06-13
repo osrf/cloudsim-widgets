@@ -98,9 +98,13 @@
           console.log(res);
           if(err) {
             let msg = "Error connecting to server: " + err
+
+            // Local feedback for config
             self.$.feedback.style.display = ''
             self.$.feedback.style.color = 'red'
             self.$.feedback_text.textContent = msg
+
+            // Feedback to other widgets
             self.fire('register', {success: false, user: _user, msg: msg})
             return;
           }
@@ -108,17 +112,25 @@
           if(j.success)
           {
             let msg = 'User "' + _user + '" registered successfully';
+
+            // Local feedback for config
             self.$.feedback.style.display = ''
             self.$.feedback.style.color = 'blue'
             self.$.feedback_text.textContent = msg
+
+            // Feedback to other widgets
             self.fire('register', {success: true, user: _user, msg: msg})
           }
           else
           {
             let msg = 'Error: ' + j.error
+
+            // Local feedback for config
             self.$.feedback.style.display = ''
             self.$.feedback.style.color = 'red'
             self.$.feedback_text.textContent = msg
+
+            // Feedback to other widgets
             self.fire('register', {success: false, user: _user, msg: msg})
           }
         });
@@ -128,9 +140,13 @@
         var x = this.post("/unregister", {"user":_user, "password": _pass}, function(err, res){
           if(err) {
             let msg = "Error connecting to server: " + err
+
+            // Local feedback for config
             self.$.feedback.style.display = ''
             self.$.feedback.style.color = 'red'
             self.$.feedback_text.textContent = msg
+
+            // Feedback to other widgets
             self.fire('unregister', {success: false, user: _user, msg: msg})
             return;
           }
@@ -138,17 +154,25 @@
           if(j.success)
           {
             let msg = 'User "' + _user + '" unregistered successfully'
+
+            // Local feedback for config
             self.$.feedback.style.display = ''
             self.$.feedback.style.color = 'blue'
             self.$.feedback_text.textContent = 'User "' + _user + '" unregistered successfully'
+
+            // Feedback to other widgets
             self.fire('unregister', {success: true, user: _user, msg: msg})
           }
           else
           {
             let msg = j.error
+
+            // Local feedback for config
             self.$.feedback.style.display = ''
             self.$.feedback.style.color = 'red'
             self.$.feedback_text.textContent = msg
+
+            // Feedback to other widgets
             self.fire('unregister', {success: false, user: _user, msg: msg})
           }
         });
