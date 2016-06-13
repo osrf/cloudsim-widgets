@@ -25,19 +25,57 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <test-fixture id="basic">
     <template>
-       <gz-token></gz-token>
+       <gz-token url="/responds_to_login"></gz-token>
     </template>
   </test-fixture>
 
   <script>
-    suite('gz-token tests', function() {
-      var list, listItems;
+    suite('<gz-token>', function() {
+      var responseHeaders = {
+        json: { 'Content-Type': 'application/json' },
+        plain: { 'Content-Type': 'text/plain' }
+      };
+      var request;
+      var server;
+
       setup(function() {
+
+        // Fake server to send responses
+        server = sinon.fakeServer.create();
+        server.respondImmediately = true;
+        server.autoRespond = true;
+        server.respondWith(
+          'GET',
+          /\/responds_to_login.*/,
+          [
+            200,
+            responseHeaders.json,
+            '{"login":"success", "username":"name-of-logged-user"}'
+          ]
+        );
+
         token = fixture('basic');
       });
-      test('Login', function() {
-        assert.equal(token.url, "https://localhost:5050");
+
+      // Pass function(done) so the test waits for done()
+      test('Trigger login and check username is changed and login event fired', function(done) {
+
+        // Check variables
+        assert.equal(token.url, "/responds_to_login");
         assert.equal(token.username, "placeholder");
+
+        // Trigger login request
+        token.tapLogin();
+
+        // Fake server responds
+        server.respond();
+
+        // Listen to login event
+        token.addEventListener("login", function(e) {
+          assert.equal(e.detail.user, "name-of-logged-user");
+          assert.equal(token.username, "name-of-logged-user");
+          done();
+        });
       });
     });
   </script>
