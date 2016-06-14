@@ -74,25 +74,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <!-- Main Area -->
       <paper-scroll-header-panel main id="headerPanelMain" condenses keep-condensed-header>
         <!-- Main Toolbar -->
-        <paper-toolbar id="mainToolbar" class="tall">
-          <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle></paper-icon-button>
-
-          <span class="space"></span>
-
-          <!-- Toolbar icons -->
-          <paper-icon-button icon="refresh"></paper-icon-button>
-          <paper-icon-button icon="search"></paper-icon-button>
-
-          <!-- Application name -->
-          <div class="middle middle-container">
-            <div class="app-name">Cloudsim construction set</div>
-          </div>
-
-          <!-- Application sub title -->
-          <div class="bottom bottom-container">
-            <div class="bottom-title"></div>
-          </div>
-        </paper-toolbar>
+        <div>
+          <cs-toptoolbar id="toptoolbar"></cs-toptoolbar>
+        </div>
 
         <!-- Main Content -->
         <div class="content">
