@@ -58,6 +58,7 @@
       is: 'gz-token',
 
       tapLogin: function() {
+        console.log('gz-token::tapLogin')
         this.state = 'Requesting login'
         this.$.ajax.url = this.url + '/login'
         this.$.ajax.withCredentials = true
@@ -65,7 +66,6 @@
       },
 
       tapLogout: function() {
-
         if (window.navigator.userAgent.toLowerCase().indexOf("firefox") >= 0) {
           window.location = this.url.replace("https://", "https://toto:fakefake@") + "/logout"
           return;
@@ -73,6 +73,7 @@
         this.$.feedback.style.display = 'none'
         this.state = 'Requesting logout'
         this.$.ajax.url = this.url + '/logout'
+        console.log('gz-token::tapLogout ' + this.$.ajax.headers)
         this.$.ajax.generateRequest()
       },
 
@@ -114,6 +115,7 @@
         console.log(request.detail.response)
       },
       herror: function(err) {
+        console.log('ajax error')
         this.fire('logout')
       },
       attached: function() {

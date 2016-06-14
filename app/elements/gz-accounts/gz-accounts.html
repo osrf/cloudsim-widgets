@@ -10,6 +10,10 @@
 
     </style>
 
+    <iron-request id="xhr"
+      method="POST"
+    ></iron-request>
+
     <div id="config">
       Auth server URL: <input id=url value="{{url::input}}"></input><br>
     </div>
@@ -246,7 +250,30 @@
 
       // Helper function for posting http requests
       post: function (route, data, cb) {
-        console.log('data ' + data);
+        console.log('gz-accounts.post', ' ', data, ',', route)
+        const xhr = document.createElement('iron-request')
+        const options = {
+            method: 'POST',
+            url: this.url + route,
+            handleAs: 'json',
+            headers: {'content-type': 'application/json'},
+            body: data
+        }
+        xhr.send(options).then(
+            function() {
+              console.log('POST success')
+              console.log(xhr.response)
+              cb(null, xhr.response)
+            },
+            function(err) {
+              console.log('POST FAILED ' + err)
+              cb(err.message)
+            }
+        )
+      },
+
+/*
+      post: function (route, data, cb) {
         var xmlhttp;
         xmlhttp=new XMLHttpRequest();
         xmlhttp.onreadystatechange=function() {
@@ -285,7 +312,7 @@
         xmlhttp.setRequestHeader("Content-Type","application/json");
         xmlhttp.send(JSON.stringify(data));
       },
-
+*/
       properties: {
         // the title above the widget
         title: {
@@ -296,7 +323,8 @@
         // the caption under the title
         caption: {
           type: String,
-          value: 'Add and remove users to the authentication server. This needs a server that implements the authentication (see cloudsim-auth).',
+          value: 'Add and remove users to the authentication server. This needs \
+ a server that implements the authentication (see cloudsim-auth).',
           notify: true
         },
         // Server URL
