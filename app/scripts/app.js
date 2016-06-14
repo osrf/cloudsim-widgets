@@ -39,6 +39,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   // See https://github.com/Polymer/polymer/issues/1381
   window.addEventListener('WebComponentsReady', function() {
     // imports are loaded and elements have been registered
+    var toolbar = Polymer.dom(document).querySelector('#toptoolbar');
+    toolbar.authurl = getConfig().auth;
+
     var accounts = Polymer.dom(document).querySelector('#portfolio-accounts');
     accounts.url = getConfig().auth;
 
@@ -66,9 +69,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   // The appName is moved to top and shrunk on condensing. The bottom sub title
   // is shrunk to nothing on condensing.
   window.addEventListener('paper-header-transform', function(e) {
-    var appName = Polymer.dom(document).querySelector('#mainToolbar .app-name');
-    var middleContainer = Polymer.dom(document).querySelector('#mainToolbar .middle-container');
-    var bottomContainer = Polymer.dom(document).querySelector('#mainToolbar .bottom-container');
+    var appName = Polymer.dom(document).querySelector('#toptoolbar').querySelector('#mainToolbar .app-name');
+    var middleContainer = Polymer.dom(document).querySelector('#toptoolbar').querySelector('#mainToolbar .middle-container');
+    var bottomContainer = Polymer.dom(document).querySelector('#toptoolbar').querySelector('#mainToolbar .bottom-container');
     var detail = e.detail;
     var heightDiff = detail.height - detail.condensedHeight;
     var yRatio = Math.min(1, detail.y / heightDiff);
