@@ -95,10 +95,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', appName);
   });
 
-  window.addEventListener('register', function() {
-    // Login when registered
-    var token = Polymer.dom(document).querySelector('#toptoolbar').querySelector('#token');
-    token.tapLogin()
+  window.addEventListener('register', function(e) {
+    // Login when new account was created successfully
+    if (e.detail.success) {
+      var token = Polymer.dom(document).querySelector('#toptoolbar').querySelector('#token');
+      token.tapLogin()
+    }
   });
 
   // Scroll page to top and expand header
