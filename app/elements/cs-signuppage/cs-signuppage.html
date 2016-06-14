@@ -1,0 +1,90 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-signuppage">
+  <template>
+
+    <gz-accounts
+      id="accounts"
+      url={{url}}
+      on-register="onRegister"
+    ></gz-accounts>
+
+    <!-- Look into doing this with a custom validator or paper-input-error -->
+    <div id="feedback" style="display:none">
+      <span id="feedback_text"/>
+    </div>
+
+    <paper-input label="User name" id="user"></paper-input>
+    <paper-input label="Password" id="pass1" type="password"></paper-input>
+    <paper-input label="Confirm password" id="pass2" type="password"></paper-input>
+
+    <paper-button raised on-click="tapRegisterUser">
+      Create account
+    </paper-button>
+
+  </template>
+
+  <script>
+
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-signuppage',
+      attached: function() {
+        console.log('cs-signuppage widget attached!')
+      },
+
+      tapRegisterUser: function() {
+        // username can't be empty
+        var user = this.$.user.value;
+        var self = this;
+        if (user === "")
+        {
+          self.$.feedback.style.display = ''
+          self.$.feedback.style.color = 'red'
+          self.$.feedback_text.textContent = "User name can't be empty"
+          return;
+        }
+        // verify passwords
+        var pass = this.$.pass1.value;
+        var pass2 = this.$.pass2.value;
+        if (pass != pass2)
+        {
+          self.$.feedback.style.display = ''
+          self.$.feedback.style.color = 'red'
+          self.$.feedback_text.textContent = "Passwords don't match"
+          return;
+        }
+        if (pass === "")
+        {
+          self.$.feedback.style.display = ''
+          self.$.feedback.style.color = 'red'
+          self.$.feedback_text.textContent = "Password can't be empty"
+          return;
+        }
+
+        this.$.accounts.registerUser(user, pass);
+      },
+      onRegister: function(e) {
+        let success = e.detail.success
+        let username = e.detail.user
+        let msg = e.detail.msg
+
+        this.$.feedback.style.display = ''
+        this.$.feedback.style.color = success ? 'blue' : 'red'
+        this.$.feedback_text.textContent = msg
+      },
+
+      properties: {
+        url: {
+          type: String,
+          value: 'https://localhost:5050',
+          notify: true
+        },
+      }
+    });
+  })();
+  </script>
+</dom-module>

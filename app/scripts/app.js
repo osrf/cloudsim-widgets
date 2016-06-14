@@ -42,6 +42,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var toolbar = Polymer.dom(document).querySelector('#toptoolbar');
     toolbar.authurl = getConfig().auth;
 
+    var signuppage = Polymer.dom(document).querySelector('#signuppage');
+    signuppage.url = getConfig().auth;
+
     var accounts = Polymer.dom(document).querySelector('#portfolio-accounts');
     accounts.url = getConfig().auth;
 
@@ -90,6 +93,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Scale middleContainer appName
     Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', appName);
+  });
+
+  window.addEventListener('register', function() {
+    // Login when registered
+    var token = Polymer.dom(document).querySelector('#toptoolbar').querySelector('#token');
+    token.tapLogin()
   });
 
   // Scroll page to top and expand header
