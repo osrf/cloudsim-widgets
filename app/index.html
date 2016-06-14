@@ -67,33 +67,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <!-- Drawer Scroll Header Panel -->
       <paper-scroll-header-panel drawer fixed>
 
-        <!-- Drawer Toolbar -->
-        <paper-toolbar id="drawerToolbar">
-          <span class="menu-name">Menu</span>
-        </paper-toolbar>
+        <cs-menu id="menu"></cs-menu>
 
-        <!-- Drawer Content -->
-        <paper-menu attr-for-selected="data-route" selected="[[route]]">
-          <a data-route="portfolio" href="{{baseUrl}}portfolio">
-            <iron-icon icon="settings"></iron-icon>
-            <span>Portfolio</span>
-          </a>
-
-          <a data-route="users" href="{{baseUrl}}users">
-            <iron-icon icon="info"></iron-icon>
-            <span>Users</span>
-          </a>
-
-          <a data-route="contact" href="{{baseUrl}}contact">
-            <iron-icon icon="mail"></iron-icon>
-            <span>Contact</span>
-          </a>
-
-          <a data-route="home" href="{{baseUrl}}home">
-            <iron-icon icon="home"></iron-icon>
-            <span>Home</span>
-          </a>
-        </paper-menu>
       </paper-scroll-header-panel>
 
       <!-- Main Area -->
