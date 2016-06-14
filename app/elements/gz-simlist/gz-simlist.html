@@ -1,13 +1,3 @@
-<!--
-@license
-Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
--->
-
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-styles/typography.html">
 
@@ -18,18 +8,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         display: block;
       }
 
-      #whole {
-        border: solid 1px;
-        padding: 0.5em
-      }
-
       #config {
-        max-width:20em;
-        font-size:"0.8em"
+        max-width: 30em;
+        border: 1px solid black;
+        padding: 1em;
       }
 
       #config > div{
-        padding-top:0.5em;
+        padding-top:1em;
       }
 
       #config > div > input{
@@ -51,79 +37,70 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       handle-as="json"
       on-response="hresponse"
       on-error="herror"
-      headers="headers"
       debounce-duration="300">
     </iron-ajax>
 
-    <div id="whole">
-      <div id="config">
+    <div id="config">
 
-        <div><h4>{{caption}}</h4></div>
+      <div><h1>{{title}}</h1></div>
+      <div><h4>{{caption}}</h4></div>
 
-        <div>
-          Portal server URL:<input id=url value="{{url::input}}"></input>
-        </div>
-        <div>
-          User token:<input id=token value="{{token::input}}"></input>
-        </div>
-        <button on-tap="tapGet"  id="buttonGet">Get list of simulators</button>
-       </div> <!-- /config -->
+      <div>
+        Portal server URL:<input id=url value="{{url::input}}"></input>
+      </div>
+      <div>
+        User token:<input id=token value="{{token::input}}"></input>
+      </div>
+      <button on-tap="tapGet"  id="buttonGet">Get list of simulators</button>
 
-        <div id="gui">
+      <div id="feedback" style="display:none">
+        <span id="feedback_text"/>
+      </div>
 
-          <div><h1>{{title}}</h1></div>
+      <table id="listTable" style="display:none" border="0">
+        <tr>
+           <td><h1>Machines</h1></td>
+        </tr>
 
-          <div id="feedback" style="display:none">
-            <span id="feedback_text"/>
-          </div>
-
-          <table id="listTable" style="display:none" border="0">
-            <tr>
-               <td><h1>Machines</h1></td>
-            </tr>
-
-            <template is="dom-repeat" items="{{items}}">
+        <template is="dom-repeat" items="{{items}}">
+          <tr>
+            <td>
+            <table>
               <tr>
-                <td>
-                <table>
-                  <tr>
-                     <th>id</th>
-                     <th>region</th>
-                     <th>status</th>
-                     <th>launch date</th>
-                     <th>termination date</th>
-                   <!--  <th>owner</th>
-                     <th>users</th>
-                     <th>simulations</th>
-                   -->
-                  </tr>
-                  <tr>
-                     <td>{{item.id}}</td>
-                     <td>{{item.region}}</td>
-                     <td>{{item.status}}</td>
-                     <td>{{item.launch_date}}</td>
-                     <td>{{item.termination_date}}</td>
-                    <!--  <td>{{item.owner}}</td>
-                     <td>{{item.users}}</td>
-                     <td>{{item.simulations}}</td>
-                    -->
-                  </tr>
-                </table>
-                <br><br>
-
-                <gz-cmd
-                  title="{{item.machine_ip}}"
-                  url="https://{{item.machine_ip}}"
-                  cmd="gzserver --verbose"
-                  gui
-                  border
-                ></gz-cmd>
-                </td>
+                 <th>id</th>
+                 <th>region</th>
+                 <th>status</th>
+                 <th>launch date</th>
+                 <th>termination date</th>
+               <!--  <th>owner</th>
+                 <th>users</th>
+                 <th>simulations</th>
+               -->
               </tr>
-            </template>
-          </table>
-        </div><!-- /gui -->
-      </div><!-- /whole -->
+              <tr>
+                 <td>{{item.id}}</td>
+                 <td>{{item.region}}</td>
+                 <td>{{item.status}}</td>
+                 <td>{{item.launch_date}}</td>
+                 <td>{{item.termination_date}}</td>
+                <!--  <td>{{item.owner}}</td>
+                 <td>{{item.users}}</td>
+                 <td>{{item.simulations}}</td>
+                -->
+              </tr>
+            </table>
+            <br><br>
+
+            <gz-launcher
+              title="{{item.machine_ip}}"
+              url="https://{{item.machine_ip}}"
+              gui
+            ></gz-launcher>
+            </td>
+          </tr>
+        </template>
+      </table>
+    </div><!-- /config -->
   </template>
 
   <script>
@@ -133,17 +110,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       Polymer({
         is: 'gz-simlist',
 
-        // Triggered when the "gui" property is changed
-        _guiChanged: function(newValue, oldValue) {
-          this.$.gui.style.display = newValue ? '' : 'none'
-        },
         // Triggered when the "config" property is changed
         _configChanged: function(newValue, oldValue) {
           this.$.config.style.display = newValue ? '' : 'none'
-        },
-        // Triggered when the "border" property is changed
-        _borderChanged: function(newValue, oldValue) {
-          this.$.whole.style.border = newValue ? 'solid 1px' : 'none'
         },
 
         tapGet: function() {
@@ -153,9 +122,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.$.feedback.style.color = 'blue'
           this.$.feedback_text.textContent = "Asking the server."
 
+          // Send request
           this.$.ajax.url = this.url + '/simulators'
-          const data = { token: this.token}
+          const data = {token: this.token}
           this.$.ajax.params = data;
+          this.$.ajax.headers.authorization = this.token
           this.$.ajax.body = {token:token}
           this.$.ajax.generateRequest()
         },
@@ -168,19 +139,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           if (!res)
           {
+            const msg = "Failed to retrieve list of simulators."
+
+            // Local feedback for config
             this.$.feedback.style.color = 'red'
-            this.$.feedback_text.textContent = "Failed to retrieve list of simulators."
+            this.$.feedback_text.textContent = msg
+
+            // Feedback to other widgets
+            this.fire('simulatorlistupdated', {success: false, msg: msg})
           }
           else if (res.length == 0)
           {
+            const msg = "There are no simulators for this user."
+
+            // Local feedback for config
             this.$.feedback.style.color = 'blue'
-            this.$.feedback_text.textContent = "There are no simulators for this user."
+            this.$.feedback_text.textContent = msg
+
+            // Feedback to other widgets
+            this.fire('simulatorlistupdated', {success: true, items: this.items})
           }
           else
           {
+            const msg = "See list of simulators below."
+
+            // Local feedback for config
             this.$.feedback.style.color = 'blue'
-            this.$.feedback_text.textContent = "See list of simulators below."
+            this.$.feedback_text.textContent = msg
             this.$.listTable.style.display = ''
+
+            // Feedback to other widgets
+            this.fire('simulatorlistupdated', {success: true, items: this.items})
           }
         },
         herror: function(err) {
@@ -194,42 +183,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: Array,
             notify: true
           },
-	      title: {
-	        type: String,
-          value: 'Get list of simulator machines (gz-simlist)',
-	        notify: true
-	        },
-	      caption: {
-	        type: String,
-          value: 'This widget displays the list of simulations that a user has acccess to. It connects to the cloudsim-portal server.',
-	        notify: true
-	        },
-        url: {
-	        type: String,
-          value: 'https://localhost:4000',
-	        notify: true
-	        },
-	       token: {
-	        type: String,
-          value: 'xxxadminxxx',
-	        notify: true
-	        },
-          gui: {
-            type: Boolean,
-            value: false,
-            observer: '_guiChanged'
+          title: {
+            type: String,
+            value: 'Get list of simulator machines (gz-simlist)',
+            notify: true
+            },
+          caption: {
+            type: String,
+            value: 'This widget displays the list of simulations that a user has acccess to. It connects to the cloudsim-portal server.',
+            notify: true
+            },
+          url: {
+            type: String,
+            value: 'https://localhost:4000',
+            notify: true
+            },
+          token: {
+            type: String,
+            value: 'xxxadminxxx',
+            notify: true
+            },
+           config: {
+              type: Boolean,
+              value: false,
+              observer: '_configChanged'
+            }
           },
-          config: {
-            type: Boolean,
-            value: false,
-            observer: '_configChanged'
-          },
-          border: {
-            type: Boolean,
-            value: false,
-            observer: '_borderChanged'
-          }
-        },
 
         ready: function() {
           console.log('gz-simlist ready')
