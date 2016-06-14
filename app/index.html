@@ -75,7 +75,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <paper-scroll-header-panel main id="headerPanelMain" condenses keep-condensed-header>
         <!-- Main Toolbar -->
         <div>
-          <cs-toptoolbar id="toptoolbar"></cs-toptoolbar>
+          <cs-toptoolbar id="toptoolbar" authurl="{{authenticationUrl}}"></cs-toptoolbar>
         </div>
 
         <!-- Main Content -->
@@ -83,19 +83,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <iron-pages attr-for-selected="data-route" selected="{{route}}">
 
             <section data-route="signup">
-              <cs-signuppage id="signuppage"></cs-signuppage>
+              <cs-signuppage id="signuppage" url="{{authenticationUrl}}"></cs-signuppage>
             </section>
 
             <section data-route="dashboard">
-              <cs-dashboard id="dashboard"></cs-dashboard>
+              <cs-dashboard id="dashboard" portalurl="{{portalUrl}}"></cs-dashboard>
             </section>
 
             <section data-route="portfolio">
+              <paper-material elevation="1">
+                Get your certificates here:
+                Authentication server: <a href={{authenticationUrl}} >{{authenticationUrl}}</a>
+                <br>
+                Portal server: <a href={{portalUrl}}>{{portalUrl}}</a>
+              </paper-material>
+
               <paper-material elevation="1">
                 <gz-accounts
                   id="portfolio-accounts"
                   gui=true
                   config=true
+                  url="{{autthenticationUrl}}"
                 ></gz-accounts>
               </paper-material>
 
@@ -104,6 +112,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   id="portfolio-token"
                   gui=true
                   config=true
+                  url="{{authenticationUrl}}"
               ></gz-token>
               </paper-material>
 
@@ -112,6 +121,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   id="portfolio-grant"
                   gui=true
                   config=true
+                  url="{{simUrl}}"
                 ></gz-grant>
               </paper-material>
 
@@ -120,6 +130,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   id="portfolio-simulatorLauncher"
                   gui=true
                   config=true
+                  url="{{portalUrl}}"
                 ></gz-simulatorLauncher>
               </paper-material>
               <paper-material elevation="1">
@@ -127,6 +138,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   id="portfolio-simlist"
                   gui=true
                   config=true
+                  url="{{portalUrl}}"
                 ></gz-simlist>
               </paper-material>
 
@@ -135,6 +147,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   id="portfolio-cmd"
                   gui=true
                   config=true
+                  url="{{simUrl}}"
                 ></gz-cmd>
               </paper-material>
 
