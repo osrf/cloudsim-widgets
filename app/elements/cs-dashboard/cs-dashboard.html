@@ -1,0 +1,99 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-dashboard">
+  <style>
+  </style>
+  <template>
+
+    <!-- For launching new machines-->
+    <gz-simulatorLauncher
+      id="simulatorlauncher"
+      url={{portalurl}}
+      token={{token}}
+      on-launched="onLaunched"
+    ></gz-simulatorLauncher>
+
+    <div id="feedback" style="display:none">
+      <span id="feedback_text"/>
+    </div>
+
+    <paper-input label="Region" id="region" value="us-west-1"></paper-input>
+    <paper-input label="Machine image" id="machineImage" value="ami-854e0be5"></paper-input>
+    <paper-input label="Hardware" id="hardware" value="t2.small"></paper-input>
+
+<!-- Large machine commented out while debugging
+    <paper-input label="Machine image" id="machineImage" value="ami-610c7801"></paper-input>
+    <paper-input label="Hardware" id="hardware" value="g2.2xlarge"></paper-input>
+-->
+
+    <paper-button raised id="launchbutton" on-tap="tapLaunch">
+      <iron-icon icon="hardware:computer"></iron-icon>
+      Launch a machine!
+    </paper-button>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-dashboard',
+      // Attached
+      attached: function() {
+        console.log('cs-dashboard widget attached!')
+      },
+      tapLaunch() {
+        // Get user input info
+        let region = this.$.region.value;
+        let machineImage = this.$.machineImage.value;
+        let hardware = this.$.hardware.value;
+
+        if (region == "" ||
+            machineImage == "" ||
+            hardware == "")
+        {
+          this.$.feedback.style.display = ''
+          this.$.feedback.style.color = 'red'
+          this.$.feedback_text.textContent = "All fields are required."
+          return;
+        }
+
+        // Send request to gz-simulatorLauncher
+        this.$.feedback.style.display = ''
+        this.$.feedback.style.color = 'blue'
+        this.$.feedback_text.textContent = "Request to launch machine has been sent."
+
+        this.$.simulatorlauncher.launchMachine(region, machineImage, hardware);
+      },
+      onLaunched: function(e) {
+        let success = e.detail.success
+        let msg = e.detail.message
+
+        if (!success)
+        {
+          this.$.feedback.style.display = ''
+          this.$.feedback.style.color = 'red'
+          this.$.feedback_text.textContent = msg
+          return;
+        }
+
+        this.$.feedback.style.display = 'none'
+      },
+      properties: {
+        portalurl: {
+          type: String,
+          value: 'https://localhost:4000',
+          notify: true
+        },
+        token: {
+          type: String,
+          value: 'placeholder',
+          notify: true
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>
