@@ -18,18 +18,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         display: block;
       }
 
-      #whole {
-        border: solid 1px;
-        padding: 0.5em
-      }
-
       #config {
-        max-width:20em;
-        font-size:"0.8em"
+        max-width: 30em;
+        border: 1px solid black;
+        padding: 1em;
       }
 
       #config > div{
-        padding-top:0.5em;
+        padding-top: 1em;
       }
 
       #config > div > input{
@@ -42,50 +38,66 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
 
     <iron-ajax
-      id="ajax"
+      id="ajaxLaunch"
       url=""
       handle-as="json"
-      on-response="hresponse"
-      headers="headers"
+      on-response="responseLaunch"
+      on-error="errorLaunch"
       method="POST"
       content-type="application/json"
       debounce-duration="300">
     </iron-ajax>
 
-    <div id="whole">
-      <div id="config">
-        <h4>{{caption}}</h4>
+    <iron-ajax
+      id="ajaxKill"
+      url=""
+      handle-as="json"
+      on-response="responseKill"
+      on-error="errorKill"
+      method="DELETE"
+      content-type="application/json"
+      debounce-duration="300">
+    </iron-ajax>
 
-        <div>
-            Portal URL:<input id=url value="{{url::input}}"></input>
-        </div>
-        <div>
-            User token:<input id=token value="{{token::input}}"></input>
-        </div>
-        <div>
-            Region:<input id=region value="{{region::input}}"></input>
-        </div>
-        <div>
-            Machine image:<input id=machineImage value="{{machineImage::input}}"></input>
-        </div>
-        <div>
-            Hardware:<input id=hardware value="{{hardware::input}}"></input>
-        </div>
+    <div id="config">
+      <div><h1>{{title}}</h1></div>
+      <h4>{{caption}}</h4>
+      <div id="feedback" style="display:none">
+        <span id="feedback_text"/>
       </div>
 
-      <div id="gui">
-        <div><h1>{{title}}</h1></div>
-
-        <div id="feedback" style="display:none">
-          <span id="feedback_text"/>
-        </div>
-        <ul>
-          <template is="dom-repeat" items="{{items}}">
-            <li><span>[{{item.id}}], {{item.region}}, {{item.status}}, {{item.owner.username}}</span></li>
-          </template>
-        </ul>
-         <button on-tap="tapAdd"  id="buttonAdd">Launch!</button>
+      <div>
+          Portal URL:<input id=url value="{{url::input}}"></input>
       </div>
+      <div>
+          User token:<input id=token value="{{token::input}}"></input>
+      </div>
+
+      <h3> Launch </h3>
+      <div>
+          Region:<input id=region value="{{region::input}}"></input>
+      </div>
+      <div>
+          Machine image:<input id=machineImage value="{{machineImage::input}}"></input>
+      </div>
+      <div>
+          Hardware:<input id=hardware value="{{hardware::input}}"></input>
+      </div>
+
+      <button on-tap="tapAdd"  id="buttonAdd">Launch!</button>
+
+      <h3> Kill </h3>
+      <div>
+          Machine id:<input id=machineId value="{{machineId::input}}"></input>
+      </div>
+
+      <button on-tap="tapKill"  id="buttonKill">Kill!</button>
+
+      <ul>
+        <template is="dom-repeat" items="{{items}}">
+          <li><span>[{{item.id}}], {{item.region}}, {{item.status}}, {{item.owner.username}}</span></li>
+        </template>
+      </ul>
     </div>
   </template>
 
@@ -99,20 +111,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           console.log('gz-simulatorLauncher widget attached!')
           this.items = [];
         },
-        // Triggered when the "gui" property is changed
-        _guiChanged: function(newValue, oldValue) {
-          this.$.gui.style.display = newValue ? '' : 'none'
-        },
         // Triggered when the "config" property is changed
         _configChanged: function(newValue, oldValue) {
           this.$.config.style.display = newValue ? '' : 'none'
         },
-        // Triggered when the "border" property is changed
-        _borderChanged: function(newValue, oldValue) {
-          this.$.whole.style.border = newValue ? 'solid 1px' : 'none'
-        },
 
         tapAdd: function() {
+          // Check config fields
           if (this.url == "" ||
               this.token == "" ||
               this.region == "" ||
@@ -125,41 +130,142 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             return;
           }
 
-          this.$.ajax.url = this.url + '/simulators'
+          this.launchMachine(this.region, this.machineImage, this.hardware);
+        },
+        // Request portal to launch a machine
+        launchMachine: function(_region, _machineImage, _hardware) {
+
+          this.token = window.token
+          this.$.ajaxLaunch.url = this.url + '/simulators'
           const data = {
               token: this.token,
-              region: this.region,
-              machineImage: this.machineImage,
-              hardware: this.hardware
+              region: _region,
+              machineImage: _machineImage,
+              hardware: _hardware
           }
-          this.$.ajax.body = data
-          this.$.ajax.generateRequest()
+          this.$.ajaxLaunch.headers.authorization = this.token
+          this.$.ajaxLaunch.body = data
+          this.$.ajaxLaunch.generateRequest()
         },
-        hresponse: function(req) {
-          let res = this.$.ajax.lastResponse
-          this.items = res;
+        responseLaunch: function(req) {
+          let res = this.$.ajaxLaunch.lastResponse
 
           this.$.feedback.style.display = ''
 
           if (!res)
           {
+            let msg = "Failed to launch simulator."
+
+            // Local feedback for config
+            this.$.feedback.style.display = ''
             this.$.feedback.style.color = 'red'
-            this.$.feedback_text.textContent = "Failed to launch simulator."
+            this.$.feedback_text.textContent = msg
+
+            // Feedback to other widgets
+            this.fire('launched', {success: false, msg: msg})
+            return;
           }
-          else
-          {
-            let txt = res.status + ": <br>"
-            txt += "<ul>"
-            txt += "<li> Id: " + res.id + "</li>"
-            txt += "<li> Region: " + res.region + "</li>"
-            txt += "<li> Owner: " + res.owner.username + "</li>"
-            txt += "<li> Launch date: " + res.launch_date + "</li>"
-            txt += "<li> Termination date: " + res.termination_date + "</li>"
-            txt += "<li> Machine ip: " + res.machine_ip + "</li>"
-            txt += "<li> Machine id: " + res.machine_id + "</li>"
-            this.$.feedback.style.color = 'blue'
+
+          if (res.error) {
+            let txt = res.error.message
+
+            // Local feedback for config
+            this.$.feedback.style.color = 'red'
             this.$.feedback_text.innerHTML = txt
+
+            // Feedback to other widgets
+            this.fire('launched', {success: false, message: txt})
+            return;
           }
+
+          let txt = res.status + ": <br>"
+          txt += "<ul>"
+          txt += "<li> Id: " + res.id + "</li>"
+          txt += "<li> Region: " + res.region + "</li>"
+          txt += "<li> Owner: " + res.owner.username + "</li>"
+          txt += "<li> Launch date: " + res.launch_date + "</li>"
+          txt += "<li> Termination date: " + res.termination_date + "</li>"
+          txt += "<li> Machine ip: " + res.machine_ip + "</li>"
+          txt += "<li> Machine id: " + res.machine_id + "</li>"
+
+          // Local feedback for config
+          this.$.feedback.style.color = 'blue'
+          this.$.feedback_text.innerHTML = txt
+
+          // Feedback to other widgets
+          this.fire('launched', {success: true, machineInfo: res, msg: txt})
+        },
+        errorLaunch: function(err) {
+          let res = this.$.ajaxLaunch.lastResponse
+        },
+        tapKill: function() {
+          // Check config fields
+          if (this.url == "" ||
+              this.token == "" ||
+              this.machineId == "")
+          {
+            this.$.feedback.style.display = ''
+            this.$.feedback.style.color = 'red'
+            this.$.feedback_text.textContent = "All fields are required."
+            return;
+          }
+
+          this.killMachine(this.machineId);
+        },
+        // Request portal to kill a machine
+        killMachine: function(_id) {
+
+          this.token = window.token
+          this.$.ajaxKill.url = this.url + '/simulators'
+          const data = {
+              id: _id,
+          }
+          this.$.ajaxKill.headers.authorization = this.token
+          this.$.ajaxKill.body = data
+          this.$.ajaxKill.generateRequest()
+        },
+        responseKill: function(req) {
+          let res = this.$.ajaxLaunch.lastResponse
+
+          this.$.feedback.style.display = ''
+
+          if (!res)
+          {
+            let msg = "Failed to kill simulator."
+
+            // Local feedback for config
+            this.$.feedback.style.display = ''
+            this.$.feedback.style.color = 'red'
+            this.$.feedback_text.textContent = msg
+
+            // Feedback to other widgets
+            this.fire('killed', {success: false, msg: msg})
+            return;
+          }
+
+          if (res.error) {
+            let txt = res.error.message
+
+            // Local feedback for config
+            this.$.feedback.style.color = 'red'
+            this.$.feedback_text.innerHTML = txt
+
+            // Feedback to other widgets
+            this.fire('killed', {success: false, message: txt})
+            return;
+          }
+
+          let txt = 'Killed [' + res.id + ']'
+
+          // Local feedback for config
+          this.$.feedback.style.color = 'blue'
+          this.$.feedback_text.innerHTML = txt
+
+          // Feedback to other widgets
+          this.fire('launched', {success: true, machineInfo: res, msg: txt})
+        },
+        errorKill: function(err) {
+          let res = this.$.ajaxLaunch.lastResponse
         },
         properties: {
           items: {
@@ -201,21 +307,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           value: 'g2.2xlarge',
 	        notify: true
 	        },
-        gui: {
-          type: Boolean,
-          value: false,
-          observer: '_guiChanged'
-        },
         config: {
           type: Boolean,
           value: false,
           observer: '_configChanged'
         },
-        border: {
-          type: Boolean,
-          value: false,
-          observer: '_borderChanged'
-        }
       }
       });
     })();
