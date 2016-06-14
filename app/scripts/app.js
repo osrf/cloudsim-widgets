@@ -105,6 +105,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Open dashboard
     app.route = "dashboard"
+    dashboard.$.simlist.tapGet()
   });
 
   window.addEventListener('register', function(e) {

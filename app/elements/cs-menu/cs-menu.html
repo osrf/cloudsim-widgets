@@ -86,6 +86,11 @@
 
     <!-- Drawer Content -->
     <paper-menu attr-for-selected="data-route" selected="[[route]]">
+      <a data-route="dashboard" href="{{baseUrl}}dashboard">
+        <iron-icon icon="icons:cloud"></iron-icon>
+        <span>Dashboard</span>
+      </a>
+
       <a data-route="portfolio" href="{{baseUrl}}portfolio">
         <iron-icon icon="settings"></iron-icon>
         <span>Portfolio</span>
