@@ -46,7 +46,7 @@
 
     </div>
     <div id="gui">
-      <div><h1>{{title}}</h1></div>
+      <div><h1><a href="https://{{title}}" target="blank">{{title}}</a></h1></div>
 
       <div id="feedback" style="display:none">
         <span id="feedback_text"/>
@@ -153,8 +153,8 @@
                 that.$.buttonKill.style.display = 'none'
 
                 // Clear terminal
-                that.$.console.style.display = 'none'
-                that.$.console.innerHTML = ''
+                //that.$.console.style.display = 'none'
+                //that.$.console.innerHTML = ''
               }
             })
           }).emit('authenticate', authMsg); // send the jwt
