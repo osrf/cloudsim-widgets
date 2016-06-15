@@ -4,23 +4,34 @@
 <dom-module id="gz-accounts">
   <template>
     <style>
-      :host {
-        display: block;
+      #config {
+        max-width: 30em;
+        border: 1px solid black;
+        padding: 1em;
+      }
+
+      #config > div{
+        padding-top: 1em;
+      }
+
+      #config > div > input{
+        float:right;
       }
 
     </style>
 
-    <div id="config">
-      Auth server URL: <input id=url value="{{url::input}}"></input><br>
-    </div>
 
-    <div id="gui">
+    <div id="config">
 
       <div><h1>{{title}}</h1></div>
       <div><h4>{{caption}}</h4></div>
 
       <div id="feedback" style="display:none">
           <span id="feedback_text"/>
+      </div>
+
+      <div>
+        Auth server URL: <input id=url value="{{url::input}}"></input><br>
       </div>
 
       <button id="button_add"  on-tap = "tapAdd" >Add user</button>
@@ -54,10 +65,6 @@
       // Attached
       attached: function() {
         console.log('gz-accounts widget [' + this.title + '] attached!')
-      },
-      // Triggered when the "gui" property is changed
-      _guiChanged: function(newValue, oldValue) {
-        this.$.gui.style.display = newValue ? '' : 'none'
       },
       // Triggered when the "config" property is changed
       _configChanged: function(newValue, oldValue) {
@@ -304,11 +311,6 @@
           type: String,
           value: 'https://localhost:5050',
           notify: true
-        },
-        gui: {
-          type: Boolean,
-          value: false,
-          observer: '_guiChanged'
         },
         config: {
           type: Boolean,
