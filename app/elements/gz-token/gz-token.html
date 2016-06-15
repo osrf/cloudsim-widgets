@@ -105,7 +105,6 @@
           else
           {
             this.token = res.token
-            window.token = res.token
 
             // temporary fix for older auth server that returns user instead
             // of username
@@ -115,7 +114,7 @@
               this.set("username", res.username)
             this.$.feedback.style.color = 'blue'
             this.$.feedback_text.textContent = "User \"" + this.username + "\" logged in!"
-            this.fire('login', {user: this.username})
+            this.fire('login', {user: this.username, token: this.token})
           }
         }
 

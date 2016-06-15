@@ -72,10 +72,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', appName);
   });
 
-  window.addEventListener('login', function() {
+  window.addEventListener('login', function(e) {
     // Pass token to dashboard (TODO: this can probably be done more automatically)
     var dashboard = Polymer.dom(document).querySelector('#dashboard');
-    dashboard.token = window.token;
+    dashboard.token = e.detail.token;
 
     // Open dashboard
     app.route = "dashboard"

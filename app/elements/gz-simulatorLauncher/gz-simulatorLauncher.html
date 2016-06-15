@@ -134,7 +134,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
         // Request portal to launch a machine
         launchMachine: function(_region, _machineImage, _hardware) {
-          
+
           this.$.ajaxLaunch.url = this.url + '/simulators'
           const data = {
               token: this.token,
@@ -213,8 +213,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
         // Request portal to kill a machine
         killMachine: function(_id) {
-
-          this.token = window.token
           this.$.ajaxKill.url = this.url + '/simulators'
           const data = {
               id: _id,
