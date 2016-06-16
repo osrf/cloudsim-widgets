@@ -72,6 +72,9 @@
       },
 
       tapLogout: function() {
+        // Clear for refresh
+        window.localStorage.removeItem("username");
+        window.localStorage.removeItem("token");
 
         if (window.navigator.userAgent.toLowerCase().indexOf("firefox") >= 0) {
           window.location = this.url.replace("https://", "https://toto:fakefake@") + "/logout"
@@ -114,6 +117,12 @@
               this.set("username", res.username)
             this.$.feedback.style.color = 'blue'
             this.$.feedback_text.textContent = "User \"" + this.username + "\" logged in!"
+
+            // Set username for refresh
+            window.localStorage.setItem("username", this.username);
+            window.localStorage.setItem("token", this.token);
+
+            // Fire event
             this.fire('login', {user: this.username, token: this.token})
           }
         }
@@ -123,6 +132,16 @@
       },
       herror: function(err) {
         this.fire('logout')
+      },
+      fireLoginEvent() {
+        if (window.localStorage.getItem("username") != null &&
+            window.localStorage.getItem("token") != null) {
+
+          const username = window.localStorage.getItem("username")
+          const token = window.localStorage.getItem("token")
+
+          this.fire('login', {user: username, token: token})
+        }
       },
       attached: function() {
         console.log('gz-token widget attached!')

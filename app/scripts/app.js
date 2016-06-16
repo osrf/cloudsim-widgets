@@ -15,9 +15,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   // Learn more about auto-binding templates at http://goo.gl/Dx1u2g
   var app = document.querySelector('#app');
 
+  // Get configuration from environment variables
   app.authenticationUrl = getConfig().auth
   app.portalUrl = getConfig().portal
   app.simUrl = getConfig().simu
+
   // Sets app default base URL
   app.baseUrl = '/';
   if (window.location.port === '') {  // if production
@@ -41,7 +43,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   // See https://github.com/Polymer/polymer/issues/1381
   window.addEventListener('WebComponentsReady', function() {
-     console.log('WebComponentsReady')
+    console.log('WebComponentsReady')
+
+    var token = Polymer.dom(document).querySelector('#toptoolbar').querySelector('#token');
+    token.fireLoginEvent()
   });
 
   // Main area's paper-scroll-header-panel custom condensing transformation of
