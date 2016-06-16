@@ -24,18 +24,15 @@
       iron-list {
         padding-top: 64px;
         --iron-list-items-container: {
-          max-width: 800px;
-          margin: auto;
+          max-width: 100%;
           margin-top: 60px;
           margin-bottom: 60px;
-          border-bottom: 1px solid #ddd;
         }
       }
       .item {
         @apply(--layout-horizontal);
         padding: 20px;
         background-color: white;
-        border: 1px solid #ddd;
         cursor: pointer;
         margin-bottom: 10px;
       }
@@ -129,6 +126,7 @@
 
     <iron-list id="list" items="[[listitems]]" as="item" selection-enabled multi-selection>
       <template>
+              <paper-material elevation="3" style="margin: 1em">
         <div>
           <div class$="[[getClassForItem(item, selected)]]" tabindex$="[[tabIndex]]">
             <iron-icon class="avatar" icon="hardware:computer"></iron-icon>
@@ -143,15 +141,6 @@
                   Users: [[item.users]]<br>
                   Simulations: [[item.simulations]]<br>
 
-                  <gz-cmd
-                    title="{{item.machine_ip}}"
-                    url="https://{{item.machine_ip}}"
-                    token={{token}}
-                    cmd="gzserver --verbose"
-                    gui
-                    config
-                  ></gz-cmd>
-
                </div>
             </div>
             <paper-button raised class="killButton" on-tap="tapKill" id="[[item.id]]"">
@@ -159,7 +148,17 @@
               Kill
             </paper-button>
           </div>
+                  <gz-cmd
+                    title="{{item.machine_ip}}"
+                    url="https://{{item.machine_ip}}"
+                    token={{token}}
+                    cmd="gzserver --verbose"
+                    gui
+                    config
+                    style="padding: 1em"
+                  ></gz-cmd>
         </div>
+              </paper-material>
       </template>
     </iron-list>
 
