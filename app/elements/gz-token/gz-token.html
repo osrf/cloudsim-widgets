@@ -122,7 +122,6 @@
             window.localStorage.setItem("username", this.username);
             window.localStorage.setItem("token", this.token);
 
-            // Fire event, but don't call fireLoginEvent
             this.fire('login', {user: this.username, token: this.token})
           }
         }
