@@ -31,6 +31,7 @@
     </style>
 
     <div id="config">
+      <div><h1><a href="https://{{title}}" target="_blank">{{title}}</a></h1></div>
       <div><h4>{{caption}}</h4></div>
 
       <div>
@@ -39,21 +40,30 @@
       <div>
         User token:<input id=token value="{{token::input}}"></input>
       </div>
-      <div>
-        Command:<input id=cmdline value="{{cmd::input}}"></input>
-      </div>
 
 
     </div>
     <div id="gui">
-      <div><h1><a href="https://{{title}}" target="_blank">{{title}}</a></h1></div>
 
       <div id="feedback" style="display:none">
         <span id="feedback_text"/>
       </div>
 
+      <div>
+        <paper-input label="Command" id="cmdline" value="{{cmd::input}}"></paper-input>
+        <!-- Command:<input id=cmdline value="{{cmd::input}}"></input>-->
+      </div>
+
+      <paper-button raised  on-tap="tapRun" id="buttonRun"">
+        Run
+      </paper-button>
+      <paper-button raised  on-tap="tapKill" id="buttonKill" style="display:none">
+        Kill process
+      </paper-button>
+<!--
       <button on-tap="tapRun" id="buttonRun">Run</button>
       <button on-tap="tapKill"id="buttonKill" style="display:none">Kill</button>
+-->
 
 
       <div id="currentProcess" style="display:none; text-align:center">

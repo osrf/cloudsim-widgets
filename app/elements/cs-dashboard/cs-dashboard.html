@@ -131,7 +131,7 @@
           <div class$="[[getClassForItem(item, selected)]]" tabindex$="[[tabIndex]]">
             <iron-icon class="avatar" icon="hardware:computer"></iron-icon>
             <div class="pad">
-              <div class="primary">[[item.machine_ip]]</div>
+              <div class="primary"><a href="https://{{item.machine_ip}}" target="_blank">[[item.machine_ip]]</a></div>
               <div class="shortText">[[item.status]]</div>
               <div class="longText">
                   ID: [[item.id]]<br>
@@ -154,7 +154,6 @@
                     token={{token}}
                     cmd="gzserver --verbose"
                     gui
-                    config
                     style="padding: 1em"
                   ></gz-cmd>
         </div>
