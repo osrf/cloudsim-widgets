@@ -8,7 +8,11 @@
     "paper-elements": "PolymerElements/paper-elements#^1.0.1",
     "platinum-elements": "PolymerElements/platinum-elements#^1.1.0",
     "polymer": "Polymer/polymer#^1.2.0",
-    "gz-accounts": "osrf/gz-accounts#^0.0.1"
+    "gz-token": "osrf/gz-token#^0.0.1",
+    "gz-accounts": "osrf/gz-accounts#^0.0.1",
+    "gz-grant": "osrf/gz-grant#^0.0.1",
+    "gz-cmd": "osrf/gz-cmd#^0.0.1",
+    "gz-simulatorLauncher": "osrf/gz-simulatorLauncher#^0.0.1"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"
