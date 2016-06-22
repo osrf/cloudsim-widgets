@@ -18,7 +18,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script src="../bower_components/web-component-tester/browser.js"></script>
 
   <!-- Import the element to test -->
-  <link rel="import" href="../elements/gz-token/gz-token.html">
+  <link rel="import" href="../bower_components/gz-token/gz-token.html">
 
 </head>
 <body>
@@ -55,6 +55,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         );
 
         token = fixture('basic');
+        assert.notStrictEqual(token, undefined);
       });
 
       // Pass function(done) so the test waits for done()
