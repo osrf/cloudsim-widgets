@@ -80,21 +80,21 @@
   <template>
 
     <!-- For launching new machines-->
-    <gz-simulatorLauncher
+    <gz-simulatorlauncher
       id="simulatorlauncher"
       url={{portalurl}}
       token={{token}}
       on-launched="onLaunched"
       on-killed="onKilled"
-    ></gz-simulatorLauncher>
+    ></gz-simulatorlauncher>
 
     <!-- For retrieving list of machines-->
-    <gz-simlist
-      id="simlist"
+    <gz-simulatorq
+      id="simulatorq"
       token={{token}}
-      on-simulatorlistupdated="onSimulatorListUpdated"
+      on-simulatorqUpdated="onSimulatorqUpdated"
       url={{portalurl}}
-    ></gz-simlist>
+    ></gz-simulatorq>
 
     <div id="feedback" style="display:none">
       <span id="feedback_text"/>
@@ -190,11 +190,11 @@
           return;
         }
 
-        // Send request to gz-simulatorLauncher
+        // Send request to gz-simulatorlauncher
         this.$.feedback.style.display = ''
         this.$.feedback.style.color = 'blue'
         this.$.feedback_text.textContent = "Request to launch machine has been sent."
-
+console.log('LLLLL: ', this.$.simulatorlauncher  )
         this.$.simulatorlauncher.launchMachine(region, machineImage, hardware);
       },
       onLaunched: function(e) {
@@ -216,7 +216,7 @@
       tapKill(e) {
         let id = e.target.id
 
-        // Send request to gz-simulatorLauncher
+        // Send request to gz-simulatorlauncher
         this.$.feedback.style.display = ''
         this.$.feedback.style.color = 'blue'
         this.$.feedback_text.textContent = "Request to kill machine has been sent."
@@ -226,7 +226,7 @@
       onKilled: function(e) {
         this.tapRefresh()
       },
-      onSimulatorListUpdated: function(e) {
+      onSimulatorqUpdated: function(e) {
         if (e.detail.success)
         {
           this.updateList(e.detail.items);
@@ -247,7 +247,7 @@
         }.bind(this));
       },
       tapRefresh() {
-        this.$.simlist.tapGet();
+        this.$.simulatorq.tapGet();
       },
       getClassForItem: function(item, selected) {
         return selected ? 'item expanded' : 'item';

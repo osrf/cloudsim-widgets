@@ -1,7 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-styles/typography.html">
 
-<dom-module id='gz-simlist'>
+<dom-module id='gz-simulatorq'>
   <template>
     <style>
       :host {
@@ -108,7 +108,7 @@
       'use strict';
 
       Polymer({
-        is: 'gz-simlist',
+        is: 'gz-simulatorq',
 
         // Triggered when the "config" property is changed
         _configChanged: function(newValue, oldValue) {
@@ -185,7 +185,7 @@
           },
           title: {
             type: String,
-            value: 'Get list of simulator machines (gz-simlist)',
+            value: 'Get list of simulator machines (gz-simulatorq)',
             notify: true
             },
           caption: {
@@ -211,7 +211,7 @@
           },
 
         ready: function() {
-          console.log('gz-simlist ready')
+          console.log('gz-simulatorq ready')
           this.items = [];
         }
       });

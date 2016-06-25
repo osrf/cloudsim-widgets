@@ -12,7 +12,7 @@
     "gz-accounts": "osrf/gz-accounts#^0.0.1",
     "gz-grant": "osrf/gz-grant#^0.0.1",
     "gz-cmd": "osrf/gz-cmd#^0.0.1",
-    "gz-simulatorLauncher": "osrf/gz-simulatorLauncher#^0.0.1"
+    "gz-simulatorlauncher": "osrf/gz-simulatorlauncher#^0.0.2"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"
