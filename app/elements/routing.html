@@ -22,43 +22,68 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     // Middleware
-    function scrollToTop(ctx, next) {
-      //app.scrollPageToTop();
-      next();
-    }
-
     function closeDrawer(ctx, next) {
       app.closeDrawer();
       next();
     }
 
     // Routes
-    page('*', scrollToTop, closeDrawer, function(ctx, next) {
-      next();
-    });
-
     page('/', function() {
-      app.route = 'home';
+      if (app.loggedin)
+      {
+        app.routeParent = 'secure';
+        app.route = 'dashboard';
+      }
+      else
+      {
+        app.routeParent = 'home';
+      }
     });
 
     page(app.baseUrl, function() {
-      app.route = 'home';
+      if (app.loggedin)
+      {
+        app.routeParent = 'secure';
+        app.route = 'dashboard';
+      }
+      else
+      {
+        app.routeParent = 'home';
+      }
     });
 
     page('/home', function() {
-      app.route = 'home';
+      if (app.loggedin)
+      {
+        app.routeParent = 'secure';
+        app.route = 'dashboard';
+      }
+      else
+      {
+        app.routeParent = 'home';
+      }
     });
 
+    // This route is used for debugging
     page('/portfolio', function() {
+      app.routeParent = 'secure';
       app.route = 'portfolio';
     });
 
     page('/signup', function() {
-      app.route = 'signup';
+      app.routeParent = 'signup';
     });
 
     page('/dashboard', function() {
-      app.route = 'dashboard';
+      if (app.loggedin)
+      {
+        app.routeParent = 'secure';
+        app.route = 'dashboard';
+      }
+      else
+      {
+        app.routeParent = 'home';
+      }
     });
 
     // 404

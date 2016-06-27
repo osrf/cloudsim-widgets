@@ -78,8 +78,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // Pass token to dashboard (TODO: this can probably be done more automatically)
     var dashboard = app.querySelector('#dashboard');
     dashboard.token = e.detail.token;
+    app.loggedin = true
 
     // Open dashboard
+    app.routeParent = "secure"
     app.route = "dashboard"
     dashboard.$.simlist.tapGet()
   });
@@ -87,13 +89,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   window.addEventListener('register', function(e) {
     // Login when new account was created successfully
     if (e.detail.success) {
-      var token = Polymer.dom(document).querySelector('#toptoolbar').querySelector('#token');
+      var token = app.querySelector('#toptoolbar').querySelector('#token');
       token.tapLogin()
     }
   });
-
-  app.closeDrawer = function() {
-    // app.$.cloudsim-app.paperDrawerPanel.closeDrawer();
-  };
 
 })(document);
