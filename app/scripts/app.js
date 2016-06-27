@@ -86,6 +86,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     dashboard.$.simlist.tapGet()
   });
 
+  window.addEventListener('logout', function(e) {
+    // Pass token to dashboard (TODO: this can probably be done more automatically)
+    var dashboard = app.querySelector('#dashboard');
+    dashboard.token = "";
+    app.loggedin = false
+
+    // Open dashboard
+    app.routeParent = "home"
+  });
+
   window.addEventListener('register', function(e) {
     // Login when new account was created successfully
     if (e.detail.success) {
