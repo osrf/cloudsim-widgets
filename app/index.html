@@ -16,7 +16,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="generator" content="Polymer Starter Kit">
-  <title>Cloudsim Starter Kit</title>
+  <title>CloudSim</title>
 
   <!-- Place favicon.ico in the `app/` directory -->
 
@@ -64,19 +64,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <template is="dom-bind" id="app">
 
     <paper-drawer-panel id="paperDrawerPanel">
-      <!-- Drawer Scroll Header Panel -->
-      <paper-scroll-header-panel drawer fixed>
 
+      <!-- Drawer -->
+      <paper-header-panel drawer fixed>
+
+        <!-- drawer logo -->
+        <paper-toolbar>
+          <img src="images/cloudsim.svg">
+        </paper-toolbar>
+
+        <!-- menu -->
         <cs-menu id="menu"></cs-menu>
-
-      </paper-scroll-header-panel>
+      </paper-header-panel>
 
       <!-- Main Area -->
       <paper-scroll-header-panel main id="headerPanelMain" condenses keep-condensed-header>
+
         <!-- Main Toolbar -->
-        <div>
-          <cs-toptoolbar id="toptoolbar" authurl="{{authenticationUrl}}"></cs-toptoolbar>
-        </div>
+        <cs-toptoolbar id="toptoolbar" authurl="{{authenticationUrl}}"></cs-toptoolbar>
 
         <!-- Main Content -->
         <div class="content">
@@ -156,22 +161,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 ></gz-simulationQueue>
               </paper-material>
 
-
-
-              <paper-material elevation="1">
-                <my-greeting></my-greeting>
-              </paper-material>
-
-              <paper-material elevation="1">
-                <p>Looking for more Web App layouts? Check out our
-                   <a
-              href="https://github.com/PolymerElements/app-layout-templates">
-                   layouts</a>
-                   collection. You can also
-                    <a
-              href="http://polymerelements.github.io/app-layout-templates/">
-                   preview</a> them live.</p>
-              </paper-material>
             </section>
 
             <section data-route="users">
@@ -215,31 +204,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               </paper-material>
             </section>
           </iron-pages>
+
         </div>
+
       </paper-scroll-header-panel>
+
     </paper-drawer-panel>
-
-    <paper-toast id="toast">
-      <span class="toast-hide-button" role="button" tabindex="0" onclick="app.$.toast.hide()">Ok</span>
-    </paper-toast>
-
-    <!-- Uncomment next block to enable Service Worker support (1/2) -->
-    <!--
-    <paper-toast id="caching-complete"
-                 duration="6000"
-                 text="Caching complete! This app will work offline.">
-    </paper-toast>
-
-    <platinum-sw-register auto-register
-                          clients-claim
-                          skip-waiting
-                          base-uri="bower_components/platinum-sw/bootstrap"
-                          on-service-worker-installed="displayInstalledToast">
-      <platinum-sw-cache default-cache-strategy="fastest"
-                         cache-config-file="cache-config.json">
-      </platinum-sw-cache>
-    </platinum-sw-register>
-    -->
 
   </template>
 
