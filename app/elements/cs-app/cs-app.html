@@ -1,0 +1,222 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-app">
+
+  <template>
+    <style>
+
+      /* Components */
+
+      /* paper-drawer-panel */
+      --drawer-menu-color: #ffffff;
+      --drawer-border-color: 1px solid #ccc;
+      --drawer-toolbar-border-color: 1px solid rgba(0, 0, 0, 0.22);
+
+      /* paper-menu */
+      --paper-menu-background-color: #fff;
+      --menu-link-color: #111111;
+
+      /* Height of the scroll area */
+      .content {
+        height: 900px;
+        background-color: #f3f3f3;
+        padding: 3em;
+      }
+
+      paper-menu {
+        --paper-menu-selected-item: {
+          color: var(--primary-color);
+        }
+
+        --paper-menu-focused-item-after: {
+          background: var(--primary-color);
+        }
+      }
+
+      paper-menu iron-icon {
+        margin-right: 33px;
+        opacity: 0.54;
+      }
+
+      paper-menu a {
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+
+        text-decoration: none;
+        color: var(--menu-link-color);
+        font-family: 'Roboto', 'Noto', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 24px;
+        min-height: 48px;
+        padding: 0 16px;
+      }
+    </style>
+
+    <paper-drawer-panel id="paperDrawerPanel">
+
+      <!-- DRAWER -->
+      <paper-header-panel drawer fixed>
+
+        <!-- Drawer logo -->
+        <paper-toolbar>
+          <a data-route="home" href="{{baseUrl}}home">
+            <img src="images/cloudsim.svg" style="height: 2em">
+          </a>
+        </paper-toolbar>
+
+        <!-- Main Menu -->
+        <cs-menu id="menu"></cs-menu>
+
+      </paper-header-panel>
+
+      <!-- MAIN -->
+      <paper-scroll-header-panel main id="headerPanelMain" condenses keep-condensed-header>
+
+        <!-- Main Toolbar -->
+        <cs-toptoolbar id="toptoolbar" authurl="{{authenticationUrl}}"></cs-toptoolbar>
+
+        <!-- Main Content -->
+        <div class="content">
+
+          <iron-pages attr-for-selected="data-route" selected="{{route}}">
+
+            <section data-route="signup">
+              <cs-signuppage id="signuppage" url="{{authenticationUrl}}"></cs-signuppage>
+            </section>
+
+            <section data-route="dashboard">
+              <cs-dashboard id="dashboard" portalurl="{{portalUrl}}"></cs-dashboard>
+            </section>
+
+            <section data-route="portfolio">
+              <paper-material elevation="1">
+                Authentication server: <a href={{authenticationUrl}} target="_blank">{{authenticationUrl}}</a>
+                <br>
+                Portal server: <a href={{portalUrl}} target="_blank">{{portalUrl}}</a>
+              </paper-material>
+
+              <paper-material elevation="1">
+                <gz-accounts
+                  id="portfolio-accounts"
+                  config
+                  url="{{authenticationUrl}}"
+                ></gz-accounts>
+              </paper-material>
+
+              <paper-material elevation="1">
+                <gz-token
+                  id="portfolio-token"
+                  config
+                  url="{{authenticationUrl}}"
+              ></gz-token>
+              </paper-material>
+
+              <paper-material elevation="1">
+                <gz-grant
+                  id="portfolio-grant"
+                  gui
+                  config
+                  url="{{simUrl}}"
+                ></gz-grant>
+              </paper-material>
+
+              <paper-material elevation="1">
+                <gz-simulatorLauncher
+                  id="portfolio-simulatorLauncher"
+                  config
+                  url="{{portalUrl}}"
+                ></gz-simulatorLauncher>
+              </paper-material>
+              <paper-material elevation="1">
+                <gz-simlist
+                  id="portfolio-simlist"
+                  gui
+                  config
+                  url="{{portalUrl}}"
+                ></gz-simlist>
+              </paper-material>
+
+              <paper-material elevation="1">
+                <gz-cmd
+                  id="portfolio-cmd"
+                  gui
+                  config
+                  url="{{simUrl}}"
+                ></gz-cmd>
+              </paper-material>
+
+              <paper-material elevation="1">
+                <gz-simulationQueue
+                  id="portfolio-simulationQueue"
+                  gui
+                  config
+                ></gz-simulationQueue>
+              </paper-material>
+
+
+
+              <paper-material elevation="1">
+                <my-greeting></my-greeting>
+              </paper-material>
+
+              <paper-material elevation="1">
+                <p>Looking for more Web App layouts? Check out our
+                   <a
+              href="https://github.com/PolymerElements/app-layout-templates">
+                   layouts</a>
+                   collection. You can also
+                    <a
+              href="http://polymerelements.github.io/app-layout-templates/">
+                   preview</a> them live.</p>
+              </paper-material>
+            </section>
+
+            <section data-route="home">
+              <gz-home/>
+            </section>
+        </div>
+
+      </paper-scroll-header-panel>
+
+    </paper-drawer-panel>
+
+  </template>
+
+  <script>
+
+    Polymer({
+
+      is: 'cs-app',
+
+      attached: function() {
+        console.log('cs-toptoolbar widget [' + this.title + '] attached!')
+      },
+
+      properties: {
+        authenticationUrl: {
+          type: String,
+          value: 'https://localhost:5050',
+          notify: true
+        },
+        portalUrl: {
+          type: String,
+          value: 'https://localhost:4000',
+          notify: true
+        },
+        simUrl: {
+          type: String,
+          value: 'https://localhost:8080',
+          notify: true
+        },
+      }
+
+    });
+
+  </script>
+
+</dom-module>
+

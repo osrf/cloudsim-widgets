@@ -23,7 +23,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // Middleware
     function scrollToTop(ctx, next) {
-      app.scrollPageToTop();
+      //app.scrollPageToTop();
       next();
     }
 
@@ -49,10 +49,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       app.route = 'home';
     });
 
-    page('/users', function() {
-      app.route = 'users';
-    });
-
     page('/portfolio', function() {
       app.route = 'portfolio';
     });
@@ -63,15 +59,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     page('/dashboard', function() {
       app.route = 'dashboard';
-    });
-
-    page('/users/:name', function(data) {
-      app.route = 'user-info';
-      app.params = data.params;
-    });
-
-    page('/contact', function() {
-      app.route = 'contact';
     });
 
     // 404

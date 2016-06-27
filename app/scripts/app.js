@@ -76,7 +76,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   window.addEventListener('login', function(e) {
     // Pass token to dashboard (TODO: this can probably be done more automatically)
-    var dashboard = Polymer.dom(document).querySelector('#dashboard');
+    var dashboard = app.querySelector('#dashboard');
     dashboard.token = e.detail.token;
 
     // Open dashboard
@@ -92,13 +92,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
   });
 
-  // Scroll page to top and expand header
-  app.scrollPageToTop = function() {
-    app.$.headerPanelMain.scrollToTop(true);
-  };
-
   app.closeDrawer = function() {
-    app.$.paperDrawerPanel.closeDrawer();
+    // app.$.cloudsim-app.paperDrawerPanel.closeDrawer();
   };
 
 })(document);
