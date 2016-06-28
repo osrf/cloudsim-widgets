@@ -39,6 +39,72 @@
         <gz-home/>
       </section>
 
+      <section data-route="portfolio">
+        <paper-material elevation="1">
+          Authentication server: <a href={{authenticationUrl}} target="_blank">{{authenticationUrl}}</a>
+          <br>
+          Portal server: <a href={{portalUrl}} target="_blank">{{portalUrl}}</a>
+        </paper-material>
+
+        <paper-material elevation="1">
+          <gz-accounts
+            id="portfolio-accounts"
+            config
+            url="{{authenticationUrl}}"
+          ></gz-accounts>
+        </paper-material>
+
+        <paper-material elevation="1">
+          <gz-token
+            id="portfolio-token"
+            config
+            url="{{authenticationUrl}}"
+        ></gz-token>
+        </paper-material>
+
+        <paper-material elevation="1">
+          <gz-grant
+            id="portfolio-grant"
+            gui
+            config
+            url="{{simUrl}}"
+          ></gz-grant>
+        </paper-material>
+
+        <paper-material elevation="1">
+          <gz-simulatorLauncher
+            id="portfolio-simulatorLauncher"
+            config
+            url="{{portalUrl}}"
+          ></gz-simulatorLauncher>
+        </paper-material>
+        <paper-material elevation="1">
+          <gz-simlist
+            id="portfolio-simlist"
+            gui
+            config
+            url="{{portalUrl}}"
+          ></gz-simlist>
+        </paper-material>
+
+        <paper-material elevation="1">
+          <gz-cmd
+            id="portfolio-cmd"
+            gui
+            config
+            url="{{simUrl}}"
+          ></gz-cmd>
+        </paper-material>
+
+        <paper-material elevation="1">
+          <gz-simulationQueue
+            id="portfolio-simulationQueue"
+            gui
+            config
+          ></gz-simulationQueue>
+        </paper-material>
+      </section>
+
       <!-- Secure routes -->
       <section data-route="secure">
 
@@ -55,72 +121,6 @@
 
               <section data-route="dashboard">
                 <cs-dashboard id="dashboard" portalurl="{{portalUrl}}"></cs-dashboard>
-              </section>
-
-              <section data-route="portfolio">
-                <paper-material elevation="1">
-                  Authentication server: <a href={{authenticationUrl}} target="_blank">{{authenticationUrl}}</a>
-                  <br>
-                  Portal server: <a href={{portalUrl}} target="_blank">{{portalUrl}}</a>
-                </paper-material>
-
-                <paper-material elevation="1">
-                  <gz-accounts
-                    id="portfolio-accounts"
-                    config
-                    url="{{authenticationUrl}}"
-                  ></gz-accounts>
-                </paper-material>
-
-                <paper-material elevation="1">
-                  <gz-token
-                    id="portfolio-token"
-                    config
-                    url="{{authenticationUrl}}"
-                ></gz-token>
-                </paper-material>
-
-                <paper-material elevation="1">
-                  <gz-grant
-                    id="portfolio-grant"
-                    gui
-                    config
-                    url="{{simUrl}}"
-                  ></gz-grant>
-                </paper-material>
-
-                <paper-material elevation="1">
-                  <gz-simulatorLauncher
-                    id="portfolio-simulatorLauncher"
-                    config
-                    url="{{portalUrl}}"
-                  ></gz-simulatorLauncher>
-                </paper-material>
-                <paper-material elevation="1">
-                  <gz-simlist
-                    id="portfolio-simlist"
-                    gui
-                    config
-                    url="{{portalUrl}}"
-                  ></gz-simlist>
-                </paper-material>
-
-                <paper-material elevation="1">
-                  <gz-cmd
-                    id="portfolio-cmd"
-                    gui
-                    config
-                    url="{{simUrl}}"
-                  ></gz-cmd>
-                </paper-material>
-
-                <paper-material elevation="1">
-                  <gz-simulationQueue
-                    id="portfolio-simulationQueue"
-                    gui
-                    config
-                  ></gz-simulationQueue>
-                </paper-material>
               </section>
             </iron-pages>
           </div>

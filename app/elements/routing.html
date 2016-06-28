@@ -66,8 +66,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // This route is used for debugging
     page('/portfolio', function() {
-      app.routeParent = 'secure';
-      app.route = 'portfolio';
+      app.routeParent = 'portfolio';
     });
 
     page('/signup', function() {
@@ -79,6 +78,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       {
         app.routeParent = 'secure';
         app.route = 'dashboard';
+
+        var dashboard = app.querySelector('#dashboard');
+        dashboard.$.simlist.tapGet()
       }
       else
       {
@@ -95,7 +97,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // add #! before urls
     page({
-      hashbang: true
+      hashbang: false
     });
 
   });

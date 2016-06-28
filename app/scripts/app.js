@@ -80,10 +80,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     dashboard.token = e.detail.token;
     app.loggedin = true
 
-    // Open dashboard
-    app.routeParent = "secure"
-    app.route = "dashboard"
-    dashboard.$.simlist.tapGet()
+    // Open dashboard unless we're using the portfolio
+    if (window.location.pathname != '/portfolio')
+    {
+      app.routeParent = "secure"
+      app.route = "dashboard"
+      dashboard.$.simlist.tapGet()
+    }
   });
 
   window.addEventListener('logout', function(e) {
