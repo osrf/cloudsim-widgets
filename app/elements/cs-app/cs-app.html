@@ -1,0 +1,174 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-app">
+
+  <template>
+    <style>
+
+      paper-drawer-panel {
+        /* space for toolbar */
+        margin-top: 64px;
+        height: calc(100% - 64px);
+      }
+
+      iron-pages > section {
+        padding: 3em;
+      }
+
+      /* Height of the scroll area */
+      .content {
+        height: 900px;
+        background-color: #f3f3f3;
+        padding: 3em;
+      }
+    </style>
+
+    <!-- Main Toolbar -->
+    <cs-toptoolbar id="toptoolbar" authurl="{{authenticationUrl}}"></cs-toptoolbar>
+
+    <!-- Parent pages: secure / public -->
+    <iron-pages attr-for-selected="data-route" selected="{{routeParent}}">
+
+      <!-- Public routes -->
+      <section data-route="signup">
+        <cs-signuppage id="signuppage" url="{{authenticationUrl}}"></cs-signuppage>
+      </section>
+
+      <section data-route="home">
+        <gz-home/>
+      </section>
+
+      <section data-route="portfolio">
+        <paper-material elevation="1">
+          Authentication server: <a href={{authenticationUrl}} target="_blank">{{authenticationUrl}}</a>
+          <br>
+          Portal server: <a href={{portalUrl}} target="_blank">{{portalUrl}}</a>
+        </paper-material>
+
+        <paper-material elevation="1">
+          <gz-accounts
+            id="portfolio-accounts"
+            config
+            url="{{authenticationUrl}}"
+          ></gz-accounts>
+        </paper-material>
+
+        <paper-material elevation="1">
+          <gz-token
+            id="portfolio-token"
+            config
+            url="{{authenticationUrl}}"
+        ></gz-token>
+        </paper-material>
+
+        <paper-material elevation="1">
+          <gz-grant
+            id="portfolio-grant"
+            gui
+            config
+            url="{{simUrl}}"
+          ></gz-grant>
+        </paper-material>
+
+        <paper-material elevation="1">
+          <gz-simulatorLauncher
+            id="portfolio-simulatorLauncher"
+            config
+            url="{{portalUrl}}"
+          ></gz-simulatorLauncher>
+        </paper-material>
+        <paper-material elevation="1">
+          <gz-simlist
+            id="portfolio-simlist"
+            gui
+            config
+            url="{{portalUrl}}"
+          ></gz-simlist>
+        </paper-material>
+
+        <paper-material elevation="1">
+          <gz-cmd
+            id="portfolio-cmd"
+            gui
+            config
+            url="{{simUrl}}"
+          ></gz-cmd>
+        </paper-material>
+
+        <paper-material elevation="1">
+          <gz-simulationQueue
+            id="portfolio-simulationQueue"
+            gui
+            config
+          ></gz-simulationQueue>
+        </paper-material>
+      </section>
+
+      <!-- Secure routes -->
+      <section data-route="secure">
+
+        <!-- Drawer / panel -->
+        <paper-drawer-panel id="paperDrawerPanel">
+
+          <!-- Main Menu -->
+          <cs-menu id="menu" drawer fixed></cs-menu>
+
+          <!-- Main Content -->
+          <div class="content" main id="headerPanelMain">
+
+            <iron-pages attr-for-selected="data-route" selected="{{route}}">
+
+              <section data-route="dashboard">
+                <cs-dashboard id="dashboard" portalurl="{{portalUrl}}"></cs-dashboard>
+              </section>
+            </iron-pages>
+          </div>
+
+        </paper-drawer-panel>
+
+      </section> <!-- secure -->
+
+    </iron-pages>
+
+  </template>
+
+  <script>
+
+    Polymer({
+
+      is: 'cs-app',
+
+      attached: function() {
+        console.log('cs-toptoolbar widget [' + this.title + '] attached!')
+      },
+
+      properties: {
+        authenticationUrl: {
+          type: String,
+          value: 'https://localhost:5050',
+          notify: true
+        },
+        portalUrl: {
+          type: String,
+          value: 'https://localhost:4000',
+          notify: true
+        },
+        simUrl: {
+          type: String,
+          value: 'https://localhost:8080',
+          notify: true
+        },
+        loggedin: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+      }
+
+    });
+
+  </script>
+
+</dom-module>
+

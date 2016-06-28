@@ -76,29 +76,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   window.addEventListener('login', function(e) {
     // Pass token to dashboard (TODO: this can probably be done more automatically)
-    var dashboard = Polymer.dom(document).querySelector('#dashboard');
+    var dashboard = app.querySelector('#dashboard');
     dashboard.token = e.detail.token;
+    app.loggedin = true
+
+    // Open dashboard unless we're using the portfolio
+    if (window.location.pathname != '/portfolio')
+    {
+      app.routeParent = "secure"
+      app.route = "dashboard"
+      dashboard.$.simlist.tapGet()
+    }
+  });
+
+  window.addEventListener('logout', function(e) {
+    // Pass token to dashboard (TODO: this can probably be done more automatically)
+    var dashboard = app.querySelector('#dashboard');
+    dashboard.token = "";
+    app.loggedin = false
 
     // Open dashboard
-    app.route = "dashboard"
-    dashboard.$.simlist.tapGet()
+    app.routeParent = "home"
   });
 
   window.addEventListener('register', function(e) {
     // Login when new account was created successfully
     if (e.detail.success) {
-      var token = Polymer.dom(document).querySelector('#toptoolbar').querySelector('#token');
+      var token = app.querySelector('#toptoolbar').querySelector('#token');
       token.tapLogin()
     }
   });
-
-  // Scroll page to top and expand header
-  app.scrollPageToTop = function() {
-    app.$.headerPanelMain.scrollToTop(true);
-  };
-
-  app.closeDrawer = function() {
-    app.$.paperDrawerPanel.closeDrawer();
-  };
 
 })(document);

@@ -4,14 +4,6 @@
 <dom-module id="cs-toptoolbar">
   <template>
     <style>
-      #mainToolbar.tall .app-name {
-        font-size: 40px;
-        font-weight: 300;
-        /* Required for main area's paper-scroll-header-panel custom condensing transformation */
-        -webkit-transform-origin: left center;
-        transform-origin: left center;
-      }
-
       #mainToolbar .middle-container,
       #mainToolbar .bottom-container {
         @apply(--layout-horizontal);
@@ -23,7 +15,7 @@
         margin-left: 48px;
       }
 
-      #mainToolbar:not(.tall) .middle-container {
+      #mainToolbar:not(.short) .middle-container {
         font-size: 18px;
         padding-bottom: 0;
       }
@@ -40,7 +32,7 @@
       /* Small */
       @media (max-width: 600px) {
 
-        #mainToolbar.tall .app-name {
+        #mainToolbar.short .app-name {
           font-size: 24px;
           font-weight: 400;
         }
@@ -51,8 +43,11 @@
       }
     </style>
 
-      <paper-toolbar id="mainToolbar" class="tall">
-        <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
+      <paper-toolbar id="mainToolbar" class="short">
+
+        <a data-route="home" href="{{baseUrl}}home">
+          <img src="images/cloudsim.svg" style="height: 2em">
+        </a>
 
         <span class="space"></span>
 
@@ -88,7 +83,6 @@
         </div>
         <!-- Application name -->
         <div class="middle middle-container">
-          <div class="app-name">CloudSim</div>
         </div>
 
         <!-- Application sub title -->
