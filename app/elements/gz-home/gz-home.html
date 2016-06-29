@@ -5,98 +5,58 @@
     <style>
       :host {
         display: block;
+        color: #333;
       }
 
-      paper-material {
+      #banner {
+        background-image: url(images/banner.jpg);
+        background-size: cover;
+        height: 30em;
+        text-align: center;
+      }
+
+      #content {
         padding: 1em;
-        margin: 1em;
       }
 
-      paper-card {
-        padding: 1em;
+      #banner-content {
+        padding-top: 10em;
+        margin: 0em;
       }
 
-     .half-horizontal {
-       width: 49%;
-       display: inline-block;
-       text-align: center;
-     }
+      #banner-content > h1 {
+        font-size: 3em;
+      }
+
+      paper-button {
+        background-color: rgb(68, 138, 201);
+        color: rgb(255, 255, 255);
+      }
 
     </style>
 
-    <paper-material elevation="3" class="half-horizontal">
-      <h1>CLOUD-HOSTED ROBOT SIMULATION</h1>
-      <p>BROUGHT TO YOU BY: <a href="http://osrfoundation.org">OPEN SOURCE ROBOTICS FOUNDATION</a></p>
-    </paper-material>
+    <div id="banner">
+      <div id="banner-content">
+        <h1>CLOUD-HOSTED ROBOT SIMULATION</h1>
+      </div>
+      <a data-route="signup" href="{{baseUrl}}signup" tabindex="" id="signupbutton">
+        <paper-button raised>
+          <iron-icon icon="social:person-add"></iron-icon>
+          Create an account
+        </paper-button>
+      </a>
+    </div>
 
-    <paper-material elevation="3" class="horizontal">
-      <div class="half-horizontal">
-        <h4>WHAT IS CLOUDSIM?</h4>
-        <p> CloudSim provides robot simulation as a web application. Through
-        the combination of advanced simulation software and cloud computing,
-        CloudSim makes it easy to simulate robots and environments. In
-        addition to simulation management, CloudSim offers the ability to
-        visualize and interact with the simulated 3D worlds right in your
-        browser. Try out CloudSim and discover a low-cost way to use robot
-        simulation technology. </p>
-      </div>
-      <div class="half-horizontal">
-        <img src="images/gzweb_phone.png" width="350" alt="Placeholder image">
-      </div>
-    </paper-material>
-
-    <paper-material elevation="3" class="horizontal">
-      <div class="half-horizontal">
-        <img src="images/cloudsim_devices.png" width="350"alt="Placeholder image">
-      </div>
-      <div class="half-horizontal">
-        <h4>HOW DOES CLOUDSIM WORK?</h4>
-        <p>CloudSim handles all the work of provisioning cloud-machines and
-        launching simulation. All that you have to do is select what you want
-        to simulate. Once a simulation machine is up and running, you can
-        visualize the 3D world in your browser and programmatically interface
-        to simulation through a secure network connection.</p>
-      </div>
-    </paper-material>
-
-    <paper-material elevation="3" class="horizontal">
-      <div class="half-horizontal">
-        <h4>WHAT CAN I DO WITH CLOUDSIM?</h4>
-        <p> CloudSim gives you a simple interface to cloud-hosted robot
-        simulation software. Through the CloudSim interface, you can control
-        instances of simulation, view all the simulations that you have run in
-        the past, and easily manage payment options. Here, we list just a few
-        uses for CloudSim. </p>
-      </div>
-      <div class="horizontal half-horizontal">
-        <paper-card>
-          <div class="col-xs-4 text-center">
-            <h4>
-              <img src="images/icons/continuous.svg"
-                   alt="Two arrows forming a circle">
-            </h4>
-            <h6>Continuous <br> Integration</h6>
-          </div>
-        </paper-card>
-        <paper-card>
-          <div class="col-xs-4 text-center">
-            <h4>
-              <img src="images/icons/classroom.svg" alt="Teacher icon">
-            </h4>
-            <h6>Classroom &<br> Collaboration</h6>
-          </div>
-        </paper-card>
-        <paper-card>
-          <div class="col-xs-4 text-center">
-            <h4>
-              <img src="images/icons/parallel.svg"
-                   alt="Parallel experimentation icon">
-            </h4>
-            <h6>Parallel<br>Experimentation</h6>
-          </div>
-        </paper-card>
-      </div>
-    </paper-material>
+    <div id="content">
+      <h4>WHAT IS CLOUDSIM?</h4>
+      <p> CloudSim provides robot simulation as a web application. Through
+      the combination of advanced simulation software and cloud computing,
+      CloudSim makes it easy to simulate robots and environments. In
+      addition to simulation management, CloudSim offers the ability to
+      visualize and interact with the simulated 3D worlds right in your
+      browser. Try out CloudSim and discover a low-cost way to use robot
+      simulation technology. </p>
+    </div>
 
   </template>
 
