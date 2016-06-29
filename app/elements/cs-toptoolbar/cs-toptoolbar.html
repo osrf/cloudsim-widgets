@@ -4,6 +4,12 @@
 <dom-module id="cs-toptoolbar">
   <template>
     <style>
+
+      paper-button {
+        background-color: rgb(68, 138, 201);
+        color: rgb(255, 255, 255);
+      }
+
       #mainToolbar .middle-container,
       #mainToolbar .bottom-container {
         @apply(--layout-horizontal);
@@ -64,8 +70,7 @@
             <paper-button raised>
               <iron-icon icon="social:person-add"></iron-icon>
               Create an account
-            </paper-button>
-          </a>
+            </paper-button></a>
           <paper-button raised id="loginbutton" on-tap="tapLogin">
             <iron-icon icon="social:person"></iron-icon>
             Log in
