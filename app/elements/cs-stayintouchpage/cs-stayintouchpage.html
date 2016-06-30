@@ -12,11 +12,10 @@
 
     <p>Leave your email and we will contact you!</p>
 
-
-    <form is="iron-form" action="mailto:louise@osrfoundation.org" method="post" enctype="text/plain" id="form">
+    <form is="iron-form" action="mailto:cloudsim@osrfoundation.org" method="post" enctype="text/plain" id="form">
       <paper-input name="name" label="Name" required></paper-input>
-      <gold-email-input label="Email" required auto-validate></gold-email-input>
-      <paper-textarea label="Comments"></paper-textarea>
+      <gold-email-input name="email" label="Email" required auto-validate></gold-email-input>
+      <paper-textarea name="comments" label="Comments"></paper-textarea>
       <br>
       <paper-button raised on-click="submitForm">Submit</paper-button>
       <div class="output"></div>
