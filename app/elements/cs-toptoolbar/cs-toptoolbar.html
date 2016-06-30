@@ -5,9 +5,13 @@
   <template>
     <style>
 
-      paper-button {
+      paper-button.raised {
         background-color: rgb(68, 138, 201);
         color: rgb(255, 255, 255);
+      }
+
+      paper-button.flat {
+        color: rgb(68, 138, 201);
       }
 
       #mainToolbar .middle-container,
@@ -67,20 +71,20 @@
 
           <!-- Not logged in -->
           <a data-route="signup" href="{{baseUrl}}signup" tabindex="" id="signupbutton">
-            <paper-button raised>
+            <paper-button raised class="raised">
               <iron-icon icon="social:person-add"></iron-icon>
               Create an account
             </paper-button></a>
-          <paper-button raised id="loginbutton" on-tap="tapLogin">
+          <paper-button raised class="raised" id="loginbutton" on-tap="tapLogin">
             <iron-icon icon="social:person"></iron-icon>
             Log in
           </paper-button>
 
           <!-- Logged in -->
-          <paper-button flat id="usernamelabel"  style="display: none">
+          <paper-button flat class="flat" id="usernamelabel"  style="display: none">
             {{username}}
           </paper-button>
-          <paper-button raised id="logoutbutton" on-tap="tapLogout" style="display: none">
+          <paper-button raised class="raised" id="logoutbutton" on-tap="tapLogout" style="display: none">
             <iron-icon icon="icons:exit-to-app"></iron-icon>
             Log out
           </paper-button>
