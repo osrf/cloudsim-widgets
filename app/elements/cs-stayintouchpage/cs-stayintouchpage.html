@@ -1,0 +1,45 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-stayintouchpage">
+  <style>
+    form {
+      width: 50%;
+    }
+  </style>
+
+  <template>
+
+    <p>Leave your email and we will contact you!</p>
+
+
+    <form is="iron-form" action="mailto:louise@osrfoundation.org" method="post" enctype="text/plain" id="form">
+      <paper-input name="name" label="Name" required></paper-input>
+      <gold-email-input label="Email" required auto-validate></gold-email-input>
+      <paper-textarea label="Comments"></paper-textarea>
+      <br>
+      <paper-button raised on-click="submitForm">Submit</paper-button>
+      <div class="output"></div>
+    </form>
+
+  </template>
+
+  <script>
+
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-stayintouchpage',
+      attached: function() {
+        console.log('cs-stayintouchpage widget attached!')
+      },
+
+      submitForm: function() {
+        document.getElementById('form').submit();
+      }
+
+    });
+  })();
+  </script>
+</dom-module>
