@@ -253,18 +253,30 @@
         }
       },
       updateList: function(items) {
-        this.listitems = []
-        items.forEach(function(item, index){
+        // Make sure we're not calling this multiple times before the timeouts
+        if (this.updateCount == this.updateTarget)
+        {
+          // Counters
+          this.updateCount = 0;
+          this.updateTarget = items.length;
 
-          // Polymer issue #3682
-          // https://github.com/Polymer/polymer/issues/3682
-          // Consecutive updates only work asynchronously
-          var that = this;
-          setTimeout(function () {
-            that.push('listitems', item);
-          }, 100);
+          // Reset list
+          this.listitems.length = 0
 
-        }.bind(this));
+          // Push each item
+          items.forEach(function(item, index){
+
+            // Polymer issue #3682
+            // https://github.com/Polymer/polymer/issues/3682
+            // Consecutive updates only work asynchronously
+            var that = this;
+            setTimeout(function () {
+              that.push('listitems', item);
+              that.updateCount = that.updateCount + 1
+            }, 100);
+
+          }.bind(this));
+        }
       },
       tapRefresh() {
         this.$.simlist.tapGet();
