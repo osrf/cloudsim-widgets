@@ -124,7 +124,7 @@
             <iron-pages attr-for-selected="data-route" selected="{{route}}">
 
               <section data-route="dashboard">
-                <cs-dashboard id="dashboard" portalurl="{{portalUrl}}""></cs-dashboard>
+                <cs-dashboard id="dashboard" portalurl="{{portalUrl}}"></cs-dashboard>
               </section>
 
               <section data-route="src">
@@ -148,7 +148,58 @@
       is: 'cs-app',
 
       attached: function() {
-        console.log('cs-toptoolbar widget [' + this.title + '] attached!')
+
+        // Get configuration from environment variables
+        this.authenticationUrl = getConfig().auth
+        this.portalUrl = getConfig().portal
+        this.simUrl = getConfig().simu
+
+        // Sets app default base URL
+        this.baseUrl = '/';
+
+        // Listen for template bound event to know when bindings
+        // have resolved and content has been stamped to the page
+        this.addEventListener('dom-change', function() {
+          console.log('Our app is ready to rock!');
+        });
+
+        this.addEventListener('login', function(e) {
+          // Pass token to dashboard (TODO: this can probably be done more automatically)
+          var dashboard = this.querySelector('#dashboard');
+          dashboard.token = e.detail.token;
+          this.loggedin = true
+
+          // FIXME: hardcoded admin can launch machines
+          dashboard.canLaunch = (e.detail.user === "admin" ? 'true' : 'false')
+
+          // Open dashboard unless we're using the portfolio
+          if (window.location.pathname != '/portfolio')
+          {
+            this.routeParent = "secure"
+            this.route = "dashboard"
+            dashboard.tapRefresh()
+          }
+        });
+
+        this.addEventListener('logout', function(e) {
+          // Pass token to dashboard (TODO: this can probably be done more automatically)
+          var dashboard = this.querySelector('#dashboard');
+          dashboard.token = "";
+          this.loggedin = false
+
+          // Open dashboard
+          this.routeParent = "home"
+        });
+
+        this.addEventListener('register', function(e) {
+          // Login when new account was created successfully
+          if (e.detail.success) {
+            var token = this.querySelector('#toptoolbar').querySelector('#token');
+            token.tapLogin()
+          }
+        });
+
+        console.log('cs-app widget [' + this.title + '] attached!')
       },
 
       properties: {
