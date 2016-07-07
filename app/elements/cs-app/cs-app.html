@@ -124,7 +124,11 @@
             <iron-pages attr-for-selected="data-route" selected="{{route}}">
 
               <section data-route="dashboard">
-                <cs-dashboard id="dashboard" portalurl="{{portalUrl}}"></cs-dashboard>
+                <cs-dashboard id="dashboard" portalurl="{{portalUrl}}" canLaunch="{{canLaunch}}"></cs-dashboard>
+              </section>
+
+              <section data-route="src">
+                <cs-src id="src"></cs-src>
               </section>
             </iron-pages>
           </div>
@@ -166,6 +170,11 @@
         loggedin: {
           type: Boolean,
           value: false,
+          notify: true
+        },
+        canLaunch: {
+          type: String,
+          value: 'false',
           notify: true
         },
       }

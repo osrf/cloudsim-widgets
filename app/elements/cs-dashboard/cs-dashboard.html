@@ -111,7 +111,7 @@
       url={{portalurl}}
     ></gz-simlist>
 
-    <paper-material elevation="1">
+    <paper-material elevation="1" id="launchArea">
       <div id="feedback" style="display:none">
         <span id="feedback_text"/>
       </div>
@@ -147,38 +147,37 @@
 
     <iron-list id="list" items="[[listitems]]" as="item" selection-enabled multi-selection>
       <template>
-              <paper-material elevation="3" style="margin: 1em">
-        <div>
-          <div class$="[[getClassForItem(item, selected)]]" tabindex$="[[tabIndex]]">
-            <iron-icon class="avatar" icon="hardware:computer"></iron-icon>
-            <div class="pad">
-              <div class="primary"><a href="https://{{item.machine_ip}}" target="_blank">[[item.machine_ip]]</a></div>
-              <div class="shortText">[[item.status]]</div>
-              <div class="longText">
-                  ID: [[item.id]]<br>
-                  Launch date: [[item.launch_date]]<br>
-                  Termination date: [[item.termination_date]]<br>
-                  Owner: [[item.owner.username]]<br>
-                  Users: [[item.users]]<br>
-                  Simulations: [[item.simulations]]<br>
-
-               </div>
+        <paper-material elevation="3" style="margin: 1em">
+          <div>
+            <div class$="[[getClassForItem(item, selected)]]" tabindex$="[[tabIndex]]">
+              <iron-icon class="avatar" icon="hardware:computer"></iron-icon>
+              <div class="pad">
+                <div class="primary"><a href="https://{{item.machine_ip}}" target="_blank">[[item.machine_ip]]</a></div>
+                <div class="shortText">[[item.status]]</div>
+                <div class="longText">
+                    ID: [[item.id]]<br>
+                    Launch date: [[item.launch_date]]<br>
+                    Termination date: [[item.termination_date]]<br>
+                    Owner: [[item.owner.username]]<br>
+                    Users: [[item.users]]<br>
+                    Simulations: [[item.simulations]]<br>
+                 </div>
+              </div>
+              <paper-button raised class="killButton" on-tap="tapKill" id="[[item.id]]"">
+                <iron-icon icon="icons:close"></iron-icon>
+                Kill
+              </paper-button>
             </div>
-            <paper-button raised class="killButton" on-tap="tapKill" id="[[item.id]]"">
-              <iron-icon icon="icons:close"></iron-icon>
-              Kill
-            </paper-button>
+            <gz-cmd
+              title="{{item.machine_ip}}"
+              url="https://{{item.machine_ip}}"
+              token={{token}}
+              cmd="gzserver --verbose"
+              gui
+              style="padding: 1em"
+            ></gz-cmd>
           </div>
-                  <gz-cmd
-                    title="{{item.machine_ip}}"
-                    url="https://{{item.machine_ip}}"
-                    token={{token}}
-                    cmd="gzserver --verbose"
-                    gui
-                    style="padding: 1em"
-                  ></gz-cmd>
-        </div>
-              </paper-material>
+        </paper-material>
       </template>
     </iron-list>
 
@@ -192,6 +191,7 @@
       is: 'cs-dashboard',
       // Attached
       attached: function() {
+        this.$.launchArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
         console.log('cs-dashboard widget attached!')
       },
       tapLaunch() {
@@ -268,6 +268,7 @@
       },
       tapRefresh() {
         this.$.simlist.tapGet();
+        this.$.launchArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
       },
       getClassForItem: function(item, selected) {
         return selected ? 'item expanded' : 'item';
@@ -286,6 +287,11 @@
         listitems: {
           type: Array,
           value: [],
+          notify: true
+        },
+        canLaunch: {
+          type: String,
+          value: 'false',
           notify: true
         },
       },

@@ -80,12 +80,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     dashboard.token = e.detail.token;
     app.loggedin = true
 
+    // FIXME: hardcoded admin can launch machines
+    app.canLaunch = (e.detail.user === "admin" ? 'true' : 'false')
+
     // Open dashboard unless we're using the portfolio
     if (window.location.pathname != '/portfolio')
     {
       app.routeParent = "secure"
       app.route = "dashboard"
-      dashboard.$.simlist.tapGet()
+      dashboard.tapRefresh()
     }
   });
 
