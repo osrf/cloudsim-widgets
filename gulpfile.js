@@ -137,13 +137,20 @@ gulp.task('copy', function() {
     dot: true
   }).pipe(gulp.dest(dist()));
 
+  // Copy images from custom elements
+  var images = gulp.src([
+    'app/elements/**/images/*',
+  ], {
+    dot: true
+  }).pipe(gulp.dest(dist('elements')));
+
   // Copy over only the bower_components we need
   // These are things which cannot be vulcanized
   var bower = gulp.src([
     'app/bower_components/{webcomponentsjs,platinum-sw,sw-toolbox,promise-polyfill}/**/*'
   ]).pipe(gulp.dest(dist('bower_components')));
 
-  return merge(app, bower)
+  return merge(app, images, bower)
     .pipe($.size({
       title: 'copy'
     }));
