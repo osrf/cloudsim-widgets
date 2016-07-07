@@ -81,7 +81,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     app.loggedin = true
 
     // FIXME: hardcoded admin can launch machines
-    app.canLaunch = (e.detail.user === "admin" ? 'true' : 'false')
+    dashboard.canLaunch = (e.detail.user === "admin" ? 'true' : 'false')
 
     // Open dashboard unless we're using the portfolio
     if (window.location.pathname != '/portfolio')
