@@ -24,7 +24,7 @@
       iron-list {
         padding-top: 64px;
         --iron-list-items-container: {
-          max-width: 100%;
+          max-width: 90%;
           margin-top: 60px;
           margin-bottom: 60px;
         }
@@ -51,6 +51,7 @@
       .longText {
         color: gray;
         display: none;
+        text-align: left;
       }
       .item:hover .shortText::after {
         content: ' [+]';
@@ -163,7 +164,7 @@
                     Simulations: [[item.simulations]]<br>
                  </div>
               </div>
-              <paper-button raised class="killButton" on-tap="tapKill" id="[[item.id]]"">
+              <paper-button raised class="killButton" on-tap="tapKill" id="[[item.id]]">
                 <iron-icon icon="icons:close"></iron-icon>
                 Kill
               </paper-button>
