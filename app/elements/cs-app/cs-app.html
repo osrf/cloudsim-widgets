@@ -18,7 +18,7 @@
 
       /* Height of the scroll area */
       .content {
-        height: 900px;
+        overflow: auto;
         background-color: #f3f3f3;
         padding: 3em;
       }
@@ -126,6 +126,10 @@
               <section data-route="dashboard">
                 <cs-dashboard id="dashboard" portalurl="{{portalUrl}}"></cs-dashboard>
               </section>
+
+              <section data-route="src">
+                <cs-src id="src"></cs-src>
+              </section>
             </iron-pages>
           </div>
 
@@ -144,7 +148,38 @@
       is: 'cs-app',
 
       attached: function() {
-        console.log('cs-toptoolbar widget [' + this.title + '] attached!')
+
+        // Get configuration from environment variables
+        this.authenticationUrl = getConfig().auth
+        this.portalUrl = getConfig().portal
+        this.simUrl = getConfig().simu
+
+        // Sets app default base URL
+        this.baseUrl = '/';
+
+        // Listen for template bound event to know when bindings
+        // have resolved and content has been stamped to the page
+        this.addEventListener('dom-change', function() {
+          console.log('Our app is ready to rock!');
+        });
+
+        this.addEventListener('login', function(e) {
+          this.loggedin = true
+
+          // Open dashboard unless we're using the portfolio
+          if (window.location.pathname != '/portfolio')
+          {
+            this.routeParent = "secure"
+            this.route = "dashboard"
+          }
+        });
+
+        this.addEventListener('logout', function(e) {
+          this.loggedin = false
+          this.routeParent = "home"
+        });
+
+        console.log('cs-app widget [' + this.title + '] attached!')
       },
 
       properties: {

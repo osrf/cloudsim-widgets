@@ -81,9 +81,15 @@
   <template>
     <!-- Drawer Content -->
     <paper-menu attr-for-selected="data-route" selected="[[route]]">
+
       <a data-route="dashboard" href="{{baseUrl}}dashboard">
         <iron-icon icon="icons:cloud"></iron-icon>
         <span>Dashboard</span>
+      </a>
+
+      <a data-route="src" href="{{baseUrl}}src">
+        <iron-icon icon="social:public"></iron-icon>
+        <span>Competition name</span>
       </a>
 
     </paper-menu>
