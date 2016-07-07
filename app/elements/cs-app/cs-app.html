@@ -164,39 +164,19 @@
         });
 
         this.addEventListener('login', function(e) {
-          // Pass token to dashboard (TODO: this can probably be done more automatically)
-          var dashboard = this.querySelector('#dashboard');
-          dashboard.token = e.detail.token;
           this.loggedin = true
-
-          // FIXME: hardcoded admin can launch machines
-          dashboard.canLaunch = (e.detail.user === "admin" ? 'true' : 'false')
 
           // Open dashboard unless we're using the portfolio
           if (window.location.pathname != '/portfolio')
           {
             this.routeParent = "secure"
             this.route = "dashboard"
-            dashboard.tapRefresh()
           }
         });
 
         this.addEventListener('logout', function(e) {
-          // Pass token to dashboard (TODO: this can probably be done more automatically)
-          var dashboard = this.querySelector('#dashboard');
-          dashboard.token = "";
           this.loggedin = false
-
-          // Open dashboard
           this.routeParent = "home"
-        });
-
-        this.addEventListener('register', function(e) {
-          // Login when new account was created successfully
-          if (e.detail.success) {
-            var token = this.querySelector('#toptoolbar').querySelector('#token');
-            token.tapLogin()
-          }
         });
 
         console.log('cs-app widget [' + this.title + '] attached!')

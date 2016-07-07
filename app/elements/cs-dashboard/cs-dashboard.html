@@ -192,6 +192,21 @@
       // Attached
       attached: function() {
         this.$.launchArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
+
+        var that = this;
+        window.addEventListener('login', function(e) {
+          that.token = e.detail.token;
+
+          // FIXME: hardcoded admin can launch machines
+          that.canLaunch = (e.detail.user === "admin" ? 'true' : 'false')
+
+          that.tapRefresh()
+        });
+
+        window.addEventListener('logout', function(e) {
+          that.token = "";
+        });
+
         console.log('cs-dashboard widget attached!')
       },
       tapLaunch() {
