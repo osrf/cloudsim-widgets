@@ -24,7 +24,7 @@
       iron-list {
         padding-top: 64px;
         --iron-list-items-container: {
-          max-width: 100%;
+          max-width: 90%;
           margin-top: 60px;
           margin-bottom: 60px;
         }
@@ -51,6 +51,7 @@
       .longText {
         color: gray;
         display: none;
+        text-align: left;
       }
       .item:hover .shortText::after {
         content: ' [+]';
@@ -111,7 +112,7 @@
       url={{portalurl}}
     ></gz-simulatorq>
 
-    <paper-material elevation="1">
+    <paper-material elevation="1" id="launchArea">
       <div id="feedback" style="display:none">
         <span id="feedback_text"/>
       </div>
@@ -147,38 +148,37 @@
 
     <iron-list id="list" items="[[listitems]]" as="item" selection-enabled multi-selection>
       <template>
-              <paper-material elevation="3" style="margin: 1em">
-        <div>
-          <div class$="[[getClassForItem(item, selected)]]" tabindex$="[[tabIndex]]">
-            <iron-icon class="avatar" icon="hardware:computer"></iron-icon>
-            <div class="pad">
-              <div class="primary"><a href="https://{{item.machine_ip}}" target="_blank">[[item.machine_ip]]</a></div>
-              <div class="shortText">[[item.status]]</div>
-              <div class="longText">
-                  ID: [[item.id]]<br>
-                  Launch date: [[item.launch_date]]<br>
-                  Termination date: [[item.termination_date]]<br>
-                  Owner: [[item.owner.username]]<br>
-                  Users: [[item.users]]<br>
-                  Simulations: [[item.simulations]]<br>
-
-               </div>
+        <paper-material elevation="3" style="margin: 1em">
+          <div>
+            <div class$="[[getClassForItem(item, selected)]]" tabindex$="[[tabIndex]]">
+              <iron-icon class="avatar" icon="hardware:computer"></iron-icon>
+              <div class="pad">
+                <div class="primary"><a href="https://{{item.machine_ip}}" target="_blank">[[item.machine_ip]]</a></div>
+                <div class="shortText">[[item.status]]</div>
+                <div class="longText">
+                    ID: [[item.id]]<br>
+                    Launch date: [[item.launch_date]]<br>
+                    Termination date: [[item.termination_date]]<br>
+                    Owner: [[item.owner.username]]<br>
+                    Users: [[item.users]]<br>
+                    Simulations: [[item.simulations]]<br>
+                 </div>
+              </div>
+              <paper-button raised class="killButton" on-tap="tapKill" id="[[item.id]]">
+                <iron-icon icon="icons:close"></iron-icon>
+                Kill
+              </paper-button>
             </div>
-            <paper-button raised class="killButton" on-tap="tapKill" id="[[item.id]]"">
-              <iron-icon icon="icons:close"></iron-icon>
-              Kill
-            </paper-button>
+            <gz-cmd
+              title="{{item.machine_ip}}"
+              url="https://{{item.machine_ip}}"
+              token={{token}}
+              cmd="gzserver --verbose"
+              gui
+              style="padding: 1em"
+            ></gz-cmd>
           </div>
-                  <gz-cmd
-                    title="{{item.machine_ip}}"
-                    url="https://{{item.machine_ip}}"
-                    token={{token}}
-                    cmd="gzserver --verbose"
-                    gui
-                    style="padding: 1em"
-                  ></gz-cmd>
-        </div>
-              </paper-material>
+        </paper-material>
       </template>
     </iron-list>
 
@@ -192,6 +192,22 @@
       is: 'cs-dashboard',
       // Attached
       attached: function() {
+        this.$.launchArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
+
+        var that = this;
+        window.addEventListener('login', function(e) {
+          that.token = e.detail.token;
+
+          // FIXME: hardcoded admin can launch machines
+          that.canLaunch = (e.detail.user === "admin" ? 'true' : 'false')
+
+          that.tapRefresh()
+        });
+
+        window.addEventListener('logout', function(e) {
+          that.token = "";
+        });
+
         console.log('cs-dashboard widget attached!')
       },
       tapLaunch() {
@@ -214,7 +230,7 @@
         this.$.feedback.style.display = ''
         this.$.feedback.style.color = 'blue'
         this.$.feedback_text.textContent = "Request to launch machine has been sent."
-console.log('LLLLL: ', this.$.simulatorlauncher  )
+
         this.$.simulatorlauncher.launchMachine(region, machineImage, hardware);
       },
       onLaunched: function(e) {
@@ -253,21 +269,34 @@ console.log('LLLLL: ', this.$.simulatorlauncher  )
         }
       },
       updateList: function(items) {
-        this.listitems = []
-        items.forEach(function(item, index){
+        // Make sure we're not calling this multiple times before the timeouts
+        if (this.updateCount == this.updateTarget)
+        {
+          // Counters
+          this.updateCount = 0;
+          this.updateTarget = items.length;
 
-          // Polymer issue #3682
-          // https://github.com/Polymer/polymer/issues/3682
-          // Consecutive updates only work asynchronously
-          var that = this;
-          setTimeout(function () {
-            that.push('listitems', item);
-          }, 100);
+          // Reset list
+          this.listitems.length = 0
 
-        }.bind(this));
+          // Push each item
+          items.forEach(function(item, index){
+
+            // Polymer issue #3682
+            // https://github.com/Polymer/polymer/issues/3682
+            // Consecutive updates only work asynchronously
+            var that = this;
+            setTimeout(function () {
+              that.push('listitems', item);
+              that.updateCount = that.updateCount + 1
+            }, 100);
+
+          }.bind(this));
+        }
       },
       tapRefresh() {
         this.$.simulatorq.tapGet();
+        this.$.launchArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
       },
       getClassForItem: function(item, selected) {
         return selected ? 'item expanded' : 'item';
@@ -286,6 +315,11 @@ console.log('LLLLL: ', this.$.simulatorlauncher  )
         listitems: {
           type: Array,
           value: [],
+          notify: true
+        },
+        canLaunch: {
+          type: String,
+          value: 'false',
           notify: true
         },
       },

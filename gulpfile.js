@@ -137,15 +137,37 @@ gulp.task('copy', function() {
     dot: true
   }).pipe(gulp.dest(dist()));
 
+  // Copy images from custom elements
+  var images = gulp.src([
+    'app/elements/**/images/*',
+  ], {
+    dot: true
+  }).pipe(gulp.dest(dist('elements')));
+
   // Copy over only the bower_components we need
   // These are things which cannot be vulcanized
   var bower = gulp.src([
     'app/bower_components/{webcomponentsjs,platinum-sw,sw-toolbox,promise-polyfill}/**/*'
   ]).pipe(gulp.dest(dist('bower_components')));
 
-  return merge(app, bower)
+  return merge(app, images, bower)
     .pipe($.size({
       title: 'copy'
+    }));
+});
+
+// Recopy index as it is, we don't want it to be simplified and config.js removed
+// FIXME: This is a hack, there should be a way to tell index.html to be skipped when
+// cleaning up for inexistent sources (such as config.js)
+gulp.task('restore_index', function() {
+  var index = gulp.src([
+    'app/index.html'
+  ], {
+    dot: true
+  }).pipe(gulp.dest(dist()));
+
+  return index.pipe($.size({
+      title: 'restore_index'
     }));
 });
 
@@ -161,7 +183,8 @@ gulp.task('fonts', function() {
 // Scan your HTML for assets & optimize them
 gulp.task('html', function() {
   return optimizeHtmlTask(
-    ['app/**/*.html', '!app/{elements,test,bower_components}/**/*.html'],
+    ['app/**/*.html',
+     '!app/{elements,test,bower_components}/**/*.html'],
     dist());
 });
 
@@ -269,7 +292,7 @@ gulp.task('serve', ['styles', 'elements'], function() {
 // Build and serve the output from the dist build
 gulp.task('serve:dist', ['default'], function() {
   browserSync({
-    port: 5001,
+    port: 5000,
     notify: false,
     logPrefix: 'PSK',
     snippetOptions: {
@@ -283,9 +306,28 @@ gulp.task('serve:dist', ['default'], function() {
     // Run as an https by uncommenting 'https: true'
     // Note: this uses an unsigned certificate which on first access
     //       will present a certificate warning in the browser.
-    // https: true,
+    https: true,
     server: dist(),
-    middleware: [historyApiFallback()]
+    middleware: [historyApiFallback(), function(req, res, next){
+      if (req.originalUrl === "/scripts/config.js") {
+        // Read from .env
+        const resp = `
+
+          function getConfig() {
+            'use strict'
+             return {
+               auth: "${process.env.CLOUDSIM_AUTH_URL}",
+               portal: "${process.env.CLOUDSIM_PORTAL_URL}",
+               sim: "${process.env.CLOUDSIM_SIM_URL}"
+             }
+          }
+
+        `
+        console.log('serving config: ' + resp)
+        res.end(resp)
+      }
+      next();
+    }]
   });
 });
 
@@ -296,7 +338,7 @@ gulp.task('default', ['clean'], function(cb) {
     ['ensureFiles', 'copy', 'styles'],
     'elements',
     ['images', 'fonts', 'html'],
-    'vulcanize', // 'cache-config',
+    'vulcanize', 'restore_index', // 'cache-config',
     cb);
 });
 

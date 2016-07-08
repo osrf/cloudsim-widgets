@@ -1,0 +1,44 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-src">
+  <style>
+  </style>
+  <template>
+
+    <h1>Competition title</h1>
+
+    <p>
+      Text about competition
+      Text about competition
+      Text about competition
+      Text about competition
+      Text about competition
+      Text about competition
+      Text about competition
+      Text about competition
+      Text about competition
+      Text about competition
+    </p>
+
+    <paper-button raised class="raised" id="registerbutton" on-tap="tapRegister">
+      <iron-icon icon="social:person-add"></iron-icon>
+      Register for competition
+    </paper-button>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-src',
+      // Attached
+      attached: function() {
+        console.log('cs-src widget attached!')
+      },
+    });
+  })();
+  </script>
+</dom-module>
