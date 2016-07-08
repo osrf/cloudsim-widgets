@@ -2,21 +2,21 @@
   "name": "cloudsim",
   "private": true,
   "dependencies": {
+    "gold-email-input": "PolymerElements/gold-email-input#^1.0.7",
+    "gz-accounts": "osrf/gz-accounts",
+    "gz-cmd": "osrf/gz-cmd",
+    "gz-grant": "osrf/gz-grant",
+    "gz-simulationq": "osrf/gz-simulationq",
+    "gz-simulatorlauncher": "osrf/gz-simulatorlauncher",
+    "gz-simulatorq": "osrf/gz-simulatorq",
+    "gz-token": "osrf/gz-token",
     "iron-elements": "PolymerElements/iron-elements#^1.0.0",
     "neon-elements": "PolymerElements/neon-elements#^1.0.0",
     "page": "visionmedia/page.js#~1.6.4",
     "paper-elements": "PolymerElements/paper-elements#^1.0.1",
-    "platinum-elements": "PolymerElements/platinum-elements#^1.1.0",
-    "polymer": "Polymer/polymer#^1.2.0",
-    "gz-token": "osrf/gz-token#^0.0.1",
-    "gz-accounts": "osrf/gz-accounts#^0.0.1",
-    "gz-grant": "osrf/gz-grant#^0.0.1",
-    "gz-cmd": "osrf/gz-cmd#^0.0.1",
-    "gz-simulatorlauncher": "osrf/gz-simulatorlauncher#^0.0.2",
-    "gold-email-input": "PolymerElements/gold-email-input#^1.0.7",
     "paper-input": "PolymerElements/paper-input#^1.1.14",
-    "gz-simulatorq": "osrf/gz-simulatorq",
-    "gz-simulationq": "osrf/gz-simulationq"
+    "platinum-elements": "PolymerElements/platinum-elements#^1.1.0",
+    "polymer": "Polymer/polymer#^1.2.0"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"
