@@ -22,56 +22,74 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     // Middleware
-    function scrollToTop(ctx, next) {
-      app.scrollPageToTop();
-      next();
-    }
-
     function closeDrawer(ctx, next) {
       app.closeDrawer();
       next();
     }
 
     // Routes
-    page('*', scrollToTop, closeDrawer, function(ctx, next) {
-      next();
-    });
-
     page('/', function() {
-      app.route = 'home';
+      if (app.loggedin)
+      {
+        app.routeParent = 'secure';
+        app.route = 'dashboard';
+      }
+      else
+      {
+        app.routeParent = 'home';
+      }
     });
 
     page(app.baseUrl, function() {
-      app.route = 'home';
+      if (app.loggedin)
+      {
+        app.routeParent = 'secure';
+        app.route = 'dashboard';
+      }
+      else
+      {
+        app.routeParent = 'home';
+      }
     });
 
     page('/home', function() {
-      app.route = 'home';
+      if (app.loggedin)
+      {
+        app.routeParent = 'secure';
+        app.route = 'dashboard';
+      }
+      else
+      {
+        app.routeParent = 'home';
+      }
     });
 
-    page('/users', function() {
-      app.route = 'users';
-    });
-
+    // This route is used for debugging
     page('/portfolio', function() {
-      app.route = 'portfolio';
+      app.routeParent = 'portfolio';
     });
 
     page('/signup', function() {
-      app.route = 'signup';
+      app.routeParent = 'signup';
+    });
+
+    page('/stayintouch', function() {
+      app.routeParent = 'stayintouch';
     });
 
     page('/dashboard', function() {
-      app.route = 'dashboard';
-    });
+      if (app.loggedin)
+      {
+        app.routeParent = 'secure';
+        app.route = 'dashboard';
 
-    page('/users/:name', function(data) {
-      app.route = 'user-info';
-      app.params = data.params;
-    });
-
-    page('/contact', function() {
-      app.route = 'contact';
+        var dashboard = app.querySelector('#dashboard');
+        dashboard.$.simlist.tapGet()
+      }
+      else
+      {
+        app.routeParent = 'home';
+      }
     });
 
     // 404
@@ -83,7 +101,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // add #! before urls
     page({
-      hashbang: true
+      hashbang: false
     });
 
   });

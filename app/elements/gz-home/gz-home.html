@@ -5,13 +5,60 @@
     <style>
       :host {
         display: block;
+        color: #333;
+      }
+
+      #banner {
+        background-image: url(images/banner.jpg);
+        background-size: cover;
+        height: 30em;
+        text-align: center;
+      }
+
+      #content {
+        padding-left: 10em;
+        padding-right: 10em;
+        padding-top: 1em;
+      }
+
+      #banner-content {
+        padding-top: 10em;
+        margin: 0em;
+      }
+
+      #banner-content > h1 {
+        font-size: 3em;
+      }
+
+      paper-button {
+        background-color: rgb(68, 138, 201);
+        color: rgb(255, 255, 255);
       }
 
     </style>
 
-    <div><h1>Welcome to Cloudsim!</h1></div>
+    <div id="banner">
+      <div id="banner-content">
+        <h1>CLOUD-HOSTED ROBOT SIMULATION</h1>
+      </div>
+      <a data-route="stayintouch" href="{{baseUrl}}stayintouch" tabindex="">
+        <paper-button raised>
+          <iron-icon icon="icons:mail"></iron-icon>
+          Stay in touch
+        </paper-button>
+      </a>
+    </div>
 
-    <p>Create an account or login to start simulating in the cloud!</p>
+    <div id="content">
+      <h4>WHAT IS CLOUDSIM?</h4>
+      <p> CloudSim provides robot simulation as a web application. Through
+      the combination of advanced simulation software and cloud computing,
+      CloudSim makes it easy to simulate robots and environments. In
+      addition to simulation management, CloudSim offers the ability to
+      visualize and interact with the simulated 3D worlds right in your
+      browser. Try out CloudSim and discover a low-cost way to use robot
+      simulation technology. </p>
+    </div>
 
   </template>
 

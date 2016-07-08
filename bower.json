@@ -12,7 +12,9 @@
     "gz-accounts": "osrf/gz-accounts#^0.0.1",
     "gz-grant": "osrf/gz-grant#^0.0.1",
     "gz-cmd": "osrf/gz-cmd#^0.0.1",
-    "gz-simulatorlauncher": "osrf/gz-simulatorlauncher#^0.0.2"
+    "gz-simulatorlauncher": "osrf/gz-simulatorlauncher#^0.0.1",
+    "gold-email-input": "PolymerElements/gold-email-input#^1.0.7",
+    "paper-input": "PolymerElements/paper-input#^1.1.14"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"

@@ -79,36 +79,11 @@
     }
   </style>
   <template>
-    <!-- Drawer Toolbar -->
-    <paper-toolbar id="drawerToolbar">
-      <span class="menu-name">Competition Name</span>
-    </paper-toolbar>
-
     <!-- Drawer Content -->
     <paper-menu attr-for-selected="data-route" selected="[[route]]">
       <a data-route="dashboard" href="{{baseUrl}}dashboard">
         <iron-icon icon="icons:cloud"></iron-icon>
         <span>Dashboard</span>
-      </a>
-
-      <a data-route="portfolio" href="{{baseUrl}}portfolio">
-        <iron-icon icon="settings"></iron-icon>
-        <span>Portfolio</span>
-      </a>
-
-      <a data-route="users" href="{{baseUrl}}users">
-        <iron-icon icon="info"></iron-icon>
-        <span>Users</span>
-      </a>
-
-      <a data-route="contact" href="{{baseUrl}}contact">
-        <iron-icon icon="mail"></iron-icon>
-        <span>Contact</span>
-      </a>
-
-      <a data-route="home" href="{{baseUrl}}home">
-        <iron-icon icon="home"></iron-icon>
-        <span>Home</span>
       </a>
 
     </paper-menu>

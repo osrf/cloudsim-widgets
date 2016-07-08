@@ -76,6 +76,21 @@
           font-size: 14px;
         }
       }
+
+      .horizontal-3 {
+        padding: 1em;
+        text-align: left;
+      }
+
+      paper-material {
+        margin: auto;
+        width: 40%;
+        text-align: center;
+      }
+
+      #launchbutton {
+        margin: 1em;
+      }
   </style>
   <template>
 
@@ -96,32 +111,38 @@
       url={{portalurl}}
     ></gz-simulatorq>
 
-    <div id="feedback" style="display:none">
-      <span id="feedback_text"/>
-    </div>
-
-    <paper-input label="Region" id="region" value="us-west-1"></paper-input>
-    <paper-input label="Machine image" id="machineImage" value="ami-0a6a2f6a"></paper-input>
-    <paper-input label="Hardware" id="hardware" value="t2.small"></paper-input>
+    <paper-material elevation="1">
+      <div id="feedback" style="display:none">
+        <span id="feedback_text"/>
+      </div>
+<!--
+      <paper-dropdown-menu label="Machine types">
+        <paper-listbox class="dropdown-content">
+          <paper-item>Debug: t2.small</paper-item>
+          <paper-item>GPU gzserver</paper-item>
+        </paper-listbox>
+      </paper-dropdown-menu>
+-->
+      <div style="padding: 1em">
+        <paper-input label="Region" id="region" value="us-west-1"></paper-input>
+        <paper-input label="Machine image" id="machineImage" value="ami-0a6a2f6a"></paper-input>
+        <paper-input label="Hardware" id="hardware" value="t2.small"></paper-input>
+      </div>
 
 <!-- Large machine commented out while debugging
     <paper-input label="Machine image" id="machineImage" value="ami-610c7801"></paper-input>
     <paper-input label="Hardware" id="hardware" value="g2.2xlarge"></paper-input>
 -->
 
-    <paper-button raised id="launchbutton" on-tap="tapLaunch">
-      <iron-icon icon="hardware:computer"></iron-icon>
-      Launch a machine!
-    </paper-button>
+      <paper-button raised id="launchbutton" on-tap="tapLaunch">
+        <iron-icon icon="hardware:computer"></iron-icon>
+        Launch a machine!
+      </paper-button>
+    </paper-material>
 
-    <br>
-    <br>
-    <br>
-    <br>
-
-    <paper-button raised id="refreshbutton" on-tap="tapRefresh">
+    <paper-button raised id="refreshbutton" on-tap="tapRefresh" style="margin-top: 5em">
       <iron-icon icon="icons:refresh"></iron-icon>
-      Refresh
+      Refresh machine list
     </paper-button>
 
     <iron-list id="list" items="[[listitems]]" as="item" selection-enabled multi-selection>
@@ -172,7 +193,6 @@
       // Attached
       attached: function() {
         console.log('cs-dashboard widget attached!')
-        this.$.list.scrollTarget = this.ownerDocument.documentElement;
       },
       tapLaunch() {
         // Get user input info

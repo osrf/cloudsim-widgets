@@ -1,6 +1,24 @@
 {
   "private": true,
   "devDependencies": {
+   "web-component-tester": "^4.0.0"
+  },
+  "scripts": {
+    "test": "gulp test:local",
+    "start": "gulp serve"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "dependencies": {
+    "ansi-to-html": "^0.4.1",
+    "dotenv": "^2.0.0",
+    "express": "^4.13.4",
+    "jsonwebtoken": "^5.7.0",
+    "nodemon": "^1.9.1",
+    "socket.io": "^1.4.5",
+    "socketio-jwt": "^4.3.4",
+    "xtend": "^4.0.1",
     "browser-sync": "^2.7.7",
     "connect-history-api-fallback": "^1.1.0",
     "del": "^2.0.2",
@@ -26,24 +44,6 @@
     "merge-stream": "^1.0.0",
     "require-dir": "^0.3.0",
     "run-sequence": "^1.0.2",
-    "vulcanize": ">= 1.4.2",
-    "web-component-tester": "^4.0.0"
-  },
-  "scripts": {
-    "test": "gulp test:local",
-    "start": "gulp serve"
-  },
-  "engines": {
-    "node": ">=0.10.0"
-  },
-  "dependencies": {
-    "ansi-to-html": "^0.4.1",
-    "dotenv": "^2.0.0",
-    "express": "^4.13.4",
-    "jsonwebtoken": "^5.7.0",
-    "nodemon": "^1.9.1",
-    "socket.io": "^1.4.5",
-    "socketio-jwt": "^4.3.4",
-    "xtend": "^4.0.1"
+    "vulcanize": ">= 1.4.2"
   }
 }
