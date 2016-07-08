@@ -277,7 +277,7 @@
           this.updateTarget = items.length;
 
           // Reset list
-          this.listitems.length = 0
+          this.splice("listitems", 0, this.listitems.length)
 
           // Push each item
           items.forEach(function(item, index){
