@@ -184,6 +184,8 @@
 
   </template>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.js"></script>
+
   <script>
   (function() {
     'use strict';
@@ -194,6 +196,7 @@
       attached: function() {
         this.$.launchArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
 
+        // Listen to events
         var that = this;
         window.addEventListener('login', function(e) {
           that.token = e.detail.token;
@@ -201,8 +204,36 @@
           // FIXME: hardcoded admin can launch machines
           that.canLaunch = (e.detail.user === "admin" ? 'true' : 'false')
 
+          // Initialize socket
+          if (that.socket == undefined)
+          {
+            const authMsg = {token: that.token}
+            that.socket = io(that.portalurl, {query: authMsg})
+            //that.socket = io(that.portalurl, {query: authMsg,
+              //  transports: ['websocket'], rejectUnauthorized: false});
+
+            that.socket.on('connect', function () {
+              console.log("Socket connected.")
+              that.socket.on('simulator_launch', function (simulator) {
+console.log("simulator_launch")
+console.log(simulator)
+              })
+              that.socket.on('simulator_status', function (simulator) {
+console.log("simulator_status")
+console.log(simulator)
+              })
+              that.socket.on('simulator_terminate', function (simulator) {
+console.log("simulator_terminate")
+console.log(simulator)
+              })
+            })
+            that.socket.on('connect_error', function () {
+              console.log("FAILED TO CONNECT WEBSOCKET")
+            })
+          }
+
           that.tapRefresh()
-        });
+        })
 
         window.addEventListener('logout', function(e) {
           that.token = "";
