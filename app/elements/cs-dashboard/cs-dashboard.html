@@ -23,9 +23,9 @@
       }
       iron-list {
         padding-top: 64px;
+        padding-bottom: 64px;
         --iron-list-items-container: {
           max-width: 90%;
-          margin-top: 60px;
           margin-bottom: 60px;
         }
       }
@@ -140,12 +140,12 @@
         Launch a machine!
       </paper-button>
     </paper-material>
-
+<!--
     <paper-button raised id="refreshbutton" on-tap="tapRefresh" style="margin-top: 5em">
       <iron-icon icon="icons:refresh"></iron-icon>
       Refresh machine list
     </paper-button>
-
+-->
     <iron-list id="list" items="[[listitems]]" as="item" selection-enabled multi-selection>
       <template>
         <paper-material elevation="3" style="margin: 1em">
@@ -169,14 +169,17 @@
                 Kill
               </paper-button>
             </div>
-            <gz-cmd
-              title="{{item.machine_ip}}"
-              url="https://{{item.machine_ip}}"
-              token={{token}}
-              cmd="gzserver --verbose"
-              gui
-              style="padding: 1em"
-            ></gz-cmd>
+
+            <template is="dom-if" if="{{showCmd(item.status)}}">
+              <gz-cmd
+                title="{{item.machine_ip}}"
+                url="https://{{item.machine_ip}}"
+                token={{token}}
+                cmd="gzserver --verbose"
+                gui
+                style="padding: 1em"
+              ></gz-cmd>
+            </template>
           </div>
         </paper-material>
       </template>
@@ -217,14 +220,17 @@
               that.socket.on('simulator_launch', function (simulator) {
 console.log("simulator_launch")
 console.log(simulator)
+                that.$.simulatorq.tapGet();
               })
               that.socket.on('simulator_status', function (simulator) {
 console.log("simulator_status")
 console.log(simulator)
+                that.$.simulatorq.tapGet();
               })
               that.socket.on('simulator_terminate', function (simulator) {
 console.log("simulator_terminate")
 console.log(simulator)
+                that.$.simulatorq.tapGet();
               })
             })
             that.socket.on('connect_error', function () {
@@ -331,6 +337,9 @@ console.log(simulator)
       },
       getClassForItem: function(item, selected) {
         return selected ? 'item expanded' : 'item';
+      },
+      showCmd: function(itemStatus) {
+        return itemStatus == 'RUNNING' ? true : false;
       },
       properties: {
         portalurl: {
