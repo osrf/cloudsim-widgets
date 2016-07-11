@@ -31,6 +31,7 @@
       }
       .item {
         @apply(--layout-horizontal);
+        @apply(--layout-center);
         padding: 20px;
         background-color: white;
         cursor: pointer;
@@ -39,7 +40,11 @@
       .pad {
         padding: 0 16px;
         @apply(--layout-flex);
-        @apply(--layout-vertical);
+        @apply(--layout-center);
+        @apply(--layout-horizontal);
+      }
+      .pad > div {
+        padding-right: 1em;
       }
       .primary {
         font-size: 16px;
@@ -67,6 +72,15 @@
         content: ' [–]';
       }
       .killButton > iron-icon {
+        --iron-icon-fill-color: #f00;
+      }
+      .launchingStatus > iron-icon {
+        --iron-icon-fill-color: #ff0;
+      }
+      .runningStatus > iron-icon {
+        --iron-icon-fill-color: #00f;
+      }
+      .terminatingStatus > iron-icon {
         --iron-icon-fill-color: #f00;
       }
       .spacer {
@@ -153,8 +167,12 @@
             <div class$="[[getClassForItem(item, selected)]]" tabindex$="[[tabIndex]]">
               <iron-icon class="avatar" icon="hardware:computer"></iron-icon>
               <div class="pad">
-                <div class="primary"><a href="https://{{item.machine_ip}}" target="_blank">[[item.machine_ip]]</a></div>
-                <div class="shortText">[[item.status]]</div>
+                <div><a href="https://{{item.machine_ip}}" target="_blank">[[item.machine_ip]]</a></div>
+
+                <div class$="[[getStatusClass(item.status)]]">
+                  <iron-icon icon="icons:cloud"></iron-icon>
+                  [[item.status]]
+                </div>
                 <div class="longText">
                     ID: [[item.id]]<br>
                     Launch date: [[item.launch_date]]<br>
@@ -337,6 +355,16 @@ console.log(simulator)
       },
       getClassForItem: function(item, selected) {
         return selected ? 'item expanded' : 'item';
+      },
+      getStatusClass: function(itemStatus) {
+        let itemClass = 'launchingStatus'
+        if (itemStatus == 'RUNNING')
+          itemClass = 'runningStatus'
+        else if (itemStatus == 'TERMINATING' || itemStatus == 'TERMINATED')
+          itemClass = 'terminatingStatus'
+        else if (itemStatus == 'LAUNCHING')
+          itemClass = 'launchingStatus'
+        return itemClass;
       },
       showCmd: function(itemStatus) {
         return itemStatus == 'RUNNING' ? true : false;
