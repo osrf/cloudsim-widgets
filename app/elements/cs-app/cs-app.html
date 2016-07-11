@@ -22,6 +22,11 @@
         background-color: #f3f3f3;
         padding: 3em;
       }
+
+      paper-material {
+        margin: 1em;
+        padding: 1em;
+      }
     </style>
 
     <!-- Main Toolbar -->
@@ -44,6 +49,7 @@
       </section>
 
       <section data-route="portfolio">
+
         <paper-material elevation="1">
           Authentication server: <a href={{authenticationUrl}} target="_blank">{{authenticationUrl}}</a>
           <br>
@@ -82,13 +88,14 @@
             url="{{portalUrl}}"
           ></gz-simulatorLauncher>
         </paper-material>
+
         <paper-material elevation="1">
-          <gz-simlist
-            id="portfolio-simlist"
+          <gz-simulatorq
+            id="portfolio-simulatorq"
             gui
             config
             url="{{portalUrl}}"
-          ></gz-simlist>
+          ></gz-simulatorq>
         </paper-material>
 
         <paper-material elevation="1">
@@ -99,14 +106,21 @@
             url="{{simUrl}}"
           ></gz-cmd>
         </paper-material>
-        <paper-material elevation="1">
 
+        <paper-material elevation="1">
+          <gz-simulationlauncher
+            id="portfolio-simulationlauncher"
+            gui
+            config
+          ></gz-simulationlauncher>
+        </paper-material>
+
+        <paper-material elevation="1">
           <gz-simulationq
             id="portfolio-simulationq"
             gui
             config
           ></gz-simulationq>
-
         </paper-material>
 
       </section>
