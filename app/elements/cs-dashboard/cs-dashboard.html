@@ -51,6 +51,16 @@
         text-align: left;
         font-size: 0.8em;
       }
+      .vertLayout {
+        @apply(--layout-vertical);
+      }
+      .bigIcon {
+        --iron-icon-height: 50px;
+        --iron-icon-width: 50px;
+      }
+      .blueIcon {
+        --iron-icon-fill-color: rgb(68, 138, 201);
+      }
       .killButton > iron-icon {
         --iron-icon-fill-color: #f00;
       }
@@ -147,7 +157,7 @@
         <paper-material elevation="3" style="margin: 1em">
           <div>
             <div class$="[[getClassForItem(item, selected)]]" tabindex$="[[tabIndex]]">
-              <iron-icon class="avatar" icon="hardware:computer"></iron-icon>
+              <iron-icon class="bigIcon" icon="hardware:computer"></iron-icon>
               <div class="pad">
                 <template is="dom-if" if="{{!isTerminating(item.status)}}">
                   <div><a href="https://{{item.machine_ip}}" target="_blank">[[item.machine_ip]]</a></div>
@@ -169,10 +179,23 @@
                  </div>
               </div>
               <template is="dom-if" if="{{!isTerminating(item.status)}}">
-                <paper-button raised class="killButton" on-tap="tapKill" id="[[item.id]]">
-                  <iron-icon icon="icons:close"></iron-icon>
-                  Kill
-                </paper-button>
+                <gz-simulator
+                  id="gzsimulator[[item.id]]"
+                  simurl="https://{{item.machine_ip}}"
+                  token={{token}}
+                ></gz-simulator>
+                <div class="vertLayout">
+                  <a href=https://{{item.machine_ip}}/keys.zip target="_blank" tabindex="" style="color:inherit">
+                    <paper-button raised class="keysButton" id="keysbutton[[item.id]]">
+                      <iron-icon icon="icons:cloud-download" class="blueIcon"></iron-icon>
+                      Download keys
+                    </paper-button>
+                  </a>
+                  <paper-button raised class="killButton" on-tap="tapKill" id="[[item.id]]">
+                    <iron-icon icon="icons:close"></iron-icon>
+                    Kill
+                  </paper-button>
+                 </div>
               </template>
             </div>
 
