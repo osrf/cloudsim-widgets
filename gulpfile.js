@@ -16,7 +16,6 @@ var packageJson = require('./package.json');
 var crypto = require('crypto');
 var ensureFiles = require('./tasks/ensure-files.js');
 
-const gulpExpress = require('gulp-express')
 const server = require('./server')
 
 // var ghPages = require('gulp-gh-pages');
@@ -231,20 +230,8 @@ gulp.task('clean', function() {
   return del(['.tmp', dist()]);
 });
 
-
-gulp.task('serve:dist', ['default'], function() {
-
-  gulpExpress.run(['server.js'])
-})
-
-
-gulp.task('serve', ['styles', 'elements'], function() {
-
-  gulpExpress.run(['server.js'])
-})
-
 // Watch files for changes & reload
-gulp.task('sync', ['styles', 'elements'], function() {
+gulp.task('serve', ['styles', 'elements'], function() {
   browserSync({
     port: 5000,
     notify: false,
@@ -274,7 +261,7 @@ gulp.task('sync', ['styles', 'elements'], function() {
 });
 
 // Build and serve the output from the dist build
-gulp.task('sync:dist', ['default'], function() {
+gulp.task('serve:dist', ['default'], function() {
   browserSync({
     port: 5000,
     notify: false,

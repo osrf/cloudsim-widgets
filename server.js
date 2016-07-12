@@ -1,5 +1,7 @@
 'use strict'
+
 const dotenv = require('dotenv');
+
 dotenv.config()
 
 if (!process.env.CLOUDSIM_AUTH_URL)
@@ -21,22 +23,20 @@ exports.middleware = function(req, res, next){
          }
       }
     `
-    console.log('serving config: ' + resp)
+    // console.log('serving config: ' + resp)
     res.end(resp)
   }
   next();
 }
 
-
 const express = require('express')
 const app = express()
 const httpServer = require('http').Server(app)
-const port = process.env.CLOUDSIM_PORT || 8080
+const port = process.env.PORT || 6060
 
 app.use(exports.middleware)
 app.use(express.static('.tmp'))
 app.use(express.static('app'))
-
 
 httpServer.listen(port, function(){
   console.log('listening on *:' + port);
