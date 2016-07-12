@@ -216,10 +216,7 @@
           // Initialize socket
           if (that.socket == undefined)
           {
-            const authMsg = {token: that.token}
-            that.socket = io(that.portalurl, {query: authMsg})
-            //that.socket = io(that.portalurl, {query: authMsg,
-              //  transports: ['websocket'], rejectUnauthorized: false});
+            that.socket = io(that.portalurl, {query: {token: that.token}})
 
             that.socket.on('connect', function () {
               console.log("Socket connected.")
@@ -239,7 +236,7 @@
           }
 
           that.tapRefresh()
-        })
+        });
 
         window.addEventListener('logout', function(e) {
           that.token = "";
