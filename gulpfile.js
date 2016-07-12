@@ -1,12 +1,3 @@
-/*
-Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
-*/
-
 'use strict';
 
 // Include Gulp & tools we'll use
@@ -25,8 +16,8 @@ var packageJson = require('./package.json');
 var crypto = require('crypto');
 var ensureFiles = require('./tasks/ensure-files.js');
 
-const dotenv = require('dotenv');
-dotenv.config()
+const gulpExpress = require('gulp-express')
+const server = require('./server')
 
 // var ghPages = require('gulp-gh-pages');
 
@@ -240,8 +231,20 @@ gulp.task('clean', function() {
   return del(['.tmp', dist()]);
 });
 
-// Watch files for changes & reload
+
+gulp.task('serve:dist', ['default'], function() {
+
+  gulpExpress.run(['server.js'])
+})
+
+
 gulp.task('serve', ['styles', 'elements'], function() {
+
+  gulpExpress.run(['server.js'])
+})
+
+// Watch files for changes & reload
+gulp.task('sync', ['styles', 'elements'], function() {
   browserSync({
     port: 5000,
     notify: false,
@@ -260,26 +263,7 @@ gulp.task('serve', ['styles', 'elements'], function() {
     https: true,
     server: {
       baseDir: ['.tmp', 'app'],
-      middleware: [historyApiFallback(), function(req, res, next){
-        if (req.originalUrl === "/scripts/config.js") {
-          // Read from .env
-          const resp = `
-
-            function getConfig() {
-              'use strict'
-               return {
-                 auth: "${process.env.CLOUDSIM_AUTH_URL}",
-                 portal: "${process.env.CLOUDSIM_PORTAL_URL}",
-                 sim: "${process.env.CLOUDSIM_SIM_URL}"
-               }
-            }
-
-          `
-          console.log('serving config: ' + resp)
-          res.end(resp)
-        }
-        next();
-      }]
+      middleware: [historyApiFallback(), server.middleware]
     }
   });
 
@@ -290,7 +274,7 @@ gulp.task('serve', ['styles', 'elements'], function() {
 });
 
 // Build and serve the output from the dist build
-gulp.task('serve:dist', ['default'], function() {
+gulp.task('sync:dist', ['default'], function() {
   browserSync({
     port: 5000,
     notify: false,
@@ -308,26 +292,7 @@ gulp.task('serve:dist', ['default'], function() {
     //       will present a certificate warning in the browser.
     https: true,
     server: dist(),
-    middleware: [historyApiFallback(), function(req, res, next){
-      if (req.originalUrl === "/scripts/config.js") {
-        // Read from .env
-        const resp = `
-
-          function getConfig() {
-            'use strict'
-             return {
-               auth: "${process.env.CLOUDSIM_AUTH_URL}",
-               portal: "${process.env.CLOUDSIM_PORTAL_URL}",
-               sim: "${process.env.CLOUDSIM_SIM_URL}"
-             }
-          }
-
-        `
-        console.log('serving config: ' + resp)
-        res.end(resp)
-      }
-      next();
-    }]
+    middleware: [historyApiFallback(), server.middleware ]
   });
 });
 
