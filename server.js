@@ -1,9 +1,13 @@
 'use strict'
 
+const dotenv = require('dotenv');
+
+dotenv.config()
+
 const express = require('express')
 const app = express()
 const httpServer = require('http').Server(app)
-const port = process.env.PORT || 6060
+const port = process.env.CLOUDSIM_PORT || 5000
 
 const middleware = require('./middleware')
 
