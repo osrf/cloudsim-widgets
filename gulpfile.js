@@ -16,7 +16,7 @@ var packageJson = require('./package.json');
 var crypto = require('crypto');
 var ensureFiles = require('./tasks/ensure-files.js');
 
-const server = require('./server')
+const middleware = require('./middleware')
 
 // var ghPages = require('gulp-gh-pages');
 
@@ -250,7 +250,7 @@ gulp.task('serve', ['styles', 'elements'], function() {
     https: true,
     server: {
       baseDir: ['.tmp', 'app'],
-      middleware: [historyApiFallback(), server.middleware]
+      middleware: [historyApiFallback(), middleware.middleware]
     }
   });
 
@@ -279,7 +279,7 @@ gulp.task('serve:dist', ['default'], function() {
     //       will present a certificate warning in the browser.
     https: true,
     server: dist(),
-    middleware: [historyApiFallback(), server.middleware ]
+    middleware: [historyApiFallback(), middleware.middleware ]
   });
 });
 
