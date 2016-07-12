@@ -46,30 +46,10 @@
       .pad > div {
         padding-right: 1em;
       }
-      .primary {
-        font-size: 16px;
-        font-weight: bold;
-      }
-      .shortText, .longText {
-        font-size: 14px;
-      }
-      .longText {
+      .machineInfo {
         color: gray;
-        display: none;
         text-align: left;
-      }
-      .item:hover .shortText::after {
-        content: ' [+]';
-        color: gray;
-      }
-      .item.expanded:hover .shortText::after {
-        content: '';
-      }
-      .item.expanded .longText {
-        display: block;
-      }
-      .item.expanded:hover .longText::after {
-        content: ' [–]';
+        font-size: 0.8em;
       }
       .killButton > iron-icon {
         --iron-icon-fill-color: #f00;
@@ -127,9 +107,11 @@
     ></gz-simulatorq>
 
     <paper-material elevation="1" id="launchArea">
+<!--
       <div id="feedback" style="display:none">
         <span id="feedback_text"/>
       </div>
+-->
 <!--
       <paper-dropdown-menu label="Machine types">
         <paper-listbox class="dropdown-content">
@@ -167,28 +149,34 @@
             <div class$="[[getClassForItem(item, selected)]]" tabindex$="[[tabIndex]]">
               <iron-icon class="avatar" icon="hardware:computer"></iron-icon>
               <div class="pad">
-                <div><a href="https://{{item.machine_ip}}" target="_blank">[[item.machine_ip]]</a></div>
+                <template is="dom-if" if="{{!isTerminating(item.status)}}">
+                  <div><a href="https://{{item.machine_ip}}" target="_blank">[[item.machine_ip]]</a></div>
+                </template>
 
                 <div class$="[[getStatusClass(item.status)]]">
-                  <iron-icon icon="icons:cloud"></iron-icon>
+                  <!-- <iron-icon icon="icons:cloud"></iron-icon> -->
                   [[item.status]]
                 </div>
-                <div class="longText">
-                    ID: [[item.id]]<br>
-                    Launch date: [[item.launch_date]]<br>
-                    Termination date: [[item.termination_date]]<br>
-                    Owner: [[item.owner.username]]<br>
-                    Users: [[item.users]]<br>
-                    Simulations: [[item.simulations]]<br>
+                <div class="machineInfo">
+                  <b>ID</b>: [[item.id]]<br>
+                  <b>Launch date</b>: [[prettyDate(item.launch_date)]]<br>
+                  <template is="dom-if" if="{{isTerminating(item.status)}}">
+                    <b>Termination date</b>: [[prettyDate(item.termination_date)]]<br>
+                  </template>
+                  <!--<b>Owner</b>: [[item.owner.username]]<br>
+                  <b>Users</b>: [[item.users]]<br>
+                  <b>Simulations</b>: [[item.simulations]]<br>-->
                  </div>
               </div>
-              <paper-button raised class="killButton" on-tap="tapKill" id="[[item.id]]">
-                <iron-icon icon="icons:close"></iron-icon>
-                Kill
-              </paper-button>
+              <template is="dom-if" if="{{!isTerminating(item.status)}}">
+                <paper-button raised class="killButton" on-tap="tapKill" id="[[item.id]]">
+                  <iron-icon icon="icons:close"></iron-icon>
+                  Kill
+                </paper-button>
+              </template>
             </div>
 
-            <template is="dom-if" if="{{showCmd(item.status)}}">
+            <template is="dom-if" if="{{isRunning(item.status)}}">
               <gz-cmd
                 title="{{item.machine_ip}}"
                 url="https://{{item.machine_ip}}"
@@ -236,18 +224,12 @@
             that.socket.on('connect', function () {
               console.log("Socket connected.")
               that.socket.on('simulator_launch', function (simulator) {
-console.log("simulator_launch")
-console.log(simulator)
                 that.$.simulatorq.tapGet();
               })
               that.socket.on('simulator_status', function (simulator) {
-console.log("simulator_status")
-console.log(simulator)
                 that.$.simulatorq.tapGet();
               })
               that.socket.on('simulator_terminate', function (simulator) {
-console.log("simulator_terminate")
-console.log(simulator)
                 that.$.simulatorq.tapGet();
               })
             })
@@ -275,16 +257,16 @@ console.log(simulator)
             machineImage == "" ||
             hardware == "")
         {
-          this.$.feedback.style.display = ''
-          this.$.feedback.style.color = 'red'
-          this.$.feedback_text.textContent = "All fields are required."
+          //this.$.feedback.style.display = ''
+          //this.$.feedback.style.color = 'red'
+          //this.$.feedback_text.textContent = "All fields are required."
           return;
         }
 
         // Send request to gz-simulatorlauncher
-        this.$.feedback.style.display = ''
-        this.$.feedback.style.color = 'blue'
-        this.$.feedback_text.textContent = "Request to launch machine has been sent."
+        //this.$.feedback.style.display = ''
+        //this.$.feedback.style.color = 'blue'
+        //this.$.feedback_text.textContent = "Request to launch machine has been sent."
 
         this.$.simulatorlauncher.launchMachine(region, machineImage, hardware);
       },
@@ -296,21 +278,21 @@ console.log(simulator)
 
         if (!success)
         {
-          this.$.feedback.style.display = ''
-          this.$.feedback.style.color = 'red'
-          this.$.feedback_text.textContent = msg
+          //this.$.feedback.style.display = ''
+          //this.$.feedback.style.color = 'red'
+          //this.$.feedback_text.textContent = msg
           return;
         }
 
-        this.$.feedback.style.display = 'none'
+        //this.$.feedback.style.display = 'none'
       },
       tapKill(e) {
         let id = e.target.id
 
         // Send request to gz-simulatorlauncher
-        this.$.feedback.style.display = ''
-        this.$.feedback.style.color = 'blue'
-        this.$.feedback_text.textContent = "Request to kill machine has been sent."
+        //this.$.feedback.style.display = ''
+        //this.$.feedback.style.color = 'blue'
+        //this.$.feedback_text.textContent = "Request to kill machine has been sent."
 
         this.$.simulatorlauncher.killMachine(id);
       },
@@ -324,6 +306,22 @@ console.log(simulator)
         }
       },
       updateList: function(items) {
+        this.sortByReverseLaunchDate(items);
+
+        // The portal sends periodic updates even if there are no changes.
+        // Check if there are status updates
+        if (items.length == this.listitems.length)
+        {
+          let i = 0;
+          while (i < items.length && items[i].status == this.listitems[i].status &&
+              items[i].machine_ip == this.listitems[i].machine_ip)
+          {
+            ++i;
+          }
+          if (i == items.length)
+            return;
+        }
+
         // Make sure we're not calling this multiple times before the timeouts
         if (this.updateCount == this.updateTarget)
         {
@@ -366,8 +364,27 @@ console.log(simulator)
           itemClass = 'launchingStatus'
         return itemClass;
       },
-      showCmd: function(itemStatus) {
+      isRunning: function(itemStatus) {
         return itemStatus == 'RUNNING' ? true : false;
+      },
+      isTerminating: function(itemStatus) {
+        return (itemStatus == 'TERMINATING' || itemStatus == 'TERMINATED') ? true : false;
+      },
+      prettyDate: function(date) {
+        let d = new Date(date);
+        return d.toString();
+      },
+      sortByReverseLaunchDate: function(items) {
+        items.sort(this.compareDates)
+      },
+      compareDates: function(a, b) {
+        let aDate = new Date(a.launch_date)
+        let bDate = new Date(b.launch_date)
+        if (aDate < bDate)
+            return 1;
+        if (aDate > bDate)
+            return -1;
+        return 0;
       },
       properties: {
         portalurl: {
