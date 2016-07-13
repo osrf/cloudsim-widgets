@@ -91,6 +91,7 @@
         margin: auto;
         width: 40%;
         text-align: center;
+        padding: 1em;
       }
 
       #launchbutton {
@@ -154,7 +155,7 @@
 -->
     <iron-list id="list" items="[[listitems]]" as="item" selection-enabled multi-selection>
       <template>
-        <paper-material elevation="3" style="margin: 1em">
+        <paper-material elevation="2" style="margin: 1em">
           <div>
             <div class$="[[getClassForItem(item, selected)]]" tabindex$="[[tabIndex]]">
               <iron-icon class="bigIcon" icon="hardware:computer"></iron-icon>
