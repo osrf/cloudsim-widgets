@@ -19,11 +19,17 @@
       @apply(--layout-horizontal);
       @apply(--layout-center);
     }
+    .horizontal paper-input {
+      @apply(--layout-start);
+    }
     .horizontal > h1 {
       margin-right: 2em;
     }
     .vertical {
       @apply(--layout-vertical);
+    }
+    paper-material {
+      padding: 1em
     }
   </style>
   <template>
@@ -75,6 +81,7 @@
 
         <div class="content">
           <div class="vertical">
+            <!-- 1 -->
             <div class="horizontal">
               <h1>
                 1
@@ -82,7 +89,9 @@
               <div>
                 Link to your code repository:
               </div>
+              <paper-input label="url" id="repoUrl"></paper-input>
             </div>
+            <!-- 2 -->
             <div class="horizontal">
               <h1>
                 2
@@ -91,6 +100,12 @@
                 Complete the competition tasks. Once you complete a task, the next will become available.
               </div>
             </div>
+            <div class="horizontal">
+              <paper-material>
+                Task 1: Task name
+              </paper-material>
+            </div>
+            <!-- 3 -->
             <div class="horizontal">
               <h1>
                 3
