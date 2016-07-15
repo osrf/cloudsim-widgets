@@ -28,8 +28,31 @@
     .vertical {
       @apply(--layout-vertical);
     }
-    paper-material {
-      padding: 1em
+    .tasks {
+      padding: 1em;
+      width: 15em;
+      height: 13em;
+      margin: 1em;
+    }
+    .tasks h4{
+      text-align: center;
+      margin: 0;
+    }
+    iron-list {
+     --iron-list-items-container: {
+      };
+    }
+    #items{
+        margin: 3em;
+    }
+    .tasks paper-button{
+      @apply(--layout-vertical);
+      @apply(--layout-right);
+      background-color: rgb(68, 138, 201);
+      color: rgb(255, 255, 255);
+    }
+    .spacer {
+      @apply(--layout-flex);
     }
   </style>
   <template>
@@ -100,11 +123,27 @@
                 Complete the competition tasks. Once you complete a task, the next will become available.
               </div>
             </div>
-            <div class="horizontal">
-              <paper-material>
-                Task 1: Task name
-              </paper-material>
-            </div>
+
+           <iron-list items="[[tasks]]" as="task" grid>
+              <template>
+                <div>
+                  <paper-material class="tasks">
+                    <h4>Task {{taskNumber(task)}}</h4>
+                    <div>
+                      <p>Description: {{task.description}}</p>
+                      <p>Time limit:</p>
+                      <p>Status:</p>
+                    </div>
+                   <div class="horizontal">
+                      <div class="spacer"></div>
+                      <paper-button raised class="raised" id="startbutton" on-tap="tapStart">
+                        Start
+                      </paper-button>
+                    </div>
+                  </paper-material>
+                </div>
+              </template>
+            </iron-list>
             <!-- 3 -->
             <div class="horizontal">
               <h1>
@@ -138,7 +177,20 @@
       is: 'cs-src',
       // Attached
       attached: function() {
+        this.push('tasks', {'description': 'First task'})
+        this.push('tasks', {'description': 'Second task'})
+        this.push('tasks', {'description': 'Third task'})
         console.log('cs-src widget attached!')
+      },
+      taskNumber: function(task) {
+        return this.tasks.indexOf(task) + 1;
+      },
+      properties: {
+        tasks: {
+          type: Array,
+          value: [],
+          notify: true
+        },
       },
     });
   })();
