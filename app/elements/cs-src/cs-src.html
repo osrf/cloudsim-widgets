@@ -3,28 +3,115 @@
 
 <dom-module id="cs-src">
   <style>
+    .blue {
+      background-color: rgb(68, 138, 201);
+    }
+    .paper-header {
+      padding: 1em;
+    }
+    .paper-header > h1 {
+      text-align: center;
+    }
+    .content {
+      padding: 3em;
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+    .horizontal > h1 {
+      margin-right: 2em;
+    }
+    .vertical {
+      @apply(--layout-vertical);
+    }
   </style>
   <template>
 
-    <h1>Competition title</h1>
+    <iron-pages attr-for-selected="data-route" selected="{{route}}">
 
-    <p>
-      Text about competition
-      Text about competition
-      Text about competition
-      Text about competition
-      Text about competition
-      Text about competition
-      Text about competition
-      Text about competition
-      Text about competition
-      Text about competition
-    </p>
+      <section data-route="overview">
 
-    <paper-button raised class="raised" id="registerbutton" on-tap="tapRegister">
-      <iron-icon icon="social:person-add"></iron-icon>
-      Register for competition
-    </paper-button>
+        <paper-header-panel class="blue">
+          <div class="paper-header">
+            <h1>Secret Robotics Competition</h1>
+          </div>
+        </paper-header-panel>
+
+        <div class="content">
+          <p>
+            Text about competition
+            Text about competition
+            Text about competition
+            Text about competition
+            Text about competition
+            Text about competition
+            Text about competition
+            Text about competition
+            Text about competition
+            Text about competition
+          </p>
+
+          <paper-button raised class="raised" id="registerbutton" on-tap="tapRegister">
+            <iron-icon icon="social:person-add"></iron-icon>
+            Register for competition
+          </paper-button>
+        </div>
+      </section>
+
+      <section data-route="kiosk">
+
+        <paper-header-panel class="blue">
+          <div class="paper-header">
+            <h1>Secret Robotics Competition</h1>
+            <p>The competition tasks are now available!
+               To compete, follow the steps below.
+               You must complete all tasks by [date].
+               See the
+               <a href="{{baseUrl}}src-overview">Overview</a>
+               for the complete list of rules.</p>
+          </div>
+        </paper-header-panel>
+
+        <div class="content">
+          <div class="vertical">
+            <div class="horizontal">
+              <h1>
+                1
+              </h1>
+              <div>
+                Link to your code repository:
+              </div>
+            </div>
+            <div class="horizontal">
+              <h1>
+                2
+              </h1>
+              <div>
+                Complete the competition tasks. Once you complete a task, the next will become available.
+              </div>
+            </div>
+            <div class="horizontal">
+              <h1>
+                3
+              </h1>
+              <div>
+                Check your scores and download task log files from the Leaderboard.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-route="leaderboard">
+        <paper-header-panel class="blue">
+          <div class="paper-header">
+            <h1>Robotics Competition</h1>
+            <p>See your scores!</p>
+          </div>
+        </paper-header-panel>
+      </section>
+    </iron-pages>
 
   </template>
 
