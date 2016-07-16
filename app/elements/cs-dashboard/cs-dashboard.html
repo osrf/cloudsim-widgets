@@ -133,7 +133,7 @@
 -->
       <div style="padding: 1em">
         <paper-input label="Region" id="region" value="us-west-1"></paper-input>
-        <paper-input label="Machine image" id="machineImage" value="ami-0a6a2f6a"></paper-input>
+        <paper-input label="Machine image" id="machineImage" value="ami-e5eea885"></paper-input>
         <paper-input label="Hardware" id="hardware" value="t2.small"></paper-input>
       </div>
 
@@ -169,24 +169,26 @@
                   [[item.status]]
                 </div>
                 <div class="machineInfo">
-                  <b>ID</b>: [[item.id]]<br>
                   <b>Launch date</b>: [[prettyDate(item.launch_date)]]<br>
                   <template is="dom-if" if="{{isTerminating(item.status)}}">
                     <b>Termination date</b>: [[prettyDate(item.termination_date)]]<br>
                   </template>
                   <!--<b>Owner</b>: [[item.owner.username]]<br>
                   <b>Users</b>: [[item.users]]<br>
+                  <b>ID</b>: [[item.id]]<br>
                   <b>Simulations</b>: [[item.simulations]]<br>-->
                  </div>
               </div>
               <template is="dom-if" if="{{!isTerminating(item.status)}}">
+<!--
                 <gz-simulator
                   id="gzsimulator[[item.id]]"
-                  simurl="https://{{item.machine_ip}}"
+                  url="https://{{item.machine_ip}}"
                   token={{token}}
                 ></gz-simulator>
+-->
                 <div class="vertLayout">
-                  <a href=https://{{item.machine_ip}}/keys.zip target="_blank" tabindex="" style="color:inherit">
+                  <a href=https://{{item.machine_ip}}/keys.zip?token={{token}} target="_blank" tabindex="" style="color:inherit">
                     <paper-button raised class="keysButton" id="keysbutton[[item.id]]">
                       <iron-icon icon="icons:cloud-download" class="blueIcon"></iron-icon>
                       Download keys
