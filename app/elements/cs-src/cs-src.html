@@ -6,6 +6,12 @@
     .blue {
       background-color: rgb(68, 138, 201);
     }
+    .red {
+      background-color: rgb(201, 68, 68);
+    }
+    .green {
+      background-color: rgb(20, 255, 20);
+    }
     .paper-header {
       padding: 1em;
     }
@@ -33,14 +39,11 @@
       width: 15em;
       height: 13em;
       margin: 1em;
+      margin-top: 2em;
     }
     .tasks h4{
       text-align: center;
       margin: 0;
-    }
-    iron-list {
-     --iron-list-items-container: {
-      };
     }
     #items{
         margin: 3em;
@@ -48,11 +51,15 @@
     .tasks paper-button{
       @apply(--layout-vertical);
       @apply(--layout-right);
-      background-color: rgb(68, 138, 201);
       color: rgb(255, 255, 255);
     }
     .spacer {
       @apply(--layout-flex);
+    }
+    paper-fab {
+      position: absolute;
+      top: -20px;
+      right: -20px;
     }
   </style>
   <template>
@@ -134,12 +141,38 @@
                       <p>Time limit:</p>
                       <p>Status:</p>
                     </div>
-                   <div class="horizontal">
+                    <div class="horizontal">
                       <div class="spacer"></div>
-                      <paper-button raised class="raised" id="startbutton" on-tap="tapStart">
+                      <paper-button
+                        raised
+                        class="raised blue"
+                        id="startbutton[[taskNumber(task)]]"
+                        on-tap="tapStart">
                         Start
                       </paper-button>
+                      <paper-button
+                        raised
+                        class="raised red"
+                        id="stopbutton[[taskNumber(task)]]"
+                        on-tap="tapStop"
+                        style="display: none">
+                        Stop
+                      </paper-button>
                     </div>
+                    <paper-fab
+                      mini
+                      class="blue"
+                      id="refreshbutton[[taskNumber(task)]]"
+                      icon="icons:refresh"
+                      style="display: none">
+                    </paper-fab>
+                    <paper-fab
+                      mini
+                      class="green"
+                      id="completebutton[[taskNumber(task)]]"
+                      icon="icons:check"
+                      style="display: none">
+                    </paper-fab>
                   </paper-material>
                 </div>
               </template>
@@ -184,6 +217,24 @@
       },
       taskNumber: function(task) {
         return this.tasks.indexOf(task) + 1;
+      },
+      tapStart: function(e) {
+        let buttonId = e.target.id
+        let taskNumber = buttonId.substring(11, buttonId.length)
+        // Send request to start. On successful reply:
+        this.querySelector('#stopbutton' + taskNumber).style.display = ''
+        this.querySelector('#startbutton' + taskNumber).style.display = 'none'
+        this.querySelector('#refreshbutton' + taskNumber).style.display = ''
+        this.querySelector('#completebutton' + taskNumber).style.display = 'none'
+      },
+      tapStop: function(e) {
+        let buttonId = e.target.id
+        let taskNumber = buttonId.substring(10, buttonId.length)
+        // Send request to start. On successful reply:
+        this.querySelector('#stopbutton' + taskNumber).style.display = 'none'
+        this.querySelector('#startbutton' + taskNumber).style.display = ''
+        this.querySelector('#refreshbutton' + taskNumber).style.display = 'none'
+        this.querySelector('#completebutton' + taskNumber).style.display = ''
       },
       properties: {
         tasks: {
