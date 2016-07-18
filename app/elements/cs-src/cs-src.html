@@ -5,12 +5,15 @@
   <style>
     .blue {
       background-color: rgb(68, 138, 201);
+      color: #fff;
     }
     .red {
       background-color: rgb(201, 68, 68);
+      color: #fff;
     }
     .green {
       background-color: rgb(20, 255, 20);
+      color: #fff;
     }
     .paper-header {
       padding: 1em;
@@ -45,13 +48,15 @@
       text-align: center;
       margin: 0;
     }
+    .taskDisabled {
+      color: #bbb;
+    }
     #items{
         margin: 3em;
     }
     .tasks paper-button{
       @apply(--layout-vertical);
       @apply(--layout-right);
-      color: rgb(255, 255, 255);
     }
     .spacer {
       @apply(--layout-flex);
@@ -60,6 +65,10 @@
       position: absolute;
       top: -20px;
       right: -20px;
+    }
+    paper-button[disabled] {
+      background-color: #bababa;
+      color: rgb(96, 96, 96);
     }
   </style>
   <template>
@@ -120,6 +129,21 @@
                 Link to your code repository:
               </div>
               <paper-input label="url" id="repoUrl"></paper-input>
+              <paper-button
+                raised
+                id="addbutton"
+                class="raised blue"
+                on-tap="tapAddRepo">
+                Add
+              </paper-button>
+              <paper-button
+                raised
+                id="removebutton"
+                style="display: none"
+                class="raised red"
+                on-tap="tapRemoveRepo">
+                Remove
+              </paper-button>
             </div>
             <!-- 2 -->
             <div class="horizontal">
@@ -134,17 +158,18 @@
            <iron-list items="[[tasks]]" as="task" grid>
               <template>
                 <div>
-                  <paper-material class="tasks">
+                  <paper-material class="tasks taskDisabled" id="task[[taskNumber(task)]]">
                     <h4>Task {{taskNumber(task)}}</h4>
                     <div>
                       <p>Description: {{task.description}}</p>
+                      <p id="status[[taskNumber(task)]]">Status: Unavailable</p>
                       <p>Time limit:</p>
-                      <p>Status:</p>
                     </div>
                     <div class="horizontal">
                       <div class="spacer"></div>
                       <paper-button
                         raised
+                        disabled
                         class="raised blue"
                         id="startbutton[[taskNumber(task)]]"
                         on-tap="tapStart">
@@ -161,13 +186,15 @@
                     </div>
                     <paper-fab
                       mini
+                      disabled
                       class="blue"
-                      id="refreshbutton[[taskNumber(task)]]"
+                      id="runningbutton[[taskNumber(task)]]"
                       icon="icons:refresh"
                       style="display: none">
                     </paper-fab>
                     <paper-fab
                       mini
+                      disabled
                       class="green"
                       id="completebutton[[taskNumber(task)]]"
                       icon="icons:check"
@@ -218,23 +245,75 @@
       taskNumber: function(task) {
         return this.tasks.indexOf(task) + 1;
       },
+      tapAddRepo: function(e) {
+        // TODO: Client-side check if repo is ok?
+        if (this.$.repoUrl.value === '')
+        {
+          // TODO: Print message about empty url
+          return;
+        }
+        // TODO: Send repo info to server, wait for reply saying it's ready to run
+        this._taskStatus(1, 'Ready')
+        this.$.removebutton.style.display = ''
+        this.$.addbutton.style.display = 'none'
+      },
+      tapRemoveRepo: function(e) {
+        // TODO: Send request to server
+
+        // Restore initial state
+        this.$.removebutton.style.display = 'none'
+        this.$.addbutton.style.display = ''
+        for (var i = 1; i <= this.tasks.length; ++i)
+        {
+          this._taskStatus(i, 'Unavailable')
+        }
+      },
       tapStart: function(e) {
         let buttonId = e.target.id
         let taskNumber = buttonId.substring(11, buttonId.length)
-        // Send request to start. On successful reply:
-        this.querySelector('#stopbutton' + taskNumber).style.display = ''
-        this.querySelector('#startbutton' + taskNumber).style.display = 'none'
-        this.querySelector('#refreshbutton' + taskNumber).style.display = ''
-        this.querySelector('#completebutton' + taskNumber).style.display = 'none'
+        let taskInt = parseInt(taskNumber, 10)
+
+        // TODO: Send request to start. On successful reply:
+        this._taskStatus(taskInt, 'Running')
       },
       tapStop: function(e) {
         let buttonId = e.target.id
         let taskNumber = buttonId.substring(10, buttonId.length)
-        // Send request to start. On successful reply:
-        this.querySelector('#stopbutton' + taskNumber).style.display = 'none'
-        this.querySelector('#startbutton' + taskNumber).style.display = ''
-        this.querySelector('#refreshbutton' + taskNumber).style.display = 'none'
-        this.querySelector('#completebutton' + taskNumber).style.display = ''
+        let taskInt = parseInt(taskNumber, 10)
+
+        // TODO: Send request to start. On successful reply:
+        this._taskStatus(taskInt, 'Complete')
+        this._taskStatus(taskInt+1, 'Ready');
+      },
+      _taskStatus(taskNumber, taskStatus) {
+        if (taskNumber > this.tasks.length)
+        {
+          console.log('Error: task number [' + taskNumber +
+              '] is larger than task length [' + this.tasks.length + ']')
+          return;
+        }
+
+        let stopDisplay = (taskStatus == 'Running') ? '' : 'none';
+        let startDisplay = (taskStatus == 'Running') ? 'none' : '';
+        let runningDisplay = stopDisplay
+        let completeDisplay = (taskStatus == 'Complete') ? '' : 'none';
+        let startEnabled = (taskStatus == 'Ready') ? true : false;
+
+        if (taskStatus == 'Unavailable')
+        {
+          this.querySelector('#task' + taskNumber).classList.add('taskDisabled');
+        }
+        else
+        {
+          this.querySelector('#task' + taskNumber).classList.remove('taskDisabled');
+        }
+
+        this.querySelector('#stopbutton' + taskNumber).style.display = stopDisplay
+        this.querySelector('#startbutton' + taskNumber).style.display = startDisplay
+        this.querySelector('#startbutton' + taskNumber).disabled = !startEnabled
+        this.querySelector('#runningbutton' + taskNumber).style.display = runningDisplay
+        this.querySelector('#completebutton' + taskNumber).style.display = completeDisplay
+        this.querySelector('#status' + taskNumber).textContent = 'Status: ' + taskStatus
       },
       properties: {
         tasks: {
