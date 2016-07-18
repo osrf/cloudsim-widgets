@@ -84,7 +84,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         app.route = 'dashboard';
 
         var dashboard = app.querySelector('#dashboard');
-        dashboard.$.simlist.tapGet()
+        dashboard.$.simulatorq.tapGet()
       }
       else
       {
@@ -97,6 +97,46 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       {
         app.routeParent = 'secure';
         app.route = 'src';
+        app.routeSrc = 'overview';
+      }
+      else
+      {
+        app.routeParent = 'home';
+      }
+    });
+
+    page('/src-overview', function() {
+      if (app.loggedin)
+      {
+        app.routeParent = 'secure';
+        app.route = 'src';
+        app.routeSrc = 'overview';
+      }
+      else
+      {
+        app.routeParent = 'home';
+      }
+    });
+
+    page('/src-kiosk', function() {
+      if (app.loggedin)
+      {
+        app.routeParent = 'secure';
+        app.route = 'src';
+        app.routeSrc = 'kiosk';
+      }
+      else
+      {
+        app.routeParent = 'home';
+      }
+    });
+
+    page('/src-leaderboard', function() {
+      if (app.loggedin)
+      {
+        app.routeParent = 'secure';
+        app.route = 'src';
+        app.routeSrc = 'leaderboard';
       }
       else
       {
@@ -106,8 +146,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // 404
     page('*', function() {
-      app.$.toast.text = 'Can\'t find: ' + window.location.href  + '. Redirected you to Home Page';
-      app.$.toast.show();
       page.redirect(app.baseUrl);
     });
 

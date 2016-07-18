@@ -12,15 +12,10 @@
         height: calc(100% - 64px);
       }
 
-      iron-pages > section {
-        padding: 1em;
-      }
-
       /* Height of the scroll area */
       .content {
         overflow: auto;
         background-color: #f3f3f3;
-        padding: 3em;
       }
 
       paper-material {
@@ -144,7 +139,9 @@
               </section>
 
               <section data-route="src">
-                <cs-src id="src"></cs-src>
+                <cs-src id="src"
+                  route="{{routeSrc}}"
+                ></cs-src>
               </section>
             </iron-pages>
           </div>
