@@ -10,11 +10,7 @@
       on-register="onRegister"
     ></gz-accounts>
 
-    <!-- Look into doing this with a custom validator or paper-input-error -->
-    <div id="feedback" style="display:none">
-      <span id="feedback_text"/>
-    </div>
-
+    <!-- Look using a custom validator or paper-input-error -->
     <paper-input label="User name" id="user"></paper-input>
     <paper-input label="Password" id="pass1" type="password"></paper-input>
     <paper-input label="Confirm password" id="pass2" type="password"></paper-input>
@@ -42,9 +38,7 @@
         var self = this;
         if (user === "")
         {
-          self.$.feedback.style.display = ''
-          self.$.feedback.style.color = 'red'
-          self.$.feedback_text.textContent = "User name can't be empty"
+          this.fire('notification', {msg: "User name can't be empty.", type: "error"})
           return;
         }
         // verify passwords
@@ -52,16 +46,12 @@
         var pass2 = this.$.pass2.value;
         if (pass != pass2)
         {
-          self.$.feedback.style.display = ''
-          self.$.feedback.style.color = 'red'
-          self.$.feedback_text.textContent = "Passwords don't match"
+          this.fire('notification', {msg: "Passwords don't match.", type: "error"})
           return;
         }
         if (pass === "")
         {
-          self.$.feedback.style.display = ''
-          self.$.feedback.style.color = 'red'
-          self.$.feedback_text.textContent = "Password can't be empty"
+          this.fire('notification', {msg: "Password can't be empty.", type: "error"})
           return;
         }
 
@@ -71,10 +61,8 @@
         let success = e.detail.success
         let username = e.detail.user
         let msg = e.detail.msg
-
-        this.$.feedback.style.display = ''
-        this.$.feedback.style.color = success ? 'blue' : 'red'
-        this.$.feedback_text.textContent = msg
+        let type = success ? 'msg' : 'error'
+        this.fire('notification', {msg: msg, type: type})
       },
 
       properties: {

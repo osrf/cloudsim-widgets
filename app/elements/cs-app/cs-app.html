@@ -22,7 +22,26 @@
         margin: 1em;
         padding: 1em;
       }
+
+      #errorToast {
+        --paper-toast-background-color: #e74747
+      }
+      #msgToast {
+        --paper-toast-background-color: rgb(43, 137, 222)
+      }
     </style>
+
+    <paper-toast
+      id="errorToast"
+      class="fit-bottom"
+      duration="0">
+      <paper-button onclick="errorToast.toggle()" class="yellow-button">Got it!</paper-button>
+    </paper-toast>
+
+    <paper-toast
+      id="msgToast"
+      class="fit-bottom">
+    </paper-toast>
 
     <!-- Main Toolbar -->
     <cs-toptoolbar id="toptoolbar" authurl="{{authenticationUrl}}"></cs-toptoolbar>
@@ -32,7 +51,11 @@
 
       <!-- Public routes -->
       <section data-route="signup">
-        <cs-signuppage id="signuppage" url="{{authenticationUrl}}"></cs-signuppage>
+        <cs-signuppage
+          on-notification="openToast"
+          id="signuppage"
+          url="{{authenticationUrl}}">
+        </cs-signuppage>
       </section>
 
       <section data-route="stayintouch">
@@ -192,9 +215,24 @@
           this.routeParent = "home"
         });
 
+        this.addEventListener('notification', function(e) {
+          this.openToast(e);
+        });
+
         console.log('cs-app widget [' + this.title + '] attached!')
       },
-
+      openToast: function(e) {
+        if (e.detail.type === "error")
+        {
+          this.$.errorToast.text = e.detail.msg
+          this.$.errorToast.open()
+        }
+        else
+        {
+          this.$.msgToast.text = e.detail.msg
+          this.$.msgToast.open()
+        }
+      },
       properties: {
         authenticationUrl: {
           type: String,
@@ -217,7 +255,6 @@
           notify: true
         },
       }
-
     });
 
   </script>
