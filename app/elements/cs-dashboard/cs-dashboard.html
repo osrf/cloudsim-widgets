@@ -119,11 +119,7 @@
     ></gz-simulatorq>
 
     <paper-material elevation="1" id="launchArea">
-<!--
-      <div id="feedback" style="display:none">
-        <span id="feedback_text"/>
-      </div>
--->
+
 <!--
       <paper-dropdown-menu label="Machine types">
         <paper-listbox class="dropdown-content">
@@ -281,16 +277,12 @@
             machineImage == "" ||
             hardware == "")
         {
-          //this.$.feedback.style.display = ''
-          //this.$.feedback.style.color = 'red'
-          //this.$.feedback_text.textContent = "All fields are required."
+          this.fire('notification', {msg: "All fields are required.", type: "error"})
           return;
         }
 
         // Send request to gz-simulatorlauncher
-        //this.$.feedback.style.display = ''
-        //this.$.feedback.style.color = 'blue'
-        //this.$.feedback_text.textContent = "Request to launch machine has been sent."
+        this.fire('notification', {msg: "Request to launch machine has been sent.", type: "msg"})
 
         this.$.simulatorlauncher.launchMachine(region, machineImage, hardware);
       },
@@ -302,22 +294,16 @@
 
         if (!success)
         {
-          //this.$.feedback.style.display = ''
-          //this.$.feedback.style.color = 'red'
-          //this.$.feedback_text.textContent = msg
+          this.fire('notification', {msg: msg, type: "error"})
           return;
         }
-
-        //this.$.feedback.style.display = 'none'
       },
       tapKill(e) {
         let id = e.target.id
 
         // Send request to gz-simulatorlauncher
-        //this.$.feedback.style.display = ''
-        //this.$.feedback.style.color = 'blue'
-        //this.$.feedback_text.textContent = "Request to kill machine has been sent."
-
+        this.fire('notification',
+            {msg: "Request to kill machine has been sent.", type: "msg"})
         this.$.simulatorlauncher.killMachine(id);
       },
       onKilled: function(e) {
