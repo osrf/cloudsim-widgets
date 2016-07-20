@@ -59,6 +59,9 @@
         @apply(--layout-horizontal);
         @apply(--layout-center);
       }
+      .iconPadding {
+        padding-right: 1em;
+      }
       .bigIcon {
         --iron-icon-height: 50px;
         --iron-icon-width: 50px;
@@ -100,7 +103,7 @@
       }
 
       #launchbutton {
-        margin: 1em;
+        padding: 0.5em;
       }
       paper-tooltip {
         --paper-tooltip: {
@@ -134,7 +137,7 @@
 
     <paper-material elevation="1" id="launchArea">
 
-      <h1> Launch a machine</h1>
+      <h1><iron-icon icon="hardware:computer" class="iconPadding"></iron-icon>Launch a machine</h1>
 
       <div class="horizontal">
         <paper-dropdown-menu
@@ -156,7 +159,6 @@
         </div>
 
         <paper-button raised id="launchbutton" on-tap="tapLaunch">
-          <iron-icon icon="hardware:computer"></iron-icon>
           Launch!
         </paper-button>
       </div>
