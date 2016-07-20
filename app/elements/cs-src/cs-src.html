@@ -3,6 +3,9 @@
 
 <dom-module id="cs-src">
   <style>
+    .title {
+      font-size: 2em;
+    }
     .blue {
       background-color: rgb(68, 138, 201);
       color: #fff;
@@ -28,8 +31,9 @@
       @apply(--layout-horizontal);
       @apply(--layout-center);
     }
-    .horizontal paper-input {
-      @apply(--layout-start);
+    .horizontal paper-input, paper-button {
+      margin-left: 1em;
+      margin-bottom: 2em;
     }
     .horizontal > h1 {
       margin-right: 2em;
@@ -70,6 +74,18 @@
       background-color: #bababa;
       color: rgb(96, 96, 96);
     }
+    #addbutton {
+      min-width: 50px;
+    }
+    .spinning {
+      position: absolute;
+      -webkit-animation:spin 3s linear infinite;
+      -moz-animation:spin 3s linear infinite;
+      animation:spin 3s linear infinite;
+    }
+    @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+    @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+    @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
   </style>
   <template>
 
@@ -79,7 +95,7 @@
 
         <paper-header-panel class="blue">
           <div class="paper-header">
-            <h1>Secret Robotics Competition</h1>
+            <h1 class="title">Secret Robotics Competition</h1>
           </div>
         </paper-header-panel>
 
@@ -96,11 +112,6 @@
             Text about competition
             Text about competition
           </p>
-
-          <paper-button raised class="raised" id="registerbutton" on-tap="tapRegister">
-            <iron-icon icon="social:person-add"></iron-icon>
-            Register for competition
-          </paper-button>
         </div>
       </section>
 
@@ -108,7 +119,7 @@
 
         <paper-header-panel class="blue">
           <div class="paper-header">
-            <h1>Secret Robotics Competition</h1>
+            <h1 class="title">Secret Robotics Competition</h1>
             <p>The competition tasks are now available!
                To compete, follow the steps below.
                You must complete all tasks by [date].
@@ -187,7 +198,7 @@
                     <paper-fab
                       mini
                       disabled
-                      class="blue"
+                      class="blue spinning"
                       id="runningbutton[[taskNumber(task)]]"
                       icon="icons:refresh"
                       style="display: none">
@@ -210,7 +221,8 @@
                 3
               </h1>
               <div>
-                Check your scores and download task log files from the Leaderboard.
+                Check your scores and download task log files from the
+                <a href="{{baseUrl}}src-leaderboard">Leaderboard</a>.
               </div>
             </div>
           </div>
@@ -220,7 +232,7 @@
       <section data-route="leaderboard">
         <paper-header-panel class="blue">
           <div class="paper-header">
-            <h1>Robotics Competition</h1>
+            <h1 class="title">Secret Robotics Competition</h1>
             <p>See your scores!</p>
           </div>
         </paper-header-panel>
@@ -246,10 +258,9 @@
         return this.tasks.indexOf(task) + 1;
       },
       tapAddRepo: function(e) {
-        // TODO: Client-side check if repo is ok?
         if (this.$.repoUrl.value === '')
         {
-          // TODO: Print message about empty url
+          this.fire('notification', {msg: "Invalid repository URL.", type: "error"})
           return;
         }
         // TODO: Send repo info to server, wait for reply saying it's ready to run
@@ -263,6 +274,7 @@
         // Restore initial state
         this.$.removebutton.style.display = 'none'
         this.$.addbutton.style.display = ''
+        this.$.repoUrl.value = ''
         for (var i = 1; i <= this.tasks.length; ++i)
         {
           this._taskStatus(i, 'Unavailable')
