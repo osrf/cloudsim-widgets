@@ -52,8 +52,12 @@
         text-align: left;
         font-size: 0.8em;
       }
-      .vertLayout {
+      .vertical {
         @apply(--layout-vertical);
+      }
+      .horizontal {
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
       }
       .bigIcon {
         --iron-icon-height: 50px;
@@ -98,6 +102,16 @@
       #launchbutton {
         margin: 1em;
       }
+      paper-tooltip {
+        --paper-tooltip: {
+          width: 30em;
+          text-align: left;
+          font-size: 0.8em;
+          position: absolute;
+          top: -15em;
+          left: -20em;
+        }
+      }
   </style>
   <template>
 
@@ -120,29 +134,32 @@
 
     <paper-material elevation="1" id="launchArea">
 
-<!--
-      <paper-dropdown-menu label="Machine types">
-        <paper-listbox class="dropdown-content">
-          <paper-item>Debug: t2.small</paper-item>
-          <paper-item>GPU gzserver</paper-item>
-        </paper-listbox>
-      </paper-dropdown-menu>
--->
-      <div style="padding: 1em">
-        <paper-input label="Region" id="region" value="us-west-1"></paper-input>
-        <paper-input label="Machine image" id="machineImage" value="ami-e5eea885"></paper-input>
-        <paper-input label="Hardware" id="hardware" value="t2.small"></paper-input>
+      <h1> Launch a machine</h1>
+
+      <div class="horizontal">
+        <paper-dropdown-menu
+          label="Machine types"
+          selected="0"
+          on-iron-select="_machineSelected">
+
+          <paper-listbox class="dropdown-content" attr-for-selected="machine" selected="small">
+            <paper-item machine="small">small</paper-item>
+            <paper-item machine="gpu">gpu</paper-item>
+          </paper-listbox>
+
+        </paper-dropdown-menu>
+
+        <div style="padding: 1em" hidden>
+          <paper-input label="Region" id="region" value="us-west-1"></paper-input>
+          <paper-input label="Machine image" id="machineImage" value="ami-e5eea885"></paper-input>
+          <paper-input label="Hardware" id="hardware" value="t2.small"></paper-input>
+        </div>
+
+        <paper-button raised id="launchbutton" on-tap="tapLaunch">
+          <iron-icon icon="hardware:computer"></iron-icon>
+          Launch!
+        </paper-button>
       </div>
-
-<!-- Large machine commented out while debugging
-    <paper-input label="Machine image" id="machineImage" value="ami-610c7801"></paper-input>
-    <paper-input label="Hardware" id="hardware" value="g2.2xlarge"></paper-input>
--->
-
-      <paper-button raised id="launchbutton" on-tap="tapLaunch">
-        <iron-icon icon="hardware:computer"></iron-icon>
-        Launch a machine!
-      </paper-button>
     </paper-material>
 <!--
     <paper-button raised id="refreshbutton" on-tap="tapRefresh" style="margin-top: 5em">
@@ -153,7 +170,7 @@
     <iron-list id="list" items="[[listitems]]" as="item" selection-enabled multi-selection>
       <template>
         <paper-material elevation="2" style="margin: 1em">
-          <div>
+          <div id="item[[item.id]]">
             <div class$="[[getClassForItem(item, selected)]]" tabindex$="[[tabIndex]]">
               <iron-icon class="bigIcon" icon="hardware:computer"></iron-icon>
               <div class="pad">
@@ -184,7 +201,7 @@
                   token={{token}}
                 ></gz-simulator>
 -->
-                <div class="vertLayout">
+                <div class="vertical">
                   <a href=https://{{item.machine_ip}}/keys.zip?token={{token}} target="_blank" tabindex="" style="color:inherit">
                     <paper-button raised class="keysButton" id="keysbutton[[item.id]]">
                       <iron-icon icon="icons:cloud-download" class="blueIcon"></iron-icon>
@@ -210,6 +227,17 @@
               ></gz-cmd>
             </template>
           </div>
+<!--
+          <paper-tooltip for="item[[item.id]]" animation-delay="0">
+            <b>Launch date</b>: [[prettyDate(item.launch_date)]]<br>
+            <template is="dom-if" if="{{isTerminating(item.status)}}">
+              <b>Termination date</b>: [[prettyDate(item.termination_date)]]<br>
+            </template>
+            <b>Owner</b>: [[item.owner.username]]<br>
+            <b>Machine ID:</b>: [[item.machine_id]]<br>
+            <b>Region:</b>: [[item.region]]<br>
+          </paper-tooltip>
+-->
         </paper-material>
       </template>
     </iron-list>
@@ -268,7 +296,6 @@
         console.log('cs-dashboard widget attached!')
       },
       tapLaunch() {
-        // Get user input info
         let region = this.$.region.value;
         let machineImage = this.$.machineImage.value;
         let hardware = this.$.hardware.value;
@@ -277,14 +304,13 @@
             machineImage == "" ||
             hardware == "")
         {
-          this.fire('notification', {msg: "All fields are required.", type: "error"})
+          this.fire('notification', {msg: "Missing some information. Machine can't be launched.", type: "error"})
           return;
         }
 
         // Send request to gz-simulatorlauncher
-        this.fire('notification', {msg: "Request to launch machine has been sent.", type: "msg"})
-
         this.$.simulatorlauncher.launchMachine(region, machineImage, hardware);
+        this.fire('notification', {msg: "Request to launch machine has been sent.", type: "msg"})
       },
       onLaunched: function(e) {
         this.tapRefresh()
@@ -395,6 +421,24 @@
         if (aDate > bDate)
             return -1;
         return 0;
+      },
+      _machineSelected: function(e) {
+        var selectedItem = e.target.selectedItem;
+        if (!selectedItem)
+          return;
+        var machine = e.target.selectedItem.innerText;
+
+        this.$.region.value = "us-west-1"
+        if (machine == "small")
+        {
+          this.$.machineImage.value = "ami-e5eea885"
+          this.$.hardware.value = "t2.small"
+        }
+        else if (machine == "gpu")
+        {
+          this.$.machineImage.value = "ami-610c7801"
+          this.$.hardware.value = "g2.2xlarge"
+        }
       },
       properties: {
         portalurl: {
