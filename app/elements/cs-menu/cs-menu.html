@@ -116,7 +116,16 @@
       is: 'cs-menu',
       // Attached
       attached: function() {
+        var that = this;
+        window.addEventListener('uri-change', function(e) {
+          that.uriChanged()
+        });
         console.log('cs-menu widget [' + this.title + '] attached!')
+      },
+      uriChanged: function() {
+        var path = window.location.pathname
+        path = path.substr(1)
+        this.$.menu.selected = path
       },
     });
   })();
