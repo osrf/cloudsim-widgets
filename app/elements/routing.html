@@ -11,7 +11,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <script src="../bower_components/page/page.js"></script>
 <script>
   window.addEventListener('WebComponentsReady', function() {
-
+    var x= function(){
+      if (app.loggedin)
+      {
+        app.routeParent = 'secure';
+        app.route = 'src';
+        app.routeSrc = 'overview';
+      }
+      else
+      {
+        app.routeParent = 'home';
+      }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
+    }
     // We use Page.js for routing. This is a Micro
     // client-side router inspired by the Express router
     // More info: https://visionmedia.github.io/page.js/
@@ -130,21 +144,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }, 100);
     });
 
-    page('/src-overview', function() {
-      if (app.loggedin)
-      {
-        app.routeParent = 'secure';
-        app.route = 'src';
-        app.routeSrc = 'overview';
-      }
-      else
-      {
-        app.routeParent = 'home';
-      }
-      setTimeout(function () {
-        window.dispatchEvent(changeEvent)
-      }, 100);
-    });
+    page('/src-overview', x);
 
     page('/src-kiosk', function() {
       if (app.loggedin)

@@ -1,4 +1,7 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
+;
+
+        if (dialog)
+          dialog<link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../elements/elements.html">
 
 <dom-module id="cs-app">
@@ -192,12 +195,6 @@
 
         // Sets app default base URL
         this.baseUrl = '/';
-
-        // Listen for template bound event to know when bindings
-        // have resolved and content has been stamped to the page
-        this.addEventListener('dom-change', function() {
-          console.log('Our app is ready to rock!');
-        });
 
         this.addEventListener('login', function(e) {
           this.loggedin = true
