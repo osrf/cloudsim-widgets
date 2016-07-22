@@ -112,17 +112,6 @@
         text-align: center;
         padding: 1em;
       }
-      paper-dialog {
-        position: fixed;
-        padding: 1em;
-        max-width: 30em;
-        right: 30px;
-        overflow: auto;
-        text-align: center;
-      }
-      paper-dialog paper-button {
-        color: #111
-      }
       #launchArea {
         width: 30%;
       }
@@ -238,10 +227,11 @@
                         Keys
                       </paper-button>
                     </a>
-                    <paper-button raised class="shareButton miniButton" on-tap="tapShare" id="sharebutton[[item.id]]">
-                      <iron-icon icon="social:share"></iron-icon>
-                      Share
-                    </paper-button>
+                    <cs-sharebutton
+                      token={{token}}
+                      machine_id="[[item.id]]"
+                      machine_ip="[[item.machine_ip]]"
+                    ></cs-sharebutton>
                   </template>
                   <paper-button raised class="killButton miniButton" on-tap="tapKill" id="killbutton[[item.id]]">
                     <iron-icon icon="icons:close"></iron-icon>
@@ -275,24 +265,6 @@
 -->
         </paper-material>
 
-        <paper-dialog id="sharedialog[[item.id]]">
-          Share machine <a href="https://{{item.machine_ip}}" target="_blank">[[item.machine_ip]]</a> with user:
-          <paper-input
-             label="User name"
-             id="sharedialoguser[[item.id]]">
-          </paper-input>
-          <div class="buttons">
-            <paper-button raised dialog-confirm autofocus>Cancel</paper-button>
-            <paper-button
-              raised
-              dialog-confirm
-              autofocus
-              id="sharedialogbutton[[item.id]]"
-              on-tap="tapShareUser">
-              Share
-             </paper-button>
-          </div>
-        </paper-dialog>
       </template>
     </iron-list>
 
@@ -390,33 +362,6 @@
         this.fire('notification',
             {msg: "Request to kill machine has been sent.", type: "msg"})
         this.$.simulatorlauncher.killMachine(id);
-      },
-      tapShare(e) {
-        let id = e.target.id
-        id = id.substring(11)
-
-        var dialog = this.querySelector('#sharedialog' + id);
-
-        if (dialog)
-          dialog.open();
-        else
-          console.log("Dialog [#sharedialog" + id + "] not found.")
-      },
-      tapShareUser(e) {
-        let id = e.target.id
-        id = id.substring(17)
-
-        var inp = this.querySelector('#sharedialoguser' + id);
-
-        if (!inp)
-          return;
-
-        if (inp.value == '')
-          this.fire('notification', {msg: 'Invalid user name."', type: 'msg'})
-
-        // TODO: Send request to share machine. On success, do:
-        this.fire('notification', {msg: 'Shared machine with user "' +
-            inp.value + '"', type: 'msg'})
       },
       onKilled: function(e) {
         this.tapRefresh()
