@@ -232,12 +232,10 @@
 -->
                 <div class="vertical">
                   <template is="dom-if" if="{{isRunning(item.status)}}">
-                    <a href=https://{{item.machine_ip}}/keys.zip?token={{token}} target="_blank" tabindex="" style="color:inherit">
-                      <paper-button raised class="keysButton miniButton" id="keysbutton[[item.id]]">
-                        <iron-icon icon="icons:cloud-download" class="blueIcon"></iron-icon>
-                        Keys
-                      </paper-button>
-                    </a>
+                    <cs-downloadkeysbutton
+                      simurl="{{item.machine_ip}}"
+                      token="{{token}}"
+                    ></cs-downloadkeysbutton>
                     <paper-button raised class="shareButton miniButton" on-tap="tapShare" id="sharebutton[[item.id]]">
                       <iron-icon icon="social:share"></iron-icon>
                       Share
