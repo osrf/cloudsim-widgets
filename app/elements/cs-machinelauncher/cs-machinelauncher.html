@@ -28,6 +28,7 @@
       url={{portalurl}}
       token={{token}}
       on-launched="onLaunched"
+      on-error="onError"
     ></gz-simulatorlauncher>
 
     <paper-material elevation="1">
@@ -102,8 +103,14 @@
         if (!success)
         {
           this.fire('notification', {msg: msg, type: "error"})
-          return;
         }
+        else
+        {
+          this.fire('notification', {msg: "Machine has been launched.", type: "msg"})
+        }
+      },
+      onError: function(e) {
+        console.log(e);
       },
       _machineSelected: function(e) {
         var selectedItem = e.target.selectedItem;
