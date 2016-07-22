@@ -103,17 +103,6 @@
         text-align: center;
         padding: 1em;
       }
-      paper-dialog {
-        position: fixed;
-        padding: 1em;
-        max-width: 30em;
-        right: 30px;
-        overflow: auto;
-        text-align: center;
-      }
-      paper-dialog paper-button {
-        color: #111
-      }
       #launchArea {
         margin: auto;
         width: 30%;
@@ -194,10 +183,11 @@
                       simurl="{{item.machine_ip}}"
                       token="{{token}}"
                     ></cs-downloadkeysbutton>
-                    <paper-button raised class="shareButton miniButton" on-tap="tapShare" id="sharebutton[[item.id]]">
-                      <iron-icon icon="social:share"></iron-icon>
-                      Share
-                    </paper-button>
+                    <cs-sharebutton
+                      token={{token}}
+                      machine_id="[[item.id]]"
+                      machine_ip="[[item.machine_ip]]"
+                    ></cs-sharebutton>
                   </template>
                   <cs-machinekillbutton
                     portalUrl={{portalurl}}
@@ -232,24 +222,6 @@
 -->
         </paper-material>
 
-        <paper-dialog id="sharedialog[[item.id]]">
-          Share machine <a href="https://{{item.machine_ip}}" target="_blank">[[item.machine_ip]]</a> with user:
-          <paper-input
-             label="User name"
-             id="sharedialoguser[[item.id]]">
-          </paper-input>
-          <div class="buttons">
-            <paper-button raised dialog-confirm autofocus>Cancel</paper-button>
-            <paper-button
-              raised
-              dialog-confirm
-              autofocus
-              id="sharedialogbutton[[item.id]]"
-              on-tap="tapShareUser">
-              Share
-             </paper-button>
-          </div>
-        </paper-dialog>
       </template>
     </iron-list>
 
@@ -309,33 +281,6 @@
         });
 
         console.log('cs-dashboard widget attached!')
-      },
-      tapShare(e) {
-        let id = e.target.id
-        id = id.substring(11)
-
-        var dialog = this.querySelector('#sharedialog' + id);
-
-        if (dialog)
-          dialog.open();
-        else
-          console.log("Dialog [#sharedialog" + id + "] not found.")
-      },
-      tapShareUser(e) {
-        let id = e.target.id
-        id = id.substring(17)
-
-        var inp = this.querySelector('#sharedialoguser' + id);
-
-        if (!inp)
-          return;
-
-        if (inp.value == '')
-          this.fire('notification', {msg: 'Invalid user name."', type: 'msg'})
-
-        // TODO: Send request to share machine. On success, do:
-        this.fire('notification', {msg: 'Shared machine with user "' +
-            inp.value + '"', type: 'msg'})
       },
       onSimulatorqUpdated: function(e) {
         if (e.detail.success)
