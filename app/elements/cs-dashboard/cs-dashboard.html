@@ -80,9 +80,6 @@
       .blueIcon {
         --iron-icon-fill-color: rgb(68, 138, 201);
       }
-      .killButton > iron-icon {
-        --iron-icon-fill-color: #f00;
-      }
       .launchingStatus > iron-icon {
         --iron-icon-fill-color: #ff0;
       }
@@ -151,7 +148,6 @@
       url={{portalurl}}
       token={{token}}
       on-launched="onLaunched"
-      on-killed="onKilled"
     ></gz-simulatorlauncher>
 
     <!-- For retrieving list of machines-->
@@ -243,10 +239,11 @@
                       Share
                     </paper-button>
                   </template>
-                  <paper-button raised class="killButton miniButton" on-tap="tapKill" id="killbutton[[item.id]]">
-                    <iron-icon icon="icons:close"></iron-icon>
-                    Kill
-                  </paper-button>
+                  <cs-machinekillbutton
+                    portalUrl={{portalurl}}
+                    token={{token}}
+                    machine_id="[[item.id]]"
+                  ></cs-machinekillbutton>
                  </div>
               </template>
             </div>
@@ -380,15 +377,6 @@
           return;
         }
       },
-      tapKill(e) {
-        let id = e.target.id
-        id = id.substring(10)
-
-        // Send request to gz-simulatorlauncher
-        this.fire('notification',
-            {msg: "Request to kill machine has been sent.", type: "msg"})
-        this.$.simulatorlauncher.killMachine(id);
-      },
       tapShare(e) {
         let id = e.target.id
         id = id.substring(11)
@@ -415,9 +403,6 @@
         // TODO: Send request to share machine. On success, do:
         this.fire('notification', {msg: 'Shared machine with user "' +
             inp.value + '"', type: 'msg'})
-      },
-      onKilled: function(e) {
-        this.tapRefresh()
       },
       onSimulatorqUpdated: function(e) {
         if (e.detail.success)
