@@ -162,40 +162,40 @@
       url={{portalurl}}
     ></gz-simulatorq>
 
-    <paper-material elevation="1" id="launchArea">
-
-      <h1><iron-icon icon="hardware:computer" class="iconPadding"></iron-icon>Launch a machine</h1>
-
-      <div class="horizontal">
-        <paper-dropdown-menu
-          label="Machine types"
-          selected="0"
-          on-iron-select="_machineSelected">
-
-          <paper-listbox class="dropdown-content" attr-for-selected="machine" selected="small">
-            <paper-item machine="small">small</paper-item>
-            <paper-item machine="gpu">gpu</paper-item>
-          </paper-listbox>
-
-        </paper-dropdown-menu>
-
-        <div style="padding: 1em" hidden>
-          <paper-input label="Region" id="region" value="us-west-1"></paper-input>
-          <paper-input label="Machine image" id="machineImage" value="ami-e5eea885"></paper-input>
-          <paper-input label="Hardware" id="hardware" value="t2.small"></paper-input>
-        </div>
-
-        <paper-button raised id="launchbutton" on-tap="tapLaunch">
-          Launch!
-        </paper-button>
+    <div class="horizontal">
+      <div id="adminArea">
+        <cs-serverstatus></cs-serverstatus>
       </div>
-    </paper-material>
-<!--
-    <paper-button raised id="refreshbutton" on-tap="tapRefresh" style="margin-top: 5em">
-      <iron-icon icon="icons:refresh"></iron-icon>
-      Refresh machine list
-    </paper-button>
--->
+
+      <paper-material elevation="1" id="launchArea">
+
+        <h1><iron-icon icon="hardware:computer" class="iconPadding"></iron-icon>Launch a machine</h1>
+
+        <div class="horizontal">
+          <paper-dropdown-menu
+            label="Machine types"
+            selected="0"
+            on-iron-select="_machineSelected">
+
+            <paper-listbox class="dropdown-content" attr-for-selected="machine" selected="small">
+              <paper-item machine="small">small</paper-item>
+              <paper-item machine="gpu">gpu</paper-item>
+            </paper-listbox>
+
+          </paper-dropdown-menu>
+
+          <div style="padding: 1em" hidden>
+            <paper-input label="Region" id="region" value="us-west-1"></paper-input>
+            <paper-input label="Machine image" id="machineImage" value="ami-e5eea885"></paper-input>
+            <paper-input label="Hardware" id="hardware" value="t2.small"></paper-input>
+          </div>
+
+          <paper-button raised id="launchbutton" on-tap="tapLaunch">
+            Launch!
+          </paper-button>
+        </div>
+      </paper-material>
+    </div>
     <iron-list id="list" items="[[listitems]]" as="item" selection-enabled multi-selection>
       <template>
         <paper-material elevation="2" style="margin: 1em">
@@ -308,7 +308,9 @@
       is: 'cs-dashboard',
       // Attached
       attached: function() {
+        // TODO: separate launch and admin logic
         this.$.launchArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
+        this.$.adminArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
 
         // Listen to events
         var that = this;
@@ -468,6 +470,7 @@
       tapRefresh() {
         this.$.simulatorq.tapGet();
         this.$.launchArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
+        this.$.adminArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
       },
       getClassForItem: function(item, selected) {
         return selected ? 'item expanded' : 'item';
