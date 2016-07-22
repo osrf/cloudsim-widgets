@@ -31,6 +31,9 @@
           margin-bottom: 60px;
         }
       }
+      a {
+        text-decoration: none;
+      }
       .miniButton {
         font-size: 0.8em;
         width: 7em;
@@ -228,16 +231,18 @@
                 ></gz-simulator>
 -->
                 <div class="vertical">
-                  <a href=https://{{item.machine_ip}}/keys.zip?token={{token}} target="_blank" tabindex="" style="color:inherit">
-                    <paper-button raised class="keysButton miniButton" id="keysbutton[[item.id]]">
-                      <iron-icon icon="icons:cloud-download" class="blueIcon"></iron-icon>
-                      Keys
+                  <template is="dom-if" if="{{isRunning(item.status)}}">
+                    <a href=https://{{item.machine_ip}}/keys.zip?token={{token}} target="_blank" tabindex="" style="color:inherit">
+                      <paper-button raised class="keysButton miniButton" id="keysbutton[[item.id]]">
+                        <iron-icon icon="icons:cloud-download" class="blueIcon"></iron-icon>
+                        Keys
+                      </paper-button>
+                    </a>
+                    <paper-button raised class="shareButton miniButton" on-tap="tapShare" id="sharebutton[[item.id]]">
+                      <iron-icon icon="social:share"></iron-icon>
+                      Share
                     </paper-button>
-                  </a>
-                  <paper-button raised class="shareButton miniButton" on-tap="tapShare" id="sharebutton[[item.id]]">
-                    <iron-icon icon="social:share"></iron-icon>
-                    Share
-                  </paper-button>
+                  </template>
                   <paper-button raised class="killButton miniButton" on-tap="tapKill" id="killbutton[[item.id]]">
                     <iron-icon icon="icons:close"></iron-icon>
                     Kill
@@ -270,7 +275,7 @@
 -->
         </paper-material>
 
-        <paper-dialog id="sharedialog[[item.id]]" modal>
+        <paper-dialog id="sharedialog[[item.id]]">
           Share machine <a href="https://{{item.machine_ip}}" target="_blank">[[item.machine_ip]]</a> with user:
           <paper-input
              label="User name"
@@ -390,6 +395,8 @@
 
         if (dialog)
           dialog.open();
+        else
+          console.log("Dialog [#sharedialog" + id + "] not found.")
       },
       tapShareUser(e) {
         let id = e.target.id
