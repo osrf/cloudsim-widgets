@@ -1,0 +1,54 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-downloadkeysbutton">
+  <style>
+    .miniButton {
+      font-size: 0.8em;
+      width: 7em;
+    }
+    .miniButton iron-icon {
+      width: 1.5em;
+      margin-right: 0.2em;
+    }
+    .blueIcon {
+      --iron-icon-fill-color: rgb(68, 138, 201);
+    }
+  </style>
+  <template>
+
+    <a href="https://{{simurl}}/keys.zip?token={{token}}" target="_blank" tabindex="" style="color:inherit">
+      <paper-button raised class="miniButton">
+        <iron-icon icon="icons:cloud-download" class="blueIcon"></iron-icon>
+        Keys
+      </paper-button>
+    </a>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-downloadkeysbutton',
+      // Attached
+      attached: function() {
+        console.log('cs-downloadkeysbutton widget attached!')
+      },
+      properties: {
+        simurl: {
+          type: String,
+          value: 'placeholder',
+          notify: true
+        },
+        token: {
+          type: String,
+          value: 'placeholder',
+          notify: true
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>
