@@ -70,9 +70,6 @@
         @apply(--layout-horizontal);
         @apply(--layout-center);
       }
-      .iconPadding {
-        padding-right: 1em;
-      }
       .bigIcon {
         --iron-icon-height: 50px;
         --iron-icon-width: 50px;
@@ -124,13 +121,11 @@
         color: #111
       }
       #launchArea {
+        margin: auto;
         width: 30%;
       }
-
-      #launchbutton {
-        background-color: rgb(68, 138, 201);
-        color: white;
-        padding: 0.5em;
+      #adminArea {
+        margin: auto;
       }
       paper-tooltip {
         --paper-tooltip: {
@@ -150,7 +145,6 @@
       id="simulatorlauncher"
       url={{portalurl}}
       token={{token}}
-      on-launched="onLaunched"
       on-killed="onKilled"
     ></gz-simulatorlauncher>
 
@@ -167,34 +161,12 @@
         <cs-serverstatus></cs-serverstatus>
       </div>
 
-      <paper-material elevation="1" id="launchArea">
-
-        <h1><iron-icon icon="hardware:computer" class="iconPadding"></iron-icon>Launch a machine</h1>
-
-        <div class="horizontal">
-          <paper-dropdown-menu
-            label="Machine types"
-            selected="0"
-            on-iron-select="_machineSelected">
-
-            <paper-listbox class="dropdown-content" attr-for-selected="machine" selected="small">
-              <paper-item machine="small">small</paper-item>
-              <paper-item machine="gpu">gpu</paper-item>
-            </paper-listbox>
-
-          </paper-dropdown-menu>
-
-          <div style="padding: 1em" hidden>
-            <paper-input label="Region" id="region" value="us-west-1"></paper-input>
-            <paper-input label="Machine image" id="machineImage" value="ami-e5eea885"></paper-input>
-            <paper-input label="Hardware" id="hardware" value="t2.small"></paper-input>
-          </div>
-
-          <paper-button raised id="launchbutton" on-tap="tapLaunch">
-            Launch!
-          </paper-button>
-        </div>
-      </paper-material>
+      <div  id="launchArea">
+        <cs-machinelauncher
+          portalUrl={{portalurl}}
+          token={{token}}
+        ></cs-machinelauncher>
+      </div>
     </div>
     <iron-list id="list" items="[[listitems]]" as="item" selection-enabled multi-selection>
       <template>
@@ -353,35 +325,6 @@
 
         console.log('cs-dashboard widget attached!')
       },
-      tapLaunch() {
-        let region = this.$.region.value;
-        let machineImage = this.$.machineImage.value;
-        let hardware = this.$.hardware.value;
-
-        if (region == "" ||
-            machineImage == "" ||
-            hardware == "")
-        {
-          this.fire('notification', {msg: "Missing some information. Machine can't be launched.", type: "error"})
-          return;
-        }
-
-        // Send request to gz-simulatorlauncher
-        this.$.simulatorlauncher.launchMachine(region, machineImage, hardware);
-        this.fire('notification', {msg: "Request to launch machine has been sent.", type: "msg"})
-      },
-      onLaunched: function(e) {
-        this.tapRefresh()
-
-        let success = e.detail.success
-        let msg = e.detail.message
-
-        if (!success)
-        {
-          this.fire('notification', {msg: msg, type: "error"})
-          return;
-        }
-      },
       tapKill(e) {
         let id = e.target.id
         id = id.substring(10)
@@ -508,24 +451,6 @@
         if (aDate > bDate)
             return -1;
         return 0;
-      },
-      _machineSelected: function(e) {
-        var selectedItem = e.target.selectedItem;
-        if (!selectedItem)
-          return;
-        var machine = e.target.selectedItem.innerText;
-
-        this.$.region.value = "us-west-1"
-        if (machine == "small")
-        {
-          this.$.machineImage.value = "ami-e5eea885"
-          this.$.hardware.value = "t2.small"
-        }
-        else if (machine == "gpu")
-        {
-          this.$.machineImage.value = "ami-610c7801"
-          this.$.hardware.value = "g2.2xlarge"
-        }
       },
       properties: {
         portalurl: {
