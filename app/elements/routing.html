@@ -11,7 +11,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <script src="../bower_components/page/page.js"></script>
 <script>
   window.addEventListener('WebComponentsReady', function() {
-    var x= function(){
+    var goToOverview= function(){
       if (app.loggedin)
       {
         app.routeParent = 'secure';
@@ -144,7 +144,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }, 100);
     });
 
-    page('/src-overview', x);
+    page('/src-overview', goToOverView);
 
     page('/src-kiosk', function() {
       if (app.loggedin)
