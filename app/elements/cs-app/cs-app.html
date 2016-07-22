@@ -66,83 +66,6 @@
         <gz-home/>
       </section>
 
-      <section data-route="portfolio">
-
-        <paper-material elevation="1">
-          Authentication server: <a href={{authenticationUrl}} target="_blank">{{authenticationUrl}}</a>
-          <br>
-          Portal server: <a href={{portalUrl}} target="_blank">{{portalUrl}}</a>
-        </paper-material>
-
-        <paper-material elevation="1">
-          <gz-accounts
-            id="portfolio-accounts"
-            config
-            url="{{authenticationUrl}}"
-          ></gz-accounts>
-        </paper-material>
-
-        <paper-material elevation="1">
-          <gz-token
-            id="portfolio-token"
-            config
-            url="{{authenticationUrl}}"
-        ></gz-token>
-        </paper-material>
-
-        <paper-material elevation="1">
-          <gz-grant
-            id="portfolio-grant"
-            gui
-            config
-            url="{{simUrl}}"
-          ></gz-grant>
-        </paper-material>
-
-        <paper-material elevation="1">
-          <gz-simulatorLauncher
-            id="portfolio-simulatorLauncher"
-            config
-            url="{{portalUrl}}"
-          ></gz-simulatorLauncher>
-        </paper-material>
-
-        <paper-material elevation="1">
-          <gz-simulatorq
-            id="portfolio-simulatorq"
-            gui
-            config
-            url="{{portalUrl}}"
-          ></gz-simulatorq>
-        </paper-material>
-
-        <paper-material elevation="1">
-          <gz-cmd
-            id="portfolio-cmd"
-            gui
-            config
-            url="{{simUrl}}"
-          ></gz-cmd>
-        </paper-material>
-
-        <paper-material elevation="1">
-          <gz-simulationlauncher
-            id="portfolio-simulationlauncher"
-            gui
-            config
-          ></gz-simulationlauncher>
-        </paper-material>
-
-        <paper-material elevation="1">
-          <gz-simulationq
-            id="portfolio-simulationq"
-            gui
-            config
-          ></gz-simulationq>
-        </paper-material>
-
-      </section>
-
       <!-- Secure routes -->
       <section data-route="secure">
 
@@ -213,6 +136,11 @@
           this.openToast(e);
         });
 
+        var that = this;
+        window.addEventListener('WebComponentsReady', function() {
+          that.fire('servers-url', {'authenticationUrl': that.authenticationUrl,
+                                    'portalUrl': that.portalUrl})
+        });
         console.log('cs-app widget [' + this.title + '] attached!')
       },
       openToast: function(e) {

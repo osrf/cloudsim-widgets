@@ -1,0 +1,56 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-serverstatus">
+  <style>
+    paper-material {
+      margin: 1em;
+      padding: 1em;
+      width: 25em;
+    }
+  </style>
+
+  <template>
+
+    <paper-material elevation="1">
+      Authentication server: <a href={{authenticationUrl}} target="_blank">{{authenticationUrl}}</a>
+      <br>
+      Portal server: <a href={{portalUrl}} target="_blank">{{portalUrl}}</a>
+    </paper-material>
+
+  </template>
+
+  <script>
+
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-serverstatus',
+
+      attached: function() {
+
+        var that = this;
+        window.addEventListener('servers-url', function(e) {
+          that.authenticationUrl = e.detail.authenticationUrl;
+          that.portalUrl = e.detail.portalUrl;
+        })
+
+        console.log('cs-serverstatus widget attached!')
+      },
+      properties: {
+        authenticationUrl: {
+          type: String,
+          value: 'https://localhost:5050',
+          notify: true
+        },
+        portalUrl: {
+          type: String,
+          value: 'https://localhost:4000',
+          notify: true
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>

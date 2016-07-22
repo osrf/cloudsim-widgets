@@ -153,13 +153,18 @@
       url={{portalurl}}
     ></gz-simulatorq>
 
-    <div  id="launchArea">
-      <cs-machinelauncher
-        portalUrl={{portalurl}}
-        token={{token}}
-      ></cs-machinelauncher>
-    </div>
+    <div class="horizontal">
+      <div id="adminArea">
+        <cs-serverstatus></cs-serverstatus>
+      </div>
 
+      <div  id="launchArea">
+        <cs-machinelauncher
+          portalUrl={{portalurl}}
+          token={{token}}
+        ></cs-machinelauncher>
+      </div>
+    </div>
     <iron-list id="list" items="[[listitems]]" as="item" selection-enabled multi-selection>
       <template>
         <paper-material elevation="2" style="margin: 1em">
@@ -272,7 +277,9 @@
       is: 'cs-dashboard',
       // Attached
       attached: function() {
+        // TODO: separate launch and admin logic
         this.$.launchArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
+        this.$.adminArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
 
         // Listen to events
         var that = this;
@@ -403,6 +410,7 @@
       tapRefresh() {
         this.$.simulatorq.tapGet();
         this.$.launchArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
+        this.$.adminArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
       },
       getClassForItem: function(item, selected) {
         return selected ? 'item expanded' : 'item';
