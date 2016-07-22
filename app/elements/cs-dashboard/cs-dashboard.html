@@ -323,7 +323,7 @@
           // Initialize socket
           if (that.socket == undefined)
           {
-            console.log("cs-dashboard, socket, portalurl: " + that.portalurl + " token: " + token)
+            console.log("cs-dashboard, socket, portalurl: " + that.portalurl + " token: " + that.token)
             that.socket = io(that.portalurl, {query: {token: that.token}})
 
             that.socket.on('connect', function () {
