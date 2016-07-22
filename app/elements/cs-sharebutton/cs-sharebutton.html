@@ -1,0 +1,110 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-sharebutton">
+  <style>
+    .miniButton {
+      font-size: 0.8em;
+      width: 7em;
+    }
+    .miniButton iron-icon {
+      width: 1.5em;
+      margin-right: 0.2em;
+    }
+    paper-dialog {
+      position: fixed;
+      padding: 1em;
+      max-width: 30em;
+      right: 30px;
+      overflow: auto;
+      text-align: center;
+    }
+    paper-dialog paper-button {
+      color: #111
+    }
+  </style>
+  <template>
+
+    <!-- button -->
+    <paper-button raised class="miniButton" on-tap="tapShare">
+      <iron-icon icon="social:share"></iron-icon>
+      Share
+    </paper-button>
+
+    <!-- dialog -->
+    <paper-dialog id="sharedialog">
+      Share machine <a href="https://{{machine_ip}}" target="_blank">[[machine_ip]]</a> with user:
+      <paper-input
+         label="User name"
+         id="sharedialoguser">
+      </paper-input>
+      <div class="buttons">
+        <paper-button raised dialog-confirm autofocus>Cancel</paper-button>
+        <paper-button
+          raised
+          dialog-confirm
+          autofocus
+          id="sharedialogbutton"
+          on-tap="tapShareUser">
+          Share
+         </paper-button>
+      </div>
+    </paper-dialog>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-sharebutton',
+      // Attached
+      attached: function() {
+        console.log('cs-sharebutton widget attached!')
+      },
+      tapShare(e) {
+        var dialog = this.$.sharedialog
+
+        if (dialog)
+          dialog.open();
+        else
+          console.log("Dialog not found.")
+      },
+      tapShareUser(e) {
+        var inp = this.$.sharedialoguser
+
+        if (!inp)
+          return;
+
+        if (inp.value === '')
+        {
+          this.fire('notification', {msg: 'Invalid user name.', type: 'error'})
+          return;
+        }
+
+        // TODO: Send request to share machine. On success, do:
+        this.fire('notification', {msg: 'Shared machine with user "' +
+            inp.value + '"', type: 'msg'})
+      },
+      properties: {
+        token: {
+          type: String,
+          value: 'placeholder',
+          notify: true
+        },
+        machine_id: {
+          type: String,
+          value: 'placeholder',
+          notify: true
+        },
+        machine_ip: {
+          type: String,
+          value: 'placeholder',
+          notify: true
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>

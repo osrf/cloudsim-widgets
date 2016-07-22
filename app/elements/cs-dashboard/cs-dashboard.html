@@ -70,18 +70,9 @@
         @apply(--layout-horizontal);
         @apply(--layout-center);
       }
-      .iconPadding {
-        padding-right: 1em;
-      }
       .bigIcon {
         --iron-icon-height: 50px;
         --iron-icon-width: 50px;
-      }
-      .blueIcon {
-        --iron-icon-fill-color: rgb(68, 138, 201);
-      }
-      .killButton > iron-icon {
-        --iron-icon-fill-color: #f00;
       }
       .launchingStatus > iron-icon {
         --iron-icon-fill-color: #ff0;
@@ -112,25 +103,12 @@
         text-align: center;
         padding: 1em;
       }
-      paper-dialog {
-        position: fixed;
-        padding: 1em;
-        max-width: 30em;
-        right: 30px;
-        overflow: auto;
-        text-align: center;
-      }
-      paper-dialog paper-button {
-        color: #111
-      }
       #launchArea {
+        margin: auto;
         width: 30%;
       }
-
-      #launchbutton {
-        background-color: rgb(68, 138, 201);
-        color: white;
-        padding: 0.5em;
+      #adminArea {
+        margin: auto;
       }
       paper-tooltip {
         --paper-tooltip: {
@@ -145,15 +123,6 @@
   </style>
   <template>
 
-    <!-- For launching new machines-->
-    <gz-simulatorlauncher
-      id="simulatorlauncher"
-      url={{portalurl}}
-      token={{token}}
-      on-launched="onLaunched"
-      on-killed="onKilled"
-    ></gz-simulatorlauncher>
-
     <!-- For retrieving list of machines-->
     <gz-simulatorq
       id="simulatorq"
@@ -167,34 +136,12 @@
         <cs-serverstatus></cs-serverstatus>
       </div>
 
-      <paper-material elevation="1" id="launchArea">
-
-        <h1><iron-icon icon="hardware:computer" class="iconPadding"></iron-icon>Launch a machine</h1>
-
-        <div class="horizontal">
-          <paper-dropdown-menu
-            label="Machine types"
-            selected="0"
-            on-iron-select="_machineSelected">
-
-            <paper-listbox class="dropdown-content" attr-for-selected="machine" selected="small">
-              <paper-item machine="small">small</paper-item>
-              <paper-item machine="gpu">gpu</paper-item>
-            </paper-listbox>
-
-          </paper-dropdown-menu>
-
-          <div style="padding: 1em" hidden>
-            <paper-input label="Region" id="region" value="us-west-1"></paper-input>
-            <paper-input label="Machine image" id="machineImage" value="ami-e5eea885"></paper-input>
-            <paper-input label="Hardware" id="hardware" value="t2.small"></paper-input>
-          </div>
-
-          <paper-button raised id="launchbutton" on-tap="tapLaunch">
-            Launch!
-          </paper-button>
-        </div>
-      </paper-material>
+      <div  id="launchArea">
+        <cs-machinelauncher
+          portalUrl={{portalurl}}
+          token={{token}}
+        ></cs-machinelauncher>
+      </div>
     </div>
     <iron-list id="list" items="[[listitems]]" as="item" selection-enabled multi-selection>
       <template>
@@ -232,21 +179,21 @@
 -->
                 <div class="vertical">
                   <template is="dom-if" if="{{isRunning(item.status)}}">
-                    <a href=https://{{item.machine_ip}}/keys.zip?token={{token}} target="_blank" tabindex="" style="color:inherit">
-                      <paper-button raised class="keysButton miniButton" id="keysbutton[[item.id]]">
-                        <iron-icon icon="icons:cloud-download" class="blueIcon"></iron-icon>
-                        Keys
-                      </paper-button>
-                    </a>
-                    <paper-button raised class="shareButton miniButton" on-tap="tapShare" id="sharebutton[[item.id]]">
-                      <iron-icon icon="social:share"></iron-icon>
-                      Share
-                    </paper-button>
+                    <cs-downloadkeysbutton
+                      simurl="{{item.machine_ip}}"
+                      token="{{token}}"
+                    ></cs-downloadkeysbutton>
+                    <cs-sharebutton
+                      token={{token}}
+                      machine_id="[[item.id]]"
+                      machine_ip="[[item.machine_ip]]"
+                    ></cs-sharebutton>
                   </template>
-                  <paper-button raised class="killButton miniButton" on-tap="tapKill" id="killbutton[[item.id]]">
-                    <iron-icon icon="icons:close"></iron-icon>
-                    Kill
-                  </paper-button>
+                  <cs-machinekillbutton
+                    portalUrl={{portalurl}}
+                    token={{token}}
+                    machine_id="[[item.id]]"
+                  ></cs-machinekillbutton>
                  </div>
               </template>
             </div>
@@ -275,24 +222,6 @@
 -->
         </paper-material>
 
-        <paper-dialog id="sharedialog[[item.id]]">
-          Share machine <a href="https://{{item.machine_ip}}" target="_blank">[[item.machine_ip]]</a> with user:
-          <paper-input
-             label="User name"
-             id="sharedialoguser[[item.id]]">
-          </paper-input>
-          <div class="buttons">
-            <paper-button raised dialog-confirm autofocus>Cancel</paper-button>
-            <paper-button
-              raised
-              dialog-confirm
-              autofocus
-              id="sharedialogbutton[[item.id]]"
-              on-tap="tapShareUser">
-              Share
-             </paper-button>
-          </div>
-        </paper-dialog>
       </template>
     </iron-list>
 
@@ -352,74 +281,6 @@
         });
 
         console.log('cs-dashboard widget attached!')
-      },
-      tapLaunch() {
-        let region = this.$.region.value;
-        let machineImage = this.$.machineImage.value;
-        let hardware = this.$.hardware.value;
-
-        if (region == "" ||
-            machineImage == "" ||
-            hardware == "")
-        {
-          this.fire('notification', {msg: "Missing some information. Machine can't be launched.", type: "error"})
-          return;
-        }
-
-        // Send request to gz-simulatorlauncher
-        this.$.simulatorlauncher.launchMachine(region, machineImage, hardware);
-        this.fire('notification', {msg: "Request to launch machine has been sent.", type: "msg"})
-      },
-      onLaunched: function(e) {
-        this.tapRefresh()
-
-        let success = e.detail.success
-        let msg = e.detail.message
-
-        if (!success)
-        {
-          this.fire('notification', {msg: msg, type: "error"})
-          return;
-        }
-      },
-      tapKill(e) {
-        let id = e.target.id
-        id = id.substring(10)
-
-        // Send request to gz-simulatorlauncher
-        this.fire('notification',
-            {msg: "Request to kill machine has been sent.", type: "msg"})
-        this.$.simulatorlauncher.killMachine(id);
-      },
-      tapShare(e) {
-        let id = e.target.id
-        id = id.substring(11)
-
-        var dialog = this.querySelector('#sharedialog' + id);
-
-        if (dialog)
-          dialog.open();
-        else
-          console.log("Dialog [#sharedialog" + id + "] not found.")
-      },
-      tapShareUser(e) {
-        let id = e.target.id
-        id = id.substring(17)
-
-        var inp = this.querySelector('#sharedialoguser' + id);
-
-        if (!inp)
-          return;
-
-        if (inp.value == '')
-          this.fire('notification', {msg: 'Invalid user name."', type: 'msg'})
-
-        // TODO: Send request to share machine. On success, do:
-        this.fire('notification', {msg: 'Shared machine with user "' +
-            inp.value + '"', type: 'msg'})
-      },
-      onKilled: function(e) {
-        this.tapRefresh()
       },
       onSimulatorqUpdated: function(e) {
         if (e.detail.success)
@@ -508,24 +369,6 @@
         if (aDate > bDate)
             return -1;
         return 0;
-      },
-      _machineSelected: function(e) {
-        var selectedItem = e.target.selectedItem;
-        if (!selectedItem)
-          return;
-        var machine = e.target.selectedItem.innerText;
-
-        this.$.region.value = "us-west-1"
-        if (machine == "small")
-        {
-          this.$.machineImage.value = "ami-e5eea885"
-          this.$.hardware.value = "t2.small"
-        }
-        else if (machine == "gpu")
-        {
-          this.$.machineImage.value = "ami-610c7801"
-          this.$.hardware.value = "g2.2xlarge"
-        }
       },
       properties: {
         portalurl: {
