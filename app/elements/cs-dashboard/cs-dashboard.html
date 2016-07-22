@@ -31,6 +31,14 @@
           margin-bottom: 60px;
         }
       }
+      .miniButton {
+        font-size: 0.8em;
+        width: 7em;
+      }
+      .miniButton iron-icon {
+        width: 1.5em;
+        margin-right: 0.2em;
+      }
       .item {
         @apply(--layout-horizontal);
         @apply(--layout-center);
@@ -100,6 +108,17 @@
         width: 40%;
         text-align: center;
         padding: 1em;
+      }
+      paper-dialog {
+        position: fixed;
+        padding: 1em;
+        max-width: 30em;
+        right: 30px;
+        overflow: auto;
+        text-align: center;
+      }
+      paper-dialog paper-button {
+        color: #111
       }
       #launchArea {
         width: 30%;
@@ -210,12 +229,16 @@
 -->
                 <div class="vertical">
                   <a href=https://{{item.machine_ip}}/keys.zip?token={{token}} target="_blank" tabindex="" style="color:inherit">
-                    <paper-button raised class="keysButton" id="keysbutton[[item.id]]">
+                    <paper-button raised class="keysButton miniButton" id="keysbutton[[item.id]]">
                       <iron-icon icon="icons:cloud-download" class="blueIcon"></iron-icon>
-                      Download keys
+                      Keys
                     </paper-button>
                   </a>
-                  <paper-button raised class="killButton" on-tap="tapKill" id="[[item.id]]">
+                  <paper-button raised class="shareButton miniButton" on-tap="tapShare" id="sharebutton[[item.id]]">
+                    <iron-icon icon="social:share"></iron-icon>
+                    Share
+                  </paper-button>
+                  <paper-button raised class="killButton miniButton" on-tap="tapKill" id="killbutton[[item.id]]">
                     <iron-icon icon="icons:close"></iron-icon>
                     Kill
                   </paper-button>
@@ -246,6 +269,25 @@
           </paper-tooltip>
 -->
         </paper-material>
+
+        <paper-dialog id="sharedialog[[item.id]]" modal>
+          Share machine <a href="https://{{item.machine_ip}}" target="_blank">[[item.machine_ip]]</a> with user:
+          <paper-input
+             label="User name"
+             id="sharedialoguser[[item.id]]">
+          </paper-input>
+          <div class="buttons">
+            <paper-button raised dialog-confirm autofocus>Cancel</paper-button>
+            <paper-button
+              raised
+              dialog-confirm
+              autofocus
+              id="sharedialogbutton[[item.id]]"
+              on-tap="tapShareUser">
+              Share
+             </paper-button>
+          </div>
+        </paper-dialog>
       </template>
     </iron-list>
 
@@ -333,11 +375,37 @@
       },
       tapKill(e) {
         let id = e.target.id
+        id = id.substring(10)
 
         // Send request to gz-simulatorlauncher
         this.fire('notification',
             {msg: "Request to kill machine has been sent.", type: "msg"})
         this.$.simulatorlauncher.killMachine(id);
+      },
+      tapShare(e) {
+        let id = e.target.id
+        id = id.substring(11)
+
+        var dialog = this.querySelector('#sharedialog' + id);
+
+        if (dialog)
+          dialog.open();
+      },
+      tapShareUser(e) {
+        let id = e.target.id
+        id = id.substring(17)
+
+        var inp = this.querySelector('#sharedialoguser' + id);
+
+        if (!inp)
+          return;
+
+        if (inp.value == '')
+          this.fire('notification', {msg: 'Invalid user name."', type: 'msg'})
+
+        // TODO: Send request to share machine. On success, do:
+        this.fire('notification', {msg: 'Shared machine with user "' +
+            inp.value + '"', type: 'msg'})
       },
       onKilled: function(e) {
         this.tapRefresh()
