@@ -323,6 +323,7 @@
           // Initialize socket
           if (that.socket == undefined)
           {
+            console.log("cs-dashboard, socket, portalurl: " + that.portalurl + " token: " + token)
             that.socket = io(that.portalurl, {query: {token: that.token}})
 
             that.socket.on('connect', function () {
@@ -337,8 +338,9 @@
                 that.$.simulatorq.tapGet();
               })
             })
-            that.socket.on('connect_error', function () {
-              console.log("FAILED TO CONNECT WEBSOCKET")
+            that.socket.on('connect_error', function (e) {
+              console.log("cs-dashboard: FAILED TO CONNECT PORTAL WEBSOCKET")
+              console.log(e)
             })
           }
 
