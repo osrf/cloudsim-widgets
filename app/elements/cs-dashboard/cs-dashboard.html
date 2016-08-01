@@ -8,15 +8,6 @@
         padding-top: 3em;
         @apply(--paper-font-common-base);
       }
-      iron-list {
-        padding-top: 64px;
-        padding-bottom: 64px;
-        --iron-list-items-container: {
-          max-width: 90%;
-          margin: auto;
-          margin-bottom: 60px;
-        }
-      }
       .horizontal {
         @apply(--layout-horizontal);
         @apply(--layout-center);
@@ -31,14 +22,6 @@
   </style>
   <template>
 
-    <!-- For retrieving list of machines-->
-    <gz-simulatorq
-      id="simulatorq"
-      token={{token}}
-      on-simulatorqupdated="onSimulatorqUpdated"
-      url={{portalurl}}
-    ></gz-simulatorq>
-
     <div class="horizontal">
       <div id="adminArea">
         <cs-serverstatus></cs-serverstatus>
@@ -51,25 +34,13 @@
         ></cs-machinelauncher>
       </div>
     </div>
-    <iron-list id="list" items="[[listitems]]" as="item" selection-enabled multi-selection>
-      <template>
-        <cs-machineitem
-          itemid="[[item.id]]"
-          stat="[[item.status]]"
-          machine_ip="[[item.machine_ip]]"
-          launch_date="[[item.launch_date]]"
-          termination_date="[[item.termination_date]]"
-          username="[[item.owner.username]]"
-          region="[[item.region]]"
-          token="{{token}}"
-          portalurl="{{portalurl}}"
-        ></cs-machineitem>
-      </template>
-    </iron-list>
+
+    <cs-machinelist
+      id="machinelist"
+      portalurl="{{portalurl}}"
+    ></cs-machinelist>
 
   </template>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.js"></script>
 
   <script>
   (function() {
@@ -91,30 +62,6 @@
           // FIXME: hardcoded admin can launch machines
           that.canLaunch = (e.detail.user === "admin" ? 'true' : 'false')
 
-          // Initialize socket
-          if (that.socket == undefined)
-          {
-            console.log("cs-dashboard, socket, portalurl: " + that.portalurl + " token: " + that.token)
-            that.socket = io(that.portalurl, {query: {token: that.token}})
-
-            that.socket.on('connect', function () {
-              console.log("Socket connected.")
-              that.socket.on('simulator_launch', function (simulator) {
-                that.$.simulatorq.tapGet();
-              })
-              that.socket.on('simulator_status', function (simulator) {
-                that.$.simulatorq.tapGet();
-              })
-              that.socket.on('simulator_terminate', function (simulator) {
-                that.$.simulatorq.tapGet();
-              })
-            })
-            that.socket.on('connect_error', function (e) {
-              console.log("cs-dashboard: FAILED TO CONNECT PORTAL WEBSOCKET")
-              console.log(e)
-            })
-          }
-
           that.tapRefresh()
         });
 
@@ -124,70 +71,10 @@
 
         console.log('cs-dashboard widget attached!')
       },
-      onSimulatorqUpdated: function(e) {
-        if (e.detail.success)
-        {
-          this.updateList(e.detail.items);
-        }
-      },
-      updateList: function(items) {
-        this.sortByReverseLaunchDate(items);
-
-        // The portal sends periodic updates even if there are no changes.
-        // Check if there are status updates
-        if (items.length == this.listitems.length)
-        {
-          let i = 0;
-          while (i < items.length && items[i].status == this.listitems[i].status &&
-              items[i].machine_ip == this.listitems[i].machine_ip)
-          {
-            ++i;
-          }
-          if (i == items.length)
-            return;
-        }
-
-        // Make sure we're not calling this multiple times before the timeouts
-        if (this.updateCount == this.updateTarget)
-        {
-          // Counters
-          this.updateCount = 0;
-          this.updateTarget = items.length;
-
-          // Reset list
-          this.splice("listitems", 0, this.listitems.length)
-
-          // Push each item
-          items.forEach(function(item, index){
-
-            // Polymer issue #3682
-            // https://github.com/Polymer/polymer/issues/3682
-            // Consecutive updates only work asynchronously
-            var that = this;
-            setTimeout(function () {
-              that.push('listitems', item);
-              that.updateCount = that.updateCount + 1
-            }, 100);
-
-          }.bind(this));
-        }
-      },
       tapRefresh() {
-        this.$.simulatorq.tapGet();
+        this.$.machinelist.tapRefresh();
         this.$.launchArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
         this.$.adminArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
-      },
-      sortByReverseLaunchDate: function(items) {
-        items.sort(this.compareDates)
-      },
-      compareDates: function(a, b) {
-        let aDate = new Date(a.launch_date)
-        let bDate = new Date(b.launch_date)
-        if (aDate < bDate)
-            return 1;
-        if (aDate > bDate)
-            return -1;
-        return 0;
       },
       properties: {
         portalurl: {
@@ -198,11 +85,6 @@
         token: {
           type: String,
           value: 'placeholder',
-          notify: true
-        },
-        listitems: {
-          type: Array,
-          value: [],
           notify: true
         },
         canLaunch: {
