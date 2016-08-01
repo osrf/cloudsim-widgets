@@ -1,0 +1,177 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-machineitem">
+  <style>
+    .pad {
+      padding: 0 16px;
+      @apply(--layout-flex);
+      @apply(--layout-center);
+      @apply(--layout-horizontal);
+    }
+    .pad > div {
+      padding-right: 1em;
+    }
+    .bigIcon {
+      --iron-icon-height: 50px;
+      --iron-icon-width: 50px;
+    }
+    .launchingStatus > iron-icon {
+      --iron-icon-fill-color: #ff0;
+    }
+    .runningStatus > iron-icon {
+      --iron-icon-fill-color: #00f;
+    }
+    .terminatingStatus > iron-icon {
+      --iron-icon-fill-color: #f00;
+    }
+    .machineInfo {
+      color: gray;
+      text-align: left;
+      font-size: 0.8em;
+    }
+    .vertical {
+      @apply(--layout-vertical);
+    }
+    .item {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+      padding: 20px;
+      background-color: white;
+      margin-bottom: 10px;
+    }
+    paper-material {
+      margin: auto;
+      text-align: center;
+    }
+    paper-tooltip {
+      --paper-tooltip: {
+        width: 30em;
+        text-align: left;
+        font-size: 0.8em;
+        position: absolute;
+        top: -15em;
+        left: -20em;
+      }
+    }
+  </style>
+  <template>
+
+    <paper-material elevation="2" style="margin: 1em">
+      <div id="item[[itemid]]">
+        <div class="item" tabindex$="[[tabIndex]]">
+          <iron-icon class="bigIcon" icon="hardware:computer"></iron-icon>
+          <div class="pad">
+            <template is="dom-if" if="{{!isTerminating(stat)}}">
+              <div><a href="https://{{machine_ip}}" target="_blank">[[machine_ip]]</a></div>
+            </template>
+
+            <div class$="[[getStatusClass(stat)]]">
+              <!-- <iron-icon icon="icons:cloud"></iron-icon> -->
+              [[stat]]
+            </div>
+            <div class="machineInfo">
+              <b>Launch date</b>: [[prettyDate(launch_date)]]<br>
+              <template is="dom-if" if="{{isTerminating(stat)}}">
+                <b>Termination date</b>: [[prettyDate(termination_date)]]<br>
+              </template>
+              <!--<b>Owner</b>: [[username]]<br>
+              <b>Users</b>: [[item.users]]<br>
+              <b>ID</b>: [[itemid]]<br>
+              <b>Simulations</b>: [[item.simulations]]<br>-->
+             </div>
+          </div>
+          <template is="dom-if" if="{{!isTerminating(stat)}}">
+<!--
+            <gz-simulator
+              id="gzsimulator[[itemid]]"
+              url="https://{{machine_ip}}"
+              token={{token}}
+            ></gz-simulator>
+-->
+            <div class="vertical">
+              <template is="dom-if" if="{{isRunning(stat)}}">
+                <cs-downloadkeysbutton
+                  simurl="{{machine_ip}}"
+                  token="{{token}}"
+                ></cs-downloadkeysbutton>
+                <cs-sharebutton
+                  token={{token}}
+                  machine_id="[[itemid]]"
+                  machine_ip="[[machine_ip]]"
+                ></cs-sharebutton>
+              </template>
+              <cs-machinekillbutton
+                portalUrl={{portalurl}}
+                token={{token}}
+                machine_id="[[itemid]]"
+              ></cs-machinekillbutton>
+             </div>
+          </template>
+        </div>
+
+        <template is="dom-if" if="{{isRunning(stat)}}">
+          <gz-cmd
+            title="{{machine_ip}}"
+            url="https://{{machine_ip}}"
+            token={{token}}
+            cmd="gzserver --verbose"
+            gui
+            style="padding: 1em; height: 6em; overflow: auto"
+          ></gz-cmd>
+        </template>
+      </div>
+<!--
+      <paper-tooltip for="item[[itemid]]" animation-delay="0">
+        <b>Launch date</b>: [[prettyDate(launch_date)]]<br>
+        <template is="dom-if" if="{{isTerminating(stat)}}">
+          <b>Termination date</b>: [[prettyDate(termination_date)]]<br>
+        </template>
+        <b>Owner</b>: [[username]]<br>
+        <b>Region:</b>: [[region]]<br>
+      </paper-tooltip>
+-->
+    </paper-material>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-machineitem',
+      attached: function() {
+        console.log('cs-machineitem widget attached!')
+      },
+      isRunning: function(itemStatus) {
+        return itemStatus == 'RUNNING' ? true : false;
+      },
+      isTerminating: function(itemStatus) {
+        return (itemStatus == 'TERMINATING' || itemStatus == 'TERMINATED') ? true : false;
+      },
+      getStatusClass: function(itemStatus) {
+        let itemClass = 'launchingStatus'
+        if (itemStatus == 'RUNNING')
+          itemClass = 'runningStatus'
+        else if (itemStatus == 'TERMINATING' || itemStatus == 'TERMINATED')
+          itemClass = 'terminatingStatus'
+        else if (itemStatus == 'LAUNCHING')
+          itemClass = 'launchingStatus'
+        return itemClass;
+      },
+      prettyDate: function(date) {
+        let d = new Date(date);
+        return d.toString();
+      },
+      properties: {
+        stat: {
+          type: String,
+          value: '',
+          notify: true
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>

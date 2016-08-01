@@ -8,20 +8,6 @@
         padding-top: 3em;
         @apply(--paper-font-common-base);
       }
-      app-toolbar {
-        background-color: var(--google-green-700);
-        box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
-        font-weight: bold;
-        color: white;
-        z-index: 1;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-      }
-      app-toolbar paper-icon-button {
-        --paper-icon-button-ink-color: white;
-      }
       iron-list {
         padding-top: 64px;
         padding-bottom: 64px;
@@ -31,77 +17,9 @@
           margin-bottom: 60px;
         }
       }
-      a {
-        text-decoration: none;
-      }
-      .miniButton {
-        font-size: 0.8em;
-        width: 7em;
-      }
-      .miniButton iron-icon {
-        width: 1.5em;
-        margin-right: 0.2em;
-      }
-      .item {
-        @apply(--layout-horizontal);
-        @apply(--layout-center);
-        padding: 20px;
-        background-color: white;
-        margin-bottom: 10px;
-      }
-      .pad {
-        padding: 0 16px;
-        @apply(--layout-flex);
-        @apply(--layout-center);
-        @apply(--layout-horizontal);
-      }
-      .pad > div {
-        padding-right: 1em;
-      }
-      .machineInfo {
-        color: gray;
-        text-align: left;
-        font-size: 0.8em;
-      }
-      .vertical {
-        @apply(--layout-vertical);
-      }
       .horizontal {
         @apply(--layout-horizontal);
         @apply(--layout-center);
-      }
-      .bigIcon {
-        --iron-icon-height: 50px;
-        --iron-icon-width: 50px;
-      }
-      .launchingStatus > iron-icon {
-        --iron-icon-fill-color: #ff0;
-      }
-      .runningStatus > iron-icon {
-        --iron-icon-fill-color: #00f;
-      }
-      .terminatingStatus > iron-icon {
-        --iron-icon-fill-color: #f00;
-      }
-      .spacer {
-        @apply(--layout-flex);
-      }
-      @media (max-width: 460px) {
-        paper-toolbar .bottom.title {
-          font-size: 14px;
-        }
-      }
-
-      .horizontal-3 {
-        padding: 1em;
-        text-align: left;
-      }
-
-      paper-material {
-        margin: auto;
-        width: 40%;
-        text-align: center;
-        padding: 1em;
       }
       #launchArea {
         margin: auto;
@@ -109,16 +27,6 @@
       }
       #adminArea {
         margin: auto;
-      }
-      paper-tooltip {
-        --paper-tooltip: {
-          width: 30em;
-          text-align: left;
-          font-size: 0.8em;
-          position: absolute;
-          top: -15em;
-          left: -20em;
-        }
       }
   </style>
   <template>
@@ -136,7 +44,7 @@
         <cs-serverstatus></cs-serverstatus>
       </div>
 
-      <div  id="launchArea">
+      <div id="launchArea">
         <cs-machinelauncher
           portalUrl={{portalurl}}
           token={{token}}
@@ -145,83 +53,17 @@
     </div>
     <iron-list id="list" items="[[listitems]]" as="item" selection-enabled multi-selection>
       <template>
-        <paper-material elevation="2" style="margin: 1em">
-          <div id="item[[item.id]]">
-            <div class$="[[getClassForItem(item, selected)]]" tabindex$="[[tabIndex]]">
-              <iron-icon class="bigIcon" icon="hardware:computer"></iron-icon>
-              <div class="pad">
-                <template is="dom-if" if="{{!isTerminating(item.status)}}">
-                  <div><a href="https://{{item.machine_ip}}" target="_blank">[[item.machine_ip]]</a></div>
-                </template>
-
-                <div class$="[[getStatusClass(item.status)]]">
-                  <!-- <iron-icon icon="icons:cloud"></iron-icon> -->
-                  [[item.status]]
-                </div>
-                <div class="machineInfo">
-                  <b>Launch date</b>: [[prettyDate(item.launch_date)]]<br>
-                  <template is="dom-if" if="{{isTerminating(item.status)}}">
-                    <b>Termination date</b>: [[prettyDate(item.termination_date)]]<br>
-                  </template>
-                  <!--<b>Owner</b>: [[item.owner.username]]<br>
-                  <b>Users</b>: [[item.users]]<br>
-                  <b>ID</b>: [[item.id]]<br>
-                  <b>Simulations</b>: [[item.simulations]]<br>-->
-                 </div>
-              </div>
-              <template is="dom-if" if="{{!isTerminating(item.status)}}">
-<!--
-                <gz-simulator
-                  id="gzsimulator[[item.id]]"
-                  url="https://{{item.machine_ip}}"
-                  token={{token}}
-                ></gz-simulator>
--->
-                <div class="vertical">
-                  <template is="dom-if" if="{{isRunning(item.status)}}">
-                    <cs-downloadkeysbutton
-                      simurl="{{item.machine_ip}}"
-                      token="{{token}}"
-                    ></cs-downloadkeysbutton>
-                    <cs-sharebutton
-                      token={{token}}
-                      machine_id="[[item.id]]"
-                      machine_ip="[[item.machine_ip]]"
-                    ></cs-sharebutton>
-                  </template>
-                  <cs-machinekillbutton
-                    portalUrl={{portalurl}}
-                    token={{token}}
-                    machine_id="[[item.id]]"
-                  ></cs-machinekillbutton>
-                 </div>
-              </template>
-            </div>
-
-            <template is="dom-if" if="{{isRunning(item.status)}}">
-              <gz-cmd
-                title="{{item.machine_ip}}"
-                url="https://{{item.machine_ip}}"
-                token={{token}}
-                cmd="gzserver --verbose"
-                gui
-                style="padding: 1em; height: 6em; overflow: auto"
-              ></gz-cmd>
-            </template>
-          </div>
-<!--
-          <paper-tooltip for="item[[item.id]]" animation-delay="0">
-            <b>Launch date</b>: [[prettyDate(item.launch_date)]]<br>
-            <template is="dom-if" if="{{isTerminating(item.status)}}">
-              <b>Termination date</b>: [[prettyDate(item.termination_date)]]<br>
-            </template>
-            <b>Owner</b>: [[item.owner.username]]<br>
-            <b>Machine ID:</b>: [[item.machine_id]]<br>
-            <b>Region:</b>: [[item.region]]<br>
-          </paper-tooltip>
--->
-        </paper-material>
-
+        <cs-machineitem
+          itemid="[[item.id]]"
+          stat="[[item.status]]"
+          machine_ip="[[item.machine_ip]]"
+          launch_date="[[item.launch_date]]"
+          termination_date="[[item.termination_date]]"
+          username="[[item.owner.username]]"
+          region="[[item.region]]"
+          token="{{token}}"
+          portalurl="{{portalurl}}"
+        ></cs-machineitem>
       </template>
     </iron-list>
 
@@ -334,29 +176,6 @@
         this.$.simulatorq.tapGet();
         this.$.launchArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
         this.$.adminArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
-      },
-      getClassForItem: function(item, selected) {
-        return selected ? 'item expanded' : 'item';
-      },
-      getStatusClass: function(itemStatus) {
-        let itemClass = 'launchingStatus'
-        if (itemStatus == 'RUNNING')
-          itemClass = 'runningStatus'
-        else if (itemStatus == 'TERMINATING' || itemStatus == 'TERMINATED')
-          itemClass = 'terminatingStatus'
-        else if (itemStatus == 'LAUNCHING')
-          itemClass = 'launchingStatus'
-        return itemClass;
-      },
-      isRunning: function(itemStatus) {
-        return itemStatus == 'RUNNING' ? true : false;
-      },
-      isTerminating: function(itemStatus) {
-        return (itemStatus == 'TERMINATING' || itemStatus == 'TERMINATED') ? true : false;
-      },
-      prettyDate: function(date) {
-        let d = new Date(date);
-        return d.toString();
       },
       sortByReverseLaunchDate: function(items) {
         items.sort(this.compareDates)
