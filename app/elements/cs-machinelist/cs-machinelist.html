@@ -40,8 +40,6 @@
 
   </template>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.js"></script>
-
   <script>
   (function() {
     'use strict';
@@ -50,39 +48,7 @@
       is: 'cs-machinelist',
       // Attached
       attached: function() {
-
-        // Listen to events
-        var that = this;
-        window.addEventListener('login', function(e) {
-          that.token = e.detail.token;
-
-          // Initialize socket
-          if (that.socket == undefined)
-          {
-            console.log("cs-machinelist, socket, portalurl: " + that.portalurl + " token: " + that.token)
-            that.socket = io(that.portalurl, {query: {token: that.token}})
-
-            that.socket.on('connect', function () {
-              console.log("Socket connected.")
-              that.socket.on('simulator_launch', function (simulator) {
-                that.$.simulatorq.tapGet();
-              })
-              that.socket.on('simulator_status', function (simulator) {
-                that.$.simulatorq.tapGet();
-              })
-              that.socket.on('simulator_terminate', function (simulator) {
-                that.$.simulatorq.tapGet();
-              })
-            })
-            that.socket.on('connect_error', function (e) {
-              console.log("cs-machinelist: FAILED TO CONNECT PORTAL WEBSOCKET")
-              console.log(e)
-            })
-          }
-
-          that.tapRefresh()
-        });
-
+        this.refresh()
         console.log('cs-machinelist widget attached!')
       },
       onSimulatorqUpdated: function(e) {
@@ -133,7 +99,7 @@
           }.bind(this));
         }
       },
-      tapRefresh() {
+      refresh() {
         this.$.simulatorq.tapGet();
       },
       sortByReverseLaunchDate: function(items) {

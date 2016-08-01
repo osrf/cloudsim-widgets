@@ -62,7 +62,7 @@
           // FIXME: hardcoded admin can launch machines
           that.canLaunch = (e.detail.user === "admin" ? 'true' : 'false')
 
-          that.tapRefresh()
+          that.refresh()
         });
 
         window.addEventListener('logout', function(e) {
@@ -71,8 +71,8 @@
 
         console.log('cs-dashboard widget attached!')
       },
-      tapRefresh() {
-        this.$.machinelist.tapRefresh();
+      refresh() {
+        this.$.machinelist.refresh();
         this.$.launchArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
         this.$.adminArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
       },
