@@ -136,6 +136,10 @@
           this.openToast(e);
         });
 
+        this.addEventListener('error', function(e) {
+          this.openErrorToast(e);
+        });
+
         var that = this;
         window.addEventListener('WebComponentsReady', function() {
           that.fire('servers-url', {'authenticationUrl': that.authenticationUrl,
@@ -154,6 +158,10 @@
           this.$.msgToast.text = e.detail.msg
           this.$.msgToast.open()
         }
+      },
+      openErrorToast: function(e) {
+        this.$.errorToast.text = e.detail.msg
+        this.$.errorToast.open()
       },
       properties: {
         authenticationUrl: {
