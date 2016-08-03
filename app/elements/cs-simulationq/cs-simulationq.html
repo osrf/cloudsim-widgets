@@ -50,6 +50,22 @@
     paper-icon-button.untappable:hover {
       cursor: default;
     }
+    paper-toggle-button.green {
+      --paper-toggle-button-checked-bar-color:  var(--paper-green-500);
+      --paper-toggle-button-checked-button-color:  var(--paper-green-500);
+      --paper-toggle-button-checked-ink-color: var(--paper-green-500);
+      --paper-toggle-button-unchecked-bar-color:  var(--paper-red-500);
+      --paper-toggle-button-unchecked-button-color:  var(--paper-red-500);
+      --paper-toggle-button-unchecked-ink-color: var(--paper-red-500);
+    }
+    paper-fab {
+      --paper-fab-background: rgb(68, 138, 201);
+    }
+    paper-dialog {
+      padding: 1em;
+      overflow: auto;
+      text-align: center;
+    }
     .spinning {
       -webkit-animation:spin 3s linear infinite;
       -moz-animation:spin 3s linear infinite;
@@ -63,18 +79,59 @@
 
     <gz-simulationq
       id="simulationq"
-      url="https://{{machine_ip}}"
+      url={{simurl}}
       token={{token}}
-      items-changed="onSimulationList"
+      items-changed="_onSimulationList"
     ></gz-simulationq>
 
-    <template is="dom-if" if="{{!_hasItems(listitems)}}">
-      There are no simulations for this machine.
-    </template>
+    <div class="listcontainer">
+      <div class="horizontal">
 
-    <template is="dom-if" if="{{_hasItems(listitems)}}">
-      <div class="listcontainer">
+        <div class="space"></div>
+
         <h1>Simulations</h1>
+
+        <div class="space"></div>
+
+        <paper-fab
+          mini
+          icon="icons:add"
+          on-tap="_tapAdd"
+        ></paper-fab>
+
+      <!-- dialog -->
+      <paper-dialog id="adddialog">
+        <h1>Add simulation</h1>
+        <div class="horizontal">
+          <paper-input
+             label="Command"
+             id="dialogcmd"
+          ></paper-input>
+          <paper-toggle-button
+            checked
+            class="green"
+            title="Auto play when possible"
+             id="dialogauto"
+          >Auto play</paper-toggle-button>
+          <paper-button
+            raised
+            dialog-confirm
+            autofocus
+            id="addbutton"
+            on-tap="_tapAddButton">
+            Add
+           </paper-button>
+        </div>
+      </paper-dialog>
+
+        <div class="space"></div>
+      </div>
+
+      <template is="dom-if" if="{{!_hasItems(listitems)}}">
+        There are no simulations for this machine.
+      </template>
+
+      <template is="dom-if" if="{{_hasItems(listitems)}}">
         <template is="dom-repeat" items="{{listitems}}">
           <div class="horizontal simulation">
 
@@ -99,19 +156,38 @@
 
             <div class="space"></div>
 
-            <paper-icon-button icon="av:play-arrow" class="green tappable" on-tap="tapPlay" title="Play" disabled>
-            </paper-icon-button>
+            <template is="dom-if" if="{{_isWaiting(item.stat)}}">
+              <paper-toggle-button
+                checked
+                class="green"
+                title="Auto play when possible"
+                on-change="_onAuto"
+                id="autobutton[[item.simid]]"
+              ></paper-toggle-button>
+            </template>
 
-            <paper-icon-button icon="av:stop" class="red tappable" on-tap="tapStop" title="Stop" disabled>
-            </paper-icon-button>
+            <template is="dom-if" if="{{_isRunning(item.stat)}}">
+              <paper-icon-button
+                icon="av:not-interested"
+                class="red tappable"
+                style="margin-right:0.5em"
+                on-tap="tapStop"
+                title="Stop"
+              ></paper-icon-button>
+            </template>
 
-            <paper-icon-button icon="icons:close" class="red tappable" on-tap="tapDelete" title="Delete">
-            </paper-icon-button>
+            <paper-icon-button
+              icon="icons:close"
+              class="red tappable"
+              on-tap="_tapDelete"
+              id="deletebutton[[item.simid]]"
+              title="Remove from queue"
+            ></paper-icon-button>
 
           </div>
         </template>
-      </div>
-    </template>
+      </template>
+    </div>
 
   </template>
 
@@ -123,7 +199,7 @@
       is: 'cs-simulationq',
       // Attached
       attached: function() {
-        this.$.simulationq.getSimulations();
+        //this.$.simulationq.getSimulations();
 
         this.listitems =[
             {"simid":"Sim1",
@@ -142,9 +218,33 @@
 
         console.log('cs-simulationq widget attached!')
       },
-      onSimulationList(e) {
-console.log(e)
-        this.itemslist = e.detail;
+      _tapAdd: function() {
+        var dialog = this.$.adddialog
+
+        if (dialog)
+          dialog.open();
+        else
+          console.log("Dialog not found.")
+      },
+      _tapAddButton: function() {
+        var data = {};
+        data.cmdLine = this.$.dialogcmd.value
+        data.auto = this.$.dialogauto.checked
+        this.$.simulationq.createSimulation(data);
+      },
+      _tapDelete: function(e) {
+        let id = e.target.parentNode.id.substring(12)
+        this.$.simulationq.deleteSimulation(id)
+      },
+      _onAuto: function(e) {
+        var data = {};
+        data.auto = e.target.checked
+
+        let id = e.target.id.substring(10)
+        this.$.simulationq.updateSimulation(id, data)
+      },
+      _onSimulationList(e) {
+        //this.itemslist = e.detail;
       },
       _isFinished: function(stat) {
         return stat == "FINISHED"
@@ -159,7 +259,7 @@ console.log(e)
         return items.length != 0
       },
       properties: {
-        portalurl: {
+        simurl: {
           type: String,
           value: 'https://localhost:4000',
           notify: true
