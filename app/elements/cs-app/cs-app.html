@@ -148,19 +148,25 @@
         console.log('cs-app widget attached!')
       },
       openToast: function(e) {
+        let msg = e.detail
+        if (e.detail.msg)
+          msg = e.detail.msg
         if (e.detail.type === "error")
         {
-          this.$.errorToast.text = e.detail.msg
+          this.$.errorToast.text = msg
           this.$.errorToast.open()
         }
         else
         {
-          this.$.msgToast.text = e.detail.msg
+          this.$.msgToast.text = msg
           this.$.msgToast.open()
         }
       },
       openErrorToast: function(e) {
-        this.$.errorToast.text = e.detail.msg
+        let msg = e.detail
+        if (e.detail.msg)
+          msg = e.detail.msg
+        this.$.errorToast.text = msg
         this.$.errorToast.open()
       },
       properties: {
