@@ -1,0 +1,181 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-simulationq">
+  <style>
+    .simulation {
+      border-bottom: 0.5px solid rgba(0, 0, 0, 0.25);
+    }
+    .listcontainer {
+      padding: 1em;
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+    .horizontal > div {
+      padding-right: 1em;
+    }
+    .space {
+      @apply(--layout-flex);
+    }
+    .simid {
+      font-weight: bold;
+    }
+    .cmd {
+      font-family: courier;
+    }
+    .miniButton {
+      min-width: 1em;
+    }
+    .miniButton iron-icon {
+      width: 1.5em;
+    }
+    paper-icon-button.red {
+      color: #da5c5c;
+    }
+    paper-icon-button.green {
+      color: #45d545;
+    }
+    paper-icon-button.blue {
+      color: rgb(68, 138, 201);
+    }
+    paper-icon-button.gray {
+      color: #aaa;
+    }
+    paper-icon-button.tappable:hover {
+      background-color: rgba(68, 138, 201, 0.43);
+      color: white;
+    }
+    paper-icon-button.untappable:hover {
+      cursor: default;
+    }
+    .spinning {
+      -webkit-animation:spin 3s linear infinite;
+      -moz-animation:spin 3s linear infinite;
+      animation:spin 3s linear infinite;
+    }
+    @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+    @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+    @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+  </style>
+  <template>
+
+    <gz-simulationq
+      id="simulationq"
+      url="https://{{machine_ip}}"
+      token={{token}}
+      items-changed="onSimulationList"
+    ></gz-simulationq>
+
+    <template is="dom-if" if="{{!_hasItems(listitems)}}">
+      There are no simulations for this machine.
+    </template>
+
+    <template is="dom-if" if="{{_hasItems(listitems)}}">
+      <div class="listcontainer">
+        <h1>Simulations</h1>
+        <template is="dom-repeat" items="{{listitems}}">
+          <div class="horizontal simulation">
+
+            <template is="dom-if" if="{{_isFinished(item.stat)}}">
+              <paper-icon-button icon="icons:check" class="green untappable" title="Finished">
+              </paper-icon-button>
+            </template>
+
+            <template is="dom-if" if="{{_isRunning(item.stat)}}">
+              <paper-icon-button icon="icons:refresh" class="blue spinning untappable" title="Running">
+              </paper-icon-button>
+            </template>
+
+            <template is="dom-if" if="{{_isWaiting(item.stat)}}">
+              <paper-icon-button icon="device:access-time" class="gray untappable" title="Waiting">
+              </paper-icon-button>
+            </template>
+
+            <div class="simid">[[item.simid]]</div>
+
+            <div class="cmd">[[item.cmd]]</div>
+
+            <div class="space"></div>
+
+            <paper-icon-button icon="av:play-arrow" class="green tappable" on-tap="tapPlay" title="Play" disabled>
+            </paper-icon-button>
+
+            <paper-icon-button icon="av:stop" class="red tappable" on-tap="tapStop" title="Stop" disabled>
+            </paper-icon-button>
+
+            <paper-icon-button icon="icons:close" class="red tappable" on-tap="tapDelete" title="Delete">
+            </paper-icon-button>
+
+          </div>
+        </template>
+      </div>
+    </template>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-simulationq',
+      // Attached
+      attached: function() {
+        this.$.simulationq.getSimulations();
+
+        this.listitems =[
+            {"simid":"Sim1",
+              "cmd":"gzserver --verbose worlds/empty.world",
+              "auto": false,
+              "stat": "FINISHED"},
+            {"simid":"Sim2",
+              "cmd":"roslaunch launchfile.launch",
+              "auto": true,
+              "stat": "RUNNING"},
+            {"simid":"Sim3",
+              "cmd":"gzserver --verbose worlds/underwater.world",
+              "auto": true,
+              "stat": "WAITING"}
+          ];
+
+        console.log('cs-simulationq widget attached!')
+      },
+      onSimulationList(e) {
+console.log(e)
+        this.itemslist = e.detail;
+      },
+      _isFinished: function(stat) {
+        return stat == "FINISHED"
+      },
+      _isRunning: function(stat) {
+        return stat == "RUNNING"
+      },
+      _isWaiting: function(stat) {
+        return stat == "WAITING"
+      },
+      _hasItems: function(items) {
+        return items.length != 0
+      },
+      properties: {
+        portalurl: {
+          type: String,
+          value: 'https://localhost:4000',
+          notify: true
+        },
+        token: {
+          type: String,
+          value: 'placeholder',
+          notify: true
+        },
+        listitems: {
+          type: Array,
+          value: [],
+          notify: true
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>
