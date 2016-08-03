@@ -42,7 +42,8 @@
           on-iron-select="_machineSelected">
 
           <paper-listbox class="dropdown-content" attr-for-selected="machine" selected="small">
-            <paper-item machine="small">small</paper-item>
+            <paper-item machine="small_v0.0.1">small v0.0.1</paper-item>
+            <paper-item machine="small_v0.0.2">small v0.0.2</paper-item>
             <paper-item machine="gpu">gpu</paper-item>
           </paper-listbox>
 
@@ -118,18 +119,19 @@
           return;
         var machine = e.target.selectedItem.innerText;
 
-        this.$.region.value = "us-west-1"
-        if (machine == "small")
-        {
-          this.$.machineImage.value = "ami-33b7f753"  // cloudsim-small v0.0.2
-          // "ami-e5eea885" // cloudsim-small v0.0.1
-          this.$.hardware.value = "t2.small"
+        machines = {"small_v0.0.1": {region: "us-west-1",
+                                     image: "ami-e5eea885",
+                                     hardware: "t2.small"},
+                    "small_v0.0.2": {region: "us-west-1",
+                                     image: "ami-33b7f753",
+                                     hardware: "t2.small"},
+                    "gpu": {region: "us-west-1",
+                            image: "ami-81fabbe1",
+                            hardware: "g2.2xlarge"}
         }
-        else if (machine == "gpu")
-        {
-          this.$.machineImage.value = "ami-81fabbe1"
-          this.$.hardware.value = "g2.2xlarge"
-        }
+        this.$.region.value = machines[machine].region
+        this.$.machineImage.value = machines[machine].image
+        this.$.hardware.value = machines[machine].hardware
       },
       properties: {
         portalurl: {
