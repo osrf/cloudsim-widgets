@@ -117,17 +117,17 @@
         var selectedItem = e.target.selectedItem;
         if (!selectedItem)
           return;
-        var machine = e.target.selectedItem.innerText;
+        var machine = (e.target.selectedItem.innerText).trim();
 
-        machines = {"small_v0.0.1": {region: "us-west-1",
-                                     image: "ami-e5eea885",
-                                     hardware: "t2.small"},
-                    "small_v0.0.2": {region: "us-west-1",
-                                     image: "ami-33b7f753",
-                                     hardware: "t2.small"},
-                    "gpu": {region: "us-west-1",
-                            image: "ami-81fabbe1",
-                            hardware: "g2.2xlarge"}
+        const machines = {"small v0.0.1": {region: "us-west-1",
+                                           image: "ami-e5eea885",
+                                           hardware: "t2.small"},
+                          "small v0.0.2": {region: "us-west-1",
+                                           image: "ami-33b7f753",
+                                           hardware: "t2.small"},
+                          "gpu": {region: "us-west-1",
+                                  image: "ami-81fabbe1",
+                                  hardware: "g2.2xlarge"}
         }
         this.$.region.value = machines[machine].region
         this.$.machineImage.value = machines[machine].image
