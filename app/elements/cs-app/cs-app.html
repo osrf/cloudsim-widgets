@@ -136,6 +136,10 @@
           this.openToast(e);
         });
 
+        this.addEventListener('error', function(e) {
+          this.openErrorToast(e);
+        });
+
         var that = this;
         window.addEventListener('WebComponentsReady', function() {
           that.fire('servers-url', {'authenticationUrl': that.authenticationUrl,
@@ -144,16 +148,26 @@
         console.log('cs-app widget attached!')
       },
       openToast: function(e) {
+        let msg = e.detail
+        if (e.detail.msg)
+          msg = e.detail.msg
         if (e.detail.type === "error")
         {
-          this.$.errorToast.text = e.detail.msg
+          this.$.errorToast.text = msg
           this.$.errorToast.open()
         }
         else
         {
-          this.$.msgToast.text = e.detail.msg
+          this.$.msgToast.text = msg
           this.$.msgToast.open()
         }
+      },
+      openErrorToast: function(e) {
+        let msg = e.detail
+        if (e.detail.msg)
+          msg = e.detail.msg
+        this.$.errorToast.text = msg
+        this.$.errorToast.open()
       },
       properties: {
         authenticationUrl: {
