@@ -111,14 +111,10 @@
         </div>
 
         <template is="dom-if" if="{{isRunning(stat)}}">
-          <gz-cmd
-            title="{{machine_ip}}"
-            url="https://{{machine_ip}}"
+          <cs-simulationq
+            simurl="https://{{machine_ip}}"
             token={{token}}
-            cmd="gzserver --verbose"
-            gui
-            style="padding: 1em; height: 6em; overflow: auto"
-          ></gz-cmd>
+          ></cs-simulationq>
         </template>
       </div>
 <!--
