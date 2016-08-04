@@ -84,6 +84,31 @@
       on-items-changed="_onSimulationList"
     ></gz-simulationq>
 
+    <!-- dialog -->
+    <paper-dialog id="adddialog">
+      <h1>Add simulation</h1>
+      <div class="horizontal">
+        <paper-input
+           label="Command"
+           id="dialogcmd"
+        ></paper-input>
+        <paper-toggle-button
+          checked
+          class="green"
+          title="Auto play when possible"
+          id="dialogauto"
+        >Auto play</paper-toggle-button>
+        <paper-button
+          raised
+          dialog-confirm
+          autofocus
+          id="addbutton"
+          on-tap="_tapAddButton">
+          Add
+         </paper-button>
+      </div>
+    </paper-dialog>
+
     <div class="listcontainer">
       <div class="horizontal">
 
@@ -99,40 +124,15 @@
           on-tap="_tapAdd"
         ></paper-fab>
 
-      <!-- dialog -->
-      <paper-dialog id="adddialog">
-        <h1>Add simulation</h1>
-        <div class="horizontal">
-          <paper-input
-             label="Command"
-             id="dialogcmd"
-          ></paper-input>
-          <paper-toggle-button
-            checked
-            class="green"
-            title="Auto play when possible"
-            id="dialogauto"
-          >Auto play</paper-toggle-button>
-          <paper-button
-            raised
-            dialog-confirm
-            autofocus
-            id="addbutton"
-            on-tap="_tapAddButton">
-            Add
-           </paper-button>
-        </div>
-      </paper-dialog>
-
         <div class="space"></div>
       </div>
 
-      <template is="dom-if" if="{{!_hasItems(listitems)}}">
+      <template is="dom-if" if="{{!_hasItems(simulations)}}">
         There are no simulations for this machine.
       </template>
 
-      <template is="dom-if" if="{{_hasItems(listitems)}}">
-        <template is="dom-repeat" items="{{listitems}}">
+      <template is="dom-if" if="{{_hasItems(simulations)}}">
+        <template is="dom-repeat" items="{{simulations}}">
           <div class="horizontal simulation">
 
             <template is="dom-if" if="{{_isFinished(item.data.stat)}}">
@@ -201,6 +201,26 @@
       attached: function() {
         this.$.simulationq.getSimulations();
 
+// For debugging
+/*
+        this.simulations =[
+            {"id":"Sim1",
+              "data": {
+              "cmd":"gzserver --verbose worlds/empty.world",
+              "auto": "false",
+              "stat": "FINISHED"}},
+            {"id":"Sim2",
+              "data": {
+              "cmd":"roslaunch launchfile.launch",
+              "auto": "true",
+              "stat": "RUNNING"}},
+            {"id":"Sim3",
+              "data": {
+              "cmd":"gzserver --verbose worlds/underwater.world",
+              "auto": "true",
+              "stat": "WAITING"}}
+          ];
+*/
         console.log('cs-simulationq widget attached!')
       },
       _tapAdd: function() {
@@ -234,7 +254,7 @@
 
         temp.splice(0, 2)
 
-        this.listitems = temp
+        this.simulations = temp
       },
       _isFinished: function(stat) {
         return stat == "FINISHED"
@@ -262,7 +282,7 @@
           value: 'placeholder',
           notify: true
         },
-        listitems: {
+        simulations: {
           type: Array,
           value: [],
           notify: true
