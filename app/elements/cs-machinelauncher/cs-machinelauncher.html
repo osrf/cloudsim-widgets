@@ -41,9 +41,10 @@
           selected="0"
           on-iron-select="_machineSelected">
 
-          <paper-listbox class="dropdown-content" attr-for-selected="machine" selected="small_v0.0.2">
+          <paper-listbox class="dropdown-content" attr-for-selected="machine" selected="small_v0.0.3">
             <paper-item machine="small_v0.0.1">small v0.0.1</paper-item>
             <paper-item machine="small_v0.0.2">small v0.0.2</paper-item>
+            <paper-item machine="small_v0.0.3">small v0.0.3</paper-item>
             <paper-item machine="gpu">gpu</paper-item>
           </paper-listbox>
 
@@ -124,6 +125,9 @@
                                            hardware: "t2.small"},
                           "small v0.0.2": {region: "us-west-1",
                                            image: "ami-33b7f753",
+                                           hardware: "t2.small"},
+                          "small v0.0.3": {region: "us-west-1",
+                                           image: "ami-b2d090d2",
                                            hardware: "t2.small"},
                           "gpu": {region: "us-west-1",
                                   image: "ami-81fabbe1",
