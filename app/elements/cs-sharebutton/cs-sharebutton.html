@@ -11,6 +11,13 @@
       width: 1.5em;
       margin-right: 0.2em;
     }
+    .buttons {
+      padding-top: 2em;
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
     paper-dialog {
       position: fixed;
       padding: 1em;
@@ -22,22 +29,46 @@
     paper-dialog paper-button {
       color: #111
     }
+    a {
+      padding: 0;
+    }
   </style>
   <template>
 
+    <gz-grant
+      id="grant"
+      url={{url}}
+      token={{token}}
+      resource={{machine_id}}
+      grantee=[[grantee]]
+      readOnly={{readOnly}}
+      on-granted={{_onGranted}}
+    ></gz-grant>
+
     <!-- button -->
-    <paper-button raised class="miniButton" on-tap="tapShare">
+    <paper-button raised class="miniButton" on-tap="tapOpenDialog">
       <iron-icon icon="social:share"></iron-icon>
       Share
     </paper-button>
 
     <!-- dialog -->
     <paper-dialog id="sharedialog">
-      Share machine <a href="https://{{machine_ip}}" target="_blank">[[machine_ip]]</a> with user:
-      <paper-input
-         label="User name"
-         id="sharedialoguser">
-      </paper-input>
+      {{message}}
+
+      <div class="horizontal">
+        <paper-input
+          label="{{granteetxt}}"
+          value={{grantee}}
+          id="sharedialoguser">
+        </paper-input>
+
+        <paper-checkbox
+          value={{readOnly}}
+        >
+          {{readonlytxt}}
+        </paper-checkbox>
+      </div>
+
       <div class="buttons">
         <paper-button raised dialog-confirm autofocus>Cancel</paper-button>
         <paper-button
@@ -45,9 +76,9 @@
           dialog-confirm
           autofocus
           id="sharedialogbutton"
-          on-tap="tapShareUser">
+          on-tap="tapGrant">
           Share
-         </paper-button>
+        </paper-button>
       </div>
     </paper-dialog>
 
@@ -59,11 +90,10 @@
 
     Polymer({
       is: 'cs-sharebutton',
-      // Attached
       attached: function() {
         console.log('cs-sharebutton widget attached!')
       },
-      tapShare(e) {
+      tapOpenDialog(e) {
         var dialog = this.$.sharedialog
 
         if (dialog)
@@ -71,21 +101,26 @@
         else
           console.log("Dialog not found.")
       },
-      tapShareUser(e) {
-        var inp = this.$.sharedialoguser
-
-        if (!inp)
-          return;
-
-        if (inp.value === '')
+      tapGrant(e) {
+        if (this.grantee === '')
         {
-          this.fire('notification', {msg: 'Invalid user name.', type: 'error'})
+          this.fire('error', 'Invalid user name.')
           return;
         }
 
-        // TODO: Send request to share machine. On success, do:
-        this.fire('notification', {msg: 'Shared machine with user "' +
-            inp.value + '"', type: 'msg'})
+        this.$.grant.grant(this.token, this.grantee, this.resource, this.readOnly)
+      },
+      _onGranted: function(e) {
+        if (e.detail.success)
+        {
+          this.fire('notification', {msg: 'Shared machine with user "' +
+              this.grantee + '"', type: 'msg'})
+        }
+        else
+        {
+          this.fire('error', 'Couldn\'t share machine with user "' +
+              this.grantee + '": ' + e.detail.error)
+        }
       },
       properties: {
         token: {
@@ -101,6 +136,16 @@
         machine_ip: {
           type: String,
           value: 'placeholder',
+          notify: true
+        },
+        readonlytxt: {
+          type: String,
+          value: 'Read only',
+          notify: true
+        },
+        granteetxt: {
+          type: String,
+          value: 'User name',
           notify: true
         },
       },
