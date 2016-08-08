@@ -7,6 +7,9 @@
       font-size: 0.8em;
       width: 7em;
     }
+    .space {
+      @apply(--layout-flex);
+    }
     .miniButton iron-icon {
       width: 1.5em;
       margin-right: 0.2em;
@@ -17,6 +20,9 @@
     .horizontal {
       @apply(--layout-horizontal);
       @apply(--layout-center);
+    }
+    .vertical {
+      @apply(--layout-vertical);
     }
     paper-dialog {
       position: fixed;
@@ -32,6 +38,9 @@
     a {
       padding: 0;
     }
+    paper-dropdown-menu {
+      max-width: 5em;
+    }
   </style>
   <template>
 
@@ -42,7 +51,8 @@
       resource={{machine_id}}
       grantee=[[grantee]]
       readOnly={{readOnly}}
-      on-granted={{_onGranted}}
+      on-granted="_onGranted"
+      on-revoked="_onRevoked"
     ></gz-grant>
 
     <!-- button -->
@@ -52,8 +62,33 @@
     </paper-button>
 
     <!-- dialog -->
-    <paper-dialog id="sharedialog">
-      {{message}}
+    <paper-dialog id="sharedialog" class="vertical">
+      <h3>{{dialogmessage}}</h3>
+
+      <b>Users</b>
+
+      <div class="item horizontal">
+        <div>{{owner}}</div>
+        <div class="space"></div>
+        <div>owner</div>
+      </div>
+      <template is="dom-repeat" items="{{users}}">
+        <div class="item horizontal">
+          <div>[[item.username]]</div>
+          <div class="space"></div>
+          <paper-dropdown-menu
+            label="Permissions"
+            on-iron-select="_onPermission">
+
+            <paper-listbox class="dropdown-content" selected="[[_getReadOnly(item.read_only)]]">
+              <paper-item>read</paper-item>
+              <paper-item>write</paper-item>
+              <paper-item>revoke</paper-item>
+            </paper-listbox>
+
+          </paper-dropdown-menu>
+        </div>
+      </template>
 
       <div class="horizontal">
         <paper-input
@@ -108,19 +143,29 @@
           return;
         }
 
-        this.$.grant.grant(this.token, this.grantee, this.resource, this.readOnly)
+        this.$.grant.grant()
       },
       _onGranted: function(e) {
         if (e.detail.success)
         {
-          this.fire('notification', {msg: 'Shared machine with user "' +
-              this.grantee + '"', type: 'msg'})
+          this.fire('notification', {msg: this.successnotification, type: 'msg'})
         }
         else
         {
-          this.fire('error', 'Couldn\'t share machine with user "' +
-              this.grantee + '": ' + e.detail.error)
+          this.fire('error', this.failurenotification)
         }
+      },
+      _getReadOnly: function(readonly) {
+        return readonly ? 0 : 1
+      },
+      _onPermission: function(e) {
+        var selected = (e.target.selectedItem.innerText).trim();
+        if (selected == "revoke")
+        {
+          this.$.grant.grantee = ''
+          this.$.grant.revoke()
+        }
+
       },
       properties: {
         token: {
@@ -146,6 +191,10 @@
         granteetxt: {
           type: String,
           value: 'User name',
+          notify: true
+        },
+        grantee: {
+          type: String,
           notify: true
         },
       },
