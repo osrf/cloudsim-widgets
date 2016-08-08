@@ -14,8 +14,19 @@
       width: 1.5em;
       margin-right: 0.2em;
     }
-    .buttons {
-      padding-top: 2em;
+    .header {
+      background-color: rgb(215, 215, 215);
+      color: #353535;
+      margin: 0;
+      padding: 1em;
+    }
+    .content {
+      overflow: auto;
+      margin: 0;
+      padding: 1em;
+    }
+    .subheader {
+      color: rgb(68, 138, 201);
     }
     .horizontal {
       @apply(--layout-horizontal);
@@ -25,15 +36,9 @@
       @apply(--layout-vertical);
     }
     paper-dialog {
-      position: fixed;
-      padding: 1em;
-      max-width: 30em;
-      right: 30px;
-      overflow: auto;
-      text-align: center;
-    }
-    paper-dialog paper-button {
-      color: #111
+      max-height: 40%;
+      max-width: 20em;
+      text-align: left;
     }
     a {
       padding: 0;
@@ -63,9 +68,10 @@
 
     <!-- dialog -->
     <paper-dialog id="sharedialog" class="vertical">
-      <h3>{{dialogmessage}}</h3>
+      <h3 class="header">{{dialogmessage}}</h3>
 
-      <b>Users</b>
+      <div class="content">
+      <b class="subheader">Current users</b>
 
       <div class="item horizontal">
         <div>{{owner}}</div>
@@ -94,6 +100,8 @@
         </div>
       </template>
 
+      <b class="subheader">Add user</b>
+
       <div class="horizontal">
         <paper-input
           label="{{granteetxt}}"
@@ -106,18 +114,15 @@
         >
         {{readonlytxt}}
         </paper-checkbox>
-      </div>
 
-      <div class="buttons">
-        <paper-button raised dialog-confirm autofocus>Cancel</paper-button>
         <paper-button
           raised
           dialog-confirm
-          autofocus
           id="sharedialogbutton"
           on-tap="tapGrant">
-          Share
+          Add
         </paper-button>
+      </div>
       </div>
     </paper-dialog>
 
