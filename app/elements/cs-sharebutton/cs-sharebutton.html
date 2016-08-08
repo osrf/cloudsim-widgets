@@ -50,7 +50,7 @@
       token={{token}}
       resource={{machine_id}}
       grantee=[[grantee]]
-      readOnly={{readOnly}}
+      read_only={{read_only}}
       on-granted="_onGranted"
       on-revoked="_onRevoked"
     ></gz-grant>
@@ -80,7 +80,11 @@
             label="Permissions"
             on-iron-select="_onPermission">
 
-            <paper-listbox class="dropdown-content" selected="[[_getReadOnly(item.read_only)]]">
+            <paper-listbox
+              class="dropdown-content"
+              selected="[[_getReadOnly(item.read_only)]]"
+              id="[[item.username]]"
+            >
               <paper-item>read</paper-item>
               <paper-item>write</paper-item>
               <paper-item>revoke</paper-item>
@@ -98,9 +102,9 @@
         </paper-input>
 
         <paper-checkbox
-          value={{readOnly}}
+          checked={{read_only}}
         >
-          {{readonlytxt}}
+        {{readonlytxt}}
         </paper-checkbox>
       </div>
 
@@ -148,11 +152,21 @@
       _onGranted: function(e) {
         if (e.detail.success)
         {
-          this.fire('notification', {msg: this.successnotification, type: 'msg'})
+          this.fire('notification', {msg: this.grant_success_msg, type: 'msg'})
         }
         else
         {
-          this.fire('error', this.failurenotification)
+          this.fire('error', this.grant_failure_error)
+        }
+      },
+      _onRevoked: function(e) {
+        if (e.detail.success)
+        {
+          this.fire('notification', {msg: this.revoke_success_msg, type: 'msg'})
+        }
+        else
+        {
+          this.fire('error', this.revoke_failure_error)
         }
       },
       _getReadOnly: function(readonly) {
@@ -162,7 +176,10 @@
         var selected = (e.target.selectedItem.innerText).trim();
         if (selected == "revoke")
         {
-          this.$.grant.grantee = ''
+          // Revoke all permissions
+          this.$.grant.read_only = false
+
+          this.$.grant.grantee = e.target.id
           this.$.grant.revoke()
         }
 
@@ -196,6 +213,18 @@
         grantee: {
           type: String,
           notify: true
+        },
+        grant_success_msg: {
+          type: String
+        },
+        grant_failure_error: {
+          type: String
+        },
+        revoke_success_msg: {
+          type: String
+        },
+        revoke_failure_error: {
+          type: String
         },
       },
     });
