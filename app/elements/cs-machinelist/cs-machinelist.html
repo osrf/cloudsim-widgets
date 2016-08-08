@@ -3,15 +3,6 @@
 
 <dom-module id="cs-machinelist">
   <style>
-    iron-list {
-      padding-top: 64px;
-      padding-bottom: 64px;
-      --iron-list-items-container: {
-        max-width: 90%;
-        margin: auto;
-        margin-bottom: 60px;
-      }
-    }
   </style>
   <template>
 
@@ -22,21 +13,19 @@
       url={{portalurl}}
     ></gz-simulatorq>
 
-    <iron-list id="list" items="[[listitems]]" as="item" selection-enabled multi-selection>
-      <template>
-        <cs-machineitem
-          itemid="[[item.id]]"
-          stat="[[item.status]]"
-          machine_ip="[[item.machine_ip]]"
-          launch_date="[[item.launch_date]]"
-          termination_date="[[item.termination_date]]"
-          username="[[item.owner.username]]"
-          region="[[item.region]]"
-          token="{{token}}"
-          portalurl="{{portalurl}}"
-        ></cs-machineitem>
-      </template>
-    </iron-list>
+    <template is="dom-repeat" items="{{listitems}}" id="list">
+      <cs-machineitem
+        itemid="[[item.id]]"
+        stat="[[item.status]]"
+        machine_ip="[[item.machine_ip]]"
+        launch_date="[[item.launch_date]]"
+        termination_date="[[item.termination_date]]"
+        username="[[item.owner.username]]"
+        region="[[item.region]]"
+        token="{{token}}"
+        portalurl="{{portalurl}}"
+      ></cs-machineitem>
+    </template>
 
   </template>
 
@@ -74,30 +63,7 @@
             return;
         }
 
-        // Make sure we're not calling this multiple times before the timeouts
-        if (this.updateCount == this.updateTarget)
-        {
-          // Counters
-          this.updateCount = 0;
-          this.updateTarget = items.length;
-
-          // Reset list
-          this.splice("listitems", 0, this.listitems.length)
-
-          // Push each item
-          items.forEach(function(item, index){
-
-            // Polymer issue #3682
-            // https://github.com/Polymer/polymer/issues/3682
-            // Consecutive updates only work asynchronously
-            var that = this;
-            setTimeout(function () {
-              that.push('listitems', item);
-              that.updateCount = that.updateCount + 1
-            }, 100);
-
-          }.bind(this));
-        }
+        this.set('listitems', items);
       },
       refresh() {
         this.$.simulatorq.tapGet();
