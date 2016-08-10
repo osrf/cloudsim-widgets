@@ -10,6 +10,9 @@
     .space {
       @apply(--layout-flex);
     }
+    .blue {
+      color: rgb(68, 138, 201);
+    }
     .miniButton iron-icon {
       width: 1.5em;
       margin-right: 0.2em;
@@ -25,11 +28,16 @@
       margin: 0;
       padding: 1em;
     }
+    .subcontent {
+      padding-bottom: 2em;
+    }
     .subheader {
       color: rgb(68, 138, 201);
     }
     .horizontal {
       @apply(--layout-horizontal);
+    }
+    .center {
       @apply(--layout-center);
     }
     .vertical {
@@ -44,6 +52,7 @@
       padding: 0;
     }
     paper-dropdown-menu {
+      margin-top: -1.8em;
       max-width: 5em;
     }
   </style>
@@ -71,58 +80,90 @@
       <h3 class="header">{{dialogmessage}}</h3>
 
       <div class="content">
-      <b class="subheader">Current users</b>
+        <div class="subcontent">
+          <!-- SHARED WITH -->
+          <b class="subheader">Shared with</b>
 
-      <div class="item horizontal">
-        <div>{{owner}}</div>
-        <div class="space"></div>
-        <div>owner</div>
-      </div>
-      <template is="dom-repeat" items="{{users}}">
-        <div class="item horizontal">
-          <div>[[item.username]]</div>
-          <div class="space"></div>
-          <paper-dropdown-menu
-            label="Permissions"
-            on-iron-select="_onPermission">
+          <!-- USERNAME / PERMISSIONS -->
+          <div class="item horizontal center">
+            <div class="blue">Username</div>
+            <div class="space"></div>
+            <div class="blue">Permissions</div>
+          </div>
 
-            <paper-listbox
-              class="dropdown-content"
-              selected="[[_getReadOnly(item.read_only)]]"
-              id="[[item.username]]"
-            >
-              <paper-item>read</paper-item>
-              <paper-item>write</paper-item>
-              <paper-item>revoke</paper-item>
-            </paper-listbox>
+          <!-- OWNER -->
+          <div class="item horizontal center">
+            <div>{{owner}}</div>
+            <div class="space"></div>
+            <paper-dropdown-menu>
+              <paper-listbox
+                class="dropdown-content"
+                selected="0"
+              >
+                <paper-item>write</paper-item>
+              </paper-listbox>
+            </paper-dropdown-menu>
+          </div>
 
-          </paper-dropdown-menu>
+          <!-- USERS -->
+          <template is="dom-repeat" items="{{users}}">
+            <div class="item horizontal center">
+              <div>[[item.username]]</div>
+              <div class="space"></div>
+              <paper-dropdown-menu
+                on-iron-select="_onPermission">
+
+                <paper-listbox
+                  class="dropdown-content"
+                  selected="[[_getReadOnly(item.read_only)]]"
+                  id="[[item.username]]"
+                >
+                  <paper-item>read</paper-item>
+                  <paper-item>write</paper-item>
+                  <paper-item>revoke</paper-item>
+                </paper-listbox>
+
+              </paper-dropdown-menu>
+            </div>
+          </template>
         </div>
-      </template>
 
-      <b class="subheader">Add user</b>
+        <div class="subcontent">
+          <!-- SHARE WITH NEW USER-->
+          <b class="subheader">Share with new user</b>
 
-      <div class="horizontal">
-        <paper-input
-          label="{{granteetxt}}"
-          value={{grantee}}
-          id="sharedialoguser">
-        </paper-input>
+          <div class="horizontal">
+            <div class="vertical">
+              <!-- USERNAME INPUT-->
+              <paper-input
+                style="padding-right: 1em"
+                label="{{granteetxt}}"
+                value={{grantee}}
+                id="sharedialoguser">
+              </paper-input>
 
-        <paper-checkbox
-          checked={{read_only}}
-        >
-        {{readonlytxt}}
-        </paper-checkbox>
+              <!-- READONLY CHECKBOX-->
+              <paper-checkbox
+                checked={{read_only}}
+              >
+              {{readonlytxt}}
+              </paper-checkbox>
+            </div>
 
-        <paper-button
-          raised
-          dialog-confirm
-          id="sharedialogbutton"
-          on-tap="tapGrant">
-          Add
-        </paper-button>
-      </div>
+            <div class="vertical">
+              <div class="space"></div>
+
+              <!-- ADD BUTTON-->
+              <paper-button
+                raised
+                dialog-confirm
+                id="sharedialogbutton"
+                on-tap="tapGrant">
+                Add
+              </paper-button>
+            </div>
+          </div>
+        </div>
       </div>
     </paper-dialog>
 
@@ -157,6 +198,7 @@
       _onGranted: function(e) {
         if (e.detail.success)
         {
+          this.$.grant.get()
           this.fire('notification', {msg: this.grant_success_msg, type: 'msg'})
         }
         else
@@ -167,6 +209,7 @@
       _onRevoked: function(e) {
         if (e.detail.success)
         {
+          this.$.grant.get()
           this.fire('notification', {msg: this.revoke_success_msg, type: 'msg'})
         }
         else
@@ -186,6 +229,20 @@
 
           this.$.grant.grantee = e.target.id
           this.$.grant.revoke()
+        }
+        // read -> write
+        else if (selected == "write")
+        {
+          this.$.grant.read_only = false
+          this.$.grant.grantee = e.target.id
+          this.$.grant.grant()
+        }
+        // write -> read
+        else if (selected == "read")
+        {
+          this.$.grant.read_only = false
+          this.$.grant.grantee = e.target.id
+          this.$.grant.grant()
         }
 
       },
@@ -212,7 +269,7 @@
         },
         granteetxt: {
           type: String,
-          value: 'User name',
+          value: 'Username',
           notify: true
         },
         grantee: {
