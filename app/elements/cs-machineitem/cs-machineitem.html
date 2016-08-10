@@ -47,6 +47,15 @@
   </style>
   <template>
 
+    <gz-grant
+      id="grant"
+      url=[[portalurl]]
+      token={{token}}
+      resource=[[itemid]]
+      grantee=[[grantee]]
+      on-permissions="_onPermissions"
+    ></gz-grant>
+
     <paper-material elevation="2" style="margin: 1em">
       <div id="item[[itemid]]">
         <div class="item" tabindex$="[[tabIndex]]">
@@ -76,7 +85,7 @@
             ></gz-simulator>
 -->
             <div class="vertical">
-              <template is="dom-if" if="{{isRunning(stat)}}">
+              <template is="dom-if" if="{{isRunning(stat)}} && !readOnly">
                 <cs-downloadkeysbutton
                   simurl="{{machine_ip}}"
                   token="{{token}}"
@@ -123,6 +132,7 @@
     Polymer({
       is: 'cs-machineitem',
       attached: function() {
+        this.$.grant.get();
         console.log('cs-machineitem widget attached!')
       },
       isRunning: function(itemStatus) {
@@ -141,6 +151,12 @@
           itemClass = 'launchingStatus'
         return itemClass;
       },
+      _onPermissions: function(e) {
+        if (e.detail.success)
+          this.readOnly = e.detail.read_only
+        else
+          console.log("Failed to get permissions for machine [" + itemid + "]")
+      },
       prettyDate: function(date) {
         let d = new Date(date);
         return d.toString();
@@ -149,6 +165,11 @@
         stat: {
           type: String,
           value: '',
+          notify: true
+        },
+        readOnly: {
+          type: Boolean,
+          value: true,
           notify: true
         },
       },
