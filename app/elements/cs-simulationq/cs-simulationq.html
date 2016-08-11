@@ -85,29 +85,31 @@
     ></gz-simulationq>
 
     <!-- dialog -->
-    <paper-dialog id="adddialog">
-      <h1>Add simulation</h1>
-      <div class="horizontal">
-        <paper-input
-           label="Command"
-           id="dialogcmd"
-        ></paper-input>
-        <paper-toggle-button
-          checked
-          class="green"
-          title="Auto play when possible"
-          id="dialogauto"
-        >Auto play</paper-toggle-button>
-        <paper-button
-          raised
-          dialog-confirm
-          autofocus
-          id="addbutton"
-          on-tap="_tapAddButton">
-          Add
-         </paper-button>
-      </div>
-    </paper-dialog>
+    <template is="dom-if" if="{{!readOnly}}">
+      <paper-dialog id="adddialog">
+        <h1>Add simulation</h1>
+        <div class="horizontal">
+          <paper-input
+             label="Command"
+             id="dialogcmd"
+          ></paper-input>
+          <paper-toggle-button
+            checked
+            class="green"
+            title="Auto play when possible"
+            id="dialogauto"
+          >Auto play</paper-toggle-button>
+          <paper-button
+            raised
+            dialog-confirm
+            autofocus
+            id="addbutton"
+            on-tap="_tapAddButton">
+            Add
+           </paper-button>
+        </div>
+      </paper-dialog>
+    </template>
 
     <div class="listcontainer">
       <div class="horizontal">
@@ -116,13 +118,15 @@
 
         <h1>Simulations</h1>
 
-        <div class="space"></div>
+        <template is="dom-if" if="[[!readOnly]]">
+          <div class="space"></div>
 
-        <paper-fab
-          mini
-          icon="icons:add"
-          on-tap="_tapAdd"
-        ></paper-fab>
+          <paper-fab
+            mini
+            icon="icons:add"
+            on-tap="_tapAdd"
+          ></paper-fab>
+        </template>
 
         <div class="space"></div>
       </div>
@@ -285,6 +289,11 @@
         simulations: {
           type: Array,
           value: [],
+          notify: true
+        },
+        readOnly: {
+          type: Boolean,
+          value: true,
           notify: true
         },
       },

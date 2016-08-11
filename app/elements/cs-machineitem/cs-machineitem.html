@@ -76,41 +76,36 @@
               </template>
              </div>
           </div>
-          <template is="dom-if" if="{{!isTerminating(stat)}}">
-<!--
-            <gz-simulator
-              id="gzsimulator[[itemid]]"
-              url="https://{{machine_ip}}"
-              token={{token}}
-            ></gz-simulator>
--->
-            <div class="vertical">
-              <template is="dom-if" if="{{isRunning(stat)}} && !readOnly">
-                <cs-downloadkeysbutton
-                  simurl="{{machine_ip}}"
-                  token="{{token}}"
-                ></cs-downloadkeysbutton>
-                <cs-sharebutton
+          <template is="dom-if" if="{{!readOnly}}">
+            <template is="dom-if" if="{{!isTerminating(stat)}}">
+              <div class="vertical">
+                <template is="dom-if" if="{{isRunning(stat)}}">
+                  <cs-downloadkeysbutton
+                    simurl="{{machine_ip}}"
+                    token="{{token}}"
+                  ></cs-downloadkeysbutton>
+                  <cs-sharebutton
+                    token={{token}}
+                    machine_id="[[itemid]]"
+                    machine_ip="[[machine_ip]]"
+                    grantee="{{grantee}}"
+                    owner="{{owner}}"
+                    users="{{users}}"
+                    url="[[portalurl]]"
+                    dialogmessage='Share machine [[machine_ip]]'
+                    grant_success_msg='Shared machine "[[machine_ip]]" with user "[[grantee]]"'
+                    grant_failure_error='Could not share machine "[[machine_ip]]" with user "[[grantee]]"'
+                    revoke_success_msg='User no longer has access to "[[machine_ip]]"'
+                    revoke_failure_error='Could not revoke machine "[[machine_ip]]" from user "[[grantee]]"'
+                  ></cs-sharebutton>
+                </template>
+                <cs-machinekillbutton
+                  portalUrl={{portalurl}}
                   token={{token}}
                   machine_id="[[itemid]]"
-                  machine_ip="[[machine_ip]]"
-                  grantee="{{grantee}}"
-                  owner="{{owner}}"
-                  users="{{users}}"
-                  url="[[portalurl]]"
-                  dialogmessage='Share machine [[machine_ip]]'
-                  grant_success_msg='Shared machine "[[machine_ip]]" with user "[[grantee]]"'
-                  grant_failure_error='Could not share machine "[[machine_ip]]" with user "[[grantee]]"'
-                  revoke_success_msg='User no longer has access to "[[machine_ip]]"'
-                  revoke_failure_error='Could not revoke machine "[[machine_ip]]" from user "[[grantee]]"'
-                ></cs-sharebutton>
-              </template>
-              <cs-machinekillbutton
-                portalUrl={{portalurl}}
-                token={{token}}
-                machine_id="[[itemid]]"
-              ></cs-machinekillbutton>
-             </div>
+                ></cs-machinekillbutton>
+              </div>
+            </template>
           </template>
         </div>
 
@@ -118,6 +113,7 @@
           <cs-simulationq
             simurl="https://{{machine_ip}}"
             token={{token}}
+            readOnly="[[readOnly]]"
           ></cs-simulationq>
         </template>
       </div>
@@ -153,9 +149,15 @@
       },
       _onPermissions: function(e) {
         if (e.detail.success)
-          this.readOnly = e.detail.read_only
+        {
+          this.readOnly = e.detail.readOnly
+        }
         else
-          console.log("Failed to get permissions for machine [" + itemid + "]")
+        {
+          // Failure to get permissions means user has no permission at all
+          console.log("Tried getting permissions for resource [" + this.itemid +
+              "] for a user who has no access to it.")
+        }
       },
       prettyDate: function(date) {
         let d = new Date(date);
