@@ -93,7 +93,12 @@
 
           <!-- OWNER -->
           <div class="item horizontal center">
-            <div>{{owner}}</div>
+          <div>
+            {{owner}}
+            <template is="dom-if" if="{{_isMe(owner)}}">
+              (me)
+            </template>
+          </div>
             <div class="space"></div>
             <paper-dropdown-menu>
               <paper-listbox
@@ -108,7 +113,12 @@
           <!-- USERS -->
           <template is="dom-repeat" items="{{users}}">
             <div class="item horizontal center">
-              <div>[[item.username]]</div>
+              <div>
+                [[item.username]]
+                <template is="dom-if" if="{{_isMe(item.username)}}">
+                  (me)
+                </template>
+              </div>
               <div class="space"></div>
               <paper-dropdown-menu
                 on-iron-select="_onPermission">
@@ -184,7 +194,7 @@
         if (dialog)
           dialog.open();
         else
-          console.log("Dialog not found.")
+          console.error("Dialog not found.")
       },
       tapGrant(e) {
         if (this.grantee === '')
@@ -201,7 +211,6 @@
         if (e.detail.success)
         {
           this.$.grant.get()
-          console.log(this.grantee)
           this.fire('notification', {msg: this.grant_success_msg, type: 'msg'})
         }
         else
@@ -222,6 +231,9 @@
       },
       _getReadOnly: function(readonly) {
         return readonly ? 0 : 1
+      },
+      _isMe: function(username) {
+        return username == this.username
       },
       _onPermission: function(e) {
         var selected = (e.target.selectedItem.innerText).trim();

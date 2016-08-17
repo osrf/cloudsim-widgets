@@ -89,6 +89,7 @@
                     machine_id="[[itemid]]"
                     machine_ip="[[machine_ip]]"
                     grantee="{{grantee}}"
+                    username="{{username}}"
                     owner="{{owner}}"
                     users="{{users}}"
                     url="[[portalurl]]"
@@ -150,9 +151,10 @@
       _onPermissions: function(e) {
         if (e.detail.success)
         {
+          // My permission always comes first
           if (e.detail.result.permissions[0])
           {
-            this.readonly = e.detail.result.permissions[0].readonly
+            this.readonly = e.detail.result.permissions[0].permissions.readonly
             this.username = e.detail.result.permissions[0].username
           }
           else
