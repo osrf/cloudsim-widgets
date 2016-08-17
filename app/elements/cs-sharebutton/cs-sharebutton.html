@@ -137,8 +137,7 @@
               <!-- USERNAME INPUT-->
               <paper-input
                 style="padding-right: 1em"
-                label="{{granteetxt}}"
-                value={{grantee}}
+                label="Username"
                 id="sharedialoguser">
               </paper-input>
 
@@ -194,7 +193,7 @@
           return;
         }
 
-        this.$.grant.grantee = this.$.sharedialoguser.value
+        this.grantee = this.$.sharedialoguser.value
         this.$.grant.readOnly = this.$.readonlycheckbox.checked
         this.$.grant.grant()
       },
@@ -202,6 +201,7 @@
         if (e.detail.success)
         {
           this.$.grant.get()
+          console.log(this.grantee)
           this.fire('notification', {msg: this.grant_success_msg, type: 'msg'})
         }
         else
@@ -230,22 +230,22 @@
           // Revoke all permissions
           this.$.grant.readOnly = false
 
-          this.$.grant.grantee = e.target.id
+          this.grantee = e.target.id
           this.$.grant.revoke()
         }
-/*
         // read -> write
         else if (selected == "write")
         {
           this.$.grant.readOnly = false
-          this.$.grant.grantee = e.target.id
+          this.grantee = e.target.id
           this.$.grant.grant()
         }
+/*
         // write -> read
         else if (selected == "read")
         {
           this.$.grant.readOnly = false
-          this.$.grant.grantee = e.target.id
+          this.grantee = e.target.id
           this.$.grant.grant()
         }
 */
@@ -269,11 +269,6 @@
         readonlytxt: {
           type: String,
           value: 'Read only',
-          notify: true
-        },
-        granteetxt: {
-          type: String,
-          value: 'Username',
           notify: true
         },
         grantee: {

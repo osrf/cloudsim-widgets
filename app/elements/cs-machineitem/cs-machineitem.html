@@ -76,7 +76,7 @@
               </template>
              </div>
           </div>
-          <template is="dom-if" if="{{!readOnly}}">
+          <template is="dom-if" if="{{!readonly}}">
             <template is="dom-if" if="{{!isTerminating(stat)}}">
               <div class="vertical">
                 <template is="dom-if" if="{{isRunning(stat)}}">
@@ -113,7 +113,7 @@
           <cs-simulationq
             simurl="https://{{machine_ip}}"
             token={{token}}
-            readOnly="[[readOnly]]"
+            readonly={{readonly}}
           ></cs-simulationq>
         </template>
       </div>
@@ -150,12 +150,20 @@
       _onPermissions: function(e) {
         if (e.detail.success)
         {
-          this.readOnly = e.detail.readOnly
+          if (e.detail.result.permissions[0])
+          {
+            this.readonly = e.detail.result.permissions[0].readonly
+            this.username = e.detail.result.permissions[0].username
+          }
+          else
+          {
+            console.error("Missing caller permission")
+          }
         }
         else
         {
           // Failure to get permissions means user has no permission at all
-          console.log("Tried getting permissions for resource [" + this.itemid +
+          console.error("Tried getting permissions for resource [" + this.itemid +
               "] for a user who has no access to it.")
         }
       },
@@ -169,9 +177,14 @@
           value: '',
           notify: true
         },
-        readOnly: {
+        readonly: {
           type: Boolean,
           value: true,
+          notify: true
+        },
+        username: {
+          type: String,
+          value: 'username unset',
           notify: true
         },
       },

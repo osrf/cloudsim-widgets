@@ -85,7 +85,7 @@
     ></gz-simulationq>
 
     <!-- dialog -->
-    <template is="dom-if" if="{{!readOnly}}">
+    <template is="dom-if" if="{{!readonly}}">
       <paper-dialog id="adddialog">
         <h1>Add simulation</h1>
         <div class="horizontal">
@@ -118,7 +118,7 @@
 
         <h1>Simulations</h1>
 
-        <template is="dom-if" if="[[!readOnly]]">
+        <template is="dom-if" if="{{!readonly}}">
           <div class="space"></div>
 
           <paper-fab
@@ -291,7 +291,7 @@
           value: [],
           notify: true
         },
-        readOnly: {
+        readonly: {
           type: Boolean,
           value: true,
           notify: true
