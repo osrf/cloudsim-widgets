@@ -24,7 +24,9 @@
         <cs-serverstatus
           class="center"
         ></cs-serverstatus>
+      </template>
 
+      <template is="dom-if" if="{{canlaunchsimulators}}">
         <cs-machinelauncher
           class="center"
           portalUrl={{portalurl}}
@@ -76,6 +78,11 @@
           value: 'current user not set',
           notify: true,
           observer: '_currentUserChanged'
+        },
+        canlaunchsimulators: {
+          type: Boolean,
+          value: false,
+          notify: true
         },
       },
     });
