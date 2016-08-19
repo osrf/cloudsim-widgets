@@ -62,9 +62,9 @@
       id="grant"
       url={{url}}
       token={{token}}
-      resource={{machine_id}}
+      resource={{resource}}
       grantee=[[grantee]]
-      readOnly=[[readOnly]]
+      readonly=[[readonly]]
       on-granted="_onGranted"
       on-revoked="_onRevoked"
     ></gz-grant>
@@ -154,7 +154,7 @@
               <!-- READONLY CHECKBOX-->
               <paper-checkbox
                 id="readonlycheckbox"
-                checked={{readOnly}}
+                checked={{readonly}}
               >
               {{readonlytxt}}
               </paper-checkbox>
@@ -197,15 +197,17 @@
           console.error("Dialog not found.")
       },
       tapGrant(e) {
-        if (this.grantee === '')
+        const grantee = this.$.sharedialoguser.value
+        if (grantee === '')
         {
           this.fire('error', 'Invalid user name.')
           return;
         }
 
-        this.grantee = this.$.sharedialoguser.value
-        this.$.grant.readOnly = this.$.readonlycheckbox.checked
-        this.$.grant.grant()
+        const data = { grantee: grantee,
+                       resource: this.resource,
+                       readonly: this.$.readonlycheckbox.checked}
+        this.$.grant.grant(data)
       },
       _onGranted: function(e) {
         if (e.detail.success)
@@ -236,31 +238,42 @@
         return username == this.username
       },
       _onPermission: function(e) {
+        const grantee = e.target.id
+
+        let that = this
+        let changedUser = this.users.find(function(user){
+          return user.username === grantee
+        });
+
         var selected = (e.target.selectedItem.innerText).trim();
+
+console.log("onperm: selected: " + selected + "  grantee: " + grantee)
+
         if (selected == "revoke")
         {
+console.log("REVOKE")
           // Revoke all permissions
-          this.$.grant.readOnly = false
-
-          this.grantee = e.target.id
-          this.$.grant.revoke()
+          const data = { grantee: grantee,
+                         resource: this.resource,
+                         readonly: false }
+          this.$.grant.revoke(data)
         }
         // read -> write
-        else if (selected == "write")
+        else if (selected == "write" && changedUser.readOnly)
         {
-          this.$.grant.readOnly = false
-          this.grantee = e.target.id
-          this.$.grant.grant()
+          const data = { grantee: grantee,
+                         resource: this.resource,
+                         readonly: false }
+          this.$.grant.grant(data);
         }
-/*
         // write -> read
-        else if (selected == "read")
+        else if (selected == "read" && !changedUser.readOnly)
         {
-          this.$.grant.readOnly = false
-          this.grantee = e.target.id
-          this.$.grant.grant()
+          const data = { grantee: grantee,
+                         resource: this.resource,
+                         readonly: true }
+          this.$.grant.grant(data)
         }
-*/
       },
       properties: {
         token: {
@@ -268,7 +281,7 @@
           value: 'placeholder',
           notify: true
         },
-        machine_id: {
+        resource: {
           type: String,
           value: 'placeholder',
           notify: true

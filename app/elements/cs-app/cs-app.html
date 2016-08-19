@@ -118,6 +118,7 @@
 
         this.addEventListener('login', function(e) {
           this.loggedin = true
+          this.username = e.detail.user
 
           // Open dashboard unless we're using the portfolio
           if (window.location.pathname != '/portfolio')
@@ -129,6 +130,7 @@
 
         this.addEventListener('logout', function(e) {
           this.loggedin = false
+          this.username = ''
           this.routeParent = "home"
         });
 

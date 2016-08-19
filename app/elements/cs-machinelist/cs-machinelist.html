@@ -9,7 +9,7 @@
     <gz-simulatorq
       id="simulatorq"
       token={{token}}
-      on-simulatorqupdated="onSimulatorqUpdated"
+      on-simulatorqupdated="_onSimulatorqUpdated"
       url={{portalurl}}
     ></gz-simulatorq>
 
@@ -41,7 +41,7 @@
         this.refresh()
         console.log('cs-machinelist widget attached!')
       },
-      onSimulatorqUpdated: function(e) {
+      _onSimulatorqUpdated: function(e) {
         if (e.detail.success)
         {
           this.updateList(e.detail.items);

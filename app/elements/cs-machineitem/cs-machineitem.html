@@ -53,7 +53,7 @@
       token={{token}}
       resource=[[itemid]]
       grantee=[[grantee]]
-      on-permissions="_onPermissions"
+      on-permissions-changed="_onPermissions"
     ></gz-grant>
 
     <paper-material elevation="2" style="margin: 1em">
@@ -86,18 +86,18 @@
                   ></cs-downloadkeysbutton>
                   <cs-sharebutton
                     token={{token}}
-                    machine_id="[[itemid]]"
+                    resource="[[itemid]]"
                     machine_ip="[[machine_ip]]"
                     grantee="{{grantee}}"
-                    username="{{username}}"
+                    username="[[username]]"
                     owner="{{owner}}"
                     users="{{users}}"
                     url="[[portalurl]]"
                     dialogmessage='Share machine [[machine_ip]]'
-                    grant_success_msg='Shared machine "[[machine_ip]]" with user "[[grantee]]"'
-                    grant_failure_error='Could not share machine "[[machine_ip]]" with user "[[grantee]]"'
+                    grant_success_msg='Shared machine "[[machine_ip]]"'
+                    grant_failure_error='Could not share machine "[[machine_ip]]"'
                     revoke_success_msg='User no longer has access to "[[machine_ip]]"'
-                    revoke_failure_error='Could not revoke machine "[[machine_ip]]" from user "[[grantee]]"'
+                    revoke_failure_error='Could not revoke machine "[[machine_ip]]"'
                   ></cs-sharebutton>
                 </template>
                 <cs-machinekillbutton
@@ -110,7 +110,7 @@
           </template>
         </div>
 
-        <template is="dom-if" if="{{isRunning(stat)}}">
+        <template is="dom-if" if="{{_showSimulationQ(stat)}}" id="ifshowq">
           <cs-simulationq
             simurl="https://{{machine_ip}}"
             token={{token}}
@@ -149,25 +149,30 @@
         return itemClass;
       },
       _onPermissions: function(e) {
-        if (e.detail.success)
+        const permissions = this.$.grant.permissions
+console.log("AA")
+console.log(permissions)
+        // My permission always comes first
+        if (permissions.length > 0)
         {
-          // My permission always comes first
-          if (e.detail.result.permissions[0])
-          {
-            this.readonly = e.detail.result.permissions[0].permissions.readonly
-            this.username = e.detail.result.permissions[0].username
-          }
-          else
-          {
-            console.error("Missing caller permission")
-          }
+          this.readonly = permissions[0].permissions.readOnly
+          this.username = permissions[0].username
+
+
+this.$.ifshowq.render()
+console.log("user::::: " + this.username)
         }
-        else
-        {
-          // Failure to get permissions means user has no permission at all
-          console.error("Tried getting permissions for resource [" + this.itemid +
-              "] for a user who has no access to it.")
-        }
+      },
+      _showSimulationQ: function(stat) {
+        return (this.isRunning(stat) && this._hasSimulationQ())
+      },
+      _hasSimulationQ: function() {
+        // TODO: hardcoded, only admin can see simulations list until we either:
+        // A. Have a share button to share the simulationq
+        // B. Let the sim server, which manages the simulationq, inherit the
+        // machine permissions set by the portal
+console.log("user: " + this.username)
+        return this.username === 'admin'
       },
       prettyDate: function(date) {
         let d = new Date(date);
