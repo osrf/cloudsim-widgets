@@ -12,27 +12,25 @@
         @apply(--layout-horizontal);
         @apply(--layout-center);
       }
-      #launchArea {
+      .center {
         margin: auto;
         width: 30%;
-      }
-      #adminArea {
-        margin: auto;
       }
   </style>
   <template>
 
     <div class="horizontal">
-      <div id="adminArea">
-        <cs-serverstatus></cs-serverstatus>
-      </div>
+      <template is="dom-if" if="{{isadmin}}">
+        <cs-serverstatus
+          class="center"
+        ></cs-serverstatus>
 
-      <div id="launchArea">
         <cs-machinelauncher
+          class="center"
           portalUrl={{portalurl}}
           token={{token}}
         ></cs-machinelauncher>
-      </div>
+      </template>
     </div>
 
     <cs-machinelist
@@ -50,31 +48,12 @@
       is: 'cs-dashboard',
       // Attached
       attached: function() {
-        // TODO: separate launch and admin logic
-        this.$.launchArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
-        this.$.adminArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
-
-        // Listen to events
-        var that = this;
-        window.addEventListener('login', function(e) {
-          that.token = e.detail.token;
-
-          // FIXME: hardcoded admin can launch machines
-          that.canLaunch = (e.detail.user === "admin" ? 'true' : 'false')
-
-          that.refresh()
-        });
-
-        window.addEventListener('logout', function(e) {
-          that.token = "";
-        });
-
         console.log('cs-dashboard widget attached!')
       },
-      refresh() {
-        this.$.machinelist.refresh();
-        this.$.launchArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
-        this.$.adminArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
+      _currentUserChanged: function() {
+        // TODO: Currently admin is hard-coded, use gz-grant to check if user
+        // has launch permission
+        this.isadmin = this.currentuser === 'admin'
       },
       properties: {
         portalurl: {
@@ -84,13 +63,19 @@
         },
         token: {
           type: String,
-          value: 'placeholder',
+          value: 'token not set',
           notify: true
         },
-        canLaunch: {
-          type: String,
-          value: 'false',
+        isadmin: {
+          type: Boolean,
+          value: false,
           notify: true
+        },
+        currentuser: {
+          type: String,
+          value: 'current user not set',
+          notify: true,
+          observer: '_currentUserChanged'
         },
       },
     });
