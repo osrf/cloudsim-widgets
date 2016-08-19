@@ -62,34 +62,30 @@
         <span class="space"></span>
 
         <div class="top top-container">
-          <gz-token
-            id="token"
-            url={{authurl}}
-            on-login="loginEvent"
-            on-logout="logoutEvent"
-          ></gz-token>
 
-          <!-- Not logged in -->
+          <template is="dom-if" if="[[!loggedin]]">
 <!--
-          <a data-route="signup" href="{{baseUrl}}signup" tabindex="" id="signupbutton">
-            <paper-button raised class="raised">
-              <iron-icon icon="social:person-add"></iron-icon>
-              Create an account
-            </paper-button></a>
+            <a data-route="signup" href="{{baseUrl}}signup" tabindex="" id="signupbutton">
+              <paper-button raised class="raised">
+                <iron-icon icon="social:person-add"></iron-icon>
+                Create an account
+              </paper-button></a>
 -->
-          <paper-button raised class="raised" id="loginbutton" on-tap="tapLogin">
-            <iron-icon icon="social:person"></iron-icon>
-            Log in
-          </paper-button>
+            <paper-button raised class="raised" id="loginbutton" on-tap="_tapLogin">
+              <iron-icon icon="social:person"></iron-icon>
+              Log in
+            </paper-button>
+          </template>
 
-          <!-- Logged in -->
-          <paper-button flat class="flat" id="usernamelabel"  style="display: none">
-            {{username}}
-          </paper-button>
-          <paper-button raised class="raised" id="logoutbutton" on-tap="tapLogout" style="display: none">
-            <iron-icon icon="icons:exit-to-app"></iron-icon>
-            Log out
-          </paper-button>
+          <template is="dom-if" if="[[loggedin]]">
+            <paper-button flat class="flat" id="usernamelabel">
+              {{currentuser}}
+            </paper-button>
+            <paper-button raised class="raised" id="logoutbutton" on-tap="_tapLogout">
+              <iron-icon icon="icons:exit-to-app"></iron-icon>
+              Log out
+            </paper-button>
+          </template>
 
         </div>
         <!-- Application name -->
@@ -116,21 +112,20 @@
       attached: function() {
         console.log('cs-toptoolbar widget [' + this.title + '] attached!')
       },
-      tapLogin() {
-        this.$.token.tapLogin();
+      _tapLogin() {
+        this.fire('loginrequest')
       },
-      tapLogout() {
-        this.$.token.tapLogout();
+      _tapLogout() {
+        this.fire('logoutrequest')
       },
-      loginEvent(e) {
+      onLogin() {
         // TODO: Find a better way to set visibility
         this.$.loginbutton.style.display = 'none'
         //this.$.signupbutton.style.display = 'none'
         this.$.logoutbutton.style.display = ''
         this.$.usernamelabel.style.display = ''
-        this.username =  e.detail.user
       },
-      logoutEvent(e) {
+      onLogout() {
         // TODO: Find a better way to set visibility
         this.$.loginbutton.style.display = ''
         //this.$.signupbutton.style.display = ''
@@ -141,6 +136,11 @@
         authurl: {
           type: String,
           value: 'https://localhost:5050',
+          notify: true
+        },
+        loggedin: {
+          type: Boolean,
+          value: 'false',
           notify: true
         },
       }
