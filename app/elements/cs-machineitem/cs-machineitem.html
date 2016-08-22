@@ -150,17 +150,11 @@
       },
       _onPermissions: function(e) {
         const permissions = this.$.grant.permissions
-console.log("AA")
-console.log(permissions)
         // My permission always comes first
         if (permissions.length > 0)
         {
           this.readonly = permissions[0].permissions.readOnly
           this.username = permissions[0].username
-
-
-this.$.ifshowq.render()
-console.log("user::::: " + this.username)
         }
       },
       _showSimulationQ: function(stat) {
@@ -171,7 +165,6 @@ console.log("user::::: " + this.username)
         // A. Have a share button to share the simulationq
         // B. Let the sim server, which manages the simulationq, inherit the
         // machine permissions set by the portal
-console.log("user: " + this.username)
         return this.username === 'admin'
       },
       prettyDate: function(date) {

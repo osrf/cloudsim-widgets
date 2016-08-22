@@ -13,6 +13,9 @@
     .blue {
       color: rgb(68, 138, 201);
     }
+    .red {
+      --iron-icon-fill-color: #f00;
+    }
     .miniButton iron-icon {
       width: 1.5em;
       margin-right: 0.2em;
@@ -60,9 +63,10 @@
 
     <gz-grant
       id="grant"
-      url={{url}}
-      token={{token}}
-      resource={{resource}}
+      url=[[url]]
+      token=[[token]]
+      resource=[[resource]]
+      permissions={{permissions}}
       grantee=[[grantee]]
       readonly=[[readonly]]
       on-granted="_onGranted"
@@ -70,10 +74,19 @@
     ></gz-grant>
 
     <!-- button -->
-    <paper-button raised class="miniButton" on-tap="tapOpenDialog">
-      <iron-icon icon="social:share"></iron-icon>
-      Share
-    </paper-button>
+    <template is="dom-if" if="[[!mini]]">
+      <paper-button raised class="miniButton" on-tap="tapOpenDialog">
+        <iron-icon icon="social:share"></iron-icon>
+        Share
+      </paper-button>
+    </template>
+    <template is="dom-if" if="[[mini]]">
+      <paper-icon-button
+        icon="social:share"
+        title="Share launcher"
+        on-tap="tapOpenDialog"
+      ></paper-icon-button>
+    </template>
 
     <!-- dialog -->
     <paper-dialog id="sharedialog" class="vertical">
@@ -88,30 +101,13 @@
           <div class="item horizontal center">
             <div class="blue">Username</div>
             <div class="space"></div>
-            <div class="blue">Permissions</div>
-          </div>
-
-          <!-- OWNER -->
-          <div class="item horizontal center">
-          <div>
-            {{owner}}
-            <template is="dom-if" if="{{_isMe(owner)}}">
-              (me)
+            <template is="dom-if" if="[[hasreadonly]]">
+              <div class="blue">Permissions</div>
             </template>
-          </div>
-            <div class="space"></div>
-            <paper-dropdown-menu>
-              <paper-listbox
-                class="dropdown-content"
-                selected="0"
-              >
-                <paper-item>write</paper-item>
-              </paper-listbox>
-            </paper-dropdown-menu>
           </div>
 
           <!-- USERS -->
-          <template is="dom-repeat" items="{{users}}">
+          <template is="dom-repeat" items="[[permissions]]">
             <div class="item horizontal center">
               <div>
                 [[item.username]]
@@ -119,21 +115,37 @@
                   (me)
                 </template>
               </div>
+
               <div class="space"></div>
-              <paper-dropdown-menu
-                on-iron-select="_onPermission">
 
-                <paper-listbox
-                  class="dropdown-content"
-                  selected="[[_getReadOnly(item.readOnly)]]"
-                  id="[[item.username]]"
-                >
-                  <paper-item>read</paper-item>
-                  <paper-item>write</paper-item>
-                  <paper-item>revoke</paper-item>
-                </paper-listbox>
+              <!-- Show options in case of non-hasreadonly -->
+              <template is="dom-if" if="[[hasreadonly]]">
+                <paper-dropdown-menu
+                  on-iron-select="_onPermission">
 
-              </paper-dropdown-menu>
+                  <paper-listbox
+                    class="dropdown-content"
+                    selected="[[_getReadOnly(item.readOnly)]]"
+                    id="[[item.username]]"
+                  >
+                    <paper-item>read</paper-item>
+                    <paper-item>write</paper-item>
+                    <paper-item>revoke</paper-item>
+                  </paper-listbox>
+
+                </paper-dropdown-menu>
+              </template>
+
+              <template is="dom-if" if="[[!hasreadonly]]">
+                <paper-icon-button
+                  icon="icons:close"
+                  class="red"
+                  title="Revoke"
+                  on-tap="_onRevoke"
+                  data-args="[[item.username]]"
+                ></paper-icon-button>
+              </template>
+
             </div>
           </template>
         </div>
@@ -152,12 +164,14 @@
               </paper-input>
 
               <!-- READONLY CHECKBOX-->
-              <paper-checkbox
-                id="readonlycheckbox"
-                checked={{readonly}}
-              >
-              {{readonlytxt}}
-              </paper-checkbox>
+              <template is="dom-if" if="[[hasreadonly]]">
+                <paper-checkbox
+                  id="readonlycheckbox"
+                  checked={{readonly}}
+                >
+                {{readonlytxt}}
+                </paper-checkbox>
+              </template>
             </div>
 
             <div class="vertical">
@@ -192,7 +206,10 @@
         var dialog = this.$.sharedialog
 
         if (dialog)
+        {
+          this.$.grant.get()
           dialog.open();
+        }
         else
           console.error("Dialog not found.")
       },
@@ -204,9 +221,13 @@
           return;
         }
 
+        let readonly = false
+        if (this.$.readonlycheckbox)
+          readonly = this.$.readonlycheckbox.checked
+
         const data = { grantee: grantee,
                        resource: this.resource,
-                       readonly: this.$.readonlycheckbox.checked}
+                       readonly: readonly}
         this.$.grant.grant(data)
       },
       _onGranted: function(e) {
@@ -247,11 +268,8 @@
 
         var selected = (e.target.selectedItem.innerText).trim();
 
-console.log("onperm: selected: " + selected + "  grantee: " + grantee)
-
         if (selected == "revoke")
         {
-console.log("REVOKE")
           // Revoke all permissions
           const data = { grantee: grantee,
                          resource: this.resource,
@@ -274,6 +292,13 @@ console.log("REVOKE")
                          readonly: true }
           this.$.grant.grant(data)
         }
+      },
+      _onRevoke: function(e) {
+        // Revoke all permissions
+        const data = { grantee: e.currentTarget.dataArgs,
+                       resource: this.resource,
+                       readonly: false }
+        this.$.grant.revoke(data)
       },
       properties: {
         token: {
@@ -312,8 +337,24 @@ console.log("REVOKE")
         revoke_failure_error: {
           type: String
         },
+        hasreadonly: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        mini: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        permissions: {
+          type: Array,
+          value: [],
+          notify: true
+        },
       },
     });
   })();
   </script>
 </dom-module>
+

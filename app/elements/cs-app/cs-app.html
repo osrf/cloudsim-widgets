@@ -31,6 +31,22 @@
       }
     </style>
 
+    <!-- For login / logout -->
+    <gz-token
+      id="token"
+      url={{authurl}}
+      on-login="_onLogin"
+      on-logout="_onLogout"
+    ></gz-token>
+
+    <!-- For permissions in the portal -->
+    <gz-grant
+      id="grant"
+      url=[[portalurl]]
+      token=[[token]]
+      on-resources-changed="_onResources"
+    ></gz-grant>
+
     <paper-toast
       id="errorToast"
       class="fit-bottom"
@@ -44,7 +60,14 @@
     </paper-toast>
 
     <!-- Main Toolbar -->
-    <cs-toptoolbar id="toptoolbar" authurl="{{authenticationUrl}}"></cs-toptoolbar>
+    <cs-toptoolbar
+      id="toptoolbar"
+      authurl="[[authurl]]"
+      currentuser="[[currentuser]]"
+      loggedin="[[loggedin]]"
+      on-loginrequest="requestLogin"
+      on-logoutrequest="requestLogout"
+    ></cs-toptoolbar>
 
     <!-- Parent pages: secure / public -->
     <iron-pages attr-for-selected="data-route" selected="{{routeParent}}">
@@ -54,7 +77,7 @@
         <cs-signuppage
           on-notification="openToast"
           id="signuppage"
-          url="{{authenticationUrl}}">
+          url="{{authurl}}">
         </cs-signuppage>
       </section>
 
@@ -63,7 +86,7 @@
       </section>
 
       <section data-route="home" style="padding: 0em">
-        <gz-home/>
+        <cs-home/>
       </section>
 
       <!-- Secure routes -->
@@ -81,7 +104,13 @@
             <iron-pages attr-for-selected="data-route" selected="{{route}}">
 
               <section data-route="dashboard">
-                <cs-dashboard id="dashboard" portalurl="{{portalUrl}}"></cs-dashboard>
+                <cs-dashboard
+                  id="dashboard"
+                  portalurl="[[portalurl]]"
+                  token="[[token]]"
+                  currentuser="[[currentuser]]"
+                  hasmachinelauncher="[[hasmachinelauncher]]"
+                ></cs-dashboard>
               </section>
 
               <section data-route="src">
@@ -109,30 +138,11 @@
       attached: function() {
 
         // Get configuration from environment variables
-        this.authenticationUrl = getConfig().auth
-        this.portalUrl = getConfig().portal
-        this.simUrl = getConfig().simu
+        this.authurl = getConfig().auth
+        this.portalurl = getConfig().portal
 
         // Sets app default base URL
         this.baseUrl = '/';
-
-        this.addEventListener('login', function(e) {
-          this.loggedin = true
-          this.username = e.detail.user
-
-          // Open dashboard unless we're using the portfolio
-          if (window.location.pathname != '/portfolio')
-          {
-            this.routeParent = "secure"
-            this.route = "dashboard"
-          }
-        });
-
-        this.addEventListener('logout', function(e) {
-          this.loggedin = false
-          this.username = ''
-          this.routeParent = "home"
-        });
 
         this.addEventListener('notification', function(e) {
           this.openToast(e);
@@ -144,8 +154,8 @@
 
         var that = this;
         window.addEventListener('WebComponentsReady', function() {
-          that.fire('servers-url', {'authenticationUrl': that.authenticationUrl,
-                                    'portalUrl': that.portalUrl})
+          that.fire('servers-url', {'authurl': that.authurl,
+                                    'portalurl': that.portalurl})
         });
         console.log('cs-app widget attached!')
       },
@@ -171,25 +181,71 @@
         this.$.errorToast.text = msg
         this.$.errorToast.open()
       },
+      requestLogin() {
+        this.$.token.tapLogin();
+      },
+      requestLogout() {
+        this.$.token.tapLogout();
+      },
+      _onLogin(e) {
+        this.loggedin = true
+        this.token = e.detail.token;
+        this.currentuser = e.detail.user;
+
+        // Get permissions from gz-grant
+        this.$.grant.getall();
+
+        // Open dashboard
+        this.routeParent = "secure"
+        this.route = "dashboard"
+      },
+      _onLogout(e) {
+        this.loggedin = false
+        this.routeParent = "home"
+      },
+      _onResources: function(e) {
+        this.hasmachinelauncher = false
+
+        const resources = this.$.grant.resources
+
+        const simulators_list = resources.find(function(resource){
+          return resource.name === 'simulators_list'
+        })
+
+        if (!simulators_list)
+          return
+
+        this.hasmachinelauncher = !simulators_list.permissions[0].permissions.readOnly
+      },
       properties: {
-        authenticationUrl: {
+        authurl: {
           type: String,
           value: 'https://localhost:5050',
           notify: true
         },
-        portalUrl: {
+        portalurl: {
           type: String,
           value: 'https://localhost:4000',
-          notify: true
-        },
-        simUrl: {
-          type: String,
-          value: 'https://localhost:8080',
           notify: true
         },
         loggedin: {
           type: Boolean,
           value: false,
+          notify: true
+        },
+        hasmachinelauncher: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        token: {
+          type: String,
+          value: 'token not set',
+          notify: true
+        },
+        currentuser: {
+          type: String,
+          value: 'current user not set',
           notify: true
         },
       }
