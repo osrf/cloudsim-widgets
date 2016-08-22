@@ -31,12 +31,21 @@
       }
     </style>
 
+    <!-- For login / logout -->
     <gz-token
       id="token"
       url={{authurl}}
       on-login="_onLogin"
       on-logout="_onLogout"
     ></gz-token>
+
+    <!-- For permissions in the portal -->
+    <gz-grant
+      id="grant"
+      url=[[portalurl]]
+      token=[[token]]
+      on-resources-changed="_onResources"
+    ></gz-grant>
 
     <paper-toast
       id="errorToast"
@@ -97,9 +106,10 @@
               <section data-route="dashboard">
                 <cs-dashboard
                   id="dashboard"
-                  portalurl="{{portalurl}}"
-                  token="{{token}}"
-                  currentuser="{{currentuser}}"
+                  portalurl="[[portalurl]]"
+                  token="[[token]]"
+                  currentuser="[[currentuser]]"
+                  hasmachinelauncher="[[hasmachinelauncher]]"
                 ></cs-dashboard>
               </section>
 
@@ -182,6 +192,9 @@
         this.token = e.detail.token;
         this.currentuser = e.detail.user;
 
+        // Get permissions from gz-grant
+        this.$.grant.getall();
+
         // Open dashboard
         this.routeParent = "secure"
         this.route = "dashboard"
@@ -189,6 +202,20 @@
       _onLogout(e) {
         this.loggedin = false
         this.routeParent = "home"
+      },
+      _onResources: function(e) {
+        this.hasmachinelauncher = false
+
+        const resources = this.$.grant.resources
+
+        const simulators_list = resources.find(function(resource){
+          return resource.name === 'simulators_list'
+        })
+
+        if (!simulators_list)
+          return
+
+        this.hasmachinelauncher = !simulators_list.permissions[0].permissions.readOnly
       },
       properties: {
         authurl: {
@@ -202,6 +229,11 @@
           notify: true
         },
         loggedin: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        hasmachinelauncher: {
           type: Boolean,
           value: false,
           notify: true
