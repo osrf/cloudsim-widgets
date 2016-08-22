@@ -109,7 +109,7 @@
                   portalurl="[[portalurl]]"
                   token="[[token]]"
                   currentuser="[[currentuser]]"
-                  canlaunchsimulators="[[canlaunchsimulators]]"
+                  hasmachinelauncher="[[hasmachinelauncher]]"
                 ></cs-dashboard>
               </section>
 
@@ -204,7 +204,7 @@
         this.routeParent = "home"
       },
       _onResources: function(e) {
-        this.canlaunchsimulators = false
+        this.hasmachinelauncher = false
 
         const resources = this.$.grant.resources
 
@@ -215,7 +215,7 @@
         if (!simulators_list)
           return
 
-        this.canlaunchsimulators = !simulators_list.permissions[0].permissions.readOnly
+        this.hasmachinelauncher = !simulators_list.permissions[0].permissions.readOnly
       },
       properties: {
         authurl: {
@@ -233,7 +233,7 @@
           value: false,
           notify: true
         },
-        canlaunchsimulators: {
+        hasmachinelauncher: {
           type: Boolean,
           value: false,
           notify: true
