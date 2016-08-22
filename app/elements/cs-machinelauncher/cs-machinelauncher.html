@@ -6,6 +6,9 @@
       .iconPadding {
         padding-right: 1em;
       }
+      .space {
+        @apply(--layout-flex);
+      }
       .horizontal {
         @apply(--layout-horizontal);
         @apply(--layout-center);
@@ -41,6 +44,8 @@
           ></iron-icon>
           Launch a machine
         </h1>
+
+        <div class="space"></div>
 
         <cs-sharebutton
           token=[[token]]
