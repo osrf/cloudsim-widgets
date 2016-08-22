@@ -85,19 +85,17 @@
                     token="{{token}}"
                   ></cs-downloadkeysbutton>
                   <cs-sharebutton
-                    token={{token}}
+                    token=[[token]]
                     resource="[[itemid]]"
-                    machine_ip="[[machine_ip]]"
                     grantee="{{grantee}}"
                     username="[[username]]"
-                    owner="{{owner}}"
-                    users="{{users}}"
                     url="[[portalurl]]"
                     dialogmessage='Share machine [[machine_ip]]'
                     grant_success_msg='Shared machine "[[machine_ip]]"'
                     grant_failure_error='Could not share machine "[[machine_ip]]"'
                     revoke_success_msg='User no longer has access to "[[machine_ip]]"'
                     revoke_failure_error='Could not revoke machine "[[machine_ip]]"'
+                    hasreadonly
                   ></cs-sharebutton>
                 </template>
                 <cs-machinekillbutton

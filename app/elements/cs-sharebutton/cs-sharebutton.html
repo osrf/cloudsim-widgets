@@ -262,7 +262,7 @@
         const grantee = e.target.id
 
         let that = this
-        let changedUser = this.users.find(function(user){
+        let changedUser = this.permissions.find(function(user){
           return user.username === grantee
         });
 
