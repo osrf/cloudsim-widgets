@@ -151,16 +151,6 @@
         this.addEventListener('error', function(e) {
           this.openErrorToast(e);
         });
-
-        var that = this;
-        window.addEventListener('WebComponentsReady', function() {
-          // Timeout because WebComponentsReady gets fired before all web
-          // components are ready. Yes. Really.
-          setTimeout(function() {
-            that.fire('servers-url', {'authurl': that.authurl,
-                                      'portalurl': that.portalurl})
-          }, 1000)
-        });
         console.log('cs-app widget attached!')
       },
       openToast: function(e) {

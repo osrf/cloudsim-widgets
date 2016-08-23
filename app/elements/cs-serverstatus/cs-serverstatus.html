@@ -30,11 +30,9 @@
 
       attached: function() {
 
-        var that = this;
-        window.addEventListener('servers-url', function(e) {
-          that.authurl = e.detail.authurl;
-          that.portalurl = e.detail.portalurl;
-        })
+        // Get configuration from environment variables
+        this.authurl = getConfig().auth
+        this.portalurl = getConfig().portal
 
         console.log('cs-serverstatus widget attached!')
       },
