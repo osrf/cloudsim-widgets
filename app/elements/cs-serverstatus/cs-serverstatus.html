@@ -13,9 +13,9 @@
   <template>
 
     <paper-material elevation="1">
-      Authentication server: <a href={{authurl}} target="_blank">{{authurl}}</a>
+      Authentication server: <a href="[[authurl]]" target="_blank">[[authurl]]</a>
       <br>
-      Portal server: <a href={{portalurl}} target="_blank">{{portalurl}}</a>
+      Portal server: <a href="[[portalurl]]" target="_blank">[[portalurl]]</a>
     </paper-material>
 
   </template>
@@ -41,12 +41,12 @@
       properties: {
         authurl: {
           type: String,
-          value: 'https://localhost:5050',
+          value: 'not set',
           notify: true
         },
         portalurl: {
           type: String,
-          value: 'https://localhost:4000',
+          value: 'not set',
           notify: true
         },
       },

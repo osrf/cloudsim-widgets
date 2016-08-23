@@ -68,7 +68,6 @@
       resource=[[resource]]
       permissions={{permissions}}
       grantee=[[grantee]]
-      readonly=[[readonly]]
       on-granted="_onGranted"
       on-revoked="_onRevoked"
     ></gz-grant>
@@ -125,7 +124,7 @@
 
                   <paper-listbox
                     class="dropdown-content"
-                    selected="[[_getReadOnly(item.readOnly)]]"
+                    selected="[[_getReadOnly(item.permissions.readOnly)]]"
                     id="[[item.username]]"
                   >
                     <paper-item>read</paper-item>
@@ -167,7 +166,7 @@
               <template is="dom-if" if="[[hasreadonly]]">
                 <paper-checkbox
                   id="readonlycheckbox"
-                  checked={{readonly}}
+                  checked={{grantreadonly}}
                 >
                 {{readonlytxt}}
                 </paper-checkbox>
@@ -222,8 +221,8 @@
         }
 
         let readonly = false
-        if (this.$.readonlycheckbox)
-          readonly = this.$.readonlycheckbox.checked
+        if (this.hasreadonly)
+          readonly = this.grantreadonly
 
         const data = { grantee: grantee,
                        resource: this.resource,
@@ -253,6 +252,8 @@
         }
       },
       _getReadOnly: function(readonly) {
+console.log("oooo: ")
+console.log(readonly)
         return readonly ? 0 : 1
       },
       _isMe: function(username) {
@@ -262,7 +263,7 @@
         const grantee = e.target.id
 
         let that = this
-        let changedUser = this.users.find(function(user){
+        let changedUser = this.permissions.find(function(user){
           return user.username === grantee
         });
 

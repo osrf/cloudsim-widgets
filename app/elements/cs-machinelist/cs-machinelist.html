@@ -48,21 +48,6 @@
       },
       updateList: function(items) {
         this.sortByReverseLaunchDate(items);
-
-        // The portal sends periodic updates even if there are no changes.
-        // Check if there are status updates
-        if (items.length == this.listitems.length)
-        {
-          let i = 0;
-          while (i < items.length && items[i].status == this.listitems[i].status &&
-              items[i].machine_ip == this.listitems[i].machine_ip)
-          {
-            ++i;
-          }
-          if (i == items.length)
-            return;
-        }
-
         this.set('listitems', items);
       },
       refresh() {
