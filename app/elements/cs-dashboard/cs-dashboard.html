@@ -29,15 +29,15 @@
       <template is="dom-if" if="{{hasmachinelauncher}}">
         <cs-machinelauncher
           class="center"
-          portalUrl={{portalurl}}
-          token={{token}}
+          portalUrl=[[portalurl]]
+          token=[[token]]
         ></cs-machinelauncher>
       </template>
     </div>
 
     <cs-machinelist
-      id="machinelist"
-      portalurl="{{portalurl}}"
+      portalurl="[[portalurl]]"
+      currentuser="[[currentuser]]"
     ></cs-machinelist>
 
   </template>
@@ -56,6 +56,20 @@
         // TODO: Currently admin is hard-coded, use gz-grant to check if user
         // has launch permission
         this.isadmin = this.currentuser === 'admin'
+      },
+      _currentPermissionsChanged: function() {
+
+        // When permissions change, check if user can launch machines
+        this.hasmachinelauncher = false
+
+        const simulators_list = this.currentpermissions.find(function(resource){
+          return resource.name === 'simulators_list'
+        })
+
+        if (!simulators_list)
+          return
+
+        this.hasmachinelauncher = !simulators_list.permissions[0].permissions.readOnly
       },
       properties: {
         portalurl: {
@@ -78,6 +92,11 @@
           value: 'current user not set',
           notify: true,
           observer: '_currentUserChanged'
+        },
+        currentpermissions: {
+          type: Object,
+          notify: true,
+          observer: '_currentPermissionsChanged'
         },
         hasmachinelauncher: {
           type: Boolean,
