@@ -75,62 +75,47 @@
               <template is="dom-if" if="{{isTerminating(stat)}}">
                 <b>Termination date</b>: [[prettyDate(termination_date)]]<br>
               </template>
-              <!--<b>Owner</b>: [[username]]<br>
-              <b>Users</b>: [[item.users]]<br>
-              <b>ID</b>: [[itemid]]<br>
-              <b>Simulations</b>: [[item.simulations]]<br>-->
              </div>
           </div>
-          <template is="dom-if" if="{{!isTerminating(stat)}}">
-<!--
-            <gz-simulator
-              id="gzsimulator[[itemid]]"
-              url="https://{{machine_ip}}"
-              token={{token}}
-            ></gz-simulator>
--->
-            <div class="vertical">
-              <template is="dom-if" if="{{isRunning(stat)}}">
-                <cs-downloadkeysbutton
-                  simurl="{{machine_ip}}"
-                  token="{{token}}"
-                ></cs-downloadkeysbutton>
-<!--
-                <cs-sharebutton
-                  token={{token}}
+          <template is="dom-if" if="[[!readonly]]">
+            <template is="dom-if" if="{{!isTerminating(stat)}}">
+              <div class="vertical">
+                <template is="dom-if" if="{{isRunning(stat)}}">
+                  <cs-downloadkeysbutton
+                    simurl="[[machine_ip]]"
+                    token="[[token]]"
+                  ></cs-downloadkeysbutton>
+                  <cs-sharebutton
+                    token=[[token]]
+                    resource="[[itemid]]"
+                    grantee="{{grantee}}"
+                    url="[[portalurl]]"
+                    dialogmessage='Share machine [[machine_ip]]'
+                    grant_success_msg='Shared machine "[[machine_ip]]"'
+                    grant_failure_error='Could not share machine "[[machine_ip]]"'
+                    revoke_success_msg='User no longer has access to "[[machine_ip]]"'
+                    revoke_failure_error='Could not revoke machine "[[machine_ip]]"'
+                    hasreadonly
+                  ></cs-sharebutton>
+                </template>
+                <cs-machinekillbutton
+                  portalUrl=[[portalurl]]
+                  token=[[token]]
                   machine_id="[[itemid]]"
-                  machine_ip="[[machine_ip]]"
-                  url="[[portalurl]]"
-                  message='Share machine [[machine_ip]]'
-                ></cs-sharebutton>
--->
-              </template>
-              <cs-machinekillbutton
-                portalUrl={{portalurl}}
-                token={{token}}
-                machine_id="[[itemid]]"
-              ></cs-machinekillbutton>
-             </div>
+                ></cs-machinekillbutton>
+               </div>
+            </template>
           </template>
         </div>
-
+<!--
         <template is="dom-if" if="{{isRunning(stat)}}">
           <cs-simulationq
             simurl="https://{{machine_ip}}"
-            token={{token}}
+            token=[[token]]
           ></cs-simulationq>
         </template>
-      </div>
-<!--
-      <paper-tooltip for="item[[itemid]]" animation-delay="0">
-        <b>Launch date</b>: [[prettyDate(launch_date)]]<br>
-        <template is="dom-if" if="{{isTerminating(stat)}}">
-          <b>Termination date</b>: [[prettyDate(termination_date)]]<br>
-        </template>
-        <b>Owner</b>: [[username]]<br>
-        <b>Region:</b>: [[region]]<br>
-      </paper-tooltip>
 -->
+      </div>
     </paper-material>
 
   </template>
@@ -168,6 +153,11 @@
         stat: {
           type: String,
           value: '',
+          notify: true
+        },
+        readonly: {
+          type: Boolean,
+          value: true,
           notify: true
         },
       },

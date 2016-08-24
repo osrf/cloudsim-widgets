@@ -68,7 +68,6 @@
       resource=[[resource]]
       permissions={{permissions}}
       grantee=[[grantee]]
-      readonly=[[readonly]]
       on-granted="_onGranted"
       on-revoked="_onRevoked"
     ></gz-grant>
@@ -111,7 +110,7 @@
             <div class="item horizontal center">
               <div>
                 [[item.username]]
-                <template is="dom-if" if="{{_isMe(item.username)}}">
+                <template is="dom-if" if="{{!index}}">
                   (me)
                 </template>
               </div>
@@ -125,7 +124,7 @@
 
                   <paper-listbox
                     class="dropdown-content"
-                    selected="[[_getReadOnly(item.readOnly)]]"
+                    selected="[[_getReadOnly(item.permissions.readOnly)]]"
                     id="[[item.username]]"
                   >
                     <paper-item>read</paper-item>
@@ -167,7 +166,7 @@
               <template is="dom-if" if="[[hasreadonly]]">
                 <paper-checkbox
                   id="readonlycheckbox"
-                  checked={{readonly}}
+                  checked={{grantreadonly}}
                 >
                 {{readonlytxt}}
                 </paper-checkbox>
@@ -222,8 +221,8 @@
         }
 
         let readonly = false
-        if (this.$.readonlycheckbox)
-          readonly = this.$.readonlycheckbox.checked
+        if (this.hasreadonly)
+          readonly = this.grantreadonly
 
         const data = { grantee: grantee,
                        resource: this.resource,
@@ -255,14 +254,11 @@
       _getReadOnly: function(readonly) {
         return readonly ? 0 : 1
       },
-      _isMe: function(username) {
-        return username == this.username
-      },
       _onPermission: function(e) {
         const grantee = e.target.id
 
         let that = this
-        let changedUser = this.users.find(function(user){
+        let changedUser = this.permissions.find(function(user){
           return user.username === grantee
         });
 
@@ -277,7 +273,7 @@
           this.$.grant.revoke(data)
         }
         // read -> write
-        else if (selected == "write" && changedUser.readOnly)
+        else if (selected == "write" && changedUser.permissions.readOnly)
         {
           const data = { grantee: grantee,
                          resource: this.resource,
@@ -285,7 +281,7 @@
           this.$.grant.grant(data);
         }
         // write -> read
-        else if (selected == "read" && !changedUser.readOnly)
+        else if (selected == "read" && !changedUser.permissions.readOnly)
         {
           const data = { grantee: grantee,
                          resource: this.resource,
