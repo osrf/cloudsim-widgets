@@ -110,6 +110,9 @@
             <div class="item horizontal center">
               <div>
                 [[item.username]]
+                <template is="dom-if" if="{{_isMe(index)}}">
+                  (me)
+                </template>
               </div>
 
               <div class="space"></div>
@@ -250,6 +253,9 @@
       },
       _getReadOnly: function(readonly) {
         return readonly ? 0 : 1
+      },
+      _isMe: function(index) {
+        return index == 0
       },
       _onPermission: function(e) {
         const grantee = e.target.id
