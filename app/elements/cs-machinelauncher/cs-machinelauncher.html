@@ -13,6 +13,11 @@
         @apply(--layout-horizontal);
         @apply(--layout-center);
       }
+      .description {
+        text-align: left;
+        font-size: 0.8em;
+        color: #888;
+      }
       #launchbutton {
         background-color: rgb(68, 138, 201);
         color: white;
@@ -68,24 +73,21 @@
           on-iron-select="_machineSelected">
 
           <paper-listbox class="dropdown-content" attr-for-selected="machine" selected="small_v0.0.4">
-            <paper-item machine="small_v0.0.1">small v0.0.1</paper-item>
-            <paper-item machine="small_v0.0.2">small v0.0.2</paper-item>
-            <paper-item machine="small_v0.0.3">small v0.0.3</paper-item>
-            <paper-item machine="small_v0.0.4">small v0.0.4</paper-item>
-            <paper-item machine="gpu">gpu</paper-item>
+            <template is="dom-repeat" items=[[machines]]>
+              <paper-item machine="[[item.id]]">[[item.name]]</paper-item>
+            </template>
           </paper-listbox>
 
         </paper-dropdown-menu>
-
-        <div style="padding: 1em" hidden>
-          <paper-input label="Region" id="region" value="us-west-1"></paper-input>
-          <paper-input label="Machine image" id="machineImage" value="ami-e5eea885"></paper-input>
-          <paper-input label="Hardware" id="hardware" value="t2.small"></paper-input>
-        </div>
-
         <paper-button raised id="launchbutton" on-tap="tapLaunch">
           Launch!
         </paper-button>
+      </div>
+
+      <div class="description">
+        <div><b>Region</b>: [[machine.region]]</div>
+        <div><b>Hardware</b>: [[machine.hardware]]</div>
+        <div><b>Software</b>: [[machine.image]]</div>
       </div>
     </paper-material>
 
@@ -109,21 +111,20 @@
         console.log('cs-machinelauncher widget attached!')
       },
       tapLaunch() {
-        let region = this.$.region.value;
-        let machineImage = this.$.machineImage.value;
-        let hardware = this.$.hardware.value;
 
-        if (region == "" ||
-            machineImage == "" ||
-            hardware == "")
+        if (this.machine.region == "" ||
+            this.machine.imagee == "" ||
+            this.machine.hardware == "")
         {
           this.fire('notification', {msg: "Missing some information. Machine can't be launched.", type: "error"})
           return;
         }
 
+
         // Send request to gz-simulatorlauncher
-        this.$.simulatorlauncher.launchMachine(region, machineImage, hardware);
-        this.fire('notification', {msg: "Request to launch machine has been sent.", type: "msg"})
+        console.log('LAUNCH machine', JSON.stringify(this.machine))
+        this.$.simulatorlauncher.launchMachine(this.machine.region, this.machine.image, this.machine.hardware)
+        this.fire('notification', {msg: "Request to launch a \"" + this.machine.name + "\" has been sent.", type: "msg"})
       },
       onLaunched: function(e) {
         let success = e.detail.success
@@ -145,27 +146,9 @@
         var selectedItem = e.target.selectedItem;
         if (!selectedItem)
           return;
-        var machine = (e.target.selectedItem.innerText).trim();
-
-        const machines = {"small v0.0.1": {region: "us-west-1",
-                                           image: "ami-e5eea885",
-                                           hardware: "t2.small"},
-                          "small v0.0.2": {region: "us-west-1",
-                                           image: "ami-33b7f753",
-                                           hardware: "t2.small"},
-                          "small v0.0.3": {region: "us-west-1",
-                                           image: "ami-b2d090d2",
-                                           hardware: "t2.small"},
-                          "small v0.0.4": {region: "us-west-1",
-                                           image: "ami-4b37752b",
-                                           hardware: "t2.small"},
-                          "gpu": {region: "us-west-1",
-                                  image: "ami-81fabbe1",
-                                  hardware: "g2.2xlarge"}
-        }
-        this.$.region.value = machines[machine].region
-        this.$.machineImage.value = machines[machine].image
-        this.$.hardware.value = machines[machine].hardware
+        var selectedMachineId = e.target.selectedItem.machine
+        // get machine data from user selection
+        this.machine = this.machines.filter( (item)=>{ return (item.id == selectedMachineId)? true: false })[0]
       },
       properties: {
         portalurl: {
@@ -178,6 +161,40 @@
           value: 'placeholder',
           notify: true
         },
+        machine: {
+          type: Object,
+          value: '',
+          readonly: true
+        },
+
+        machines: {
+          type: Array,
+          readonly: true,
+          value: [{ id: "small_v0.0.3",
+                    name: "small v0.0.3",
+                    region: "us-west-1",
+                    image: "ami-b2d090d2",
+                    hardware: "t2.small"},
+
+                  { id: "small_v0.0.4",
+                    name: "small v0.0.4",
+                    region: "us-west-1",
+                    image: "ami-4b37752b",
+                    hardware: "t2.small"},
+
+                  { id: "gear_0.1",
+                    name: "gear v0.1",
+                    region: "us-west-1",
+                    hardware: "g2.2xlarge",
+                    image: "ami-537a3833"},
+
+                  { id: "uctf_gz_v0.0.1",
+                     name: "UCTF simulator v0.0.1",
+                     region: "us-west-1",
+                     hardware: "t2.medium",
+                     image: "ami-170e4377"}
+                 ]
+        }
       },
     });
   })();
