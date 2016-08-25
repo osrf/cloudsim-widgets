@@ -124,7 +124,7 @@
         // Send request to gz-simulatorlauncher
         console.log('LAUNCH machine', JSON.stringify(this.machine))
         this.$.simulatorlauncher.launchMachine(this.machine.region, this.machine.image, this.machine.hardware)
-        this.fire('notification', {msg: "Request to launch a \"" + this.name + "\" has been sent.", type: "msg"})
+        this.fire('notification', {msg: "Request to launch a \"" + this.machine.name + "\" has been sent.", type: "msg"})
       },
       onLaunched: function(e) {
         let success = e.detail.success
