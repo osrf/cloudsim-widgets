@@ -107,9 +107,9 @@
       },
       tapLaunch() {
 
-        if (this.region == "" ||
-            this.imagee == "" ||
-            this.hardware == "")
+        if (this.machine.region == "" ||
+            this.machine.imagee == "" ||
+            this.machine.hardware == "")
         {
           this.fire('notification', {msg: "Missing some information. Machine can't be launched.", type: "error"})
           return;
@@ -118,7 +118,7 @@
 
         // Send request to gz-simulatorlauncher
         console.log('LAUNCH machine', JSON.stringify(this.machine))
-        this.$.simulatorlauncher.launchMachine(this.region, this.machineImage, this.hardware)
+        this.$.simulatorlauncher.launchMachine(this.machine.region, this.machine.image, this.machine.hardware)
         this.fire('notification', {msg: "Request to launch a \"" + this.name + "\" has been sent.", type: "msg"})
       },
       onLaunched: function(e) {
