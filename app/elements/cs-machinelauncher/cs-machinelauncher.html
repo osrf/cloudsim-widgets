@@ -13,6 +13,11 @@
         @apply(--layout-horizontal);
         @apply(--layout-center);
       }
+      .description {
+        text-align: left;
+        font-size: 0.8em;
+        color: #888;
+      }
       #launchbutton {
         background-color: rgb(68, 138, 201);
         color: white;
@@ -79,12 +84,12 @@
         </paper-button>
       </div>
 
-      <div>
-          <div>region: [[machine.region]]</div>
-          <div>hardware: [[machine.hardware]]</div>
-          <div>software: [[machine.image]]</div>
+      <div class="description">
+        <div><b>Region</b>: [[machine.region]]</div>
+        <div><b>Hardware</b>: [[machine.hardware]]</div>
+        <div><b>Software</b>: [[machine.image]]</div>
       </div>
-   </paper-material>
+    </paper-material>
 
   </template>
 
