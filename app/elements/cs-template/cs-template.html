@@ -12,6 +12,7 @@
     </style>
 
     <!-- HTML goes here -->
+    <paper-button on-tap="templateFunction">[[templateproperty]]</paper-button>
 
   </template>
 
@@ -29,6 +30,7 @@
 
       // Javascript functions go here
       templateFunction: function() {
+        this.fire("notification", "Template button tapped!")
         // Javascript code goes here
       },
 
@@ -37,6 +39,7 @@
       properties: {
         templateproperty: {
           type: String, // Array / Boolean / Object ...
+          value: "template",
           notify: true // True so HTML bound to this is updated on property change
         },
       },
