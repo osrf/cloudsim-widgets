@@ -1,0 +1,46 @@
+<!--
+     Template for `cs-` components.
+     Search and replace all `cs-template` with your component name.
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="cs-template">
+  <template>
+    <!-- CSS goes inside style -->
+    <style>
+    </style>
+
+    <!-- HTML goes here -->
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-template',
+
+      attached: function() {
+        // Javascript code to be run at startup goes here
+        console.log('cs-template widget attached!')
+      },
+
+      // Javascript functions go here
+      templateFunction: function() {
+        // Javascript code goes here
+      },
+
+      // Component properties go here
+      // Avoid using uppercase, because this might go into the HTML
+      properties: {
+        templateproperty: {
+          type: String, // Array / Boolean / Object ...
+          notify: true // True so HTML bound to this is updated on property change
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>
