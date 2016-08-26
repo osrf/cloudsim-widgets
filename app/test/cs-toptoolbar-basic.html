@@ -1,0 +1,38 @@
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>cs-toptoolbar-basic</title>
+
+  <script src="../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+  <script src="../bower_components/web-component-tester/browser.js"></script>
+
+  <!-- Import the element to test -->
+  <link rel="import" href="../elements/cs-toptoolbar/cs-toptoolbar.html">
+
+</head>
+<body>
+
+  <test-fixture id="basic">
+    <template>
+      <cs-toptoolbar></cs-toptoolbar>
+    </template>
+  </test-fixture>
+
+  <script>
+
+    suite('cs-toptoolbar tests', function() {
+      var greeting, header;
+
+      setup(function() {
+        component = fixture('basic');
+      });
+
+      test('Load', function() {
+        assert(component)
+      });
+
+    });
+  </script>
+
+</body>
+</html>
