@@ -1,31 +1,26 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-  <title>cs-app-basic</title>
+  <title>cs-template-basic</title>
 
   <script src="../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
   <script src="../bower_components/web-component-tester/browser.js"></script>
 
   <!-- Import the element to test -->
-  <link rel="import" href="../elements/cs-app/cs-app.html">
+  <link rel="import" href="../elements/cs-template/cs-template.html">
 
 </head>
 <body>
-  <script>
-    function getConfig() {
-      return {auth : 'auth', portal : 'portal'}
-    }
-  </script>
 
   <test-fixture id="basic">
     <template>
-      <cs-app></cs-app>
+      <cs-template></cs-template>
     </template>
   </test-fixture>
 
   <script>
 
-    suite('cs-app tests', function() {
+    suite('cs-template tests', function() {
       setup(function() {
         component = fixture('basic');
       });
