@@ -70,7 +70,7 @@
     ></cs-toptoolbar>
 
     <!-- Parent pages: secure / public -->
-    <iron-pages attr-for-selected="data-route" selected="{{routeParent}}">
+    <iron-pages attr-for-selected="data-route" selected="{{topLevelRoute}}">
 
       <!-- Public routes -->
       <section data-route="signup">
@@ -89,6 +89,10 @@
         <cs-home/>
       </section>
 
+      <section data-route="src" style="padding: 0em">
+        <cs-srchome/>
+      </section>
+
       <!-- Secure routes -->
       <section data-route="secure">
 
@@ -96,13 +100,18 @@
         <paper-drawer-panel id="paperDrawerPanel">
 
           <!-- Main Menu -->
-          <cs-menu id="menu" drawer fixed></cs-menu>
+          <cs-menu
+            id="menu"
+            drawer
+            fixed
+          ></cs-menu>
 
           <!-- Main Content -->
           <div class="content" main id="headerPanelMain">
 
-            <iron-pages attr-for-selected="data-route" selected="{{route}}">
+            <iron-pages attr-for-selected="data-route" selected="{{secureRoute}}">
 
+              <!-- Dashboard -->
               <section data-route="dashboard">
                 <cs-dashboard
                   id="dashboard"
@@ -113,10 +122,29 @@
                 ></cs-dashboard>
               </section>
 
+              <!-- SRC routes -->
               <section data-route="src">
-                <cs-src id="src"
-                  route="{{routeSrc}}"
-                ></cs-src>
+
+                <iron-pages attr-for-selected="data-route" selected="{{srcRoute}}">
+
+                  <section data-route="home">
+                    <cs-srchome/>
+                  </section>
+
+                  <section data-route="competitor">
+                    <cs-srccompetitor/>
+                  </section>
+
+                  <section data-route="organizer">
+                    <cs-srcorganizer/>
+                  </section>
+
+                  <section data-route="leaderboard">
+                    <cs-srcleaderboard/>
+                  </section>
+
+                </iron-pages>
+
               </section>
             </iron-pages>
           </div>
@@ -186,19 +214,40 @@
         this.token = e.detail.token;
         this.currentuser = e.detail.user;
 
+        // For now, simulating 3 users:
+        // -admin is a competition organizer
+        // -src_organizer is also a competition organizer
+        // -src_competitoe is a competitor
+        this.issrcorganizer = (this.currentuser === 'admin' ||
+                               this.currentuser === 'src_organizer')
+        this.issrccompetitor = this.currentuser === 'src_competitor'
+
+        this.$.menu.issrcuser = this.issrccompetitor || this.issrcorganizer
+
         // Get permissions from gz-grant
         this.$.grant.getall();
 
-        // Open dashboard
-        this.routeParent = "secure"
-        this.route = "dashboard"
+        // Reload page with logged in routes
+        page(window.location.pathname);
       },
       _onLogout(e) {
         this.loggedin = false
-        this.routeParent = "home"
+
+        // Reload page with logged out routes
+        page('/');
       },
       _onResources: function(e) {
         this.currentpermissions = this.$.grant.resources
+
+        // Find competition permissions
+        const src_competition = this.currentpermissions.find(function(resource){
+          return resource.name === 'src_competition'
+        })
+
+        // TODO: Add src_competition to portal
+
+        // Reload page with user routes
+        page(window.location.pathname);
       },
       properties: {
         authurl: {
@@ -229,6 +278,16 @@
         currentuser: {
           type: String,
           value: 'current user not set',
+          notify: true
+        },
+        issrccompetitor: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        issrcorganizer: {
+          type: Boolean,
+          value: false,
           notify: true
         },
       }

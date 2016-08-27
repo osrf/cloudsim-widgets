@@ -78,31 +78,27 @@
         </paper-item>
       </a>
 
-      <!-- Challenge -->
-      <a data-route="src" href="{{baseUrl}}src-overview">
-        <paper-item>
-          <iron-icon icon="social:public"></iron-icon>
-          Robotics Competition
-        </paper-item>
-      </a>
+      <!-- SRC -->
+      <template is="dom-if" if="[[issrcuser]]">
+        <a data-route="src" href="{{baseUrl}}src">
+          <paper-item>
+            <iron-icon icon="social:public"></iron-icon>
+            Robotics Competition
+          </paper-item>
+        </a>
 
-      <a data-route="src-overview" href="{{baseUrl}}src-overview">
-        <paper-item class="subitem">
-          <span>Overview</span>
-        </paper-item>
-      </a>
+        <a data-route="src" href="{{baseUrl}}src">
+          <paper-item class="subitem">
+            <span>Competition Kiosk</span>
+          </paper-item>
+        </a>
 
-      <a data-route="src-kiosk" href="{{baseUrl}}src-kiosk">
-        <paper-item class="subitem">
-          <span>Competition Kiosk</span>
-        </paper-item>
-      </a>
-
-      <a data-route="src-leaderboard" href="{{baseUrl}}src-leaderboard">
-        <paper-item class="subitem">
-          <span>Leaderboard</span>
-        </paper-item>
-      </a>
+        <a data-route="src-leaderboard" href="{{baseUrl}}src-leaderboard">
+          <paper-item class="subitem">
+            <span>Leaderboard</span>
+          </paper-item>
+        </a>
+      </template>
 
     </paper-menu>
 
@@ -126,6 +122,11 @@
         var path = window.location.pathname
         path = path.substr(1)
         this.$.menu.selected = path
+      },
+      issrcuser: {
+        type: Boolean,
+        value: false,
+        notify: true
       },
     });
   })();

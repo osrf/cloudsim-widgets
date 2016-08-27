@@ -1,7 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../elements/elements.html">
 
-<dom-module id="cs-src">
+<dom-module id="cs-srccompetitor">
   <style>
     .title {
       font-size: 2em;
@@ -88,34 +88,6 @@
     @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
   </style>
   <template>
-
-    <iron-pages attr-for-selected="data-route" selected="{{route}}">
-
-      <section data-route="overview">
-
-        <paper-header-panel class="blue">
-          <div class="paper-header">
-            <h1 class="title">Secret Robotics Competition</h1>
-          </div>
-        </paper-header-panel>
-
-        <div class="content">
-          <p>
-            Text about competition
-            Text about competition
-            Text about competition
-            Text about competition
-            Text about competition
-            Text about competition
-            Text about competition
-            Text about competition
-            Text about competition
-            Text about competition
-          </p>
-        </div>
-      </section>
-
-      <section data-route="kiosk">
 
         <paper-header-panel class="blue">
           <div class="paper-header">
@@ -227,17 +199,6 @@
             </div>
           </div>
         </div>
-      </section>
-
-      <section data-route="leaderboard">
-        <paper-header-panel class="blue">
-          <div class="paper-header">
-            <h1 class="title">Secret Robotics Competition</h1>
-            <p>See your scores!</p>
-          </div>
-        </paper-header-panel>
-      </section>
-    </iron-pages>
 
   </template>
 
@@ -246,13 +207,13 @@
     'use strict';
 
     Polymer({
-      is: 'cs-src',
+      is: 'cs-srccompetitor',
       // Attached
       attached: function() {
         this.push('tasks', {'description': 'First task'})
         this.push('tasks', {'description': 'Second task'})
         this.push('tasks', {'description': 'Third task'})
-        console.log('cs-src widget attached!')
+        console.log('cs-srccompetitor widget attached!')
       },
       taskNumber: function(task) {
         return this.tasks.indexOf(task) + 1;
