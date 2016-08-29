@@ -12,32 +12,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <script>
   window.addEventListener('WebComponentsReady', function() {
 
-    // We use Page.js for routing. This is a Micro
-    // client-side router inspired by the Express router
-    // More info: https://visionmedia.github.io/page.js/
-
-    // Removes end / from app.baseUrl which page.base requires for production
-    if (window.location.port === '') {  // if production
-      page.base(app.baseUrl.replace(/\/$/, ''));
-    }
-
-    // Middleware
-    function closeDrawer(ctx, next) {
-      app.closeDrawer();
-      next();
-    }
-
     // Routes
     var changeEvent = new CustomEvent("uri-change", {});
+
     page('/', function() {
       if (app.loggedin)
       {
-        app.routeParent = 'secure';
-        app.route = 'dashboard';
+        app.topLevelRoute = 'secure';
+        app.secureRoute = 'dashboard';
       }
       else
       {
-        app.routeParent = 'home';
+        app.topLevelRoute = 'home';
       }
       setTimeout(function () {
         window.dispatchEvent(changeEvent)
@@ -47,12 +33,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     page(app.baseUrl, function() {
       if (app.loggedin)
       {
-        app.routeParent = 'secure';
-        app.route = 'dashboard';
+        app.topLevelRoute = 'secure';
+        app.secureRoute = 'dashboard';
       }
       else
       {
-        app.routeParent = 'home';
+        app.topLevelRoute = 'home';
       }
       setTimeout(function () {
         window.dispatchEvent(changeEvent)
@@ -62,12 +48,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     page('/home', function() {
       if (app.loggedin)
       {
-        app.routeParent = 'secure';
-        app.route = 'dashboard';
+        app.topLevelRoute = 'secure';
+        app.secureRoute = 'dashboard';
       }
       else
       {
-        app.routeParent = 'home';
+        app.topLevelRoute = 'home';
       }
       setTimeout(function () {
         window.dispatchEvent(changeEvent)
@@ -75,14 +61,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     });
 
     page('/signup', function() {
-      app.routeParent = 'signup';
+      app.topLevelRoute = 'signup';
       setTimeout(function () {
         window.dispatchEvent(changeEvent)
       }, 100);
     });
 
     page('/stayintouch', function() {
-      app.routeParent = 'stayintouch';
+      app.topLevelRoute = 'stayintouch';
       setTimeout(function () {
         window.dispatchEvent(changeEvent)
       }, 100);
@@ -91,15 +77,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     page('/dashboard', function() {
       if (app.loggedin)
       {
-        app.routeParent = 'secure';
-        app.route = 'dashboard';
+        app.topLevelRoute = 'secure';
+        app.secureRoute = 'dashboard';
 
-        var dashboard = app.querySelector('#dashboard');
-        dashboard.$.simulatorq.tapGet()
+        var simulatorq = app.querySelector('#simulatorq');
+        if (simulatorq)
+          simulatorq.tapGet()
+        else
+          console.error("Couldn't get #simulatorq")
       }
       else
       {
-        app.routeParent = 'home';
+        app.topLevelRoute = 'home';
       }
       setTimeout(function () {
         window.dispatchEvent(changeEvent)
@@ -109,45 +98,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     page('/src', function() {
       if (app.loggedin)
       {
-        app.routeParent = 'secure';
-        app.route = 'src';
-        app.routeSrc = 'overview';
-      }
-      else
-      {
-        app.routeParent = 'home';
-      }
-      setTimeout(function () {
-        window.dispatchEvent(changeEvent)
-      }, 100);
-    });
+        app.topLevelRoute = 'secure';
+        app.secureRoute = 'src';
 
-    page('/src-overview', function() {
-      if (app.loggedin)
-      {
-        app.routeParent = 'secure';
-        app.route = 'src';
-        app.routeSrc = 'overview';
+        if (app.issrccompetitor)
+        {
+          app.srcRoute = 'competitor';
+        }
+        else if (app.issrcorganizer)
+        {
+          app.srcRoute = 'organizer';
+        }
+        else
+        {
+          app.srcRoute = 'home';
+        }
       }
       else
       {
-        app.routeParent = 'home';
-      }
-      setTimeout(function () {
-        window.dispatchEvent(changeEvent)
-      }, 100);
-    });
-
-    page('/src-kiosk', function() {
-      if (app.loggedin)
-      {
-        app.routeParent = 'secure';
-        app.route = 'src';
-        app.routeSrc = 'kiosk';
-      }
-      else
-      {
-        app.routeParent = 'home';
+        app.topLevelRoute = 'src';
       }
       setTimeout(function () {
         window.dispatchEvent(changeEvent)
@@ -157,13 +126,49 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     page('/src-leaderboard', function() {
       if (app.loggedin)
       {
-        app.routeParent = 'secure';
-        app.route = 'src';
-        app.routeSrc = 'leaderboard';
+        app.topLevelRoute = 'secure';
+        app.secureRoute = 'src';
+
+        if (app.issrccompetitor || app.issrcorganizer)
+        {
+          app.srcRoute = 'leaderboard';
+        }
+        else
+        {
+          app.srcRoute = 'home';
+        }
       }
       else
       {
-        app.routeParent = 'home';
+        app.topLevelRoute = 'src';
+      }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
+    });
+
+    page('/src-register', function() {
+      if (app.loggedin)
+      {
+        app.topLevelRoute = 'secure';
+        app.secureRoute = 'src';
+
+        if (app.issrccompetitor)
+        {
+          app.srcRoute = 'competitor';
+        }
+        else if (app.issrcorganizer)
+        {
+          app.srcRoute = 'organizer';
+        }
+        else
+        {
+          app.srcRoute = 'register';
+        }
+      }
+      else
+      {
+        app.topLevelRoute = 'src-register';
       }
       setTimeout(function () {
         window.dispatchEvent(changeEvent)
@@ -173,12 +178,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     page('/ariac', function() {
       if (app.loggedin)
       {
-        app.routeParent = 'secure';
-        app.route = 'ariac';
+        app.topLevelRoute = 'secure';
+        app.secureRoute = 'ariac';
+
+//        if (app.isariaccompetitor)
+//        {
+//          app.ariacRoute = 'competitor';
+//        }
+//        else if (app.isariacorganizer)
+//        {
+//          app.ariacRoute = 'organizer';
+//        }
+//        else
+//        {
+          app.ariacRoute = 'home';
+//        }
       }
       else
       {
-        app.routeParent = 'home';
+        app.topLevelRoute = 'ariac';
       }
       setTimeout(function () {
         window.dispatchEvent(changeEvent)

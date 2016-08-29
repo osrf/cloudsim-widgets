@@ -70,7 +70,7 @@
     ></cs-toptoolbar>
 
     <!-- Parent pages: secure / public -->
-    <iron-pages attr-for-selected="data-route" selected="{{routeParent}}">
+    <iron-pages attr-for-selected="data-route" selected="{{topLevelRoute}}">
 
       <!-- Public routes -->
       <section data-route="signup">
@@ -89,6 +89,22 @@
         <cs-home/>
       </section>
 
+      <!-- SRC public routes -->
+      <section data-route="src" style="padding: 0em">
+        <cs-srchome/>
+      </section>
+
+      <section data-route="src-register">
+        <cs-srcregister
+          loggedin="[[loggedin]]"
+        ></cs-srcregister>
+      </section>
+
+      <!-- ARIAC public routes -->
+      <section data-route="ariac" style="padding: 0em">
+        <cs-ariachome/>
+      </section>
+
       <!-- Secure routes -->
       <section data-route="secure">
 
@@ -96,13 +112,18 @@
         <paper-drawer-panel id="paperDrawerPanel">
 
           <!-- Main Menu -->
-          <cs-menu id="menu" drawer fixed></cs-menu>
+          <cs-menu
+            id="menu"
+            drawer
+            fixed
+          ></cs-menu>
 
           <!-- Main Content -->
           <div class="content" main id="headerPanelMain">
 
-            <iron-pages attr-for-selected="data-route" selected="{{route}}">
+            <iron-pages attr-for-selected="data-route" selected="{{secureRoute}}">
 
+              <!-- Dashboard -->
               <section data-route="dashboard">
                 <cs-dashboard
                   id="dashboard"
@@ -113,16 +134,51 @@
                 ></cs-dashboard>
               </section>
 
+              <!-- SRC secure routes -->
               <section data-route="src">
-                <cs-src id="src"
-                  route="{{routeSrc}}"
-                ></cs-src>
+
+                <iron-pages attr-for-selected="data-route" selected="{{srcRoute}}">
+
+                  <section data-route="home">
+                    <cs-srchome/>
+                  </section>
+
+                  <section data-route="competitor">
+                    <cs-srccompetitor/>
+                  </section>
+
+                  <section data-route="organizer">
+                    <cs-srcorganizer/>
+                  </section>
+
+                  <section data-route="leaderboard">
+                    <cs-srcleaderboard/>
+                  </section>
+
+                  <section data-route="register">
+                    <cs-srcregister
+                      loggedin="[[loggedin]]"
+                      currentuser="[[currentuser]]"
+                    ></cs-srcregister>
+                  </section>
+
+                </iron-pages>
+
               </section>
 
+              <!-- ARIAC secure routes -->
               <section data-route="ariac">
-                <cs-ariachome
-                ></cs-ariachome>
+
+                <iron-pages attr-for-selected="data-route" selected="{{ariacRoute}}">
+
+                  <section data-route="home">
+                    <cs-ariachome/>
+                  </section>
+
+                </iron-pages>
+
               </section>
+
             </iron-pages>
           </div>
 
@@ -191,19 +247,47 @@
         this.token = e.detail.token;
         this.currentuser = e.detail.user;
 
+        // SRC
+        // For now, simulating 3 users:
+        // -admin is a competition organizer
+        // -src_organizer is also a competition organizer
+        // -src_competitor is a competitor
+        this.issrcorganizer = (this.currentuser === 'admin' ||
+                               this.currentuser === 'src_organizer')
+        this.issrccompetitor = this.currentuser === 'src_competitor'
+
+        this.$.menu.issrcuser = this.issrccompetitor || this.issrcorganizer
+        this.$.dashboard.issrcuser = this.issrccompetitor || this.issrcorganizer
+
+        // ARIAC
+        // For now, simulating 3 users:
+        // -admin is a competition organizer
+        // -ariac_organizer is also a competition organizer
+        // -ariac_competitor is a competitor
+        this.isariacorganizer = (this.currentuser === 'admin' ||
+                                 this.currentuser === 'ariac_organizer')
+        this.isariaccompetitor = this.currentuser === 'ariac_competitor'
+
+        this.$.menu.isariacuser = this.isariaccompetitor || this.isariacorganizer
+        this.$.dashboard.isariacuser = this.isariaccompetitor || this.isariacorganizer
+
         // Get permissions from gz-grant
         this.$.grant.getall();
 
-        // Open dashboard
-        this.routeParent = "secure"
-        this.route = "dashboard"
+        // Reload page with logged in routes
+        page(window.location.pathname);
       },
       _onLogout(e) {
         this.loggedin = false
-        this.routeParent = "home"
+
+        // Reload page with logged out routes
+        page('/');
       },
       _onResources: function(e) {
         this.currentpermissions = this.$.grant.resources
+
+        // Reload page with user routes
+        page(window.location.pathname);
       },
       properties: {
         authurl: {
@@ -234,6 +318,26 @@
         currentuser: {
           type: String,
           value: 'current user not set',
+          notify: true
+        },
+        issrccompetitor: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        issrcorganizer: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        isariaccompetitor: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        isariacorganizer: {
+          type: Boolean,
+          value: false,
           notify: true
         },
       }
