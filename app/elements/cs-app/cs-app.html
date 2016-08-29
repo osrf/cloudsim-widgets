@@ -257,6 +257,7 @@
         this.issrccompetitor = this.currentuser === 'src_competitor'
 
         this.$.menu.issrcuser = this.issrccompetitor || this.issrcorganizer
+        this.$.dashboard.issrcuser = this.issrccompetitor || this.issrcorganizer
 
         // ARIAC
         // For now, simulating 3 users:
@@ -268,6 +269,7 @@
         this.isariaccompetitor = this.currentuser === 'ariac_competitor'
 
         this.$.menu.isariacuser = this.isariaccompetitor || this.isariacorganizer
+        this.$.dashboard.isariacuser = this.isariaccompetitor || this.isariacorganizer
 
         // Get permissions from gz-grant
         this.$.grant.getall();

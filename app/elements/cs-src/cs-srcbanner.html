@@ -1,0 +1,38 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-srcbanner">
+  <style>
+    paper-material {
+      text-align: center;
+      padding: 1em;
+    }
+  </style>
+  <template>
+
+    <a href="{{baseUrl}}src" tabindex="">
+      <paper-material elevation="1">
+        <h1>
+          Check out the Secret Robotics Competition!
+        </h1>
+      </paper-material>
+    </a>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-srcbanner',
+      // Attached
+      attached: function() {
+        console.log('cs-srcbanner widget attached!')
+      },
+      properties: {
+      },
+    });
+  })();
+  </script>
+</dom-module>

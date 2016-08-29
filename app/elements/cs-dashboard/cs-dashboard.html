@@ -40,6 +40,14 @@
       currentuser="[[currentuser]]"
     ></cs-machinelist>
 
+    <div class="horizontal">
+      <template is="dom-if" if="[[!issrcuser]]">
+        <cs-srcbanner
+          class="center"
+        ></cs-srcbanner>
+      </template>
+    </div>
+
   </template>
 
   <script>
