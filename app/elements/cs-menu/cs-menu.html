@@ -100,18 +100,15 @@
         </a>
       </template>
 
-      <a data-route="ariac" href="{{baseUrl}}ariac">
-        <paper-item>
-          <iron-icon icon="social:public"></iron-icon>
-          ARIAC
-        </paper-item>
-      </a>
-
-      <a data-route="ariac" href="{{baseUrl}}ariac">
-        <paper-item class="subitem">
-          <span>Overview</span>
-        </paper-item>
-      </a>
+      <!-- SRC -->
+      <template is="dom-if" if="[[isariacuser]]">
+        <a data-route="ariac" href="{{baseUrl}}ariac">
+          <paper-item>
+            <iron-icon icon="social:poll"></iron-icon>
+            ARIAC
+          </paper-item>
+        </a>
+      </template>
 
     </paper-menu>
 
@@ -137,6 +134,11 @@
         this.$.menu.selected = path
       },
       issrcuser: {
+        type: Boolean,
+        value: false,
+        notify: true
+      },
+      isariacuser: {
         type: Boolean,
         value: false,
         notify: true

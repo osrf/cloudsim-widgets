@@ -93,6 +93,10 @@
         <cs-srchome/>
       </section>
 
+      <section data-route="ariac" style="padding: 0em">
+        <cs-ariachome/>
+      </section>
+
       <!-- Secure routes -->
       <section data-route="secure">
 
@@ -151,10 +155,19 @@
 
               </section>
 
+              <!-- ARIAC routes -->
               <section data-route="ariac">
-                <cs-ariachome
-                ></cs-ariachome>
+
+                <iron-pages attr-for-selected="data-route" selected="{{ariacRoute}}">
+
+                  <section data-route="home">
+                    <cs-ariachome/>
+                  </section>
+
+                </iron-pages>
+
               </section>
+
             </iron-pages>
           </div>
 
@@ -223,6 +236,7 @@
         this.token = e.detail.token;
         this.currentuser = e.detail.user;
 
+        // SRC
         // For now, simulating 3 users:
         // -admin is a competition organizer
         // -src_organizer is also a competition organizer
@@ -232,6 +246,17 @@
         this.issrccompetitor = this.currentuser === 'src_competitor'
 
         this.$.menu.issrcuser = this.issrccompetitor || this.issrcorganizer
+
+        // ARIAC
+        // For now, simulating 3 users:
+        // -admin is a competition organizer
+        // -ariac_organizer is also a competition organizer
+        // -ariac_competitoe is a competitor
+        this.isariacorganizer = (this.currentuser === 'admin' ||
+                                 this.currentuser === 'ariac_organizer')
+        this.isariaccompetitor = this.currentuser === 'ariac_competitor'
+
+        this.$.menu.isariacuser = this.isariaccompetitor || this.isariacorganizer
 
         // Get permissions from gz-grant
         this.$.grant.getall();
@@ -295,6 +320,16 @@
           notify: true
         },
         issrcorganizer: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        isariaccompetitor: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        isariacorganizer: {
           type: Boolean,
           value: false,
           notify: true

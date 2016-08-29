@@ -185,10 +185,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       {
         app.topLevelRoute = 'secure';
         app.secureRoute = 'ariac';
+
+//        if (app.isariaccompetitor)
+//        {
+//          app.ariacRoute = 'competitor';
+//        }
+//        else if (app.isariacorganizer)
+//        {
+//          app.ariacRoute = 'organizer';
+//        }
+//        else
+//        {
+          app.ariacRoute = 'home';
+//        }
       }
       else
       {
-        app.topLevelRoute = 'home';
+        app.topLevelRoute = 'ariac';
       }
       setTimeout(function () {
         window.dispatchEvent(changeEvent)
