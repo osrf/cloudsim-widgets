@@ -170,6 +170,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }, 100);
     });
 
+    page('/ariac', function() {
+      if (app.loggedin)
+      {
+        app.routeParent = 'secure';
+        app.route = 'ariac';
+      }
+      else
+      {
+        app.routeParent = 'home';
+      }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
+    });
+
     // 404
     page('*', function() {
       page.redirect(app.baseUrl);
