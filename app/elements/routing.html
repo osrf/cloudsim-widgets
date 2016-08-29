@@ -181,6 +181,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       {
         app.routeParent = 'home';
       }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
     });
 
     page('/ariac-overview', function() {
@@ -194,7 +197,55 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       {
         app.routeParent = 'home';
       }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
     });
+
+    page('/ariac-kiosk', function() {
+      if (app.loggedin)
+      {
+        app.routeParent = 'secure';
+        app.route = 'ariac';
+        app.routeSrc = 'kiosk';
+      }
+      else
+      {
+        app.routeParent = 'home';
+      }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
+    });
+
+    page('/ariac-leaderboard', function() {
+      if (app.loggedin)
+      {
+        app.routeParent = 'secure';
+        app.route = 'ariac';
+        app.routeSrc = 'leaderboard';
+      }
+      else
+      {
+        app.routeParent = 'home';
+      }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
+    });
+
+
+    //page('/ariac', function() {
+    //  if (app.loggedin)
+    //  {
+    //    app.routeParent = 'secure';
+    //    app.route = 'ariac';
+    //  }
+    //  else
+    //  {
+    //    app.routeParent = 'home';
+    //  }
+    //});
 
     // 404
     page('*', function() {
