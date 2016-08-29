@@ -12,11 +12,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <script>
   window.addEventListener('WebComponentsReady', function() {
 
-    // Removes end / from app.baseUrl which page.base requires for production
-//    if (window.location.port === '') {  // if production
-//      page.base(app.baseUrl.replace(/\/$/, ''));
-//    }
-
     // Routes
     var changeEvent = new CustomEvent("uri-change", {});
 

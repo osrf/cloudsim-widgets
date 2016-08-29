@@ -251,7 +251,7 @@
         // For now, simulating 3 users:
         // -admin is a competition organizer
         // -src_organizer is also a competition organizer
-        // -src_competitoe is a competitor
+        // -src_competitor is a competitor
         this.issrcorganizer = (this.currentuser === 'admin' ||
                                this.currentuser === 'src_organizer')
         this.issrccompetitor = this.currentuser === 'src_competitor'
@@ -262,7 +262,7 @@
         // For now, simulating 3 users:
         // -admin is a competition organizer
         // -ariac_organizer is also a competition organizer
-        // -ariac_competitoe is a competitor
+        // -ariac_competitor is a competitor
         this.isariacorganizer = (this.currentuser === 'admin' ||
                                  this.currentuser === 'ariac_organizer')
         this.isariaccompetitor = this.currentuser === 'ariac_competitor'
@@ -283,13 +283,6 @@
       },
       _onResources: function(e) {
         this.currentpermissions = this.$.grant.resources
-
-        // Find competition permissions
-        const src_competition = this.currentpermissions.find(function(resource){
-          return resource.name === 'src_competition'
-        })
-
-        // TODO: Add src_competition to portal
 
         // Reload page with user routes
         page(window.location.pathname);
