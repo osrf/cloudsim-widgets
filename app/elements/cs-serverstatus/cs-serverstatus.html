@@ -13,9 +13,9 @@
   <template>
 
     <paper-material elevation="1">
-      Authentication server: <a href={{authenticationUrl}} target="_blank">{{authenticationUrl}}</a>
+      Authentication server: <a href="[[authurl]]" target="_blank">[[authurl]]</a>
       <br>
-      Portal server: <a href={{portalUrl}} target="_blank">{{portalUrl}}</a>
+      Portal server: <a href="[[portalurl]]" target="_blank">[[portalurl]]</a>
     </paper-material>
 
   </template>
@@ -30,23 +30,21 @@
 
       attached: function() {
 
-        var that = this;
-        window.addEventListener('servers-url', function(e) {
-          that.authenticationUrl = e.detail.authenticationUrl;
-          that.portalUrl = e.detail.portalUrl;
-        })
+        // Get configuration from environment variables
+        this.authurl = getConfig().auth
+        this.portalurl = getConfig().portal
 
         console.log('cs-serverstatus widget attached!')
       },
       properties: {
-        authenticationUrl: {
+        authurl: {
           type: String,
-          value: 'https://localhost:5050',
+          value: 'not set',
           notify: true
         },
-        portalUrl: {
+        portalurl: {
           type: String,
-          value: 'https://localhost:4000',
+          value: 'not set',
           notify: true
         },
       },

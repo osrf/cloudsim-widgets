@@ -7,78 +7,186 @@
       font-size: 0.8em;
       width: 7em;
     }
+    .space {
+      @apply(--layout-flex);
+    }
+    .blue {
+      color: rgb(68, 138, 201);
+    }
+    .red {
+      --iron-icon-fill-color: #f00;
+    }
     .miniButton iron-icon {
       width: 1.5em;
       margin-right: 0.2em;
     }
-    .buttons {
-      padding-top: 2em;
+    .header {
+      background-color: rgb(215, 215, 215);
+      color: #353535;
+      margin: 0;
+      padding: 1em;
+    }
+    .content {
+      overflow: auto;
+      margin: 0;
+      padding: 1em;
+    }
+    .subcontent {
+      padding-bottom: 2em;
+    }
+    .subheader {
+      color: rgb(68, 138, 201);
     }
     .horizontal {
       @apply(--layout-horizontal);
+    }
+    .center {
       @apply(--layout-center);
     }
-    paper-dialog {
-      position: fixed;
-      padding: 1em;
-      max-width: 30em;
-      right: 30px;
-      overflow: auto;
-      text-align: center;
+    .vertical {
+      @apply(--layout-vertical);
     }
-    paper-dialog paper-button {
-      color: #111
+    paper-dialog {
+      max-height: 40%;
+      max-width: 20em;
+      text-align: left;
     }
     a {
       padding: 0;
+    }
+    paper-dropdown-menu {
+      margin-top: -1em;
+      max-width: 5em;
     }
   </style>
   <template>
 
     <gz-grant
       id="grant"
-      url={{url}}
-      token={{token}}
-      resource={{machine_id}}
+      url=[[url]]
+      token=[[token]]
+      resource=[[resource]]
+      permissions={{permissions}}
       grantee=[[grantee]]
-      readOnly={{readOnly}}
-      on-granted={{_onGranted}}
+      on-granted="_onGranted"
+      on-revoked="_onRevoked"
     ></gz-grant>
 
     <!-- button -->
-    <paper-button raised class="miniButton" on-tap="tapOpenDialog">
-      <iron-icon icon="social:share"></iron-icon>
-      Share
-    </paper-button>
+    <template is="dom-if" if="[[!mini]]">
+      <paper-button raised class="miniButton" on-tap="tapOpenDialog">
+        <iron-icon icon="social:share"></iron-icon>
+        Share
+      </paper-button>
+    </template>
+    <template is="dom-if" if="[[mini]]">
+      <paper-icon-button
+        icon="social:share"
+        title="Share launcher"
+        on-tap="tapOpenDialog"
+      ></paper-icon-button>
+    </template>
 
     <!-- dialog -->
-    <paper-dialog id="sharedialog">
-      {{message}}
+    <paper-dialog id="sharedialog" class="vertical">
+      <h3 class="header">{{dialogmessage}}</h3>
 
-      <div class="horizontal">
-        <paper-input
-          label="{{granteetxt}}"
-          value={{grantee}}
-          id="sharedialoguser">
-        </paper-input>
+      <div class="content">
+        <div class="subcontent">
+          <!-- SHARED WITH -->
+          <b class="subheader">Shared with</b>
 
-        <paper-checkbox
-          value={{readOnly}}
-        >
-          {{readonlytxt}}
-        </paper-checkbox>
-      </div>
+          <!-- USERNAME / PERMISSIONS -->
+          <div class="item horizontal center">
+            <div class="blue">Username</div>
+            <div class="space"></div>
+            <template is="dom-if" if="[[hasreadonly]]">
+              <div class="blue">Permissions</div>
+            </template>
+          </div>
 
-      <div class="buttons">
-        <paper-button raised dialog-confirm autofocus>Cancel</paper-button>
-        <paper-button
-          raised
-          dialog-confirm
-          autofocus
-          id="sharedialogbutton"
-          on-tap="tapGrant">
-          Share
-        </paper-button>
+          <!-- USERS -->
+          <template is="dom-repeat" items="[[permissions]]">
+            <div class="item horizontal center">
+              <div>
+                [[item.username]]
+                <template is="dom-if" if="{{!index}}">
+                  (me)
+                </template>
+              </div>
+
+              <div class="space"></div>
+
+              <!-- Show options in case of non-hasreadonly -->
+              <template is="dom-if" if="[[hasreadonly]]">
+                <paper-dropdown-menu
+                  on-iron-select="_onPermission">
+
+                  <paper-listbox
+                    class="dropdown-content"
+                    selected="[[_getReadOnly(item.permissions.readOnly)]]"
+                    id="[[item.username]]"
+                  >
+                    <paper-item>read</paper-item>
+                    <paper-item>write</paper-item>
+                    <paper-item>revoke</paper-item>
+                  </paper-listbox>
+
+                </paper-dropdown-menu>
+              </template>
+
+              <template is="dom-if" if="[[!hasreadonly]]">
+                <paper-icon-button
+                  icon="icons:close"
+                  class="red"
+                  title="Revoke"
+                  on-tap="_onRevoke"
+                  data-args="[[item.username]]"
+                ></paper-icon-button>
+              </template>
+
+            </div>
+          </template>
+        </div>
+
+        <div class="subcontent">
+          <!-- SHARE WITH NEW USER-->
+          <b class="subheader">Share with new user</b>
+
+          <div class="horizontal">
+            <div class="vertical">
+              <!-- USERNAME INPUT-->
+              <paper-input
+                style="padding-right: 1em"
+                label="Username"
+                id="sharedialoguser">
+              </paper-input>
+
+              <!-- READONLY CHECKBOX-->
+              <template is="dom-if" if="[[hasreadonly]]">
+                <paper-checkbox
+                  id="readonlycheckbox"
+                  checked={{grantreadonly}}
+                >
+                {{readonlytxt}}
+                </paper-checkbox>
+              </template>
+            </div>
+
+            <div class="vertical">
+              <div class="space"></div>
+
+              <!-- ADD BUTTON-->
+              <paper-button
+                raised
+                dialog-confirm
+                id="sharedialogbutton"
+                on-tap="tapGrant">
+                Add
+              </paper-button>
+            </div>
+          </div>
+        </div>
       </div>
     </paper-dialog>
 
@@ -97,30 +205,96 @@
         var dialog = this.$.sharedialog
 
         if (dialog)
+        {
+          this.$.grant.get()
           dialog.open();
+        }
         else
-          console.log("Dialog not found.")
+          console.error("Dialog not found.")
       },
       tapGrant(e) {
-        if (this.grantee === '')
+        const grantee = this.$.sharedialoguser.value
+        if (grantee === '')
         {
           this.fire('error', 'Invalid user name.')
           return;
         }
 
-        this.$.grant.grant(this.token, this.grantee, this.resource, this.readOnly)
+        let readonly = false
+        if (this.hasreadonly)
+          readonly = this.grantreadonly
+
+        const data = { grantee: grantee,
+                       resource: this.resource,
+                       readonly: readonly}
+        this.$.grant.grant(data)
       },
       _onGranted: function(e) {
         if (e.detail.success)
         {
-          this.fire('notification', {msg: 'Shared machine with user "' +
-              this.grantee + '"', type: 'msg'})
+          this.$.grant.get()
+          this.fire('notification', {msg: this.grant_success_msg, type: 'msg'})
         }
         else
         {
-          this.fire('error', 'Couldn\'t share machine with user "' +
-              this.grantee + '": ' + e.detail.error)
+          this.fire('error', this.grant_failure_error)
         }
+      },
+      _onRevoked: function(e) {
+        if (e.detail.success)
+        {
+          this.$.grant.get()
+          this.fire('notification', {msg: this.revoke_success_msg, type: 'msg'})
+        }
+        else
+        {
+          this.fire('error', this.revoke_failure_error)
+        }
+      },
+      _getReadOnly: function(readonly) {
+        return readonly ? 0 : 1
+      },
+      _onPermission: function(e) {
+        const grantee = e.target.id
+
+        let that = this
+        let changedUser = this.permissions.find(function(user){
+          return user.username === grantee
+        });
+
+        var selected = (e.target.selectedItem.innerText).trim();
+
+        if (selected == "revoke")
+        {
+          // Revoke all permissions
+          const data = { grantee: grantee,
+                         resource: this.resource,
+                         readonly: false }
+          this.$.grant.revoke(data)
+        }
+        // read -> write
+        else if (selected == "write" && changedUser.permissions.readOnly)
+        {
+          const data = { grantee: grantee,
+                         resource: this.resource,
+                         readonly: false }
+          this.$.grant.grant(data);
+        }
+        // write -> read
+        else if (selected == "read" && !changedUser.permissions.readOnly)
+        {
+          const data = { grantee: grantee,
+                         resource: this.resource,
+                         readonly: true }
+          this.$.grant.grant(data)
+        }
+      },
+      _onRevoke: function(e) {
+        // Revoke all permissions
+        const data = { grantee: e.currentTarget.dataArgs,
+                       resource: this.resource,
+                       readonly: false }
+        this.$.grant.revoke(data)
       },
       properties: {
         token: {
@@ -128,7 +302,7 @@
           value: 'placeholder',
           notify: true
         },
-        machine_id: {
+        resource: {
           type: String,
           value: 'placeholder',
           notify: true
@@ -143,9 +317,35 @@
           value: 'Read only',
           notify: true
         },
-        granteetxt: {
+        grantee: {
           type: String,
-          value: 'User name',
+          notify: true
+        },
+        grant_success_msg: {
+          type: String
+        },
+        grant_failure_error: {
+          type: String
+        },
+        revoke_success_msg: {
+          type: String
+        },
+        revoke_failure_error: {
+          type: String
+        },
+        hasreadonly: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        mini: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        permissions: {
+          type: Array,
+          value: [],
           notify: true
         },
       },
@@ -153,3 +353,4 @@
   })();
   </script>
 </dom-module>
+

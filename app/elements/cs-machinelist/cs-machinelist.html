@@ -3,15 +3,6 @@
 
 <dom-module id="cs-machinelist">
   <style>
-    iron-list {
-      padding-top: 64px;
-      padding-bottom: 64px;
-      --iron-list-items-container: {
-        max-width: 90%;
-        margin: auto;
-        margin-bottom: 60px;
-      }
-    }
   </style>
   <template>
 
@@ -22,21 +13,19 @@
       url={{portalurl}}
     ></gz-simulatorq>
 
-    <iron-list id="list" items="[[listitems]]" as="item" selection-enabled multi-selection>
-      <template>
-        <cs-machineitem
-          itemid="[[item.id]]"
-          stat="[[item.status]]"
-          machine_ip="[[item.machine_ip]]"
-          launch_date="[[item.launch_date]]"
-          termination_date="[[item.termination_date]]"
-          username="[[item.owner.username]]"
-          region="[[item.region]]"
-          token="{{token}}"
-          portalurl="{{portalurl}}"
-        ></cs-machineitem>
-      </template>
-    </iron-list>
+    <template is="dom-repeat" items="{{listitems}}" id="list">
+      <cs-machineitem
+        itemid="[[item.id]]"
+        stat="[[item.status]]"
+        machine_ip="[[item.machine_ip]]"
+        launch_date="[[item.launch_date]]"
+        termination_date="[[item.termination_date]]"
+        readonly="[[item.currentreadonly]]"
+        region="[[item.region]]"
+        token="{{token}}"
+        portalurl="{{portalurl}}"
+      ></cs-machineitem>
+    </template>
 
   </template>
 
@@ -60,44 +49,26 @@
       updateList: function(items) {
         this.sortByReverseLaunchDate(items);
 
-        // The portal sends periodic updates even if there are no changes.
-        // Check if there are status updates
-        if (items.length == this.listitems.length)
+        // Fill with permissions for current user
+        for (var i = 0; i < items.length; ++i)
         {
-          let i = 0;
-          while (i < items.length && items[i].status == this.listitems[i].status &&
-              items[i].machine_ip == this.listitems[i].machine_ip)
+          if (items[i].owner.username === this.currentuser)
           {
-            ++i;
+            items[i].currentreadonly = false
+            continue
           }
-          if (i == items.length)
-            return;
+
+          for (var j = 0; j < items[i].users.length; ++j)
+          {
+            if (items[i].users[j].username === this.currentuser)
+            {
+              items[i].currentreadonly = items[i].users[j].readOnly
+              break
+            }
+          }
         }
 
-        // Make sure we're not calling this multiple times before the timeouts
-        if (this.updateCount == this.updateTarget)
-        {
-          // Counters
-          this.updateCount = 0;
-          this.updateTarget = items.length;
-
-          // Reset list
-          this.splice("listitems", 0, this.listitems.length)
-
-          // Push each item
-          items.forEach(function(item, index){
-
-            // Polymer issue #3682
-            // https://github.com/Polymer/polymer/issues/3682
-            // Consecutive updates only work asynchronously
-            var that = this;
-            setTimeout(function () {
-              that.push('listitems', item);
-              that.updateCount = that.updateCount + 1
-            }, 100);
-
-          }.bind(this));
-        }
+        this.set('listitems', items);
       },
       refresh() {
         this.$.simulatorq.tapGet();

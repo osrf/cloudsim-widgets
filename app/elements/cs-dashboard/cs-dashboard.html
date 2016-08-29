@@ -12,32 +12,32 @@
         @apply(--layout-horizontal);
         @apply(--layout-center);
       }
-      #launchArea {
+      .center {
         margin: auto;
         width: 30%;
-      }
-      #adminArea {
-        margin: auto;
       }
   </style>
   <template>
 
     <div class="horizontal">
-      <div id="adminArea">
-        <cs-serverstatus></cs-serverstatus>
-      </div>
+      <template is="dom-if" if="{{isadmin}}">
+        <cs-serverstatus
+          class="center"
+        ></cs-serverstatus>
+      </template>
 
-      <div id="launchArea">
+      <template is="dom-if" if="{{hasmachinelauncher}}">
         <cs-machinelauncher
-          portalUrl={{portalurl}}
-          token={{token}}
+          class="center"
+          portalUrl=[[portalurl]]
+          token=[[token]]
         ></cs-machinelauncher>
-      </div>
+      </template>
     </div>
 
     <cs-machinelist
-      id="machinelist"
-      portalurl="{{portalurl}}"
+      portalurl="[[portalurl]]"
+      currentuser="[[currentuser]]"
     ></cs-machinelist>
 
   </template>
@@ -50,31 +50,26 @@
       is: 'cs-dashboard',
       // Attached
       attached: function() {
-        // TODO: separate launch and admin logic
-        this.$.launchArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
-        this.$.adminArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
-
-        // Listen to events
-        var that = this;
-        window.addEventListener('login', function(e) {
-          that.token = e.detail.token;
-
-          // FIXME: hardcoded admin can launch machines
-          that.canLaunch = (e.detail.user === "admin" ? 'true' : 'false')
-
-          that.refresh()
-        });
-
-        window.addEventListener('logout', function(e) {
-          that.token = "";
-        });
-
         console.log('cs-dashboard widget attached!')
       },
-      refresh() {
-        this.$.machinelist.refresh();
-        this.$.launchArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
-        this.$.adminArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
+      _currentUserChanged: function() {
+        // TODO: Currently admin is hard-coded, use gz-grant to check if user
+        // has launch permission
+        this.isadmin = this.currentuser === 'admin'
+      },
+      _currentPermissionsChanged: function() {
+
+        // When permissions change, check if user can launch machines
+        this.hasmachinelauncher = false
+
+        const simulators_list = this.currentpermissions.find(function(resource){
+          return resource.name === 'simulators_list'
+        })
+
+        if (!simulators_list)
+          return
+
+        this.hasmachinelauncher = !simulators_list.permissions[0].permissions.readOnly
       },
       properties: {
         portalurl: {
@@ -84,12 +79,28 @@
         },
         token: {
           type: String,
-          value: 'placeholder',
+          value: 'token not set',
           notify: true
         },
-        canLaunch: {
+        isadmin: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        currentuser: {
           type: String,
-          value: 'false',
+          value: 'current user not set',
+          notify: true,
+          observer: '_currentUserChanged'
+        },
+        currentpermissions: {
+          type: Object,
+          notify: true,
+          observer: '_currentPermissionsChanged'
+        },
+        hasmachinelauncher: {
+          type: Boolean,
+          value: false,
           notify: true
         },
       },
