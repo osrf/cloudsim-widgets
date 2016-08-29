@@ -153,9 +153,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         app.topLevelRoute = 'secure';
         app.secureRoute = 'src';
 
-        if (app.issrccompetitor || app.issrcorganizer)
+        if (app.issrccompetitor)
         {
-          app.srcRoute = 'kiosk';
+          app.srcRoute = 'competitor';
+        }
+        else if (app.issrcorganizer)
+        {
+          app.srcRoute = 'organizer';
         }
         else
         {
