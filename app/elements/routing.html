@@ -134,17 +134,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         app.topLevelRoute = 'secure';
         app.secureRoute = 'src';
 
-        if (app.issrccompetitor)
+        if (app.issrccompetitor || app.issrcorganizer)
         {
-          app.srcRoute = 'competitor';
-        }
-        else if (app.issrcorganizer)
-        {
-          app.srcRoute = 'organizer';
+          app.srcRoute = 'leaderboard';
         }
         else
         {
-          app.srcRoute = 'register';
+          app.srcRoute = 'home';
         }
       }
       else
