@@ -3,10 +3,28 @@
 
 <dom-module id="cs-srcorganizer">
   <style>
+    .title {
+      font-size: 2em;
+    }
+    .blue {
+      background-color: rgb(68, 138, 201);
+      color: #fff;
+    }
+    .paper-header {
+      padding: 1em;
+    }
+    .paper-header > h1 {
+      text-align: center;
+    }
   </style>
   <template>
 
-    <h1>Organizer</h1>
+    <paper-header-panel class="blue">
+      <div class="paper-header">
+        <h1 class="title">Competition organizer's kiosk</h1>
+        <p>Set up the competition machines, run the competition and more!</p>
+      </div>
+    </paper-header-panel>
 
   </template>
 

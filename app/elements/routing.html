@@ -85,8 +85,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         app.topLevelRoute = 'secure';
         app.secureRoute = 'dashboard';
 
-        var dashboard = app.querySelector('#dashboard');
-        dashboard.$.simulatorq.tapGet()
+        var simulatorq = app.querySelector('#simulatorq');
+        if (simulatorq)
+          simulatorq.tapGet()
+        else
+          console.error("Couldn't get #simulatorq")
       }
       else
       {
@@ -131,9 +134,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         app.topLevelRoute = 'secure';
         app.secureRoute = 'src';
 
+        if (app.issrccompetitor)
+        {
+          app.srcRoute = 'competitor';
+        }
+        else if (app.issrcorganizer)
+        {
+          app.srcRoute = 'organizer';
+        }
+        else
+        {
+          app.srcRoute = 'register';
+        }
+      }
+      else
+      {
+        app.topLevelRoute = 'src';
+      }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
+    });
+
+    page('/src-register', function() {
+      if (app.loggedin)
+      {
+        app.topLevelRoute = 'secure';
+        app.secureRoute = 'src';
+
         if (app.issrccompetitor || app.issrcorganizer)
         {
-          app.srcRoute = 'leaderboard';
+          app.srcRoute = 'kiosk';
         }
         else
         {
