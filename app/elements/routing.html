@@ -28,6 +28,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     // Routes
+    var changeEvent = new CustomEvent("uri-change", {});
     page('/', function() {
       if (app.loggedin)
       {
@@ -38,6 +39,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       {
         app.routeParent = 'home';
       }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
     });
 
     page(app.baseUrl, function() {
@@ -50,6 +54,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       {
         app.routeParent = 'home';
       }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
     });
 
     page('/home', function() {
@@ -62,19 +69,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       {
         app.routeParent = 'home';
       }
-    });
-
-    // This route is used for debugging
-    page('/portfolio', function() {
-      app.routeParent = 'portfolio';
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
     });
 
     page('/signup', function() {
       app.routeParent = 'signup';
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
     });
 
     page('/stayintouch', function() {
       app.routeParent = 'stayintouch';
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
     });
 
     page('/dashboard', function() {
@@ -84,12 +95,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         app.route = 'dashboard';
 
         var dashboard = app.querySelector('#dashboard');
-        dashboard.$.simlist.tapGet()
+        dashboard.$.simulatorq.tapGet()
       }
       else
       {
         app.routeParent = 'home';
       }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
     });
 
     page('/src', function() {
@@ -97,11 +111,63 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       {
         app.routeParent = 'secure';
         app.route = 'src';
+        app.routeSrc = 'overview';
       }
       else
       {
         app.routeParent = 'home';
       }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
+    });
+
+    page('/src-overview', function() {
+      if (app.loggedin)
+      {
+        app.routeParent = 'secure';
+        app.route = 'src';
+        app.routeSrc = 'overview';
+      }
+      else
+      {
+        app.routeParent = 'home';
+      }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
+    });
+
+    page('/src-kiosk', function() {
+      if (app.loggedin)
+      {
+        app.routeParent = 'secure';
+        app.route = 'src';
+        app.routeSrc = 'kiosk';
+      }
+      else
+      {
+        app.routeParent = 'home';
+      }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
+    });
+
+    page('/src-leaderboard', function() {
+      if (app.loggedin)
+      {
+        app.routeParent = 'secure';
+        app.route = 'src';
+        app.routeSrc = 'leaderboard';
+      }
+      else
+      {
+        app.routeParent = 'home';
+      }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
     });
 
     page('/ariac', function() {
@@ -109,6 +175,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       {
         app.routeParent = 'secure';
         app.route = 'ariac';
+        app.routeSrc = 'overview';
+      }
+      else
+      {
+        app.routeParent = 'home';
+      }
+    });
+
+    page('/ariac-overview', function() {
+      if (app.loggedin)
+      {
+        app.routeParent = 'secure';
+        app.route = 'ariac';
+        app.routeSrc = 'overview';
       }
       else
       {
@@ -118,8 +198,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     // 404
     page('*', function() {
-      app.$.toast.text = 'Can\'t find: ' + window.location.href  + '. Redirected you to Home Page';
-      app.$.toast.show();
       page.redirect(app.baseUrl);
     });
 

@@ -1,12 +1,3 @@
-/*
-Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
-*/
-
 'use strict';
 
 // Include Gulp & tools we'll use
@@ -25,8 +16,7 @@ var packageJson = require('./package.json');
 var crypto = require('crypto');
 var ensureFiles = require('./tasks/ensure-files.js');
 
-const dotenv = require('dotenv');
-dotenv.config()
+const middleware = require('./middleware')
 
 // var ghPages = require('gulp-gh-pages');
 
@@ -260,26 +250,7 @@ gulp.task('serve', ['styles', 'elements'], function() {
     https: true,
     server: {
       baseDir: ['.tmp', 'app'],
-      middleware: [historyApiFallback(), function(req, res, next){
-        if (req.originalUrl === "/scripts/config.js") {
-          // Read from .env
-          const resp = `
-
-            function getConfig() {
-              'use strict'
-               return {
-                 auth: "${process.env.CLOUDSIM_AUTH_URL}",
-                 portal: "${process.env.CLOUDSIM_PORTAL_URL}",
-                 sim: "${process.env.CLOUDSIM_SIM_URL}"
-               }
-            }
-
-          `
-          console.log('serving config: ' + resp)
-          res.end(resp)
-        }
-        next();
-      }]
+      middleware: [historyApiFallback(), middleware.middleware]
     }
   });
 
@@ -308,26 +279,7 @@ gulp.task('serve:dist', ['default'], function() {
     //       will present a certificate warning in the browser.
     https: true,
     server: dist(),
-    middleware: [historyApiFallback(), function(req, res, next){
-      if (req.originalUrl === "/scripts/config.js") {
-        // Read from .env
-        const resp = `
-
-          function getConfig() {
-            'use strict'
-             return {
-               auth: "${process.env.CLOUDSIM_AUTH_URL}",
-               portal: "${process.env.CLOUDSIM_PORTAL_URL}",
-               sim: "${process.env.CLOUDSIM_SIM_URL}"
-             }
-          }
-
-        `
-        console.log('serving config: ' + resp)
-        res.end(resp)
-      }
-      next();
-    }]
+    middleware: [historyApiFallback(), middleware.middleware ]
   });
 });
 

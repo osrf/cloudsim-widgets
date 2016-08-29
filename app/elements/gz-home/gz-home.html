@@ -30,6 +30,9 @@
         font-size: 3em;
       }
 
+      a {
+        text-decoration: none;
+      }
       paper-button {
         background-color: rgb(68, 138, 201);
         color: rgb(255, 255, 255);
@@ -59,7 +62,7 @@
       browser. Try out CloudSim and discover a low-cost way to use robot
       simulation technology. </p>
     </div>
-
+    <cs-serverstatus/>
   </template>
 
   <script>
@@ -70,7 +73,7 @@
       is: 'gz-home',
       // Attached
       attached: function() {
-        console.log('gz-home widget [' + this.title + '] attached!')
+        console.log('gz-home widget attached!')
       },
     });
   })();

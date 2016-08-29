@@ -16,7 +16,9 @@
     "paper-elements": "PolymerElements/paper-elements#^1.0.1",
     "paper-input": "PolymerElements/paper-input#^1.1.14",
     "platinum-elements": "PolymerElements/platinum-elements#^1.1.0",
-    "polymer": "Polymer/polymer#^1.2.0"
+    "polymer": "Polymer/polymer#^1.2.0",
+    "gz-simulationlauncher": "osrf/gz-simulationlauncher",
+    "gz-simulator": "osrf/gz-simulator"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"

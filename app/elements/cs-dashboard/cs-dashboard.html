@@ -5,182 +5,40 @@
   <style>
       :host {
         display: block;
+        padding-top: 3em;
         @apply(--paper-font-common-base);
       }
-      app-toolbar {
-        background-color: var(--google-green-700);
-        box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
-        font-weight: bold;
-        color: white;
-        z-index: 1;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-      }
-      app-toolbar paper-icon-button {
-        --paper-icon-button-ink-color: white;
-      }
-      iron-list {
-        padding-top: 64px;
-        --iron-list-items-container: {
-          max-width: 90%;
-          margin-top: 60px;
-          margin-bottom: 60px;
-        }
-      }
-      .item {
+      .horizontal {
         @apply(--layout-horizontal);
-        padding: 20px;
-        background-color: white;
-        cursor: pointer;
-        margin-bottom: 10px;
+        @apply(--layout-center);
       }
-      .pad {
-        padding: 0 16px;
-        @apply(--layout-flex);
-        @apply(--layout-vertical);
-      }
-      .primary {
-        font-size: 16px;
-        font-weight: bold;
-      }
-      .shortText, .longText {
-        font-size: 14px;
-      }
-      .longText {
-        color: gray;
-        display: none;
-        text-align: left;
-      }
-      .item:hover .shortText::after {
-        content: ' [+]';
-        color: gray;
-      }
-      .item.expanded:hover .shortText::after {
-        content: '';
-      }
-      .item.expanded .longText {
-        display: block;
-      }
-      .item.expanded:hover .longText::after {
-        content: ' [–]';
-      }
-      .killButton > iron-icon {
-        --iron-icon-fill-color: #f00;
-      }
-      .spacer {
-        @apply(--layout-flex);
-      }
-      @media (max-width: 460px) {
-        paper-toolbar .bottom.title {
-          font-size: 14px;
-        }
-      }
-
-      .horizontal-3 {
-        padding: 1em;
-        text-align: left;
-      }
-
-      paper-material {
+      #launchArea {
         margin: auto;
-        width: 40%;
-        text-align: center;
+        width: 30%;
       }
-
-      #launchbutton {
-        margin: 1em;
+      #adminArea {
+        margin: auto;
       }
   </style>
   <template>
 
-    <!-- For launching new machines-->
-    <gz-simulatorlauncher
-      id="simulatorlauncher"
-      url={{portalurl}}
-      token={{token}}
-      on-launched="onLaunched"
-      on-killed="onKilled"
-    ></gz-simulatorlauncher>
-
-    <!-- For retrieving list of machines-->
-    <gz-simulatorq
-      id="simulatorq"
-      token={{token}}
-      on-simulatorqupdated="onSimulatorqUpdated"
-      url={{portalurl}}
-    ></gz-simulatorq>
-
-    <paper-material elevation="1" id="launchArea">
-      <div id="feedback" style="display:none">
-        <span id="feedback_text"/>
-      </div>
-<!--
-      <paper-dropdown-menu label="Machine types">
-        <paper-listbox class="dropdown-content">
-          <paper-item>Debug: t2.small</paper-item>
-          <paper-item>GPU gzserver</paper-item>
-        </paper-listbox>
-      </paper-dropdown-menu>
--->
-      <div style="padding: 1em">
-        <paper-input label="Region" id="region" value="us-west-1"></paper-input>
-        <paper-input label="Machine image" id="machineImage" value="ami-0a6a2f6a"></paper-input>
-        <paper-input label="Hardware" id="hardware" value="t2.small"></paper-input>
+    <div class="horizontal">
+      <div id="adminArea">
+        <cs-serverstatus></cs-serverstatus>
       </div>
 
-<!-- Large machine commented out while debugging
-    <paper-input label="Machine image" id="machineImage" value="ami-610c7801"></paper-input>
-    <paper-input label="Hardware" id="hardware" value="g2.2xlarge"></paper-input>
--->
+      <div id="launchArea">
+        <cs-machinelauncher
+          portalUrl={{portalurl}}
+          token={{token}}
+        ></cs-machinelauncher>
+      </div>
+    </div>
 
-      <paper-button raised id="launchbutton" on-tap="tapLaunch">
-        <iron-icon icon="hardware:computer"></iron-icon>
-        Launch a machine!
-      </paper-button>
-    </paper-material>
-
-    <paper-button raised id="refreshbutton" on-tap="tapRefresh" style="margin-top: 5em">
-      <iron-icon icon="icons:refresh"></iron-icon>
-      Refresh machine list
-    </paper-button>
-
-    <iron-list id="list" items="[[listitems]]" as="item" selection-enabled multi-selection>
-      <template>
-        <paper-material elevation="3" style="margin: 1em">
-          <div>
-            <div class$="[[getClassForItem(item, selected)]]" tabindex$="[[tabIndex]]">
-              <iron-icon class="avatar" icon="hardware:computer"></iron-icon>
-              <div class="pad">
-                <div class="primary"><a href="https://{{item.machine_ip}}" target="_blank">[[item.machine_ip]]</a></div>
-                <div class="shortText">[[item.status]]</div>
-                <div class="longText">
-                    ID: [[item.id]]<br>
-                    Launch date: [[item.launch_date]]<br>
-                    Termination date: [[item.termination_date]]<br>
-                    Owner: [[item.owner.username]]<br>
-                    Users: [[item.users]]<br>
-                    Simulations: [[item.simulations]]<br>
-                 </div>
-              </div>
-              <paper-button raised class="killButton" on-tap="tapKill" id="[[item.id]]">
-                <iron-icon icon="icons:close"></iron-icon>
-                Kill
-              </paper-button>
-            </div>
-            <gz-cmd
-              title="{{item.machine_ip}}"
-              url="https://{{item.machine_ip}}"
-              token={{token}}
-              cmd="gzserver --verbose"
-              gui
-              style="padding: 1em"
-            ></gz-cmd>
-          </div>
-        </paper-material>
-      </template>
-    </iron-list>
+    <cs-machinelist
+      id="machinelist"
+      portalurl="{{portalurl}}"
+    ></cs-machinelist>
 
   </template>
 
@@ -192,8 +50,11 @@
       is: 'cs-dashboard',
       // Attached
       attached: function() {
+        // TODO: separate launch and admin logic
         this.$.launchArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
+        this.$.adminArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
 
+        // Listen to events
         var that = this;
         window.addEventListener('login', function(e) {
           that.token = e.detail.token;
@@ -201,7 +62,7 @@
           // FIXME: hardcoded admin can launch machines
           that.canLaunch = (e.detail.user === "admin" ? 'true' : 'false')
 
-          that.tapRefresh()
+          that.refresh()
         });
 
         window.addEventListener('logout', function(e) {
@@ -210,96 +71,10 @@
 
         console.log('cs-dashboard widget attached!')
       },
-      tapLaunch() {
-        // Get user input info
-        let region = this.$.region.value;
-        let machineImage = this.$.machineImage.value;
-        let hardware = this.$.hardware.value;
-
-        if (region == "" ||
-            machineImage == "" ||
-            hardware == "")
-        {
-          this.$.feedback.style.display = ''
-          this.$.feedback.style.color = 'red'
-          this.$.feedback_text.textContent = "All fields are required."
-          return;
-        }
-
-        // Send request to gz-simulatorlauncher
-        this.$.feedback.style.display = ''
-        this.$.feedback.style.color = 'blue'
-        this.$.feedback_text.textContent = "Request to launch machine has been sent."
-
-        this.$.simulatorlauncher.launchMachine(region, machineImage, hardware);
-      },
-      onLaunched: function(e) {
-        this.tapRefresh()
-
-        let success = e.detail.success
-        let msg = e.detail.message
-
-        if (!success)
-        {
-          this.$.feedback.style.display = ''
-          this.$.feedback.style.color = 'red'
-          this.$.feedback_text.textContent = msg
-          return;
-        }
-
-        this.$.feedback.style.display = 'none'
-      },
-      tapKill(e) {
-        let id = e.target.id
-
-        // Send request to gz-simulatorlauncher
-        this.$.feedback.style.display = ''
-        this.$.feedback.style.color = 'blue'
-        this.$.feedback_text.textContent = "Request to kill machine has been sent."
-
-        this.$.simulatorlauncher.killMachine(id);
-      },
-      onKilled: function(e) {
-        this.tapRefresh()
-      },
-      onSimulatorqUpdated: function(e) {
-        if (e.detail.success)
-        {
-          this.updateList(e.detail.items);
-        }
-      },
-      updateList: function(items) {
-        // Make sure we're not calling this multiple times before the timeouts
-        if (this.updateCount == this.updateTarget)
-        {
-          // Counters
-          this.updateCount = 0;
-          this.updateTarget = items.length;
-
-          // Reset list
-          this.splice("listitems", 0, this.listitems.length)
-
-          // Push each item
-          items.forEach(function(item, index){
-
-            // Polymer issue #3682
-            // https://github.com/Polymer/polymer/issues/3682
-            // Consecutive updates only work asynchronously
-            var that = this;
-            setTimeout(function () {
-              that.push('listitems', item);
-              that.updateCount = that.updateCount + 1
-            }, 100);
-
-          }.bind(this));
-        }
-      },
-      tapRefresh() {
-        this.$.simulatorq.tapGet();
+      refresh() {
+        this.$.machinelist.refresh();
         this.$.launchArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
-      },
-      getClassForItem: function(item, selected) {
-        return selected ? 'item expanded' : 'item';
+        this.$.adminArea.style.display = (this.canLaunch == 'true' ? '' : 'none');
       },
       properties: {
         portalurl: {
@@ -310,11 +85,6 @@
         token: {
           type: String,
           value: 'placeholder',
-          notify: true
-        },
-        listitems: {
-          type: Array,
-          value: [],
           notify: true
         },
         canLaunch: {

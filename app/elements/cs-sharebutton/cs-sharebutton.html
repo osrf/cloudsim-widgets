@@ -1,0 +1,155 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-sharebutton">
+  <style>
+    .miniButton {
+      font-size: 0.8em;
+      width: 7em;
+    }
+    .miniButton iron-icon {
+      width: 1.5em;
+      margin-right: 0.2em;
+    }
+    .buttons {
+      padding-top: 2em;
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+    paper-dialog {
+      position: fixed;
+      padding: 1em;
+      max-width: 30em;
+      right: 30px;
+      overflow: auto;
+      text-align: center;
+    }
+    paper-dialog paper-button {
+      color: #111
+    }
+    a {
+      padding: 0;
+    }
+  </style>
+  <template>
+
+    <gz-grant
+      id="grant"
+      url={{url}}
+      token={{token}}
+      resource={{machine_id}}
+      grantee=[[grantee]]
+      readOnly={{readOnly}}
+      on-granted={{_onGranted}}
+    ></gz-grant>
+
+    <!-- button -->
+    <paper-button raised class="miniButton" on-tap="tapOpenDialog">
+      <iron-icon icon="social:share"></iron-icon>
+      Share
+    </paper-button>
+
+    <!-- dialog -->
+    <paper-dialog id="sharedialog">
+      {{message}}
+
+      <div class="horizontal">
+        <paper-input
+          label="{{granteetxt}}"
+          value={{grantee}}
+          id="sharedialoguser">
+        </paper-input>
+
+        <paper-checkbox
+          value={{readOnly}}
+        >
+          {{readonlytxt}}
+        </paper-checkbox>
+      </div>
+
+      <div class="buttons">
+        <paper-button raised dialog-confirm autofocus>Cancel</paper-button>
+        <paper-button
+          raised
+          dialog-confirm
+          autofocus
+          id="sharedialogbutton"
+          on-tap="tapGrant">
+          Share
+        </paper-button>
+      </div>
+    </paper-dialog>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-sharebutton',
+      attached: function() {
+        console.log('cs-sharebutton widget attached!')
+      },
+      tapOpenDialog(e) {
+        var dialog = this.$.sharedialog
+
+        if (dialog)
+          dialog.open();
+        else
+          console.log("Dialog not found.")
+      },
+      tapGrant(e) {
+        if (this.grantee === '')
+        {
+          this.fire('error', 'Invalid user name.')
+          return;
+        }
+
+        this.$.grant.grant(this.token, this.grantee, this.resource, this.readOnly)
+      },
+      _onGranted: function(e) {
+        if (e.detail.success)
+        {
+          this.fire('notification', {msg: 'Shared machine with user "' +
+              this.grantee + '"', type: 'msg'})
+        }
+        else
+        {
+          this.fire('error', 'Couldn\'t share machine with user "' +
+              this.grantee + '": ' + e.detail.error)
+        }
+      },
+      properties: {
+        token: {
+          type: String,
+          value: 'placeholder',
+          notify: true
+        },
+        machine_id: {
+          type: String,
+          value: 'placeholder',
+          notify: true
+        },
+        machine_ip: {
+          type: String,
+          value: 'placeholder',
+          notify: true
+        },
+        readonlytxt: {
+          type: String,
+          value: 'Read only',
+          notify: true
+        },
+        granteetxt: {
+          type: String,
+          value: 'User name',
+          notify: true
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>

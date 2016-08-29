@@ -2,44 +2,131 @@
 <link rel="import" href="../../elements/elements.html">
 
 <dom-module id="cs-ariac">
+  <style>
+    .title {
+      font-size: 2em;
+    }
+    .blue {
+      background-color: rgb(68, 138, 201);
+      color: #fff;
+    }
+    .red {
+      background-color: rgb(201, 68, 68);
+      color: #fff;
+    }
+    .green {
+      background-color: rgb(20, 255, 20);
+      color: #fff;
+    }
+    .paper-header {
+      padding: 1em;
+    }
+    .paper-header > h1 {
+      text-align: center;
+    }
+    .content {
+      padding: 3em;
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+    .horizontal paper-input, paper-button {
+      margin-left: 1em;
+      margin-bottom: 2em;
+    }
+    .horizontal > h1 {
+      margin-right: 2em;
+    }
+    .vertical {
+      @apply(--layout-vertical);
+    }
+    .tasks {
+      padding: 1em;
+      width: 15em;
+      height: 13em;
+      margin: 1em;
+      margin-top: 2em;
+    }
+    .tasks h4{
+      text-align: center;
+      margin: 0;
+    }
+    .taskDisabled {
+      color: #bbb;
+    }
+    #items{
+        margin: 3em;
+    }
+    .tasks paper-button{
+      @apply(--layout-vertical);
+      @apply(--layout-right);
+    }
+    .spacer {
+      @apply(--layout-flex);
+    }
+    paper-fab {
+      position: absolute;
+      top: -20px;
+      right: -20px;
+    }
+    paper-button[disabled] {
+      background-color: #bababa;
+      color: rgb(96, 96, 96);
+    }
+    #addbutton {
+      min-width: 82px;
+    }
+    .spinning {
+      position: absolute;
+      -webkit-animation:spin 3s linear infinite;
+      -moz-animation:spin 3s linear infinite;
+      animation:spin 3s linear infinite;
+    }
+    @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+    @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+    @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+  </style>
   <template>
-    <style>
-    </style>
+
+    <iron-pages attr-for-selected="data-route" selected="{{route}}">
+
+      <section data-route="overview">
+
+        <paper-header-panel class="blue">
+          <div class="paper-header">
+            <h1 class="title">ARIAC: Agile Robotics for Industrial Automation Competition</h1>
+          </div>
+        </paper-header-panel>
+
+        <div class="content">
+          <center>
+            <img class='img-responsive img-thumbnail center-block' src="images/ariac.jpg"/>
+          </center>
+
+          <p>
+            This landing page is targeted toward participants of the ARIAC interested
+            in registration. Please, visit the
+            <a href="http://gazebosim.org/ariac">dedicated website</a> for
+            general information about the competition, tutorials, or documentation.
+          </p>
+          <p>
+            The object of ARIAC is to deliver robot agility performance metrics,
+            information models, test methods and protocols, validated using a combined
+            virtual and real testing environment, that will enable manufacturers to
+            easily and rapidly reconfigure and re-task robot systems in assembly
+            operations.
+          </p>
+          <p>
+            <a href="http://gazebosim.org">Gazebo</a> will provide the simulation
+            infrastructure. A custom set of models, plugins and scripts will be used
+            to simulate an industrial setting with a robot arm and dynamic objects.
+          </p>
+        </div>
+      </section>
 
 
-    <center>
-      <h1>ARIAC: Agile Robotics for Industrial Automation Competition</h1>
-    </center>
-
-    <center>
-      <img class='img-responsive img-thumbnail center-block' src="images/ariac.jpg"/>
-    </center>
-
-    <p>
-      This landing page is targeted toward participants of the ARIAC interested
-      in registration. Please, visit the
-      <a href="http://gazebosim.org/ariac">dedicated website</a> for
-      general information about the competition, tutorials, or documentation.
-    </p>
-    <p>
-      The object of ARIAC is to deliver robot agility performance metrics,
-      information models, test methods and protocols, validated using a combined
-      virtual and real testing environment, that will enable manufacturers to
-      easily and rapidly reconfigure and re-task robot systems in assembly
-      operations.
-    </p>
-    <p>
-      <a href="http://gazebosim.org">Gazebo</a> will provide the simulation
-      infrastructure. A custom set of models, plugins and scripts will be used
-      to simulate an industrial setting with a robot arm and dynamic objects.
-    </p>
-
-    <center>
-    <paper-button raised class="raised" id="registerbutton" on-tap="tapRegister">
-      <iron-icon icon="social:person-add"></iron-icon>
-      Register for competition
-    </paper-button>
-    </center>
+    </iron-pages>
 
   </template>
 
@@ -51,7 +138,90 @@
       is: 'cs-ariac',
       // Attached
       attached: function() {
+        this.push('tasks', {'description': 'First task'})
+        this.push('tasks', {'description': 'Second task'})
+        this.push('tasks', {'description': 'Third task'})
         console.log('cs-ariac widget attached!')
+      },
+      taskNumber: function(task) {
+        return this.tasks.indexOf(task) + 1;
+      },
+      tapAddRepo: function(e) {
+        if (this.$.repoUrl.value === '')
+        {
+          this.fire('notification', {msg: "Invalid repository URL.", type: "error"})
+          return;
+        }
+        // TODO: Send repo info to server, wait for reply saying it's ready to run
+        this._taskStatus(1, 'Ready')
+        this.$.removebutton.style.display = ''
+        this.$.addbutton.style.display = 'none'
+      },
+      tapRemoveRepo: function(e) {
+        // TODO: Send request to server
+
+        // Restore initial state
+        this.$.removebutton.style.display = 'none'
+        this.$.addbutton.style.display = ''
+        this.$.repoUrl.value = ''
+        for (var i = 1; i <= this.tasks.length; ++i)
+        {
+          this._taskStatus(i, 'Unavailable')
+        }
+      },
+      tapStart: function(e) {
+        let buttonId = e.target.id
+        let taskNumber = buttonId.substring(11, buttonId.length)
+        let taskInt = parseInt(taskNumber, 10)
+
+        // TODO: Send request to start. On successful reply:
+        this._taskStatus(taskInt, 'Running')
+      },
+      tapStop: function(e) {
+        let buttonId = e.target.id
+        let taskNumber = buttonId.substring(10, buttonId.length)
+        let taskInt = parseInt(taskNumber, 10)
+
+        // TODO: Send request to start. On successful reply:
+        this._taskStatus(taskInt, 'Complete')
+        this._taskStatus(taskInt+1, 'Ready');
+      },
+      _taskStatus(taskNumber, taskStatus) {
+        if (taskNumber > this.tasks.length)
+        {
+          console.log('Error: task number [' + taskNumber +
+              '] is larger than task length [' + this.tasks.length + ']')
+          return;
+        }
+
+        let stopDisplay = (taskStatus == 'Running') ? '' : 'none';
+        let startDisplay = (taskStatus == 'Running') ? 'none' : '';
+        let runningDisplay = stopDisplay
+        let completeDisplay = (taskStatus == 'Complete') ? '' : 'none';
+        let startEnabled = (taskStatus == 'Ready') ? true : false;
+
+        if (taskStatus == 'Unavailable')
+        {
+          this.querySelector('#task' + taskNumber).classList.add('taskDisabled');
+        }
+        else
+        {
+          this.querySelector('#task' + taskNumber).classList.remove('taskDisabled');
+        }
+
+        this.querySelector('#stopbutton' + taskNumber).style.display = stopDisplay
+        this.querySelector('#startbutton' + taskNumber).style.display = startDisplay
+        this.querySelector('#startbutton' + taskNumber).disabled = !startEnabled
+        this.querySelector('#runningbutton' + taskNumber).style.display = runningDisplay
+        this.querySelector('#completebutton' + taskNumber).style.display = completeDisplay
+        this.querySelector('#status' + taskNumber).textContent = 'Status: ' + taskStatus
+      },
+      properties: {
+        tasks: {
+          type: Array,
+          value: [],
+          notify: true
+        },
       },
     });
   })();

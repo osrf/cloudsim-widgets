@@ -12,17 +12,36 @@
         height: calc(100% - 64px);
       }
 
-      iron-pages > section {
-        padding: 3em;
-      }
-
       /* Height of the scroll area */
       .content {
         overflow: auto;
         background-color: #f3f3f3;
-        padding: 3em;
+      }
+
+      paper-material {
+        margin: 1em;
+        padding: 1em;
+      }
+
+      #errorToast {
+        --paper-toast-background-color: #e74747
+      }
+      #msgToast {
+        --paper-toast-background-color: rgb(43, 137, 222)
       }
     </style>
+
+    <paper-toast
+      id="errorToast"
+      class="fit-bottom"
+      duration="0">
+      <paper-button onclick="errorToast.toggle()" class="yellow-button">Got it!</paper-button>
+    </paper-toast>
+
+    <paper-toast
+      id="msgToast"
+      class="fit-bottom">
+    </paper-toast>
 
     <!-- Main Toolbar -->
     <cs-toptoolbar id="toptoolbar" authurl="{{authenticationUrl}}"></cs-toptoolbar>
@@ -32,7 +51,11 @@
 
       <!-- Public routes -->
       <section data-route="signup">
-        <cs-signuppage id="signuppage" url="{{authenticationUrl}}"></cs-signuppage>
+        <cs-signuppage
+          on-notification="openToast"
+          id="signuppage"
+          url="{{authenticationUrl}}">
+        </cs-signuppage>
       </section>
 
       <section data-route="stayintouch">
@@ -41,74 +64,6 @@
 
       <section data-route="home" style="padding: 0em">
         <gz-home/>
-      </section>
-
-      <section data-route="portfolio">
-        <paper-material elevation="1">
-          Authentication server: <a href={{authenticationUrl}} target="_blank">{{authenticationUrl}}</a>
-          <br>
-          Portal server: <a href={{portalUrl}} target="_blank">{{portalUrl}}</a>
-        </paper-material>
-
-        <paper-material elevation="1">
-          <gz-accounts
-            id="portfolio-accounts"
-            config
-            url="{{authenticationUrl}}"
-          ></gz-accounts>
-        </paper-material>
-
-        <paper-material elevation="1">
-          <gz-token
-            id="portfolio-token"
-            config
-            url="{{authenticationUrl}}"
-        ></gz-token>
-        </paper-material>
-
-        <paper-material elevation="1">
-          <gz-grant
-            id="portfolio-grant"
-            gui
-            config
-            url="{{simUrl}}"
-          ></gz-grant>
-        </paper-material>
-
-        <paper-material elevation="1">
-          <gz-simulatorLauncher
-            id="portfolio-simulatorLauncher"
-            config
-            url="{{portalUrl}}"
-          ></gz-simulatorLauncher>
-        </paper-material>
-        <paper-material elevation="1">
-          <gz-simlist
-            id="portfolio-simlist"
-            gui
-            config
-            url="{{portalUrl}}"
-          ></gz-simlist>
-        </paper-material>
-
-        <paper-material elevation="1">
-          <gz-cmd
-            id="portfolio-cmd"
-            gui
-            config
-            url="{{simUrl}}"
-          ></gz-cmd>
-        </paper-material>
-        <paper-material elevation="1">
-
-          <gz-simulationq
-            id="portfolio-simulationq"
-            gui
-            config
-          ></gz-simulationq>
-
-        </paper-material>
-
       </section>
 
       <!-- Secure routes -->
@@ -130,7 +85,9 @@
               </section>
 
               <section data-route="src">
-                <cs-src id="src"></cs-src>
+                <cs-src id="src"
+                  route="{{routeSrc}}"
+                ></cs-src>
               </section>
 
               <section data-route="ariac">
@@ -163,12 +120,6 @@
         // Sets app default base URL
         this.baseUrl = '/';
 
-        // Listen for template bound event to know when bindings
-        // have resolved and content has been stamped to the page
-        this.addEventListener('dom-change', function() {
-          console.log('Our app is ready to rock!');
-        });
-
         this.addEventListener('login', function(e) {
           this.loggedin = true
 
@@ -185,9 +136,43 @@
           this.routeParent = "home"
         });
 
-        console.log('cs-app widget [' + this.title + '] attached!')
-      },
+        this.addEventListener('notification', function(e) {
+          this.openToast(e);
+        });
 
+        this.addEventListener('error', function(e) {
+          this.openErrorToast(e);
+        });
+
+        var that = this;
+        window.addEventListener('WebComponentsReady', function() {
+          that.fire('servers-url', {'authenticationUrl': that.authenticationUrl,
+                                    'portalUrl': that.portalUrl})
+        });
+        console.log('cs-app widget attached!')
+      },
+      openToast: function(e) {
+        let msg = e.detail
+        if (e.detail.msg)
+          msg = e.detail.msg
+        if (e.detail.type === "error")
+        {
+          this.$.errorToast.text = msg
+          this.$.errorToast.open()
+        }
+        else
+        {
+          this.$.msgToast.text = msg
+          this.$.msgToast.open()
+        }
+      },
+      openErrorToast: function(e) {
+        let msg = e.detail
+        if (e.detail.msg)
+          msg = e.detail.msg
+        this.$.errorToast.text = msg
+        this.$.errorToast.open()
+      },
       properties: {
         authenticationUrl: {
           type: String,
@@ -210,7 +195,6 @@
           notify: true
         },
       }
-
     });
 
   </script>
