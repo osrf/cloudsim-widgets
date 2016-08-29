@@ -89,10 +89,18 @@
         <cs-home/>
       </section>
 
+      <!-- SRC public routes -->
       <section data-route="src" style="padding: 0em">
         <cs-srchome/>
       </section>
 
+      <section data-route="src-register">
+        <cs-srcregister
+          loggedin="[[loggedin]]"
+        ></cs-srcregister>
+      </section>
+
+      <!-- ARIAC public routes -->
       <section data-route="ariac" style="padding: 0em">
         <cs-ariachome/>
       </section>
@@ -126,7 +134,7 @@
                 ></cs-dashboard>
               </section>
 
-              <!-- SRC routes -->
+              <!-- SRC secure routes -->
               <section data-route="src">
 
                 <iron-pages attr-for-selected="data-route" selected="{{srcRoute}}">
@@ -148,14 +156,17 @@
                   </section>
 
                   <section data-route="register">
-                    <cs-srcregister/>
+                    <cs-srcregister
+                      loggedin="[[loggedin]]"
+                      currentuser="[[currentuser]]"
+                    ></cs-srcregister>
                   </section>
 
                 </iron-pages>
 
               </section>
 
-              <!-- ARIAC routes -->
+              <!-- ARIAC secure routes -->
               <section data-route="ariac">
 
                 <iron-pages attr-for-selected="data-route" selected="{{ariacRoute}}">
