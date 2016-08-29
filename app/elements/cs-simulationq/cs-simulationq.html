@@ -186,7 +186,35 @@
 
           </div>
         </template>
+
+        <paper-button
+          raised
+          id="runbutton"
+          hidden$=[[!_canRun(currentstate)]]
+          on-tap="_tapRunButton">
+          Run
+         </paper-button>
+
+        <paper-button
+          raised
+          hidden$=[[!_canKill(currentstate)]]
+          id="killbutton"
+          on-tap="_tapKillButton">
+          Kill
+         </paper-button>
+
       </template>
+
+        <gz-cmd
+          id="gzcmd"
+          token="[[token]]"
+          url="[[simurl]]"
+          cmd="[[currentcmd]]"
+          state="{{currentstate}}"
+          on-state-changed="_currentStateChanged"
+          gui
+          hidden$=[[!_hasItems(simulations)]]
+        ></gz-cmd>
     </div>
 
   </template>
@@ -256,6 +284,33 @@
 
         this.simulations = temp
       },
+      _tapRunButton(e) {
+        this.currenccmd = ''
+        for (var i = 0; i < this.simulations.length; ++i)
+        {
+          if (this.simulations[i].data.stat == "WAITING")
+          {
+            var str = 'simulations.' + i + '.data.stat'
+            this.set(str, 'RUNNING')
+            this.currentcmd = this.simulations[i].data.cmd
+            this.$.gzcmd.tapRun()
+            break;
+          }
+        }
+      },
+      _tapKillButton(e) {
+        this.currenccmd = ''
+        for (var i = 0; i < this.simulations.length; ++i)
+        {
+          if (this.simulations[i].data.stat == "RUNNING")
+          {
+            var str = 'simulations.' + i + '.data.stat'
+            this.set(str, 'FINISHED')
+            this.$.gzcmd.tapKill()
+            break;
+          }
+        }
+      },
       _isFinished: function(stat) {
         return stat == "FINISHED"
       },
@@ -271,6 +326,26 @@
       _strToBool: function(st) {
         return st === "true" ? true : false
       },
+      _canRun: function(st) {
+        return st === "ready" || st === "closed"
+      },
+      _canKill: function(st) {
+        return st === "running"
+      },
+      _currentStateChanged: function(e) {
+        if (e.detail.value === 'closed')
+        {
+          for (var i = 0; i < this.simulations.length; ++i)
+          {
+            if (this.simulations[i].data.stat == "RUNNING")
+            {
+              var str = 'simulations.' + i + '.data.stat'
+              this.set(str, 'FINISHED')
+              break;
+            }
+          }
+        }
+      },
       properties: {
         simurl: {
           type: String,
@@ -281,6 +356,11 @@
           type: String,
           value: 'placeholder',
           notify: true
+        },
+        currentstate: {
+          type: String,
+          value: 'ready',
+          notify: true,
         },
         simulations: {
           type: Array,

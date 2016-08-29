@@ -1,7 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../elements/elements.html">
 
-<dom-module id="cs-srcorganizer">
+<dom-module id="cs-srcregister">
   <style>
     .title {
       font-size: 2em;
@@ -21,10 +21,17 @@
 
     <paper-header-panel class="blue">
       <div class="paper-header">
-        <h1 class="title">Competition organizer's kiosk</h1>
-        <p>Set up the competition machines, run the competition and more!</p>
+        <h1 class="title">Register for the Secret Robotics Competition!</h1>
       </div>
     </paper-header-panel>
+
+    <paper-input label="User name" id="user"></paper-input>
+    <paper-input label="Password" id="pass1" type="password"></paper-input>
+    <paper-input label="Confirm password" id="pass2" type="password"></paper-input>
+
+    <paper-button raised on-click="tapRegisterUser">
+      Create account
+    </paper-button>
 
   </template>
 
@@ -33,10 +40,10 @@
     'use strict';
 
     Polymer({
-      is: 'cs-srcorganizer',
+      is: 'cs-srcregister',
       // Attached
       attached: function() {
-        console.log('cs-srcorganizer widget attached!')
+        console.log('cs-srcregister widget attached!')
       },
       properties: {
       },
