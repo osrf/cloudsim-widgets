@@ -12,11 +12,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <script>
   window.addEventListener('WebComponentsReady', function() {
 
-    // Removes end / from app.baseUrl which page.base requires for production
-//    if (window.location.port === '') {  // if production
-//      page.base(app.baseUrl.replace(/\/$/, ''));
-//    }
-
     // Routes
     var changeEvent = new CustomEvent("uri-change", {});
 
@@ -174,6 +169,62 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       else
       {
         app.topLevelRoute = 'src';
+      }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
+    });
+
+    page('/src-register', function() {
+      if (app.loggedin)
+      {
+        app.topLevelRoute = 'secure';
+        app.secureRoute = 'src';
+
+        if (app.issrccompetitor)
+        {
+          app.srcRoute = 'competitor';
+        }
+        else if (app.issrcorganizer)
+        {
+          app.srcRoute = 'organizer';
+        }
+        else
+        {
+          app.srcRoute = 'register';
+        }
+      }
+      else
+      {
+        app.topLevelRoute = 'src-register';
+      }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
+    });
+
+    page('/ariac', function() {
+      if (app.loggedin)
+      {
+        app.topLevelRoute = 'secure';
+        app.secureRoute = 'ariac';
+
+//        if (app.isariaccompetitor)
+//        {
+//          app.ariacRoute = 'competitor';
+//        }
+//        else if (app.isariacorganizer)
+//        {
+//          app.ariacRoute = 'organizer';
+//        }
+//        else
+//        {
+          app.ariacRoute = 'home';
+//        }
+      }
+      else
+      {
+        app.topLevelRoute = 'ariac';
       }
       setTimeout(function () {
         window.dispatchEvent(changeEvent)

@@ -3,6 +3,9 @@
 
 <dom-module id="cs-srcregister">
   <style>
+    :host {
+      text-align: center;
+    }
     .title {
       font-size: 2em;
     }
@@ -25,13 +28,22 @@
       </div>
     </paper-header-panel>
 
-    <paper-input label="User name" id="user"></paper-input>
-    <paper-input label="Password" id="pass1" type="password"></paper-input>
-    <paper-input label="Confirm password" id="pass2" type="password"></paper-input>
+    <template is="dom-if" if="[[loggedin]]">
+      <h1>
+        Click the following button if you'd like to participate in the competition.
+        You'll receive an email once your participation was accepted.
+      </h1>
+      <paper-button raised on-click="_tapRequest">
+        Request!
+      </paper-button>
+    </template>
 
-    <paper-button raised on-click="tapRegisterUser">
-      Create account
-    </paper-button>
+    <template is="dom-if" if="[[!loggedin]]">
+      <h1>
+        You must have a CloudSim account to participate in the competition.
+        Please login or signup above.
+      </h1>
+    </template>
 
   </template>
 
@@ -45,7 +57,21 @@
       attached: function() {
         console.log('cs-srcregister widget attached!')
       },
+      _tapRequest: function() {
+        // TODO: Backend
+        this.fire('notification', "User '" + this.currentuser + "' requested to participate in SRC.")
+      },
       properties: {
+        loggedin: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        currentuser: {
+          type: String,
+          value: "not set",
+          notify: true
+        },
       },
     });
   })();

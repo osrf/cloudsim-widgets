@@ -89,8 +89,20 @@
         <cs-home/>
       </section>
 
+      <!-- SRC public routes -->
       <section data-route="src" style="padding: 0em">
         <cs-srchome/>
+      </section>
+
+      <section data-route="src-register">
+        <cs-srcregister
+          loggedin="[[loggedin]]"
+        ></cs-srcregister>
+      </section>
+
+      <!-- ARIAC public routes -->
+      <section data-route="ariac" style="padding: 0em">
+        <cs-ariachome/>
       </section>
 
       <!-- Secure routes -->
@@ -122,7 +134,7 @@
                 ></cs-dashboard>
               </section>
 
-              <!-- SRC routes -->
+              <!-- SRC secure routes -->
               <section data-route="src">
 
                 <iron-pages attr-for-selected="data-route" selected="{{srcRoute}}">
@@ -144,12 +156,29 @@
                   </section>
 
                   <section data-route="register">
-                    <cs-srcregister/>
+                    <cs-srcregister
+                      loggedin="[[loggedin]]"
+                      currentuser="[[currentuser]]"
+                    ></cs-srcregister>
                   </section>
 
                 </iron-pages>
 
               </section>
+
+              <!-- ARIAC secure routes -->
+              <section data-route="ariac">
+
+                <iron-pages attr-for-selected="data-route" selected="{{ariacRoute}}">
+
+                  <section data-route="home">
+                    <cs-ariachome/>
+                  </section>
+
+                </iron-pages>
+
+              </section>
+
             </iron-pages>
           </div>
 
@@ -218,15 +247,29 @@
         this.token = e.detail.token;
         this.currentuser = e.detail.user;
 
+        // SRC
         // For now, simulating 3 users:
         // -admin is a competition organizer
         // -src_organizer is also a competition organizer
-        // -src_competitoe is a competitor
+        // -src_competitor is a competitor
         this.issrcorganizer = (this.currentuser === 'admin' ||
                                this.currentuser === 'src_organizer')
         this.issrccompetitor = this.currentuser === 'src_competitor'
 
         this.$.menu.issrcuser = this.issrccompetitor || this.issrcorganizer
+        this.$.dashboard.issrcuser = this.issrccompetitor || this.issrcorganizer
+
+        // ARIAC
+        // For now, simulating 3 users:
+        // -admin is a competition organizer
+        // -ariac_organizer is also a competition organizer
+        // -ariac_competitor is a competitor
+        this.isariacorganizer = (this.currentuser === 'admin' ||
+                                 this.currentuser === 'ariac_organizer')
+        this.isariaccompetitor = this.currentuser === 'ariac_competitor'
+
+        this.$.menu.isariacuser = this.isariaccompetitor || this.isariacorganizer
+        this.$.dashboard.isariacuser = this.isariaccompetitor || this.isariacorganizer
 
         // Get permissions from gz-grant
         this.$.grant.getall();
@@ -242,13 +285,6 @@
       },
       _onResources: function(e) {
         this.currentpermissions = this.$.grant.resources
-
-        // Find competition permissions
-        const src_competition = this.currentpermissions.find(function(resource){
-          return resource.name === 'src_competition'
-        })
-
-        // TODO: Add src_competition to portal
 
         // Reload page with user routes
         page(window.location.pathname);
@@ -290,6 +326,16 @@
           notify: true
         },
         issrcorganizer: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        isariaccompetitor: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        isariacorganizer: {
           type: Boolean,
           value: false,
           notify: true

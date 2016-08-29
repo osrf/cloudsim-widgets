@@ -100,6 +100,16 @@
         </a>
       </template>
 
+      <!-- ARIAC -->
+      <template is="dom-if" if="[[isariacuser]]">
+        <a data-route="ariac" href="{{baseUrl}}ariac">
+          <paper-item>
+            <iron-icon icon="social:poll"></iron-icon>
+            ARIAC
+          </paper-item>
+        </a>
+      </template>
+
     </paper-menu>
 
   </template>
@@ -124,6 +134,11 @@
         this.$.menu.selected = path
       },
       issrcuser: {
+        type: Boolean,
+        value: false,
+        notify: true
+      },
+      isariacuser: {
         type: Boolean,
         value: false,
         notify: true
