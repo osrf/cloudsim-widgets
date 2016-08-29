@@ -92,12 +92,14 @@
            label="Command"
            id="dialogcmd"
         ></paper-input>
+<!--
         <paper-toggle-button
           checked
           class="green"
           title="Auto play when possible"
           id="dialogauto"
         >Auto play</paper-toggle-button>
+-->
         <paper-button
           raised
           dialog-confirm
@@ -155,7 +157,7 @@
             <div class="cmd">[[item.data.cmd]]</div>
 
             <div class="space"></div>
-
+<!--
             <template is="dom-if" if="{{_isWaiting(item.data.stat)}}">
               <paper-toggle-button
                 checked$={{_strToBool(item.data.auto)}}
@@ -175,7 +177,7 @@
                 title="Stop"
               ></paper-icon-button>
             </template>
-
+-->
             <paper-icon-button
               icon="icons:close"
               class="red tappable"
@@ -186,7 +188,35 @@
 
           </div>
         </template>
+
+        <paper-button
+          raised
+          id="runbutton"
+          hidden$=[[!_canRun(currentstate)]]
+          on-tap="_tapRunButton">
+          Run
+         </paper-button>
+
+        <paper-button
+          raised
+          hidden$=[[!_canKill(currentstate)]]
+          id="killbutton"
+          on-tap="_tapKillButton">
+          Kill
+         </paper-button>
+
       </template>
+
+        <gz-cmd
+          id="gzcmd"
+          token="[[token]]"
+          url="[[simurl]]"
+          cmd="[[currentcmd]]"
+          state="{{currentstate}}"
+          on-state-changed="_currentStateChanged"
+          gui
+          hidden$=[[!_hasItems(simulations)]]
+        ></gz-cmd>
     </div>
 
   </template>
@@ -234,7 +264,7 @@
       _tapAddButton: function() {
         var data = {};
         data.cmdLine = this.$.dialogcmd.value
-        data.auto = this.$.dialogauto.checked
+        // data.auto = this.$.dialogauto.checked
 
         this.$.simulationq.createSimulation(data);
       },
@@ -244,7 +274,7 @@
       },
       _onAuto: function(e) {
         var data = {};
-        data.auto = e.target.checked
+        // data.auto = e.target.checked
 
         let id = e.target.id.substring(10)
         this.$.simulationq.updateSimulation(id, data)
@@ -255,6 +285,33 @@
         temp.splice(0, 2)
 
         this.simulations = temp
+      },
+      _tapRunButton(e) {
+        this.currenccmd = ''
+        for (var i = 0; i < this.simulations.length; ++i)
+        {
+          if (this.simulations[i].data.stat == "WAITING")
+          {
+            var str = 'simulations.' + i + '.data.stat'
+            this.set(str, 'RUNNING')
+            this.currentcmd = this.simulations[i].data.cmd
+            this.$.gzcmd.tapRun()
+            break;
+          }
+        }
+      },
+      _tapKillButton(e) {
+        this.currenccmd = ''
+        for (var i = 0; i < this.simulations.length; ++i)
+        {
+          if (this.simulations[i].data.stat == "RUNNING")
+          {
+            var str = 'simulations.' + i + '.data.stat'
+            this.set(str, 'FINISHED')
+            this.$.gzcmd.tapKill()
+            break;
+          }
+        }
       },
       _isFinished: function(stat) {
         return stat == "FINISHED"
@@ -271,6 +328,26 @@
       _strToBool: function(st) {
         return st === "true" ? true : false
       },
+      _canRun: function(st) {
+        return st === "ready" || st === "closed"
+      },
+      _canKill: function(st) {
+        return st === "running"
+      },
+      _currentStateChanged: function(e) {
+        if (e.detail.value === 'closed')
+        {
+          for (var i = 0; i < this.simulations.length; ++i)
+          {
+            if (this.simulations[i].data.stat == "RUNNING")
+            {
+              var str = 'simulations.' + i + '.data.stat'
+              this.set(str, 'FINISHED')
+              break;
+            }
+          }
+        }
+      },
       properties: {
         simurl: {
           type: String,
@@ -281,6 +358,11 @@
           type: String,
           value: 'placeholder',
           notify: true
+        },
+        currentstate: {
+          type: String,
+          value: 'ready',
+          notify: true,
         },
         simulations: {
           type: Array,
