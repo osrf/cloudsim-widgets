@@ -129,37 +129,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         app.topLevelRoute = 'secure';
         app.secureRoute = 'src';
 
-        if (app.issrccompetitor)
-        {
-          app.srcRoute = 'competitor';
-        }
-        else if (app.issrcorganizer)
-        {
-          app.srcRoute = 'organizer';
-        }
-        else
-        {
-          app.srcRoute = 'register';
-        }
-      }
-      else
-      {
-        app.topLevelRoute = 'src';
-      }
-      setTimeout(function () {
-        window.dispatchEvent(changeEvent)
-      }, 100);
-    });
-
-    page('/src-register', function() {
-      if (app.loggedin)
-      {
-        app.topLevelRoute = 'secure';
-        app.secureRoute = 'src';
-
         if (app.issrccompetitor || app.issrcorganizer)
         {
-          app.srcRoute = 'kiosk';
+          app.srcRoute = 'leaderboard';
         }
         else
         {
@@ -237,37 +209,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         app.topLevelRoute = 'secure';
         app.secureRoute = 'ariac';
 
-        if (app.isariaccompetitor)
-        {
-          app.ariacRoute = 'competitor';
-        }
-        else if (app.isariacorganizer)
-        {
-          app.ariacRoute = 'organizer';
-        }
-        else
-        {
-          app.ariacRoute = 'register';
-        }
-      }
-      else
-      {
-        app.topLevelRoute = 'ariac';
-      }
-      setTimeout(function () {
-        window.dispatchEvent(changeEvent)
-      }, 100);
-    });
-
-    page('/ariac-register', function() {
-      if (app.loggedin)
-      {
-        app.topLevelRoute = 'secure';
-        app.secureRoute = 'ariac';
-
         if (app.isariaccompetitor || app.isariacorganizer)
         {
-          app.ariacRoute = 'kiosk';
+          app.ariacRoute = 'leaderboard';
         }
         else
         {
