@@ -46,6 +46,12 @@
           class="center"
         ></cs-srcbanner>
       </template>
+
+      <template is="dom-if" if="[[!isariacuser]]">
+        <cs-ariacbanner
+          class="center"
+        ></cs-ariacbanner>
+      </template>
     </div>
 
   </template>

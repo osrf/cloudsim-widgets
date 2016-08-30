@@ -105,6 +105,12 @@
         <cs-ariachome/>
       </section>
 
+      <section data-route="ariac-register">
+        <cs-ariacregister
+          loggedin="[[loggedin]]"
+        ></cs-ariacregister>
+      </section>
+
       <!-- Secure routes -->
       <section data-route="secure">
 
@@ -173,6 +179,25 @@
 
                   <section data-route="home">
                     <cs-ariachome/>
+                  </section>
+
+                  <section data-route="competitor">
+                    <cs-ariaccompetitor/>
+                  </section>
+
+                  <section data-route="organizer">
+                    <cs-ariacorganizer/>
+                  </section>
+
+                  <section data-route="leaderboard">
+                    <cs-ariacleaderboard/>
+                  </section>
+
+                  <section data-route="register">
+                    <cs-ariacregister
+                      loggedin="[[loggedin]]"
+                      currentuser="[[currentuser]]"
+                    ></cs-ariacregister>
                   </section>
 
                 </iron-pages>
