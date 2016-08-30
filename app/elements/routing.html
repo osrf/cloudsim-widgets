@@ -209,22 +209,102 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         app.topLevelRoute = 'secure';
         app.secureRoute = 'ariac';
 
-//        if (app.isariaccompetitor)
-//        {
-//          app.ariacRoute = 'competitor';
-//        }
-//        else if (app.isariacorganizer)
-//        {
-//          app.ariacRoute = 'organizer';
-//        }
-//        else
-//        {
+        if (app.isariaccompetitor)
+        {
+          app.ariacRoute = 'competitor';
+        }
+        else if (app.isariacorganizer)
+        {
+          app.ariacRoute = 'organizer';
+        }
+        else
+        {
           app.ariacRoute = 'home';
-//        }
+        }
       }
       else
       {
         app.topLevelRoute = 'ariac';
+      }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
+    });
+
+    page('/ariac-leaderboard', function() {
+      if (app.loggedin)
+      {
+        app.topLevelRoute = 'secure';
+        app.secureRoute = 'ariac';
+
+        if (app.isariaccompetitor)
+        {
+          app.ariacRoute = 'competitor';
+        }
+        else if (app.isariacorganizer)
+        {
+          app.ariacRoute = 'organizer';
+        }
+        else
+        {
+          app.ariacRoute = 'register';
+        }
+      }
+      else
+      {
+        app.topLevelRoute = 'ariac';
+      }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
+    });
+
+    page('/ariac-register', function() {
+      if (app.loggedin)
+      {
+        app.topLevelRoute = 'secure';
+        app.secureRoute = 'ariac';
+
+        if (app.isariaccompetitor || app.isariacorganizer)
+        {
+          app.ariacRoute = 'kiosk';
+        }
+        else
+        {
+          app.ariacRoute = 'home';
+        }
+      }
+      else
+      {
+        app.topLevelRoute = 'ariac';
+      }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
+    });
+
+    page('/ariac-register', function() {
+      if (app.loggedin)
+      {
+        app.topLevelRoute = 'secure';
+        app.secureRoute = 'ariac';
+
+        if (app.isariaccompetitor)
+        {
+          app.ariacRoute = 'competitor';
+        }
+        else if (app.isariacorganizer)
+        {
+          app.ariacRoute = 'organizer';
+        }
+        else
+        {
+          app.ariacRoute = 'register';
+        }
+      }
+      else
+      {
+        app.topLevelRoute = 'ariac-register';
       }
       setTimeout(function () {
         window.dispatchEvent(changeEvent)

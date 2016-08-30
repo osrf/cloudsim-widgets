@@ -1,0 +1,51 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-ariacleaderboard">
+  <style>
+    .title {
+      font-size: 2em;
+    }
+    .blue {
+      background-color: rgb(68, 138, 201);
+      color: #fff;
+    }
+    .paper-header {
+      padding: 1em;
+    }
+    .paper-header > h1 {
+      text-align: center;
+    }
+    paper-fab {
+      position: absolute;
+      top: -20px;
+      right: -20px;
+    }
+  </style>
+  <template>
+
+    <paper-header-panel class="blue">
+      <div class="paper-header">
+        <h1 class="title">ARIAC</h1>
+        <p>See your scores!</p>
+      </div>
+    </paper-header-panel>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-ariacleaderboard',
+      // Attached
+      attached: function() {
+        console.log('cs-ariacleaderboard widget attached!')
+      },
+      properties: {
+      },
+    });
+  })();
+  </script>
+</dom-module>

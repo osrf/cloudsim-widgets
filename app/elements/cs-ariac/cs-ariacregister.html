@@ -1,0 +1,79 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-ariacregister">
+  <style>
+    :host {
+      text-align: center;
+    }
+    .title {
+      font-size: 2em;
+    }
+    .blue {
+      background-color: rgb(68, 138, 201);
+      color: #fff;
+    }
+    .paper-header {
+      padding: 1em;
+    }
+    .paper-header > h1 {
+      text-align: center;
+    }
+  </style>
+  <template>
+
+    <paper-header-panel class="blue">
+      <div class="paper-header">
+        <h1 class="title">Register for the ARIAC!</h1>
+      </div>
+    </paper-header-panel>
+
+    <template is="dom-if" if="[[loggedin]]">
+      <h1>
+        Click the following button if you'd like to participate in the competition.
+        You'll receive an email once your participation was accepted.
+      </h1>
+      <paper-button raised on-click="_tapRequest">
+        Request!
+      </paper-button>
+    </template>
+
+    <template is="dom-if" if="[[!loggedin]]">
+      <h1>
+        You must have a CloudSim account to participate in the competition.
+        Please login or signup above.
+      </h1>
+    </template>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-ariacregister',
+      // Attached
+      attached: function() {
+        console.log('cs-ariacregister widget attached!')
+      },
+      _tapRequest: function() {
+        // TODO: Backend
+        this.fire('notification', "User '" + this.currentuser + "' requested to participate in ARIAC.")
+      },
+      properties: {
+        loggedin: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        currentuser: {
+          type: String,
+          value: "not set",
+          notify: true
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>
