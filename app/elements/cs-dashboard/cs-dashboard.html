@@ -67,9 +67,7 @@
         console.log('cs-dashboard widget attached!')
       },
       _currentUserChanged: function() {
-        // TODO: Currently admin is hard-coded, use gz-grant to check if user
-        // has launch permission
-        this.isadmin = this.currentuser === 'admin'
+        this.isadmin = this.currentuser === getConfig().admin
       },
       _currentPermissionsChanged: function() {
 

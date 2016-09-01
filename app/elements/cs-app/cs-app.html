@@ -277,9 +277,9 @@
         // -admin is a competition organizer
         // -src_organizer is also a competition organizer
         // -src_competitor is a competitor
-        this.issrcorganizer = (this.currentuser === 'admin' ||
-                               this.currentuser === 'src_organizer')
-        this.issrccompetitor = this.currentuser === 'src_competitor'
+        this.issrcorganizer = (this.currentuser === getConfig().admin ||
+                               this.currentuser === getConfig().src_admin)
+        this.issrccompetitor = this.currentuser === getConfig().src_competitor
 
         this.$.menu.issrcuser = this.issrccompetitor || this.issrcorganizer
         this.$.dashboard.issrcuser = this.issrccompetitor || this.issrcorganizer
@@ -289,9 +289,9 @@
         // -admin is a competition organizer
         // -ariac_organizer is also a competition organizer
         // -ariac_competitor is a competitor
-        this.isariacorganizer = (this.currentuser === 'admin' ||
-                                 this.currentuser === 'ariac_organizer')
-        this.isariaccompetitor = this.currentuser === 'ariac_competitor'
+        this.isariacorganizer = (this.currentuser === getConfig().admin ||
+                                 this.currentuser === getConfig().ariac_admin)
+        this.isariaccompetitor = this.currentuser === getConfig().ariac_competitor
 
         this.$.menu.isariacuser = this.isariaccompetitor || this.isariacorganizer
         this.$.dashboard.isariacuser = this.isariaccompetitor || this.isariacorganizer
