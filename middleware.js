@@ -37,7 +37,7 @@ exports.middleware = function(req, res, next){
          }
       }
     `
-    // console.log('serving config: ' + resp)
+    console.log('serving config: ' + resp)
     res.end(resp)
   }
   next();
