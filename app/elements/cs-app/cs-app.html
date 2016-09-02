@@ -35,6 +35,8 @@
     <gz-token
       id="token"
       url=[[authurl]]
+      auth0_id=[[auth0_id]]
+      auth0_domain=[[auth0_domain]]
       on-login="_onLogin"
       on-logout="_onLogout"
     ></gz-token>
@@ -226,6 +228,8 @@
         // Get configuration from environment variables
         this.authurl = getConfig().auth
         this.portalurl = getConfig().portal
+        this.auth0_id = getConfig().auth0_id
+        this.auth0_domain = getConfig().auth0_domain
 
         // Sets app default base URL
         this.baseUrl = '/';
@@ -323,6 +327,16 @@
         portalurl: {
           type: String,
           value: 'https://localhost:4000',
+          notify: true
+        },
+        auth0_id: {
+          type: String,
+          value: 'not set',
+          notify: true
+        },
+        auth0_domain: {
+          type: String,
+          value: 'not set',
           notify: true
         },
         loggedin: {
