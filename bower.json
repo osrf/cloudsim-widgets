@@ -4,21 +4,19 @@
   "dependencies": {
     "gold-email-input": "PolymerElements/gold-email-input#^1.0.7",
     "gz-accounts": "osrf/gz-accounts",
-    "gz-cmd": "osrf/gz-cmd",
-    "gz-grant": "osrf/gz-grant",
-    "gz-simulationq": "osrf/gz-simulationq",
-    "gz-simulatorlauncher": "osrf/gz-simulatorlauncher",
-    "gz-simulatorq": "osrf/gz-simulatorq",
-    "gz-token": "osrf/gz-token",
+    "gz-cmd": "osrf/gz-cmd#^0.0.3",
+    "gz-grant": "osrf/gz-grant#^0.0.7",
+    "gz-simulationq": "osrf/gz-simulationq#^0.0.6",
+    "gz-simulatorlauncher": "osrf/gz-simulatorlauncher#^0.0.3",
+    "gz-simulatorq": "osrf/gz-simulatorq#^0.0.3",
+    "gz-token": "osrf/gz-token#^0.1.0",
     "iron-elements": "PolymerElements/iron-elements#^1.0.0",
     "neon-elements": "PolymerElements/neon-elements#^1.0.0",
     "page": "visionmedia/page.js#~1.6.4",
     "paper-elements": "PolymerElements/paper-elements#^1.0.1",
     "paper-input": "PolymerElements/paper-input#^1.1.14",
     "platinum-elements": "PolymerElements/platinum-elements#^1.1.0",
-    "polymer": "Polymer/polymer#^1.2.0",
-    "gz-simulationlauncher": "osrf/gz-simulationlauncher",
-    "gz-simulator": "osrf/gz-simulator"
+    "polymer": "Polymer/polymer#^1.2.0"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"
