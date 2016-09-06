@@ -64,13 +64,6 @@
         <div class="top top-container">
 
           <template is="dom-if" if="[[!loggedin]]">
-<!--
-            <a data-route="signup" href="{{baseUrl}}signup" tabindex="" id="signupbutton">
-              <paper-button raised class="raised">
-                <iron-icon icon="social:person-add"></iron-icon>
-                Create an account
-              </paper-button></a>
--->
             <paper-button raised class="raised" id="loginbutton" on-tap="_tapLogin">
               <iron-icon icon="social:person"></iron-icon>
               Log in
@@ -121,14 +114,12 @@
       onLogin() {
         // TODO: Find a better way to set visibility
         this.$.loginbutton.style.display = 'none'
-        //this.$.signupbutton.style.display = 'none'
         this.$.logoutbutton.style.display = ''
         this.$.usernamelabel.style.display = ''
       },
       onLogout() {
         // TODO: Find a better way to set visibility
         this.$.loginbutton.style.display = ''
-        //this.$.signupbutton.style.display = ''
         this.$.logoutbutton.style.display = 'none'
         this.$.usernamelabel.style.display = 'none'
       },

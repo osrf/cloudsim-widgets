@@ -35,6 +35,8 @@
     <gz-token
       id="token"
       url=[[authurl]]
+      auth0_id=[[auth0_id]]
+      auth0_domain=[[auth0_domain]]
       on-login="_onLogin"
       on-logout="_onLogout"
     ></gz-token>
@@ -44,7 +46,7 @@
       id="grant"
       url=[[portalurl]]
       token=[[token]]
-      on-resources-changed="_onResources"
+      on-resourcesupdated="_onResources"
     ></gz-grant>
 
     <paper-toast
@@ -73,14 +75,6 @@
     <iron-pages attr-for-selected="data-route" selected="{{topLevelRoute}}">
 
       <!-- Public routes -->
-      <section data-route="signup">
-        <cs-signuppage
-          on-notification="openToast"
-          id="signuppage"
-          url="[[authurl]]">
-        </cs-signuppage>
-      </section>
-
       <section data-route="stayintouch">
         <cs-stayintouchpage></cs-stayintouchpage>
       </section>
@@ -226,6 +220,8 @@
         // Get configuration from environment variables
         this.authurl = getConfig().auth
         this.portalurl = getConfig().portal
+        this.auth0_id = getConfig().auth0_id
+        this.auth0_domain = getConfig().auth0_domain
 
         // Sets app default base URL
         this.baseUrl = '/';
@@ -277,9 +273,9 @@
         // -admin is a competition organizer
         // -src_organizer is also a competition organizer
         // -src_competitor is a competitor
-        this.issrcorganizer = (this.currentuser === 'admin' ||
-                               this.currentuser === 'src_organizer')
-        this.issrccompetitor = this.currentuser === 'src_competitor'
+        this.issrcorganizer = (this.currentuser === getConfig().admin ||
+                               this.currentuser === getConfig().src_admin)
+        this.issrccompetitor = this.currentuser === getConfig().src_competitor
 
         this.$.menu.issrcuser = this.issrccompetitor || this.issrcorganizer
         this.$.dashboard.issrcuser = this.issrccompetitor || this.issrcorganizer
@@ -289,9 +285,9 @@
         // -admin is a competition organizer
         // -ariac_organizer is also a competition organizer
         // -ariac_competitor is a competitor
-        this.isariacorganizer = (this.currentuser === 'admin' ||
-                                 this.currentuser === 'ariac_organizer')
-        this.isariaccompetitor = this.currentuser === 'ariac_competitor'
+        this.isariacorganizer = (this.currentuser === getConfig().admin ||
+                                 this.currentuser === getConfig().ariac_admin)
+        this.isariaccompetitor = this.currentuser === getConfig().ariac_competitor
 
         this.$.menu.isariacuser = this.isariaccompetitor || this.isariacorganizer
         this.$.dashboard.isariacuser = this.isariaccompetitor || this.isariacorganizer
@@ -325,6 +321,16 @@
           value: 'https://localhost:4000',
           notify: true
         },
+        auth0_id: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        auth0_domain: {
+          type: String,
+          value: '',
+          notify: true
+        },
         loggedin: {
           type: Boolean,
           value: false,
@@ -337,12 +343,12 @@
         },
         token: {
           type: String,
-          value: 'token not set',
+          value: '',
           notify: true
         },
         currentuser: {
           type: String,
-          value: 'current user not set',
+          value: '',
           notify: true
         },
         issrccompetitor: {
