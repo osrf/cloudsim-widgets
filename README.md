@@ -2,7 +2,6 @@
 
 [![Dependency Status](https://www.versioneye.com/user/projects/57ca396c968d64004d976620/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/57ca396c968d64004d976620)
 
-
 ![](cloudsim.png)
 
 ## Cloudsim construction set
