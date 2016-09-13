@@ -1,0 +1,53 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-app">
+
+  <template>
+    <style>
+      .pad {
+        padding: 3em;
+      }
+    </style>
+
+    <!-- Main Toolbar -->
+    <cs-toptoolbar
+    ></cs-toptoolbar>
+
+    <!-- Parent pages: secure / public -->
+    <iron-pages attr-for-selected="data-route" selected="[[topLevelRoute]]">
+
+      <!-- Public routes -->
+      <section data-route="stayintouch" class="pad">
+        <cs-stayintouchpage/>
+      </section>
+
+      <section data-route="home">
+        <cs-home/>
+      </section>
+
+    </iron-pages>
+
+  </template>
+
+  <script>
+
+    Polymer({
+
+      is: 'cs-app',
+
+      attached: function() {
+
+        // Sets app default base URL
+        this.baseUrl = '/';
+
+        console.log('cs-app widget attached!')
+      },
+      properties: {
+      }
+    });
+
+  </script>
+
+</dom-module>
+

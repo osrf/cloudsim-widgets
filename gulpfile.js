@@ -1,12 +1,3 @@
-/*
-Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
-*/
-
 'use strict';
 
 // Include Gulp & tools we'll use
@@ -24,10 +15,6 @@ var historyApiFallback = require('connect-history-api-fallback');
 var packageJson = require('./package.json');
 var crypto = require('crypto');
 var ensureFiles = require('./tasks/ensure-files.js');
-var nodemon = require('gulp-nodemon')
-
-// var ghPages = require('gulp-gh-pages');
-console.log('GULP??')
 
 var AUTOPREFIXER_BROWSERS = [
   'ie >= 10',
@@ -70,12 +57,7 @@ var imageOptimizeTask = function(src, dest) {
 };
 
 var optimizeHtmlTask = function(src, dest) {
-  var assets = $.useref.assets({
-    searchPath: ['.tmp', 'app']
-  });
-
   return gulp.src(src)
-    .pipe(assets)
     // Concatenate and minify JavaScript
     .pipe($.if('*.js', $.uglify({
       preserveComments: 'some'
@@ -83,7 +65,6 @@ var optimizeHtmlTask = function(src, dest) {
     // Concatenate and minify styles
     // In case you are still using useref build blocks
     .pipe($.if('*.css', $.minifyCss()))
-    .pipe(assets.restore())
     .pipe($.useref())
     // Minify any HTML
     .pipe($.if('*.html', $.minifyHtml({
@@ -136,15 +117,37 @@ gulp.task('copy', function() {
     dot: true
   }).pipe(gulp.dest(dist()));
 
+  // Copy images from custom elements
+  var images = gulp.src([
+    'app/elements/**/images/*',
+  ], {
+    dot: true
+  }).pipe(gulp.dest(dist('elements')));
+
   // Copy over only the bower_components we need
   // These are things which cannot be vulcanized
   var bower = gulp.src([
     'app/bower_components/{webcomponentsjs,platinum-sw,sw-toolbox,promise-polyfill}/**/*'
   ]).pipe(gulp.dest(dist('bower_components')));
 
-  return merge(app, bower)
+  return merge(app, images, bower)
     .pipe($.size({
       title: 'copy'
+    }));
+});
+
+// Recopy index as it is, we don't want it to be simplified and config.js removed
+// FIXME: This is a hack, there should be a way to tell index.html to be skipped when
+// cleaning up for inexistent sources (such as config.js)
+gulp.task('restore_index', function() {
+  var index = gulp.src([
+    'app/index.html'
+  ], {
+    dot: true
+  }).pipe(gulp.dest(dist()));
+
+  return index.pipe($.size({
+      title: 'restore_index'
     }));
 });
 
@@ -160,7 +163,8 @@ gulp.task('fonts', function() {
 // Scan your HTML for assets & optimize them
 gulp.task('html', function() {
   return optimizeHtmlTask(
-    ['app/**/*.html', '!app/{elements,test,bower_components}/**/*.html'],
+    ['app/**/*.html',
+     '!app/{elements,test,bower_components}/**/*.html'],
     dist());
 });
 
@@ -216,11 +220,10 @@ gulp.task('clean', function() {
   return del(['.tmp', dist()]);
 });
 
-
 // Watch files for changes & reload
 gulp.task('serve', ['styles', 'elements'], function() {
   browserSync({
-    port: 5000,
+    port: process.env.PORT || 5000,
     notify: false,
     logPrefix: 'PSK',
     snippetOptions: {
@@ -234,7 +237,7 @@ gulp.task('serve', ['styles', 'elements'], function() {
     // Run as an https by uncommenting 'https: true'
     // Note: this uses an unsigned certificate which on first access
     //       will present a certificate warning in the browser.
-    https: true,
+    // https: true,
     server: {
       baseDir: ['.tmp', 'app'],
       middleware: [historyApiFallback()]
@@ -247,64 +250,10 @@ gulp.task('serve', ['styles', 'elements'], function() {
   gulp.watch(['app/images/**/*'], reload);
 });
 
-// gulp.task('serve', ['browser-sync'], function() {
-//
-//   console.log('gulp serve')
-// })
-//
-//
-//
-// // Watch files for changes & reload
-// gulp.task('browser-sync', ['nodemon'], function() {
-//
-//   browserSync({
-//     port: 8080,
-//     notify: false,
-//     logPrefix: 'PSK',
-//     snippetOptions: {
-//       rule: {
-//         match: '<span id="browser-sync-binding"></span>',
-//         fn: function(snippet) {
-//           return snippet;
-//         }
-//       }
-//     }
-//     // Run as an https by uncommenting 'https: true'
-//     // Note: this uses an unsigned certificate which on first access
-//     //       will present a certificate warning in the browser.
-// //    https: true,
-// //    server: {
-// //      baseDir: ['.tmp', 'app'],
-// //      middleware: [historyApiFallback()]
-//
-//   })
-//   gulp.watch(['server.js'], reload);
-//   gulp.watch(['app/**/*.html'], reload);
-//   gulp.watch(['app/styles/**/*.css'], ['styles', reload]);
-//   gulp.watch(['app/elements/**/*.css'], ['elements', reload]);
-//   gulp.watch(['app/images/**/*'], reload);
-//
-// })
-//
-// //run app using nodemon
-// gulp.task('nodemon',['styles', 'elements'], function(){
-//     nodemon({
-//       script: 'server.js' // , options: '-i client/*'
-//       , ext: 'js html'
-//       , env: { 'NODE_ENV': 'development' }
-//     }).
-//       on('restart', function() {
-//         console.log('restarted!')
-//       }).
-//       on('start', function() {
-//         console.log('start!')
-//       })
-// })
-
 // Build and serve the output from the dist build
 gulp.task('serve:dist', ['default'], function() {
   browserSync({
-    port: 5001,
+    port: process.env.PORT || 5000,
     notify: false,
     logPrefix: 'PSK',
     snippetOptions: {
@@ -331,7 +280,7 @@ gulp.task('default', ['clean'], function(cb) {
     ['ensureFiles', 'copy', 'styles'],
     'elements',
     ['images', 'fonts', 'html'],
-    'vulcanize', // 'cache-config',
+    'vulcanize', 'restore_index', // 'cache-config',
     cb);
 });
 
