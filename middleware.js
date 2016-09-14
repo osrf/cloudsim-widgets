@@ -15,6 +15,7 @@ exports.middleware = function(req, res, next){
          }
       }
     `
+    console.log(resp);
     res.end(resp)
   }
   next();
