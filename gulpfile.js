@@ -260,6 +260,7 @@ gulp.task('serve:dist', ['default'], function() {
     port: process.env.PORT || 5000,
     notify: false,
     logPrefix: 'PSK',
+    ghostMode: false,
     snippetOptions: {
       rule: {
         match: '<span id="browser-sync-binding"></span>',
