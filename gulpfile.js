@@ -16,7 +16,7 @@ var packageJson = require('./package.json');
 var crypto = require('crypto');
 var ensureFiles = require('./tasks/ensure-files.js');
 
-const middleware = require('./middleware')
+const middleware = require('./server/middleware')
 
 // var ghPages = require('gulp-gh-pages');
 
