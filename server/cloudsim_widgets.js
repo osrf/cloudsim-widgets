@@ -10,6 +10,7 @@ const morgan = require('morgan')
 const util = require('util')
 const httpServer = require('http').Server(app)
 const dotenv = require('dotenv')
+const path = require('path')
 
 // server module for cloudsim
 const csgrant = require('cloudsim-grant')
@@ -50,19 +51,10 @@ csgrant.init(adminUser, {'src_registrations': {},
     csgrant.dump()
   }
 })
-// app.use(express.static(__dirname + '../public'));
 
-app.get('/', function (req, res) {
-  // res.sendFile(__dirname + '/../public/index.html')
-  const date = new Date()
-  let s = `
-    <h1>${pack.name}</h1>
-    repo: <a href="${pack.repository.url}" >${pack.repository.url}</a>
-    <br>version: ${pack.version}
-    <br>Server is running: ${date}
-`
-  res.end(s)
-})
+// serve the app from the dist directory
+const rootDir = path.join(__dirname, '/../dist')
+app.use("/", express.static(rootDir));
 
 // setup the routes
 app.get('/permissions',

@@ -7,7 +7,7 @@
   "version": "0.0.1",
   "scripts": {
     "test": "gulp test:local",
-    "start": "gulp serve:dist"
+    "start": "gulp && node server/cloudsim_widgets"
   },
   "engines": {
     "node": ">=0.10.0"
