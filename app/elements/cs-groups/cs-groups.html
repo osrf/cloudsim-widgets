@@ -35,7 +35,7 @@
     .content {
       overflow: auto;
       margin: 0;
-      padding: 1em;
+      padding: 1em 2em 1em 1em;
     }
     .subcontent {
       padding-bottom: 2em;
@@ -55,7 +55,7 @@
     }
     paper-dialog {
       max-height: 40%;
-      max-width: 20em;
+      max-width: 30em;
       text-align: left;
     }
     h1 {
@@ -80,7 +80,9 @@
       id="grant"
       url="[[url]]"
       token="[[token]]"
-      on-permissionsupdated="_onPermissions"
+      on-permissionsupdated="_onAllPermissions"
+      on-granted="_onGranted"
+      on-got="_onSinglePermission"
     ></gz-grant>
 
     <gz-resources
@@ -89,6 +91,7 @@
       url="[[url]]"
       token="[[token]]"
       on-groupsupdated="_onGroups"
+      on-created="_onGroupCreated"
     ></gz-resources>
 
     <paper-material elevation="1">
@@ -131,8 +134,8 @@
     </paper-material>
 
     <!-- dialog -->
-    <paper-dialog id="teamdialog" class="vertical">
-      <h3 class="header">[[selectedteam]]</h3>
+    <paper-dialog id="groupdialog" class="vertical">
+      <h3 class="header">[[selectedgroup.data.name]]</h3>
 
       <div class="content">
 
@@ -142,7 +145,7 @@
 
           <template is="dom-repeat" items="[[selectedmembers]]">
             <div class="horizontal center">
-              <template is="dom-if" if="[[selectedadmin]]">
+              <template is="dom-if" if="[[isselectedadmin]]">
                 <paper-icon-button
                   class="red miniButton"
                   icon="icons:remove-circle-outline"
@@ -151,14 +154,14 @@
                 </paper-icon-button>
               </template>
               <span>[[item.username]]</span>
-              <template is="dom-if" if="[[item.admin]]">
+              <template is="dom-if" if="[[!item.permissions.readOnly]]">
                 <span class="admin-label">Admin</span>
               </template>
             </div>
           </template>
         </div>
 
-        <template is="dom-if" if="[[selectedadmin]]">
+        <template is="dom-if" if="[[isselectedadmin]]">
           <!-- INVITE -->
           <div class="subcontent">
             <b class="subheader">Invite</b>
@@ -223,35 +226,53 @@
           that.$.grant.getall();
         });
 
-        this.set('selectedmembers', [{'username':'user 1', 'admin' : false},
-                                    {'username':'user 2', 'admin' : true}]);
-
-        this.set('selectedadmin', true)
-
         console.log('cs-groups widget attached!')
       },
       _onGroupDialog(e) {
-        this.selectedteam = e.target.innerText
+        // Set selected group
+        let groupName = e.target.innerText
 
-        var dialog = this.$.teamdialog
+        console.log(this.groups)
+
+        const groupObj = this.groups.find(function(group){
+          return group.data.name === groupName;
+        })
+
+        if (!groupObj) {
+          console.error("Group [" + groupName + "] not found in:")
+          console.error(this.groups)
+
+          // Update the list, hopefully it will disappear
+          this.$.resources.getAll();
+        }
+
+        this.selectedgroup = groupObj
+        const list =  groupObj.permissions;
+
+        this.isselectedadmin = !list[0].permissions.readOnly
+        this.set('selectedmembers', list);
+
+        // Open dialog
+        var dialog = this.$.groupdialog
         if (dialog)
           dialog.open();
         else
-          console.error("Dialog not found.")
+          console.error("Group dialog not found.")
       },
       _onCreateGroup(e) {
         this.$.resources.createResource('group', {});
-        console.log("Create group: " + this.creategroupname)
       },
       _onRemoveUser(e) {
         console.log("Remove user: " + e.target.parentElement.id)
       },
       _onInvite(e) {
-        console.log("Invite user: " + this.inviteusername + " admin: " +
-            this.inviteadmin + " for team: " + this.selectedteam)
+        const data = { grantee: this.inviteusername,
+                       resource: this.selectedgroup.name,
+                       readonly: !this.inviteadmin}
+        this.$.grant.grant(data);
       },
       _onDelete(e) {
-        console.log("Delete team: " + this.selectedteam)
+        console.log("Delete team: " + this.selectedgroup)
       },
 
       /// Callback when groups have been updated
@@ -259,8 +280,14 @@
         this.groups = this.$.resources.groups
       },
 
+      /// Callback when a group has been created
+      _onGroupCreated: function(e) {
+        this.fire('notification', 'Created group "' + e.detail.result.data.name
+            + '"');
+      },
+
       /// Callback when permissions have been updated
-      _onPermissions: function(e) {
+      _onAllPermissions: function(e) {
         var permissions = this.$.grant.permissions
 
         const group = permissions.find(function(permission){
@@ -273,17 +300,48 @@
         this.cancreate = !group.permissions[0].permissions.readOnly
       },
 
+      /// Callback when a single permissions has been received.
+      _onSinglePermission: function(e) {
+
+        // We asked for the new permissions of the selected group
+        if (e.detail.resource != this.selectedgroup.name) {
+          console.error(e.detail);
+          return;
+        }
+
+        this.selectedgroup = e.detail.result
+
+        const list =  this.selectedgroup.permissions;
+        this.isselectedadmin = !list[0].permissions.readOnly
+
+        this.set('selectedmembers', list);
+      },
+
+      /// Callback when invited someone to the group
+      _onGranted: function(e) {
+        this.$.grant.get(this.selectedgroup.name);
+        if (e.detail.success)
+          this.fire('notification', 'User successfully invited.')
+      },
+
       properties: {
 
-        /// Array of groups for user
+        /// Array of groups for user.
         groups: {
           type: Array,
           value: [],
           notify: true
         },
 
-        /// True if current user can create groups
+        /// True if current user can create groups.
         cancreate: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+
+        /// True if current user is admin of selected group.
+        isselectedadmin: {
           type: Boolean,
           value: false,
           notify: true
