@@ -76,8 +76,20 @@
   </style>
   <template>
 
-    <gz-accounts
-    ></gz-accounts>
+    <gz-grant
+      id="grant"
+      url="[[url]]"
+      token="[[token]]"
+      on-permissionsupdated="_onPermissions"
+    ></gz-grant>
+
+    <gz-resources
+      id="resources"
+      config
+      url="[[url]]"
+      token="[[token]]"
+      on-groupsupdated="_onGroups"
+    ></gz-resources>
 
     <paper-material elevation="1">
 
@@ -95,7 +107,7 @@
         <template is="dom-repeat" items="[[groups]]">
           <div>
             <paper-button flat on-tap="_onGroupDialog" class="group-name">
-              [[item.name]]
+              [[item.data.name]]
             </paper-button>
           </div>
         </template>
@@ -205,14 +217,16 @@
       is: 'cs-groups',
       attached: function() {
 
-        this.set('groups', [{'name':'team A'},
-                            {'name':'team B'}]);
+        let that = this
+        window.addEventListener('WebComponentsReady', function() {
+          that.$.resources.getAll();
+          that.$.grant.getall();
+        });
 
         this.set('selectedmembers', [{'username':'user 1', 'admin' : false},
                                     {'username':'user 2', 'admin' : true}]);
 
         this.set('selectedadmin', true)
-        this.set('cancreate', true)
 
         console.log('cs-groups widget attached!')
       },
@@ -226,6 +240,7 @@
           console.error("Dialog not found.")
       },
       _onCreateGroup(e) {
+        this.$.resources.createResource('group', {});
         console.log("Create group: " + this.creategroupname)
       },
       _onRemoveUser(e) {
@@ -238,56 +253,39 @@
       _onDelete(e) {
         console.log("Delete team: " + this.selectedteam)
       },
+
+      /// Callback when groups have been updated
+      _onGroups: function(e) {
+        this.groups = this.$.resources.groups
+      },
+
+      /// Callback when permissions have been updated
+      _onPermissions: function(e) {
+        var permissions = this.$.grant.permissions
+
+        const group = permissions.find(function(permission){
+          return permission.name === 'group'
+        })
+
+        if (!group)
+          return
+
+        this.cancreate = !group.permissions[0].permissions.readOnly
+      },
+
       properties: {
-        token: {
-          type: String,
-          value: 'placeholder',
-          notify: true
-        },
-        resource: {
-          type: String,
-          value: 'placeholder',
-          notify: true
-        },
-        machine_ip: {
-          type: String,
-          value: 'placeholder',
-          notify: true
-        },
-        readonlytxt: {
-          type: String,
-          value: 'Read only',
-          notify: true
-        },
-        grantee: {
-          type: String,
-          notify: true
-        },
-        grant_success_msg: {
-          type: String
-        },
-        grant_failure_error: {
-          type: String
-        },
-        revoke_success_msg: {
-          type: String
-        },
-        revoke_failure_error: {
-          type: String
-        },
-        hasreadonly: {
-          type: Boolean,
-          value: false,
-          notify: true
-        },
-        mini: {
-          type: Boolean,
-          value: false,
-          notify: true
-        },
+
+        /// Array of groups for user
         groups: {
           type: Array,
           value: [],
+          notify: true
+        },
+
+        /// True if current user can create groups
+        cancreate: {
+          type: Boolean,
+          value: false,
           notify: true
         },
       },
