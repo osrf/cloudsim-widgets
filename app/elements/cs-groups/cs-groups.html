@@ -3,13 +3,7 @@
 
 <dom-module id="cs-groups">
   <style>
-    .admin-label {
-      font-size: 0.8em;
-      margin-left: 2em;
-    }
-    .miniButton {
-      width: 2.2em;
-    }
+    /* common */
     .space {
       @apply(--layout-flex);
     }
@@ -19,17 +13,51 @@
     .red {
       --iron-icon-fill-color: #f00;
     }
-    .delete-button {
-      background-color: #f35046;
-      color: #fff;
+    .horizontal {
+      @apply(--layout-horizontal);
     }
-    .header {
-      background-color: rgb(215, 215, 215);
-      color: #353535;
-      margin: 0;
+    .vertical {
+      @apply(--layout-vertical);
+    }
+    .center {
+      @apply(--layout-center);
+      text-align: center;
+    }
+    .margintop {
+      margin-top: 1em;
+    }
+
+    /* main */
+    paper-material {
+      text-align: center;
       padding: 1em;
+      margin: 1em;
+      width: 10em;
+    }
+    h1 {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    h4 {
+      margin-bottom: 0;
+      margin-top: 0;
     }
     .main-content {
+      text-align: left;
+    }
+    .my-groups {
+      max-height: 100px;
+      overflow: auto;
+    }
+    .group-name {
+      cursor: pointer;
+      padding-top: 0.3em;
+    }
+
+    /* dialog */
+    #groupdialog {
+      max-height: 40%;
+      max-width: 30em;
       text-align: left;
     }
     .content {
@@ -40,53 +68,30 @@
     .subcontent {
       padding-bottom: 2em;
     }
+    .header {
+      background-color: rgb(215, 215, 215);
+      color: #353535;
+      margin: 0;
+      padding: 1em;
+    }
     .subheader {
       color: rgb(68, 138, 201);
-    }
-    .horizontal {
-      @apply(--layout-horizontal);
-    }
-    .center {
-      @apply(--layout-center);
-      text-align: center;
-    }
-    .vertical {
-      @apply(--layout-vertical);
-    }
-    paper-dialog {
-      max-height: 40%;
-      max-width: 30em;
-      text-align: left;
-    }
-    h1 {
-      margin-top: 0;
-      margin-bottom: 0;
-    }
-    h4 {
-      margin-bottom: 0;
-      margin-top: 0;
-    }
-    paper-material {
-      text-align: center;
-      padding: 1em;
-      margin: 1em;
-      width: 10em;
     }
     .username {
       max-width: 15em;
       text-overflow: ellipsis;
       overflow: hidden;
     }
-    .group-name {
-      cursor: pointer;
-      padding-top: 0.3em;
+    .admin-label {
+      font-size: 0.8em;
+      margin-left: 2em;
     }
-    .my-groups {
-      max-height: 100px;
-      overflow: auto;
+    .miniButton {
+      width: 2.2em;
     }
-    .margintop {
-      margin-top: 1em;
+    .delete-button {
+      background-color: #f35046;
+      color: #fff;
     }
   </style>
   <template>
@@ -117,7 +122,6 @@
       <h1>
         <iron-icon
           icon="social:group"
-          class="iconPadding"
         ></iron-icon>
         Teams
       </h1>
