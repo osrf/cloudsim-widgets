@@ -133,6 +133,11 @@
               </div>
             </a>
           </template>
+          <template is="dom-if" if="[[nogroups]]">
+            <div class="group-name">
+              No teams yet
+            </div>
+          </template>
         </div>
 
         <template is="dom-if" if="[[cancreate]]">
@@ -349,6 +354,7 @@
       /// Callback when groups have been updated
       _onGroups: function(e) {
         this.groups = this.$.resources.resources
+        this.nogroups = (this.groups.length == 0)
       },
 
       /// Callback when a group has been created
