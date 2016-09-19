@@ -84,14 +84,14 @@
         // When permissions change, check if user can launch machines
         this.hasmachinelauncher = false
 
-        const simulators_list = this.currentpermissions.find(function(resource){
-          return resource.name === 'simulators_list'
+        const simulators = this.currentpermissions.find(function(resource){
+          return resource.name === 'simulators'
         })
 
-        if (!simulators_list)
+        if (!simulators)
           return
 
-        this.hasmachinelauncher = !simulators_list.permissions[0].permissions.readOnly
+        this.hasmachinelauncher = !simulators.permissions[0].permissions.readOnly
       },
       properties: {
         portalurl: {
