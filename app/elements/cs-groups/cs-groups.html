@@ -193,7 +193,7 @@
               <template is="dom-if" if="[[!item.permissions.readOnly]]">
                 <span class="admin-label">Admin</span>
               </template>
-              <template is="dom-if" if="[[isselectedadmin]]">
+              <template is="dom-if" if="[[_currentOrAdmin(index)]]">
                 <paper-icon-button
                   class="red miniButton"
                   icon="icons:close"
@@ -337,9 +337,17 @@
 
       /// Request to remove a user from a group
       _onRemoveUser(e) {
+        // The most general case
+        let readonly = false;
+
+        // If the user trying to revoke is not admin, they can only revoke read
+        // access
+        if (!this.isselectedadmin)
+          readonly = true;
+
         const data = { grantee: e.target.parentElement.id,
                        resource: this.selectedgroup.name,
-                       readonly: false }
+                       readonly: readonly }
         this.$.grant.revoke(data);
       },
 
@@ -422,6 +430,12 @@
         this.isselectedadmin = !list[0].permissions.readOnly
 
         this.set('selectedmembers', list);
+      },
+
+      /// Returns true if the index corresponds to the current user (0),
+      /// or the user is admin of selected group.
+      _currentOrAdmin: function(index) {
+        return this.isselectedadmin || !index;
       },
 
       properties: {
