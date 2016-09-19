@@ -74,7 +74,7 @@
 
     <!-- button -->
     <template is="dom-if" if="[[!mini]]">
-      <paper-button raised class="miniButton" on-tap="tapOpenDialog">
+      <paper-button raised class="miniButton" on-tap="tapOpenDialog" title="[[dialogmessage]]">
         <iron-icon icon="social:share"></iron-icon>
         Share
       </paper-button>
@@ -82,14 +82,14 @@
     <template is="dom-if" if="[[mini]]">
       <paper-icon-button
         icon="social:share"
-        title="Share launcher"
+        title="[[dialogmessage]]"
         on-tap="tapOpenDialog"
       ></paper-icon-button>
     </template>
 
     <!-- dialog -->
     <paper-dialog id="sharedialog" class="vertical">
-      <h3 class="header">{{dialogmessage}}</h3>
+      <h3 class="header">[[dialogmessage]]</h3>
 
       <div class="content">
         <div class="subcontent">

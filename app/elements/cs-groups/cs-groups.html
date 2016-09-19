@@ -35,7 +35,7 @@
     .content {
       overflow: auto;
       margin: 0;
-      padding: 1em 2em 1em 1em;
+      padding: 1em;
     }
     .subcontent {
       padding-bottom: 2em;
@@ -60,9 +60,11 @@
     }
     h1 {
       margin-top: 0;
+      margin-bottom: 0;
     }
     h4 {
       margin-bottom: 0;
+      margin-top: 0;
     }
     paper-material {
       text-align: center;
@@ -70,8 +72,21 @@
       margin: 1em;
       width: 10em;
     }
+    .username {
+      max-width: 15em;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
     .group-name {
-      text-transform: none;
+      cursor: pointer;
+      padding-top: 0.3em;
+    }
+    .my-groups {
+      max-height: 100px;
+      overflow: auto;
+    }
+    .margintop {
+      margin-top: 1em;
     }
   </style>
   <template>
@@ -88,11 +103,11 @@
 
     <gz-resources
       id="resources"
-      config
       url="[[url]]"
       token="[[token]]"
+      resourcename="group"
       createname="[[creategroupname]]"
-      on-groupsupdated="_onGroups"
+      on-resourcesupdated="_onGroups"
       on-created="_onGroupCreated"
       on-deleted="_onGroupDeleted"
     ></gz-resources>
@@ -108,18 +123,30 @@
       </h1>
 
       <div class="main-content">
-        <h4>Your teams</h4>
+        <h4 class="margintop">My teams</h4>
 
-        <template is="dom-repeat" items="[[groups]]">
-          <paper-button flat on-tap="_onGroupDialog" class="group-name">
-            [[item.data.name]]
-          </paper-button>
-        </template>
+        <div class="my-groups">
+          <template is="dom-repeat" items="[[groups]]">
+            <a on-tap="_onGroupDialog">
+              <div class="group-name">
+                [[item.data.name]]
+              </div>
+            </a>
+          </template>
+        </div>
 
         <template is="dom-if" if="[[cancreate]]">
-          <div class="horizontal center">
+          <div class="horizontal center margintop">
             <h4>Create a team</h4>
             <cs-sharebutton
+              token=[[token]]
+              resource="group"
+              url="[[url]]"
+              dialogmessage='Grant permission to create teams'
+              grant_success_msg='User is now allowed to create teams.'
+              revoke_success_msg='User is no longer allowed to create teams.'
+              grant_failure_error='It was not possible to allow user to create teams.'
+              revoke_failure_error='It was not possible to prevent user from creating teams.'
               mini
             ></cs-sharebutton>
           </div>
@@ -151,10 +178,13 @@
 
           <template is="dom-repeat" items="[[selectedmembers]]">
             <div class="horizontal center">
-              <span>[[item.username]]</span>
+              <span class="username" title="[[item.username]]">[[item.username]]</span>
               <template is="dom-if" if="[[!index]]">
                 (me)
               </template>
+
+              <div class="space"></div>
+
               <template is="dom-if" if="[[!item.permissions.readOnly]]">
                 <span class="admin-label">Admin</span>
               </template>
@@ -227,21 +257,31 @@
 
     Polymer({
       is: 'cs-groups',
+
+      /// Callback when component is attached
       attached: function() {
 
         let that = this
         window.addEventListener('WebComponentsReady', function() {
-          that.$.resources.getAll();
-          that.$.grant.getall();
+          if (that.token === "") {
+            window.addEventListener('login', function() {
+              that.$.resources.getAll();
+              that.$.grant.getall();
+            });
+          }
+          else {
+            that.$.resources.getAll();
+            that.$.grant.getall();
+          }
         });
 
         console.log('cs-groups widget attached!')
       },
+
+      /// Open a group dialog
       _onGroupDialog(e) {
         // Set selected group
         let groupName = e.target.innerText
-
-        console.log(this.groups)
 
         const groupObj = this.groups.find(function(group){
           return group.data.name === groupName;
@@ -268,9 +308,13 @@
         else
           console.error("Group dialog not found.")
       },
+
+      /// Request to create a new group
       _onCreateGroup(e) {
         this.$.resources.create();
       },
+
+      /// Request to delete a group
       _onDeleteGroup(e) {
         this.$.resources.deletename = this.selectedgroup.name;
         this.$.resources.delete();
@@ -285,12 +329,16 @@
         // Get updated list of groups
         this.$.resources.getAll();
       },
+
+      /// Request to remove a user from a group
       _onRemoveUser(e) {
         const data = { grantee: e.target.parentElement.id,
                        resource: this.selectedgroup.name,
                        readonly: false }
         this.$.grant.revoke(data);
       },
+
+      /// Request to invite a user to a group
       _onInvite(e) {
         const data = { grantee: this.inviteusername,
                        resource: this.selectedgroup.name,
@@ -300,19 +348,43 @@
 
       /// Callback when groups have been updated
       _onGroups: function(e) {
-        this.groups = this.$.resources.groups
+        this.groups = this.$.resources.resources
       },
 
       /// Callback when a group has been created
       _onGroupCreated: function(e) {
+        // Get updated list of groups
+        this.$.resources.getAll();
+
         this.fire('notification', 'Created group "' + e.detail.result.data.name
             + '"');
       },
 
       /// Callback when a group has been deleted
       _onGroupDeleted: function(e) {
+        // Get updated list of groups
+        this.$.resources.getAll();
+
         this.fire('notification', 'Deleted group "' + e.detail.result.data.name
             + '"');
+      },
+
+      /// Callback when successfully invited someone to a group
+      _onGranted: function(e) {
+        // Get updated info on group
+        this.$.grant.get(this.selectedgroup.name);
+
+        if (e.detail.success)
+          this.fire('notification', 'User successfully invited.')
+      },
+
+      /// Callback when successfully removed someone from a group
+      _onRevoked: function(e) {
+        // Get updated info on group
+        this.$.grant.get(this.selectedgroup.name);
+
+        if (e.detail.success)
+          this.fire('notification', 'User successfully removed.')
       },
 
       /// Callback when permissions have been updated
@@ -346,27 +418,9 @@
         this.set('selectedmembers', list);
       },
 
-      /// Callback when invited someone to the group
-      _onGranted: function(e) {
-        // Get updated info on group
-        this.$.grant.get(this.selectedgroup.name);
-
-        if (e.detail.success)
-          this.fire('notification', 'User successfully invited.')
-      },
-
-      /// Callback when removed someone from the group
-      _onRevoked: function(e) {
-        // Get updated info on group
-        this.$.grant.get(this.selectedgroup.name);
-
-        if (e.detail.success)
-          this.fire('notification', 'User successfully removed.')
-      },
-
       properties: {
 
-        /// Array of groups for user.
+        /// Array of groups for current user.
         groups: {
           type: Array,
           value: [],
