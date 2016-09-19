@@ -111,7 +111,7 @@
       url="[[url]]"
       token="[[token]]"
       resourcename="group"
-      createname="[[creategroupname]]"
+      data="[[creategroupdata]]"
       on-resourcesupdated="_onGroups"
       on-created="_onGroupCreated"
       on-deleted="_onGroupDeleted"
@@ -320,6 +320,7 @@
 
       /// Request to create a new group
       _onCreateGroup(e) {
+        this.$.resources.data = { resource: this.creategroupname.trim() };
         this.$.resources.create();
       },
 
