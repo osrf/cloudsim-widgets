@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "body-parser": "^1.15.2",
-    "browser-sync": "^2.7.7",
     "cloudsim-grant": "^0.1.6",
     "connect-history-api-fallback": "^1.1.0",
     "cors": "^2.8.1",
