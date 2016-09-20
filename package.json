@@ -1,9 +1,9 @@
 {
-  "private": true,
   "repository": {
     "type": "mercurial",
     "url": "https://bitbucket.org/osrf/cloudsim-widgets"
   },
+  "license": "ISC",
   "version": "0.0.1",
   "scripts": {
     "test": "gulp test:local",
@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "browser-sync": "^2.7.7",
+    "cloudsim-grant": "^0.1.6",
     "connect-history-api-fallback": "^1.1.0",
     "cors": "^2.8.1",
     "del": "^2.0.2",
