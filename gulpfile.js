@@ -227,7 +227,7 @@ gulp.task('clean', function() {
 // Watch files for changes & reload
 gulp.task('serve', ['styles', 'elements'], function() {
   browserSync({
-    port: 5000,
+    port: process.env.PORT || 5000,
     notify: false,
     logPrefix: 'PSK',
     snippetOptions: {
@@ -241,7 +241,7 @@ gulp.task('serve', ['styles', 'elements'], function() {
     // Run as an https by uncommenting 'https: true'
     // Note: this uses an unsigned certificate which on first access
     //       will present a certificate warning in the browser.
-    https: true,
+    // https: true,
     server: {
       baseDir: ['.tmp', 'app'],
       middleware: [historyApiFallback(), middleware.middleware]
@@ -257,9 +257,10 @@ gulp.task('serve', ['styles', 'elements'], function() {
 // Build and serve the output from the dist build
 gulp.task('serve:dist', ['default'], function() {
   browserSync({
-    port: 5000,
+    port: process.env.PORT || 5000,
     notify: false,
     logPrefix: 'PSK',
+    ghostMode: false,
     snippetOptions: {
       rule: {
         match: '<span id="browser-sync-binding"></span>',
@@ -271,7 +272,7 @@ gulp.task('serve:dist', ['default'], function() {
     // Run as an https by uncommenting 'https: true'
     // Note: this uses an unsigned certificate which on first access
     //       will present a certificate warning in the browser.
-    https: true,
+    // https: true,
     server: dist(),
     middleware: [historyApiFallback(), middleware.middleware ]
   });
