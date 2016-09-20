@@ -9,14 +9,9 @@ var merge = require('merge-stream');
 var path = require('path');
 var fs = require('fs');
 var glob = require('glob-all');
-var historyApiFallback = require('connect-history-api-fallback');
 var packageJson = require('./package.json');
 var crypto = require('crypto');
 var ensureFiles = require('./tasks/ensure-files.js');
-
-const middleware = require('./server/middleware')
-
-// var ghPages = require('gulp-gh-pages');
 
 var AUTOPREFIXER_BROWSERS = [
   'ie >= 10',
