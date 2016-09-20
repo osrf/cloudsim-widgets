@@ -50,7 +50,9 @@ csgrant.init(adminUser, {'src_registrations': {},
 })
 
 // serve the app from the dist directory
-const rootDir = path.join(__dirname, '/../dist')
+let rootDir = path.join(__dirname, '/../dist')
+if (process.argv[2] === 'dev')
+  rootDir = path.join(__dirname, '/../app')
 app.use("/", express.static(rootDir));
 
 // setup the routes
