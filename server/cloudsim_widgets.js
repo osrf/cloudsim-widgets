@@ -2,11 +2,9 @@
 
 const express = require('express')
 const app = express()
-const fs = require('fs')
 const bodyParser = require("body-parser")
 const cors = require('cors')
 const morgan = require('morgan')
-const util = require('util')
 const httpServer = require('http').Server(app)
 const dotenv = require('dotenv')
 const path = require('path')
@@ -30,7 +28,7 @@ dotenv.load()
 const dbName = 'cloudsim-widgets' + (app.get('env') === 'test'? '-test': '')
 
 // the port of the server
-const port = process.env.PORT || 4000
+const port = process.env.PORT || 5000
 
 // the user with write access to the initial resources
 const adminUser = process.env.CLOUDSIM_ADMIN || 'admin'
@@ -63,11 +61,15 @@ app.get('/permissions',
 app.post('/permissions', csgrant.authenticate, csgrant.grant)
 app.delete('/permissions',csgrant.authenticate, csgrant.revoke)
 
+app.get('/permissions/:resourceId', csgrant.authenticate,
+  csgrant.ownsResource(':resourceId', true), csgrant.resource)
+app.param('resourceId', function( req, res, next, id) {
+  req.resourceId = id
+  next()
+})
+
 // use the middleware module to serve config.js
 app.use(middleware.middleware)
-
-// set up the routes here for different resources
-// machinetypes.setRoutes(app)
 
 // Expose app
 exports = module.exports = app

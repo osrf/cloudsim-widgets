@@ -13,6 +13,7 @@
     "node": ">=0.10.0"
   },
   "dependencies": {
+    "body-parser": "^1.15.2",
     "browser-sync": "^2.7.7",
     "cloudsim-grant": "^0.1.6",
     "connect-history-api-fallback": "^1.1.0",
@@ -36,10 +37,14 @@
     "gulp-vulcanize": "^6.0.0",
     "merge-stream": "^1.0.0",
     "morgan": "^1.7.0",
+    "path": "^0.12.7",
     "require-dir": "^0.3.0",
     "run-sequence": "^1.0.2"
   },
   "devDependencies": {
+    "mocha": "^3.0.2",
+    "should": "^11.1.0",
+    "supertest": "^2.0.0",
     "web-component-tester": "^4.0.0"
   }
 }

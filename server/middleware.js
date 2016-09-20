@@ -26,7 +26,6 @@ exports.middleware = function(req, res, next){
          return {
            auth: "${process.env.CLOUDSIM_AUTH_URL}",
            portal: "${process.env.CLOUDSIM_PORTAL_URL}",
-           sim: "${process.env.CLOUDSIM_SIM_URL}",
            auth0_id: "${process.env.AUTH0_CLIENT_ID}",
            auth0_domain: "${process.env.AUTH0_DOMAIN}",
            admin: "${process.env.CLOUDSIM_ADMIN}",

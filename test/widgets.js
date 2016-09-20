@@ -1,6 +1,5 @@
 'use strict';
 
-const util = require('util')
 const should = require('should')
 const supertest = require('supertest')
 
