@@ -23,17 +23,12 @@
   <template>
 
     <div class="horizontal">
+
+      <div class="space"></div>
       <template is="dom-if" if="{{isadmin}}">
         <cs-serverstatus
         ></cs-serverstatus>
       </template>
-
-      <div class="space"></div>
-
-      <cs-groups
-        url=[[authurl]]
-        token=[[token]]
-      ></cs-groups>
 
       <div class="space"></div>
 
@@ -43,6 +38,9 @@
           token=[[token]]
         ></cs-machinelauncher>
       </template>
+
+      <div class="space"></div>
+
     </div>
 
     <cs-machinelist

@@ -88,6 +88,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }, 100);
     });
 
+    page('/profile', function() {
+      if (app.loggedin)
+      {
+        app.topLevelRoute = 'secure';
+        app.secureRoute = 'profile';
+      }
+      else
+      {
+        app.topLevelRoute = 'home';
+      }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
+    });
+
     page('/src', function() {
       if (app.loggedin)
       {
