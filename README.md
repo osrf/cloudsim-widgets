@@ -136,4 +136,3 @@ These style files are located in the [styles folder](app/styles/).
 Web apps built with Polymer Starter Kit come configured with support for [Web Component Tester](https://github.com/Polymer/web-component-tester) - Polymer's preferred tool for authoring and running unit tests. This makes testing your element based applications a pleasant experience.
 
 [Read more](https://github.com/Polymer/web-component-tester#html-suites) about using Web Component tester.
-
