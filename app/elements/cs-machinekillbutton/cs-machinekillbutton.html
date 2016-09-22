@@ -17,14 +17,14 @@
   </style>
   <template>
 
-    <!-- For launching new machines-->
-    <gz-simulatorlauncher
-      id="simulatorlauncher"
-      url={{portalurl}}
-      token={{token}}
-      on-killed="onKilled"
-      on-error="onError"
-    ></gz-simulatorlauncher>
+    <gz-resources
+      id="resources"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="simulator"
+      data="[[machinedata]]"
+      on-deleted="_onKilled"
+    ></gz-resources>
 
     <paper-button raised class="killButton miniButton" on-tap="tapKill">
       <iron-icon icon="icons:close"></iron-icon>
@@ -43,17 +43,14 @@
         console.log('cs-machinekillbutton widget attached!')
       },
       tapKill(e) {
-        // Send request to gz-simulatorlauncher
+        this.$.resources.deleteid = this.machine_id;
+        this.$.resources.delete();
         this.fire('notification',
             {msg: "Request to kill machine has been sent.", type: "msg"})
-        this.$.simulatorlauncher.killMachine(this.machine_id);
       },
-      onKilled: function(e) {
+      _onKilled: function(e) {
         this.fire('notification',
             {msg: "Machine has been killed.", type: "msg"})
-      },
-      onError: function(e) {
-        console.log(e)
       },
       properties: {
         portalurl: {

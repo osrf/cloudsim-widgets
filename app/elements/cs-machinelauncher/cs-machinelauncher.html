@@ -31,14 +31,14 @@
   </style>
   <template>
 
-    <!-- For launching new machines-->
-    <gz-simulatorlauncher
-      id="simulatorlauncher"
-      url={{portalurl}}
-      token={{token}}
-      on-launched="onLaunched"
-      on-error="onError"
-    ></gz-simulatorlauncher>
+    <gz-resources
+      id="resources"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="simulator"
+      data="[[machinedata]]"
+      on-created="_onLaunched"
+    ></gz-resources>
 
     <paper-material elevation="1">
 
@@ -121,17 +121,21 @@
           return;
         }
 
+        this.$.resources.data =  {
+              token: this.token,
+              region: this.machine.region,
+              machineImage: this.machine.image,
+              hardware: this.machine.hardware
+          }
 
-        // Send request to gz-simulatorlauncher
-        console.log('LAUNCH machine', JSON.stringify(this.machine))
-        this.$.simulatorlauncher.launchMachine(this.machine.region, this.machine.image, this.machine.hardware)
+        this.$.resources.create();
         this.fire('notification', {msg: "Request to launch a \"" + this.machine.name + "\" has been sent.", type: "msg"})
       },
-      onLaunched: function(e) {
+      _onLaunched: function(e) {
         let success = e.detail.success
         let msg = e.detail.message
 
-        if (!success)
+        if (success && success == false)
         {
           this.fire('notification', {msg: msg, type: "error"})
         }
@@ -139,9 +143,6 @@
         {
           this.fire('notification', {msg: "Machine has been launched.", type: "msg"})
         }
-      },
-      onError: function(e) {
-        console.log(e);
       },
       _machineSelected: function(e) {
         var selectedItem = e.target.selectedItem;
