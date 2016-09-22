@@ -16,23 +16,31 @@
         margin: auto;
         width: 30%;
       }
+      .space {
+        @apply(--layout-flex);
+      }
   </style>
   <template>
 
     <div class="horizontal">
+
+      <div class="space"></div>
       <template is="dom-if" if="{{isadmin}}">
         <cs-serverstatus
-          class="center"
         ></cs-serverstatus>
       </template>
 
+      <div class="space"></div>
+
       <template is="dom-if" if="{{hasmachinelauncher}}">
         <cs-machinelauncher
-          class="center"
           portalUrl=[[portalurl]]
           token=[[token]]
         ></cs-machinelauncher>
       </template>
+
+      <div class="space"></div>
+
     </div>
 
     <cs-machinelist

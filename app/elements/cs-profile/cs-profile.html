@@ -1,0 +1,51 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-profile">
+  <style>
+      :host {
+        display: block;
+        padding-top: 3em;
+        @apply(--paper-font-common-base);
+      }
+      .horizontal {
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+      }
+      .center {
+        margin: auto;
+        width: 30%;
+      }
+      .space {
+        @apply(--layout-flex);
+      }
+  </style>
+  <template>
+
+    <div class="horizontal">
+
+      <cs-groups
+        url=[[authurl]]
+        token=[[token]]
+      ></cs-groups>
+
+    </div>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-profile',
+      // Attached
+      attached: function() {
+        console.log('cs-profile widget attached!')
+      },
+      properties: {
+      },
+    });
+  })();
+  </script>
+</dom-module>

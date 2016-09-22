@@ -1,0 +1,473 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-groups">
+  <style>
+    /* common */
+    .space {
+      @apply(--layout-flex);
+    }
+    .blue {
+      color: rgb(68, 138, 201);
+    }
+    .red {
+      --iron-icon-fill-color: #f00;
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+    }
+    .vertical {
+      @apply(--layout-vertical);
+    }
+    .center {
+      @apply(--layout-center);
+      text-align: center;
+    }
+    .margintop {
+      margin-top: 1em;
+    }
+
+    /* main */
+    paper-material {
+      text-align: center;
+      padding: 1em;
+      margin: 1em;
+      width: 10em;
+    }
+    h1 {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    h4 {
+      margin-bottom: 0;
+      margin-top: 0;
+    }
+    .main-content {
+      text-align: left;
+    }
+    .my-groups {
+      max-height: 100px;
+      overflow: auto;
+    }
+    .group-name {
+      cursor: pointer;
+      padding-top: 0.3em;
+    }
+
+    /* dialog */
+    #groupdialog {
+      max-height: 40%;
+      max-width: 30em;
+      text-align: left;
+    }
+    .content {
+      overflow: auto;
+      margin: 0;
+      padding: 1em;
+    }
+    .subcontent {
+      padding-bottom: 2em;
+    }
+    .header {
+      background-color: rgb(215, 215, 215);
+      color: #353535;
+      margin: 0;
+      padding: 1em;
+    }
+    .subheader {
+      color: rgb(68, 138, 201);
+    }
+    .username {
+      max-width: 15em;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    .admin-label {
+      font-size: 0.8em;
+      margin-left: 2em;
+    }
+    .miniButton {
+      width: 2.2em;
+    }
+    .delete-button {
+      background-color: #f35046;
+      color: #fff;
+    }
+  </style>
+  <template>
+
+    <gz-grant
+      id="grant"
+      url="[[url]]"
+      token="[[token]]"
+      on-permissionsupdated="_onAllPermissions"
+      on-granted="_onGranted"
+      on-revoked="_onRevoked"
+      on-got="_onSinglePermission"
+    ></gz-grant>
+
+    <gz-resources
+      id="resources"
+      url="[[url]]"
+      token="[[token]]"
+      resourcename="group"
+      data="[[creategroupdata]]"
+      on-resourcesupdated="_onGroups"
+      on-created="_onGroupCreated"
+      on-deleted="_onGroupDeleted"
+    ></gz-resources>
+
+    <paper-material elevation="1">
+
+      <h1>
+        <iron-icon
+          icon="social:group"
+        ></iron-icon>
+        Teams
+      </h1>
+
+      <div class="main-content">
+        <h4 class="margintop">My teams</h4>
+
+        <div class="my-groups">
+          <template is="dom-repeat" items="[[groups]]">
+            <a on-tap="_onGroupDialog">
+              <div class="group-name">
+                [[item.data.name]]
+              </div>
+            </a>
+          </template>
+          <template is="dom-if" if="[[nogroups]]">
+            <div class="group-name">
+              No teams yet
+            </div>
+          </template>
+        </div>
+
+        <template is="dom-if" if="[[cancreate]]">
+          <div class="horizontal center margintop">
+            <h4>Create a team</h4>
+            <cs-sharebutton
+              token=[[token]]
+              resource="group"
+              url="[[url]]"
+              dialogmessage='Grant permission to create teams'
+              grant_success_msg='User is now allowed to create teams.'
+              revoke_success_msg='User is no longer allowed to create teams.'
+              grant_failure_error='It was not possible to allow user to create teams.'
+              revoke_failure_error='It was not possible to prevent user from creating teams.'
+              mini
+            ></cs-sharebutton>
+          </div>
+          <div class="horizontal center">
+            <paper-input
+              style="padding-right: 1em"
+              value={{creategroupname}}
+              label="Team name">
+            </paper-input>
+            <paper-icon-button
+              icon="social:group-add"
+              on-tap="_onCreateGroup"
+            ></paper-icon-button>
+          </div>
+        </template>
+      </div>
+
+    </paper-material>
+
+    <!-- dialog -->
+    <paper-dialog id="groupdialog" class="vertical">
+      <h3 class="header">[[selectedgroup.data.name]]</h3>
+
+      <div class="content">
+
+        <!-- MEMBERS -->
+        <div class="subcontent">
+          <b class="subheader">Members</b>
+
+          <template is="dom-repeat" items="[[selectedmembers]]">
+            <div class="horizontal center">
+              <span class="username" title="[[item.username]]">[[item.username]]</span>
+              <template is="dom-if" if="[[!index]]">
+                (me)
+              </template>
+
+              <div class="space"></div>
+
+              <template is="dom-if" if="[[!item.permissions.readOnly]]">
+                <span class="admin-label">Admin</span>
+              </template>
+              <template is="dom-if" if="[[_currentOrAdmin(index)]]">
+                <paper-icon-button
+                  class="red miniButton"
+                  icon="icons:close"
+                  id="[[item.username]]"
+                  on-tap="_onRemoveUser">
+                </paper-icon-button>
+              </template>
+            </div>
+          </template>
+        </div>
+
+        <template is="dom-if" if="[[isselectedadmin]]">
+          <!-- INVITE -->
+          <div class="subcontent">
+            <b class="subheader">Invite</b>
+
+            <div class="horizontal">
+              <div class="vertical">
+                <!-- USERNAME INPUT-->
+                <paper-input
+                  style="padding-right: 1em"
+                  value={{inviteusername}}
+                  label="Username">
+                </paper-input>
+
+                <!-- ADMIN CHECKBOX-->
+                <paper-checkbox
+                  id="admincheckbox"
+                  checked={{inviteadmin}}
+                >
+                Admin
+                </paper-checkbox>
+              </div>
+
+              <div class="vertical">
+                <div class="space"></div>
+
+                <!-- INVITE BUTTON-->
+                <paper-icon-button
+                  icon="social:person-add"
+                  id="invitebutton"
+                  on-tap="_onInvite">
+                </paper-icon-button>
+              </div>
+            </div>
+          </div>
+
+          <!-- DELETE -->
+          <div class="subcontent center">
+            <paper-button
+              raised
+              on-tap="_onDeleteGroup"
+              class="delete-button">
+              Delete team
+            </paper-button>
+          </div>
+        </template>
+      </div>
+    </paper-dialog>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-groups',
+
+      /// Callback when component is attached
+      attached: function() {
+
+        let that = this
+        window.addEventListener('WebComponentsReady', function() {
+          if (that.token === "") {
+            window.addEventListener('login', function() {
+              that.$.resources.getAll();
+              that.$.grant.getall();
+            });
+          }
+          else {
+            that.$.resources.getAll();
+            that.$.grant.getall();
+          }
+        });
+
+        console.log('cs-groups widget attached!')
+      },
+
+      /// Open a group dialog
+      _onGroupDialog(e) {
+        // Set selected group
+        let groupName = e.target.innerText
+
+        const groupObj = this.groups.find(function(group){
+          return group.data.name === groupName;
+        })
+
+        if (!groupObj) {
+          console.error("Group [" + groupName + "] not found in:")
+          console.error(this.groups)
+
+          // Update the list, hopefully it will disappear
+          this.$.resources.getAll();
+        }
+
+        this.selectedgroup = groupObj
+        const list =  groupObj.permissions;
+
+        this.isselectedadmin = !list[0].permissions.readOnly
+        this.set('selectedmembers', list);
+
+        // Open dialog
+        var dialog = this.$.groupdialog
+        if (dialog)
+          dialog.open();
+        else
+          console.error("Group dialog not found.")
+      },
+
+      /// Request to create a new group
+      _onCreateGroup(e) {
+        this.$.resources.data = { resource: this.creategroupname.trim() };
+        this.$.resources.create();
+      },
+
+      /// Request to delete a group
+      _onDeleteGroup(e) {
+        this.$.resources.deleteid = this.selectedgroup.name;
+        this.$.resources.delete();
+
+        // Close dialog
+        var dialog = this.$.groupdialog
+        if (dialog)
+          dialog.close();
+        else
+          console.error("Group dialog not found.")
+
+        // Get updated list of groups
+        this.$.resources.getAll();
+      },
+
+      /// Request to remove a user from a group
+      _onRemoveUser(e) {
+        // The most general case
+        let readonly = false;
+
+        // If the user trying to revoke is not admin, they can only revoke read
+        // access
+        if (!this.isselectedadmin)
+          readonly = true;
+
+        const data = { grantee: e.target.parentElement.id,
+                       resource: this.selectedgroup.name,
+                       readonly: readonly }
+        this.$.grant.revoke(data);
+      },
+
+      /// Request to invite a user to a group
+      _onInvite(e) {
+        const data = { grantee: this.inviteusername,
+                       resource: this.selectedgroup.name,
+                       readonly: !this.inviteadmin}
+        this.$.grant.grant(data);
+      },
+
+      /// Callback when groups have been updated
+      _onGroups: function(e) {
+        this.groups = this.$.resources.resources
+        this.nogroups = (this.groups.length == 0)
+      },
+
+      /// Callback when a group has been created
+      _onGroupCreated: function(e) {
+        // Get updated list of groups
+        this.$.resources.getAll();
+
+        this.fire('notification', 'Created group "' + e.detail.result.data.name
+            + '"');
+      },
+
+      /// Callback when a group has been deleted
+      _onGroupDeleted: function(e) {
+        // Get updated list of groups
+        this.$.resources.getAll();
+
+        this.fire('notification', 'Deleted group "' + e.detail.result.data.name
+            + '"');
+      },
+
+      /// Callback when successfully invited someone to a group
+      _onGranted: function(e) {
+        // Get updated info on group
+        this.$.grant.get(this.selectedgroup.name);
+
+        if (e.detail.success)
+          this.fire('notification', 'User successfully invited.')
+      },
+
+      /// Callback when successfully removed someone from a group
+      _onRevoked: function(e) {
+        // Get updated info on group
+        this.$.grant.get(this.selectedgroup.name);
+
+        if (e.detail.success)
+          this.fire('notification', 'User successfully removed.')
+      },
+
+      /// Callback when permissions have been updated
+      _onAllPermissions: function(e) {
+        var permissions = this.$.grant.permissions
+
+        const group = permissions.find(function(permission){
+          return permission.name === 'group'
+        })
+
+        if (!group)
+          return
+
+        this.cancreate = !group.permissions[0].permissions.readOnly
+      },
+
+      /// Callback when a single permissions has been received.
+      _onSinglePermission: function(e) {
+
+        // We asked for the new permissions of the selected group
+        if (e.detail.resource != this.selectedgroup.name) {
+          console.error(e.detail);
+          return;
+        }
+
+        this.selectedgroup = e.detail.result
+
+        const list =  this.selectedgroup.permissions;
+        this.isselectedadmin = !list[0].permissions.readOnly
+
+        this.set('selectedmembers', list);
+      },
+
+      /// Returns true if the index corresponds to the current user (0),
+      /// or the user is admin of selected group.
+      _currentOrAdmin: function(index) {
+        return this.isselectedadmin || !index;
+      },
+
+      properties: {
+
+        /// Array of groups for current user.
+        groups: {
+          type: Array,
+          value: [],
+          notify: true
+        },
+
+        /// True if current user can create groups.
+        cancreate: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+
+        /// True if current user is admin of selected group.
+        isselectedadmin: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>
+

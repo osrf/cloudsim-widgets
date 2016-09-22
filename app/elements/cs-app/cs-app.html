@@ -46,7 +46,7 @@
       id="grant"
       url=[[portalurl]]
       token=[[token]]
-      on-resourcesupdated="_onResources"
+      on-permissionsupdated="_onPermissions"
     ></gz-grant>
 
     <paper-toast
@@ -127,11 +127,20 @@
               <section data-route="dashboard">
                 <cs-dashboard
                   id="dashboard"
+                  authurl=[[authurl]]
                   portalurl="[[portalurl]]"
                   token="[[token]]"
                   currentuser="[[currentuser]]"
                   currentpermissions="[[currentpermissions]]"
                 ></cs-dashboard>
+              </section>
+
+              <!-- Profile -->
+              <section data-route="profile">
+                <cs-profile
+                  authurl=[[authurl]]
+                  token="[[token]]"
+                ></cs-profile>
               </section>
 
               <!-- SRC secure routes -->
@@ -304,8 +313,8 @@
         // Reload page with logged out routes
         page('/');
       },
-      _onResources: function(e) {
-        this.currentpermissions = this.$.grant.resources
+      _onPermissions: function(e) {
+        this.currentpermissions = this.$.grant.permissions
 
         // Reload page with user routes
         page(window.location.pathname);
