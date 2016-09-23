@@ -31,9 +31,13 @@ const srcAdmin = "src-admin"
 const srcAdminTokenData = {username: srcAdmin}
 let srcAdminToken
 
-const srcComp = "src-competitor"
-const srcCompTokenData = {username: srcComp}
-let srcCompToken
+const srcComp1 = "src-competitor1"
+const srcComp1TokenData = {username: srcComp1}
+let srcComp1Token
+
+const srcComp2 = "src-competitor2"
+const srcComp2TokenData = {username: srcComp2}
+let srcComp2Token
 
 function getResponse(res, print) {
   const response = JSON.parse(res.text)
@@ -60,13 +64,20 @@ describe('<Unit test Machine types>', function() {
           console.log('sign error: ' + e)
         }
         srcAdminToken = tok
-        csgrant.token.signToken(srcCompTokenData, (e, tok)=>{
-          console.log('token signed for user "' + srcCompTokenData.username  + '"')
+        csgrant.token.signToken(srcComp1TokenData, (e, tok)=>{
+          console.log('token signed for user "' + srcComp1TokenData.username  + '"')
           if(e) {
             console.log('sign error: ' + e)
           }
-          srcCompToken = tok
-          done()
+          srcComp1Token = tok
+          csgrant.token.signToken(srcComp2TokenData, (e, tok)=>{
+            console.log('token signed for user "' + srcComp2TokenData.username  + '"')
+            if(e) {
+              console.log('sign error: ' + e)
+            }
+            srcComp2Token = tok
+            done()
+          })
         })
       })
     })
@@ -75,7 +86,7 @@ describe('<Unit test Machine types>', function() {
   describe('Check initial registrations with cloudsim admin', function() {
     it('should be empty', function(done) {
       agent
-      .get('/srcregistrations')
+      .get('/srcsignups')
       .set('Accept', 'application/json')
       .set('authorization', csAdminToken)
       .send({})
@@ -94,7 +105,7 @@ describe('<Unit test Machine types>', function() {
   describe('Check initial registrations with competition admin', function() {
     it('should be authorized and empty', function(done) {
       agent
-      .get('/srcregistrations')
+      .get('/srcsignups')
       .set('Accept', 'application/json')
       .set('authorization', srcAdminToken)
       .send({})
@@ -113,29 +124,29 @@ describe('<Unit test Machine types>', function() {
   describe('Check initial registrations with competitor', function() {
     it('should be authorized and empty', function(done) {
       agent
-      .get('/srcregistrations')
+      .get('/srcsignups')
       .set('Accept', 'application/json')
-      .set('authorization', srcCompToken)
+      .set('authorization', srcComp1Token)
       .send({})
       .end(function(err,res) {
         res.status.should.be.equal(200)
         res.redirect.should.equal(false)
         let response = getResponse(res)
         response.success.should.equal(true)
-        response.requester.should.equal(srcComp)
+        response.requester.should.equal(srcComp1)
         response.result.length.should.equal(0)
         done()
       })
     })
   })
 
-  let registrationId;
+  let registrationId1;
   describe('Competitor requests to participate', function() {
     it('should successfully create a resource', function(done) {
       agent
-      .post('/srcregistrations')
+      .post('/srcsignups')
       .set('Accept', 'application/json')
-      .set('authorization', srcCompToken)
+      .set('authorization', srcComp1Token)
       .send({})
       .end(function(err,res) {
         should.not.exist(err);
@@ -144,16 +155,158 @@ describe('<Unit test Machine types>', function() {
         res.redirect.should.equal(false);
         const response = JSON.parse(res.text);
         response.success.should.equal(true)
-        registrationId = response.id
+        registrationId1 = response.id
         done()
       })
     })
   })
 
-  describe('Check that cloudsim admin can see registration', function() {
-    it('should see one registration', function(done) {
+  describe('Check that competitor2 can\'t see the request from competitor1', function() {
+    it('should be authorized and empty', function(done) {
       agent
-      .get('/srcregistrations')
+      .get('/srcsignups')
+      .set('Accept', 'application/json')
+      .set('authorization', srcComp2Token)
+      .send({})
+      .end(function(err,res) {
+        res.status.should.be.equal(200)
+        res.redirect.should.equal(false)
+        let response = getResponse(res)
+        response.success.should.equal(true)
+        response.requester.should.equal(srcComp2)
+        response.result.length.should.equal(0)
+        done()
+      })
+    })
+  })
+
+  let registrationId2;
+  describe('Competitor 2 also requests to participate', function() {
+    it('should successfully create a resource', function(done) {
+      agent
+      .post('/srcsignups')
+      .set('Accept', 'application/json')
+      .set('authorization', srcComp2Token)
+      .send({})
+      .end(function(err,res) {
+        should.not.exist(err);
+        should.exist(res);
+        res.status.should.be.equal(200);
+        res.redirect.should.equal(false);
+        const response = JSON.parse(res.text);
+        response.success.should.equal(true)
+        registrationId2 = response.id
+        done()
+      })
+    })
+  })
+
+  describe('Check that competitor2 can only see their own request', function() {
+    it('should be authorized and empty', function(done) {
+      agent
+      .get('/srcsignups')
+      .set('Accept', 'application/json')
+      .set('authorization', srcComp2Token)
+      .send({})
+      .end(function(err,res) {
+        res.status.should.be.equal(200)
+        res.redirect.should.equal(false)
+        let response = getResponse(res)
+        response.success.should.equal(true)
+        response.requester.should.equal(srcComp2)
+        response.result.length.should.equal(1)
+        response.result[0].name.should.equal(registrationId2);
+        response.result[0].data.username.should.equal(srcComp2);
+        done()
+      })
+    })
+  })
+
+  describe('Check that cloudsim admin can see both registrations', function() {
+    it('should see two registrations', function(done) {
+      agent
+      .get('/srcsignups')
+      .set('Accept', 'application/json')
+      .set('authorization', csAdminToken)
+      .send({})
+      .end(function(err,res) {
+        res.status.should.be.equal(200)
+        res.redirect.should.equal(false)
+        let response = getResponse(res)
+        response.success.should.equal(true)
+        response.requester.should.equal(csAdmin)
+        response.result.length.should.equal(2)
+        response.result[0].name.should.equal(registrationId1);
+        response.result[0].data.username.should.equal(srcComp1);
+        response.result[1].name.should.equal(registrationId2);
+        response.result[1].data.username.should.equal(srcComp2);
+        done()
+      })
+    })
+  })
+
+  describe('Check that src admin can\'t see registrations before being made admin', function() {
+    it('should be empty', function(done) {
+      agent
+      .get('/srcsignups')
+      .set('Accept', 'application/json')
+      .set('authorization', srcAdminToken)
+      .send({})
+      .end(function(err,res) {
+        res.status.should.be.equal(200)
+        res.redirect.should.equal(false)
+        let response = getResponse(res)
+        response.success.should.equal(true)
+        response.requester.should.equal(srcAdmin)
+        response.result.length.should.equal(0)
+        done()
+      })
+    })
+  })
+
+  // TODO:
+  // Create a team for src_admins
+  // Invite srcAdmin to the team
+  // Check that now srcAdmin can see registrations
+
+  describe('Check that src competitor 2 can\'t cancel competitor 1\'s registration request', function() {
+    it('should not be possible to remove another user', function(done) {
+      agent
+      .delete('/srcsignups/' + registrationId1)
+      .set('Accept', 'application/json')
+      .set('authorization', srcComp2Token)
+      .send({})
+      .end(function(err,res) {
+        res.status.should.be.equal(401)
+        res.redirect.should.equal(false)
+        let response = getResponse(res)
+        response.success.should.equal(false)
+        done()
+      })
+    })
+  })
+
+  describe('Check that competitor 1 can cancel their own registration request', function() {
+    it('should be possible to remove themselves from the list', function(done) {
+      agent
+      .delete('/srcsignups/' + registrationId1)
+      .set('Accept', 'application/json')
+      .set('authorization', srcComp1Token)
+      .send({})
+      .end(function(err,res) {
+        res.status.should.be.equal(200)
+        res.redirect.should.equal(false)
+        let response = getResponse(res)
+        response.success.should.equal(true)
+        done()
+      })
+    })
+  })
+
+  describe('Check with cloudsim admin that registration request was removed', function() {
+    it('should only have competitor 2', function(done) {
+      agent
+      .get('/srcsignups')
       .set('Accept', 'application/json')
       .set('authorization', csAdminToken)
       .send({})
@@ -164,45 +317,43 @@ describe('<Unit test Machine types>', function() {
         response.success.should.equal(true)
         response.requester.should.equal(csAdmin)
         response.result.length.should.equal(1)
-        response.result[0].name.should.equal(registrationId);
-        response.result[0].data.username.should.equal(srcComp);
+        response.result[0].name.should.equal(registrationId2);
+        response.result[0].data.username.should.equal(srcComp2);
         done()
       })
     })
   })
 
-  describe('Check that src admin can\'t see registration before being made admin', function() {
-    it('should be empty', function(done) {
+  describe('Check that cloudsim admin can cancel a user\'s registration request', function() {
+    it('should be possible to remove any user from the list', function(done) {
       agent
-      .get('/srcregistrations')
+      .delete('/srcsignups/' + registrationId2)
       .set('Accept', 'application/json')
-      .set('authorization', srcAdminToken)
+      .set('authorization', csAdminToken)
       .send({})
       .end(function(err,res) {
         res.status.should.be.equal(200)
         res.redirect.should.equal(false)
         let response = getResponse(res)
         response.success.should.equal(true)
-        response.requester.should.equal(srcAdmin)
-        response.result.length.should.equal(0)
         done()
       })
     })
   })
 
-  describe('Check that src admin can\'t see registration before being made admin', function() {
+  describe('Check with cloudsim admin that there are no requests left', function() {
     it('should be empty', function(done) {
       agent
-      .get('/srcregistrations')
+      .get('/srcsignups')
       .set('Accept', 'application/json')
-      .set('authorization', srcAdminToken)
+      .set('authorization', csAdminToken)
       .send({})
       .end(function(err,res) {
         res.status.should.be.equal(200)
         res.redirect.should.equal(false)
         let response = getResponse(res)
         response.success.should.equal(true)
-        response.requester.should.equal(srcAdmin)
+        response.requester.should.equal(csAdmin)
         response.result.length.should.equal(0)
         done()
       })
