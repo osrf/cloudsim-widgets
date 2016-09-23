@@ -4,7 +4,9 @@ const csgrant = require('cloudsim-grant')
 
 function setRoutes(app) {
 
+  /////////////////////////////////////////////////
   // Request participation
+  /////////////////////////////////////////////////
 
   // Get all signup requests which the user can see:
   // * CLOUDSIM_ADMIN should see all.
@@ -26,30 +28,8 @@ function setRoutes(app) {
     },
     csgrant.allResources)
 
-  // Remove a signup request from the list.
-  // * CLOUDSIM_ADMIN should be able to remove any request.
-  // * Team "src-admins" should be able to remove any request.
-  // * Each competitor can only remove their own request.
-  app.delete('/srcsignups/:srcsignup',
-    csgrant.authenticate,
-    csgrant.ownsResource(':srcsignup', false),
-    function (req, res) {
-
-      csgrant.deleteResource(req.user, req.srcsignup, (err, data) => {
-        let r = {};
-        if (err) {
-          res.status(500).jsonp(error(err))
-          return;
-        }
-        r.success = true;
-        r.resource = req.resourceData;
-        res.jsonp(r);
-      })
-    }
-  )
-
   // Add a request to participate in the competition.
-  // This should be used by propect competitors.
+  // This should be used by prospect competitors.
   app.post('/srcsignups',
     csgrant.authenticate,
     function (req, res) {
@@ -92,6 +72,28 @@ function setRoutes(app) {
       })
     })
    })
+
+  // Remove a signup request from the list.
+  // * CLOUDSIM_ADMIN should be able to remove any request.
+  // * Team "src-admins" should be able to remove any request.
+  // * Each competitor can only remove their own request.
+  app.delete('/srcsignups/:srcsignup',
+    csgrant.authenticate,
+    csgrant.ownsResource(':srcsignup', false),
+    function (req, res) {
+
+      csgrant.deleteResource(req.user, req.srcsignup, (err, data) => {
+        let r = {};
+        if (err) {
+          res.status(500).jsonp(error(err))
+          return;
+        }
+        r.success = true;
+        r.resource = req.resourceData;
+        res.jsonp(r);
+      })
+    }
+  )
 
   // srcsignup route parameter
   app.param('srcsignup', function(req, res, next, id) {
