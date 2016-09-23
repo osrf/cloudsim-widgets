@@ -29,13 +29,42 @@
     </paper-header-panel>
 
     <template is="dom-if" if="[[loggedin]]">
-      <h1>
-        Click the following button if you'd like to participate in the competition.
-        You'll receive an email once your participation was accepted.
-      </h1>
-      <paper-button raised on-click="_tapRequest">
-        Request!
-      </paper-button>
+
+      <gz-resources
+        id="resources"
+        url="[[baseUrl]]"
+        token="[[token]]"
+        resourcename="srcsignup"
+        data="[[data]]"
+        on-created="_onRequested"
+      ></gz-resources>
+
+      <!-- NEW USERS -->
+      <template is="dom-if" if="[[new]]">
+        <h1>
+          Click the following button if you'd like to participate in the competition.
+          You'll receive an email once your participation was accepted.
+        </h1>
+        <paper-button raised on-click="_tapRequest">
+          Request!
+        </paper-button>
+      </template>
+
+      <!-- WAITING ON APPROVAL -->
+      <template is="dom-if" if="[[waiting]]">
+        <h1>
+          You've requested to participate in this competition.
+          Waiting on approval by administrators.
+        </h1>
+      </template>
+
+      <!-- ALREADY IN COMPETITION -->
+      <template is="dom-if" if="[[registered]]">
+        <h1>
+          You're already a participant. Go to the <a href="[[baseUrl]]srckiosk">competition kiosk</a>.
+        </h1>
+      </template>
+
     </template>
 
     <template is="dom-if" if="[[!loggedin]]">
@@ -57,19 +86,58 @@
       attached: function() {
         console.log('cs-srcregister widget attached!')
       },
+
+      /// Callback when request button is pressed
       _tapRequest: function() {
-        // TODO: Backend
-        this.fire('notification', "User '" + this.currentuser + "' requested to participate in SRC.")
+        this.$.resources.create();
+        this.fire('notification', "Sending request to participate in SRC.")
       },
+
+      /// Callback when successfully requested
+      _onRequested: function() {
+        this.fire('notification', "Successfully requested to participate in SRC.")
+      },
+
       properties: {
+        /// True if user is logged in
         loggedin: {
           type: Boolean,
           value: false,
           notify: true
         },
+
+        /// True if user is new to the competition (never requested to participate)
+        new: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+
+        /// True if user's approval to participate is pending.
+        waiting: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+
+        /// True if user is already registered in the competition.
+        registered: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+
+        /// Name of current user
         currentuser: {
           type: String,
           value: "not set",
+          notify: true
+        },
+
+        /// Data for registration
+        data: {
+          type: Object,
+          value: {},
           notify: true
         },
       },
