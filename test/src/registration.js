@@ -51,6 +51,7 @@ function getResponse(res, print) {
 describe('<Unit test Machine types>', function() {
 
   before(function(done) {
+    csgrant.model.clearDb()
     token.signToken(csAdminTokenData, (e, tok)=>{
       console.log('token signed for user "' + csAdmin + '"')
       if(e) {

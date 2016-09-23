@@ -21,7 +21,6 @@ app.use(bodyParser.json())
 // prints all requests to the terminal
 app.use(morgan('combined'))
 
-
 // the configuration values are set in the local .env file
 // this loads the .env content and puts it in the process environment.
 dotenv.load()

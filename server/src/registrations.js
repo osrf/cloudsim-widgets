@@ -1,6 +1,7 @@
 'use strict'
 
 const csgrant = require('cloudsim-grant')
+const cloud_services = require('../cloud_services.js')
 
 function setRoutes(app) {
 
@@ -53,6 +54,12 @@ function setRoutes(app) {
         r.success = true
         r.result = data
         r.id = resourceName
+
+console.log("AAAA")
+console.log(cloud_services)
+
+        cloud_services.sendEmail();
+console.log("BBBB")
 
         // Cloudsim admin should see all requests
         let adminUsername = 'admin';
