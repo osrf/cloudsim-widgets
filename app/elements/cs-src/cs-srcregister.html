@@ -22,6 +22,17 @@
   </style>
   <template>
 
+    <!-- TODO: this could be inside if loggedin, but then we can't use this.$.resources -->
+    <gz-resources
+      id="resources"
+      url="[[baseUrl]]"
+      token="[[token]]"
+      resourcename="srcsignup"
+      data="[[data]]"
+      on-created="_onRequested"
+      on-resourcesupdated="_onResources"
+    ></gz-resources>
+
     <paper-header-panel class="blue">
       <div class="paper-header">
         <h1 class="title">Register for the Secret Robotics Competition!</h1>
@@ -29,15 +40,6 @@
     </paper-header-panel>
 
     <template is="dom-if" if="[[loggedin]]">
-
-      <gz-resources
-        id="resources"
-        url="[[baseUrl]]"
-        token="[[token]]"
-        resourcename="srcsignup"
-        data="[[data]]"
-        on-created="_onRequested"
-      ></gz-resources>
 
       <!-- NEW USERS -->
       <template is="dom-if" if="[[new]]">
@@ -59,7 +61,7 @@
       </template>
 
       <!-- ALREADY IN COMPETITION -->
-      <template is="dom-if" if="[[registered]]">
+      <template is="dom-if" if="[[competitor]]">
         <h1>
           You're already a participant. Go to the <a href="[[baseUrl]]srckiosk">competition kiosk</a>.
         </h1>
@@ -84,6 +86,15 @@
       is: 'cs-srcregister',
       // Attached
       attached: function() {
+        let that = this;
+        window.addEventListener('WebComponentsReady', function() {
+          if (that.token === "") {
+            console.error("cs-srcregister: No token");
+          }
+          else {
+            that.$.resources.getAll();
+          }
+        });
         console.log('cs-srcregister widget attached!')
       },
 
@@ -96,6 +107,17 @@
       /// Callback when successfully requested
       _onRequested: function() {
         this.fire('notification', "Successfully requested to participate in SRC.")
+      },
+
+      /// Callback when the list of resources had been updated
+      _onResources: function() {
+        if (!this.data.resources) {
+          this.new = true;
+          this.waiting = false;
+          this.waiting = false;
+        }
+
+console.log(this.data)
       },
 
       properties: {
@@ -120,8 +142,8 @@
           notify: true
         },
 
-        /// True if user is already registered in the competition.
-        registered: {
+        /// True if user is already a competitor.
+        competitor: {
           type: Boolean,
           value: false,
           notify: true
