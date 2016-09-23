@@ -13,6 +13,7 @@ const path = require('path')
 const csgrant = require('cloudsim-grant')
 // custom routes
 const middleware = require('./middleware')
+const srcregistrations = require('./src/registrations.js')
 
 app.use(cors())
 app.use(bodyParser.json())
@@ -35,7 +36,9 @@ const adminUser = process.env.CLOUDSIM_ADMIN || 'admin'
 
 // we create 2 initial resources
 csgrant.init(adminUser, {'src_registrations': {},
-                         'ariac_registrations': {}
+                         'ariac_registrations': {},
+                         'src_admins': {},
+                         'ariac_admins': {}
                         },
                         dbName,
                         (err)=> {
@@ -69,6 +72,8 @@ app.param('resourceId', function( req, res, next, id) {
   req.resourceId = id
   next()
 })
+
+srcregistrations.setRoutes(app);
 
 // use the middleware module to serve config.js
 app.use(middleware.middleware)

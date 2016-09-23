@@ -6,7 +6,7 @@
   "license": "ISC",
   "version": "0.0.1",
   "scripts": {
-    "test": "mocha && gulp test:local",
+    "test": "mocha --recursive test/ && gulp test:local",
     "start": "gulp && node server/cloudsim_widgets",
     "dev": "node server/cloudsim_widgets dev"
   },
