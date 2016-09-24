@@ -66,8 +66,16 @@ function setRoutes(app) {
                 return;
               }
 
-              res.jsonp(r);
-              // TODO: Share it with src-admins team.
+              // Share it with src-admins team.
+              csgrant.grantPermission(req.user, "src-admins", r.id, false,
+                  function(err) {
+                    if (err) {
+                      res.status(500).jsonp(error(err))
+                      return;
+                    }
+
+                    res.jsonp(r);
+                  })
             })
       })
     })

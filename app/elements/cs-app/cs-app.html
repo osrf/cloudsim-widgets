@@ -276,7 +276,8 @@
       _onLogin(e) {
         this.loggedin = true
         this.token = e.detail.token;
-        this.currentuser = e.detail.user;
+        this.currentuser = e.detail.identities[0];
+        this.identities = e.detail.identities;
 
         // SRC
         // For now, simulating 3 users:

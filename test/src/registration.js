@@ -24,19 +24,19 @@ token.initKeys(keys.public, keys.private)
 const csAdmin = process.env.CLOUDSIM_ADMIN ?
     process.env.CLOUDSIM_ADMIN:'csAdmin'
 
-const csAdminTokenData = {username: csAdmin}
+const csAdminTokenData = {identities: [csAdmin]}
 let csAdminToken
 
 const srcAdmin = "src-admin"
-const srcAdminTokenData = {username: srcAdmin}
+const srcAdminTokenData = {identities: [srcAdmin, "src-admins"]}
 let srcAdminToken
 
 const srcComp1 = "src-competitor1"
-const srcComp1TokenData = {username: srcComp1}
+const srcComp1TokenData = {identities: [srcComp1]}
 let srcComp1Token
 
 const srcComp2 = "src-competitor2"
-const srcComp2TokenData = {username: srcComp2}
+const srcComp2TokenData = {identities: [srcComp2]}
 let srcComp2Token
 
 function getResponse(res, print) {
@@ -59,19 +59,19 @@ describe('<Unit test Machine types>', function() {
       }
       csAdminToken = tok
       csgrant.token.signToken(srcAdminTokenData, (e, tok)=>{
-        console.log('token signed for user "' + srcAdminTokenData.username  + '"')
+        console.log('token signed for user "' + srcAdminTokenData.identities[0]  + '"')
         if(e) {
           console.log('sign error: ' + e)
         }
         srcAdminToken = tok
         csgrant.token.signToken(srcComp1TokenData, (e, tok)=>{
-          console.log('token signed for user "' + srcComp1TokenData.username  + '"')
+          console.log('token signed for user "' + srcComp1TokenData.identities[0]  + '"')
           if(e) {
             console.log('sign error: ' + e)
           }
           srcComp1Token = tok
           csgrant.token.signToken(srcComp2TokenData, (e, tok)=>{
-            console.log('token signed for user "' + srcComp2TokenData.username  + '"')
+            console.log('token signed for user "' + srcComp2TokenData.identities[0]  + '"')
             if(e) {
               console.log('sign error: ' + e)
             }
@@ -245,8 +245,8 @@ describe('<Unit test Machine types>', function() {
     })
   })
 
-  describe('Check that src admin can\'t see registrations before being made admin', function() {
-    it('should be empty', function(done) {
+  describe('Check that src admin can see both registrations', function() {
+    it('should see two registrations', function(done) {
       agent
       .get('/srcsignups')
       .set('Accept', 'application/json')
@@ -258,16 +258,15 @@ describe('<Unit test Machine types>', function() {
         let response = getResponse(res)
         response.success.should.equal(true)
         response.requester.should.equal(srcAdmin)
-        response.result.length.should.equal(0)
+        response.result.length.should.equal(2)
+        response.result[0].name.should.equal(registrationId1);
+        response.result[0].data.username.should.equal(srcComp1);
+        response.result[1].name.should.equal(registrationId2);
+        response.result[1].data.username.should.equal(srcComp2);
         done()
       })
     })
   })
-
-  // TODO:
-  // Create a team for src_admins
-  // Invite srcAdmin to the team
-  // Check that now srcAdmin can see registrations
 
   describe('Check that src competitor 2 can\'t cancel competitor 1\'s registration request', function() {
     it('should not be possible to remove another user', function(done) {
@@ -324,12 +323,12 @@ describe('<Unit test Machine types>', function() {
     })
   })
 
-  describe('Check that cloudsim admin can cancel a user\'s registration request', function() {
+  describe('Check that src admin can cancel a user\'s registration request', function() {
     it('should be possible to remove any user from the list', function(done) {
       agent
       .delete('/srcsignups/' + registrationId2)
       .set('Accept', 'application/json')
-      .set('authorization', csAdminToken)
+      .set('authorization', srcAdminToken)
       .send({})
       .end(function(err,res) {
         res.status.should.be.equal(200)
