@@ -26,6 +26,7 @@ app.use(morgan('combined'))
 dotenv.load()
 
 const dbName = 'cloudsim-widgets' + (app.get('env') === 'test'? '-test': '')
+process.env.CLOUDSIM_WIDGETS_DB = process.env.CLOUDSIM_WIDGETS_DB || 'localhost'
 
 // the port of the server
 const port = process.env.PORT || 5000
@@ -38,6 +39,7 @@ csgrant.init(adminUser, {'src_registrations': {},
                          'ariac_registrations': {}
                         },
                         dbName,
+                        process.env.CLOUDSIM_WIDGETS_DB,
                         (err)=> {
   if(err){
     console.log('Error loading resources: ' + err)
@@ -84,7 +86,8 @@ console.log('port: ' + port)
 console.log('cloudsim-grant version: ', require('cloudsim-grant/package.json').version)
 console.log('admin user: ' + adminUser)
 console.log('environment: ' + app.get('env'), process.env.NODE_ENV)
-console.log('redis database: ' + dbName)
+console.log('redis database name: ' + dbName)
+console.log('redis database url: ' + process.env.CLOUDSIM_WIDGETS_DB)
 console.log('============================================')
 console.log('\n\n')
 
