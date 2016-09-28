@@ -34,32 +34,34 @@ function setRoutes(app) {
     csgrant.authenticate,
     function (req, res) {
 
+      // Generate unique id
       csgrant.getNextResourceId('srcsignup', (err, resourceName) => {
-
-      if (err) {
-        res.status(500).jsonp(error(err))
-        return
-      }
-
-      csgrant.createResource(req.user, resourceName,
-          {username: req.user}, (err, data) => {
 
         if (err) {
           res.status(500).jsonp(error(err))
-          return;
+          return
         }
 
-        let r = {};
-        r.success = true
-        r.result = data
-        r.id = resourceName
+        // Create a resource for the request
+        csgrant.createResource(req.user, resourceName,
+          {username: req.user}, (err, data) => {
 
-        // Cloudsim admin should see all requests
-        let adminUsername = 'admin';
-        if (process.env.CLOUDSIM_ADMIN)
-          adminUsername = process.env.CLOUDSIM_ADMIN;
+          if (err) {
+            res.status(500).jsonp(error(err))
+            return;
+          }
 
-        csgrant.grantPermission(req.user, adminUsername, r.id, false,
+          let r = {};
+          r.success = true
+          r.result = data
+          r.id = resourceName
+
+          // Share it with cloudsim admin
+          let adminUsername = 'admin';
+          if (process.env.CLOUDSIM_ADMIN)
+            adminUsername = process.env.CLOUDSIM_ADMIN;
+
+          csgrant.grantPermission(req.user, adminUsername, r.id, false,
             function(err) {
               if (err) {
                 res.status(500).jsonp(error(err))
@@ -68,18 +70,19 @@ function setRoutes(app) {
 
               // Share it with src-admins team.
               csgrant.grantPermission(req.user, "src-admins", r.id, false,
-                  function(err) {
-                    if (err) {
-                      res.status(500).jsonp(error(err))
-                      return;
-                    }
+                function(err) {
 
-                    res.jsonp(r);
-                  })
-            })
+                  if (err) {
+                    res.status(500).jsonp(error(err))
+                    return;
+                  }
+
+                  res.jsonp(r);
+              })
+          })
+        })
       })
-    })
-   })
+  })
 
   // Remove a signup request from the list.
   // * CLOUDSIM_ADMIN should be able to remove any request.

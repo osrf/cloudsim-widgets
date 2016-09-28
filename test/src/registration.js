@@ -48,7 +48,7 @@ function getResponse(res, print) {
   return response
 }
 
-describe('<Unit test Machine types>', function() {
+describe('<Unit test SRC signups>', function() {
 
   before(function(done) {
     token.signToken(csAdminTokenData, (e, tok)=>{
