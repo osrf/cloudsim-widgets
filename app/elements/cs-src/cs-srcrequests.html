@@ -1,0 +1,232 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-srcrequests">
+  <style>
+    /* common */
+    .space {
+      @apply(--layout-flex);
+    }
+    .red {
+      --iron-icon-fill-color: #f00;
+    }
+    .green {
+      --iron-icon-fill-color: rgb(20, 255, 20);
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+    }
+    .center {
+      @apply(--layout-center);
+      text-align: center;
+    }
+
+    /* main */
+    paper-material {
+      text-align: center;
+      padding: 1em;
+      margin: 1em;
+      width: 15em;
+    }
+    h1 {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    .content {
+      overflow: auto;
+      margin: 0;
+      padding: 1em;
+    }
+    .username {
+      max-width: 15em;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    .miniButton {
+      width: 2.2em;
+    }
+  </style>
+  <template>
+
+    <!-- To handle the signup list -->
+    <gz-resources
+      id="resources"
+      url="[[baseUrl]]"
+      token="[[token]]"
+      resourcename="srcsignup"
+      on-resourcesupdated="_onResources"
+      on-deleted="_onRemoved"
+    ></gz-resources>
+
+    <!-- To invite users to team -->
+    <gz-grant
+      id="grant"
+      url="[[authurl]]"
+      token="[[token]]"
+      on-granted="_onAccepted"
+      on-permissionsupdated="_onAllPermissions"
+    ></gz-grant>
+
+    <paper-material elevation="1">
+
+      <h1>
+        <iron-icon
+          icon="icons:warning"
+        ></iron-icon>
+        Requests to compete
+      </h1>
+
+      <div class="content">
+
+        <template is="dom-repeat" items="[[users]]">
+
+          <div class="horizontal center">
+
+            <span class="username" title="[[item.data.username]]">[[item.data.username]]</span>
+
+            <div class="space"></div>
+
+            <paper-icon-button
+              class="green miniButton"
+              icon="icons:check"
+              id="[[item.name]]"
+              title="Accept"
+              on-tap="_onAccept">
+            </paper-icon-button>
+
+            <paper-icon-button
+              class="red miniButton"
+              icon="icons:close"
+              id="[[item.name]]"
+              title="Decline"
+              on-tap="_onDecline">
+            </paper-icon-button>
+          </div>
+
+        </template>
+
+        <template is="dom-if" if="[[nousers]]">
+          <div class="username">
+            There are no requests
+          </div>
+        </template>
+
+      </div>
+
+    </paper-material>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-srcrequests',
+      // Attached
+      attached: function() {
+        console.log('cs-srcrequests widget attached!')
+      },
+
+      /// Callback when the token has been updated
+      _onTokenUpdated: function() {
+        if (this.token !== "") {
+          this.$.resources.getAll();
+          this.$.grant.getall();
+        }
+      },
+
+      /// Callback when the list of resources had been updated
+      _onResources: function() {
+        this.users = this.$.resources.resources;
+        this.nousers = (this.users.length == 0)
+      },
+
+      /// Callback when permissions have been updated
+      _onAllPermissions: function(e) {
+        var permissions = this.$.grant.permissions
+
+        const group = permissions.find(function(permission){
+          return permission.data.name === 'src-competitors'
+        })
+
+        if (!group) {
+          console.error("Couldn't find group [src-competitors]");
+          return;
+        }
+
+        this.groupid = group.name;
+      },
+
+      /// Callback when the decline button is pressed
+      _onDecline: function(e) {
+        this.declining = true;
+        this.$.resources.deleteid = e.target.parentElement.id;
+        this.$.resources.delete();
+      },
+
+      /// Callback when the widget server notifies that the user was i
+      /// successfully removed from the signup list.
+      _onRemoved: function(e) {
+        this.$.resources.getAll();
+        if (this.declining)
+          this.fire('notification', 'Declined user\'s participation request.');
+        else
+          this.fire('notification', 'Accepted participation request.');
+      },
+
+      /// Callback when the accept button is pressed
+      _onAccept: function(e) {
+        this.declining = false;
+
+        if (this.groupid.length == 0) {
+          console.error("Missing id for group [src-competitors]");
+          return;
+        }
+
+        // Step 1: request auth server to add the user to src-competitors
+        this.selectedid = e.target.parentElement.id;
+
+        let that = this;
+        const user = this.users.find(function(resource){
+          return resource.name === that.selectedid;
+        })
+
+        if (!user) {
+          console.error("Couldn't find user for id [" + this.selectedid + "]");
+          return;
+        }
+
+        const data = { grantee: user.data.username,
+                       resource: this.groupid,
+                       readonly: true}
+        this.$.grant.grant(data);
+      },
+
+      /// Callback when the auth server successfully added user to group.
+      _onAccepted: function(e) {
+
+        if (!e.detail.success) {
+          console.error(e);
+          return;
+        }
+
+        // Step 2: remove user from signup list (widgets server)
+        this.$.resources.deleteid = this.selectedid;
+        this.$.resources.delete();
+      },
+
+      properties: {
+
+        /// Token for authentication
+        token: {
+          type: String,
+          value: '',
+          notify: true,
+          observer: '_onTokenUpdated'
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>

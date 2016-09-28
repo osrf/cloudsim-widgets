@@ -86,15 +86,6 @@
       is: 'cs-srcregister',
       // Attached
       attached: function() {
-        let that = this;
-        window.addEventListener('WebComponentsReady', function() {
-          if (that.token === "") {
-            console.error("cs-srcregister: No token");
-          }
-          else {
-            that.$.resources.getAll();
-          }
-        });
         console.log('cs-srcregister widget attached!')
       },
 
@@ -106,18 +97,30 @@
 
       /// Callback when successfully requested
       _onRequested: function() {
+        this.$.resources.getAll();
         this.fire('notification', "Successfully requested to participate in SRC.")
       },
 
       /// Callback when the list of resources had been updated
       _onResources: function() {
-        if (!this.data.resources) {
-          this.new = true;
-          this.waiting = false;
-          this.waiting = false;
-        }
+        let resources = this.$.resources.resources;
 
-console.log(this.data)
+        if (resources && resources.length > 0) {
+
+          let that = this;
+          const request = resources.find(function(resource){
+            return resource.data.username === that.currentuser;
+          })
+
+          this.new = false;
+          this.waiting = true;
+        }
+      },
+
+      /// Callback when the token has been updated
+      _onTokenUpdated: function() {
+        if (this.token !== "")
+          this.$.resources.getAll();
       },
 
       properties: {
@@ -131,7 +134,7 @@ console.log(this.data)
         /// True if user is new to the competition (never requested to participate)
         new: {
           type: Boolean,
-          value: false,
+          value: true,
           notify: true
         },
 
@@ -161,6 +164,14 @@ console.log(this.data)
           type: Object,
           value: {},
           notify: true
+        },
+
+        /// Token for authentication
+        token: {
+          type: String,
+          value: '',
+          notify: true,
+          observer: '_onTokenUpdated'
         },
       },
     });
