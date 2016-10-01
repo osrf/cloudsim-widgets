@@ -92,14 +92,12 @@
            label="Command"
            id="dialogcmd"
         ></paper-input>
-<!--
         <paper-toggle-button
           checked
           class="green"
           title="Auto play when possible"
           id="dialogauto"
         >Auto play</paper-toggle-button>
--->
         <paper-button
           raised
           dialog-confirm
@@ -125,7 +123,6 @@
           icon="icons:add"
           on-tap="_tapAdd"
         ></paper-fab>
-
         <div class="space"></div>
       </div>
 
@@ -152,19 +149,18 @@
               </paper-icon-button>
             </template>
 
-            <div class="simid">[[item.id]]</div>
+            <div class="simid">[[item.name]]</div>
 
             <div class="cmd">[[item.data.cmd]]</div>
 
             <div class="space"></div>
-<!--
             <template is="dom-if" if="{{_isWaiting(item.data.stat)}}">
               <paper-toggle-button
                 checked$={{_strToBool(item.data.auto)}}
                 class="green"
                 title="Auto play when possible"
                 on-change="_onAuto"
-                id="autobutton[[item.id]]"
+                id="autobutton[[item.name]]"
               ></paper-toggle-button>
             </template>
 
@@ -173,37 +169,20 @@
                 icon="av:not-interested"
                 class="red tappable"
                 style="margin-right:0.5em"
-                on-tap="tapStop"
+                on-tap="_tapStop"
                 title="Stop"
               ></paper-icon-button>
             </template>
--->
             <paper-icon-button
               icon="icons:close"
               class="red tappable"
               on-tap="_tapDelete"
-              id="deletebutton[[item.id]]"
+              id="deletebutton[[item.name]]"
               title="Remove from queue"
             ></paper-icon-button>
 
           </div>
         </template>
-
-        <paper-button
-          raised
-          id="runbutton"
-          hidden$=[[!_canRun(currentstate)]]
-          on-tap="_tapRunButton">
-          Run
-         </paper-button>
-
-        <paper-button
-          raised
-          hidden$=[[!_canKill(currentstate)]]
-          id="killbutton"
-          on-tap="_tapKillButton">
-          Kill
-         </paper-button>
 
       </template>
 
@@ -263,10 +242,10 @@
       },
       _tapAddButton: function() {
         var data = {};
-        data.cmdLine = this.$.dialogcmd.value
-        // data.auto = this.$.dialogauto.checked
+        data.cmd = this.$.dialogcmd.value
+        data.auto = this.$.dialogauto.checked
 
-        this.$.simulationq.createSimulation(data);
+        this.$.simulationq.createSimulation(data)
       },
       _tapDelete: function(e) {
         let id = e.target.parentNode.id.substring(12)
@@ -274,17 +253,16 @@
       },
       _onAuto: function(e) {
         var data = {};
-        // data.auto = e.target.checked
+        data.auto = e.target.checked
 
         let id = e.target.id.substring(10)
         this.$.simulationq.updateSimulation(id, data)
       },
       _onSimulationList(e) {
-        let temp = e.detail.value;
-
-        temp.splice(0, 2)
-
-        this.simulations = temp
+        this.simulations = e.detail.value
+      },
+      _tapStop() {
+        this.$.simulationq.kill()
       },
       _tapRunButton(e) {
         this.currenccmd = ''
@@ -296,19 +274,6 @@
             this.set(str, 'RUNNING')
             this.currentcmd = this.simulations[i].data.cmd
             this.$.gzcmd.tapRun()
-            break;
-          }
-        }
-      },
-      _tapKillButton(e) {
-        this.currenccmd = ''
-        for (var i = 0; i < this.simulations.length; ++i)
-        {
-          if (this.simulations[i].data.stat == "RUNNING")
-          {
-            var str = 'simulations.' + i + '.data.stat'
-            this.set(str, 'FINISHED')
-            this.$.gzcmd.tapKill()
             break;
           }
         }
