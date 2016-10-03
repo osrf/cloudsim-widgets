@@ -156,7 +156,7 @@
             <div class="space"></div>
             <template is="dom-if" if="{{_isWaiting(item.data.stat)}}">
               <paper-toggle-button
-                checked$={{_strToBool(item.data.auto)}}
+                checked$={{item.data.auto}}
                 class="green"
                 title="Auto play when possible"
                 on-change="_onAuto"
@@ -264,20 +264,6 @@
       _tapStop() {
         this.$.simulationq.kill()
       },
-      _tapRunButton(e) {
-        this.currenccmd = ''
-        for (var i = 0; i < this.simulations.length; ++i)
-        {
-          if (this.simulations[i].data.stat == "WAITING")
-          {
-            var str = 'simulations.' + i + '.data.stat'
-            this.set(str, 'RUNNING')
-            this.currentcmd = this.simulations[i].data.cmd
-            this.$.gzcmd.tapRun()
-            break;
-          }
-        }
-      },
       _isFinished: function(stat) {
         return stat == "FINISHED"
       },
@@ -289,15 +275,6 @@
       },
       _hasItems: function(items) {
         return items.length > 0
-      },
-      _strToBool: function(st) {
-        return st === "true" ? true : false
-      },
-      _canRun: function(st) {
-        return st === "ready" || st === "closed"
-      },
-      _canKill: function(st) {
-        return st === "running"
       },
       _currentStateChanged: function(e) {
         if (e.detail.value === 'closed')
