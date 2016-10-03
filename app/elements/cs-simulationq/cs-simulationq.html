@@ -19,9 +19,6 @@
     .space {
       @apply(--layout-flex);
     }
-    .simid {
-      font-weight: bold;
-    }
     .cmd {
       font-family: courier;
     }
@@ -92,12 +89,14 @@
            label="Command"
            id="dialogcmd"
         ></paper-input>
+<!--
         <paper-toggle-button
           checked
           class="green"
           title="Auto play when possible"
           id="dialogauto"
         >Auto play</paper-toggle-button>
+-->
         <paper-button
           raised
           dialog-confirm
@@ -149,11 +148,10 @@
               </paper-icon-button>
             </template>
 
-            <div class="simid">[[item.name]]</div>
-
             <div class="cmd">[[item.data.cmd]]</div>
 
             <div class="space"></div>
+<!--
             <template is="dom-if" if="{{_isWaiting(item.data.stat)}}">
               <paper-toggle-button
                 checked$={{item.data.auto}}
@@ -163,7 +161,7 @@
                 id="autobutton[[item.name]]"
               ></paper-toggle-button>
             </template>
-
+-->
             <template is="dom-if" if="{{_isRunning(item.data.stat)}}">
               <paper-icon-button
                 icon="av:not-interested"
@@ -243,7 +241,7 @@
       _tapAddButton: function() {
         var data = {};
         data.cmd = this.$.dialogcmd.value
-        data.auto = this.$.dialogauto.checked
+        data.auto = true // this.$.dialogauto.checked
 
         this.$.simulationq.createSimulation(data)
       },
