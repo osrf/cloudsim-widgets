@@ -53,7 +53,7 @@
           <iron-icon class="bigIcon" icon="hardware:computer"></iron-icon>
           <div class="pad">
             <template is="dom-if" if="{{!isTerminating(stat)}}">
-              <div><a href="http://{{machine_ip}}" target="_blank">[[machine_ip]]</a></div>
+              <div><a href="http://{{machine_ip}}:8080" target="_blank">[[machine_ip]]</a></div>
             </template>
 
             <div class$="[[getStatusClass(stat)]]">
