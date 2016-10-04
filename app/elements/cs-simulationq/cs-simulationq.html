@@ -208,7 +208,7 @@
       is: 'cs-simulationq',
       // Attached
       attached: function() {
-        this.$.simulationq.getSimulations();
+       // this.$.simulationq.getSimulations();
 
 // For debugging
 /*
@@ -230,6 +230,13 @@
               "stat": "WAITING"}}
           ];
 */
+
+        // FIXME: use websockets
+//        let that = this
+  //      setInterval(function () {
+    //      that.$.simulationq._tapGetItems()
+      //  }, 5000);
+
         console.log('cs-simulationq widget attached!')
       },
       _tapAdd: function() {
@@ -246,12 +253,6 @@
         data.auto = true // this.$.dialogauto.checked
 
         this.$.simulationq.createSimulation(data)
-
-        // FIXME: use websockets
-        let that = this
-        setTimeout(function () {
-          that.$.simulationq._tapGetItems()
-        }, 5000);
       },
       _tapDelete: function(e) {
         let id = e.target.parentNode.id.substring(12)
@@ -269,12 +270,6 @@
       },
       _tapStop() {
         this.$.simulationq.kill()
-
-        // FIXME: use websockets
-        let that = this
-        setTimeout(function () {
-          that.$.simulationq._tapGetItems()
-        }, 5000);
       },
       _isFinished: function(stat) {
         return stat == "FINISHED"

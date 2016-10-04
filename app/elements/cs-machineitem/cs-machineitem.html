@@ -12,9 +12,20 @@
     .pad > div {
       padding-right: 1em;
     }
+    .red {
+      color: #da5c5c;
+    }
+    .green {
+      color: #45d545;
+    }
     .bigIcon {
       --iron-icon-height: 50px;
       --iron-icon-width: 50px;
+    }
+    .small {
+      --iron-icon-height: 15px;
+      --iron-icon-width: 15px;
+      font-size: 0.8em;
     }
     .launchingStatus > iron-icon {
       --iron-icon-fill-color: #ff0;
@@ -29,6 +40,9 @@
       color: gray;
       text-align: left;
       font-size: 0.8em;
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
     }
     .vertical {
       @apply(--layout-vertical);
@@ -47,6 +61,17 @@
   </style>
   <template>
 
+    <iron-ajax
+      id="ajaxStatus"
+      method='GET'
+      url='http://[[machine_ip]]'
+      handle-as="json"
+      content-type="application/json"
+      on-response="_responseStatus"
+      on-error="_errorStatus"
+      debounce-duration="300"
+    ></iron-ajax>
+
     <paper-material elevation="2" style="margin: 1em">
       <div id="item[[itemid]]">
         <div class="item" tabindex$="[[tabIndex]]">
@@ -56,9 +81,24 @@
               <div><a href="http://{{machine_ip}}:8080" target="_blank">[[machine_ip]]</a></div>
             </template>
 
-            <div class$="[[getStatusClass(stat)]]">
-              <!-- <iron-icon icon="icons:cloud"></iron-icon> -->
-              [[stat]]
+            <div class="vertical">
+              <div class$="[[getStatusClass(stat)]]">
+                <!-- <iron-icon icon="icons:cloud"></iron-icon> -->
+                [[stat]]
+              </div>
+              <template is="dom-if" if="[[isRunning(stat)]]">
+                <div class="horizontal">
+                  <div class="small">
+                    Server
+                  </div>
+                  <template is="dom-if" if="[[!responding]]">
+                    <iron-icon class="red small" icon="device:wifi-tethering"></iron-icon>
+                  </template>
+                  <template is="dom-if" if="[[responding]]">
+                    <iron-icon class="green small" icon="device:wifi-tethering"></iron-icon>
+                  </template>
+                </div>
+              </template>
             </div>
             <div class="machineInfo">
               <b>Launch date</b>: [[prettyDate(launch_date)]]<br>
@@ -117,6 +157,14 @@
     Polymer({
       is: 'cs-machineitem',
       attached: function() {
+
+        // TODO: Move to a component
+        let that = this
+        this.statuscheck = setInterval(function () {
+          that.$.ajaxStatus.headers.authorization = that.token
+          that.$.ajaxStatus.generateRequest()
+        }, 1000);
+
         console.log('cs-machineitem widget attached!')
       },
       isRunning: function(itemStatus) {
@@ -139,6 +187,23 @@
         let d = new Date(date);
         return d.toString();
       },
+
+      // TODO: move to a separate component
+      _responseStatus: function(res) {
+        if (this.stat != "RUNNING")
+          return;
+
+        clearInterval(this.statuscheck);
+
+console.log("-----------------")
+        this.responding = true
+      },
+
+      // TODO: move to a separate component
+      _errorStatus: function() {
+        this.responding = false
+      },
+
       properties: {
         stat: {
           type: String,
@@ -148,6 +213,13 @@
         readonly: {
           type: Boolean,
           value: true,
+          notify: true
+        },
+
+        // TODO: Move to component
+        responding: {
+          type: Boolean,
+          value: false,
           notify: true
         },
       },
