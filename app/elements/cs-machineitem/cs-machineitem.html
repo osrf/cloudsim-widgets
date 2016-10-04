@@ -53,7 +53,7 @@
           <iron-icon class="bigIcon" icon="hardware:computer"></iron-icon>
           <div class="pad">
             <template is="dom-if" if="{{!isTerminating(stat)}}">
-              <div><a href="https://{{machine_ip}}" target="_blank">[[machine_ip]]</a></div>
+              <div><a href="http://{{machine_ip}}:8080" target="_blank">[[machine_ip]]</a></div>
             </template>
 
             <div class$="[[getStatusClass(stat)]]">
@@ -100,7 +100,7 @@
 
         <template is="dom-if" if="{{isRunning(stat)}}">
           <cs-simulationq
-            simurl="https://{{machine_ip}}"
+            simurl="http://{{machine_ip}}"
             token=[[token]]
           ></cs-simulationq>
         </template>

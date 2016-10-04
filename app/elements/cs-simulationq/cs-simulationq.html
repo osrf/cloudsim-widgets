@@ -19,9 +19,6 @@
     .space {
       @apply(--layout-flex);
     }
-    .simid {
-      font-weight: bold;
-    }
     .cmd {
       font-family: courier;
     }
@@ -125,7 +122,6 @@
           icon="icons:add"
           on-tap="_tapAdd"
         ></paper-fab>
-
         <div class="space"></div>
       </div>
 
@@ -152,58 +148,41 @@
               </paper-icon-button>
             </template>
 
-            <div class="simid">[[item.id]]</div>
-
             <div class="cmd">[[item.data.cmd]]</div>
 
             <div class="space"></div>
 <!--
             <template is="dom-if" if="{{_isWaiting(item.data.stat)}}">
               <paper-toggle-button
-                checked$={{_strToBool(item.data.auto)}}
+                checked$={{item.data.auto}}
                 class="green"
                 title="Auto play when possible"
                 on-change="_onAuto"
-                id="autobutton[[item.id]]"
+                id="autobutton[[item.name]]"
               ></paper-toggle-button>
             </template>
-
+-->
             <template is="dom-if" if="{{_isRunning(item.data.stat)}}">
               <paper-icon-button
                 icon="av:not-interested"
                 class="red tappable"
                 style="margin-right:0.5em"
-                on-tap="tapStop"
+                on-tap="_tapStop"
                 title="Stop"
               ></paper-icon-button>
             </template>
--->
-            <paper-icon-button
-              icon="icons:close"
-              class="red tappable"
-              on-tap="_tapDelete"
-              id="deletebutton[[item.id]]"
-              title="Remove from queue"
-            ></paper-icon-button>
+            <template is="dom-if" if="[[!_isRunning(item.data.stat)]]">
+              <paper-icon-button
+                icon="icons:close"
+                class="red tappable"
+                on-tap="_tapDelete"
+                id="deletebutton[[item.name]]"
+                title="Remove from queue"
+              ></paper-icon-button>
+            </template>
 
           </div>
         </template>
-
-        <paper-button
-          raised
-          id="runbutton"
-          hidden$=[[!_canRun(currentstate)]]
-          on-tap="_tapRunButton">
-          Run
-         </paper-button>
-
-        <paper-button
-          raised
-          hidden$=[[!_canKill(currentstate)]]
-          id="killbutton"
-          on-tap="_tapKillButton">
-          Kill
-         </paper-button>
 
       </template>
 
@@ -263,10 +242,16 @@
       },
       _tapAddButton: function() {
         var data = {};
-        data.cmdLine = this.$.dialogcmd.value
-        // data.auto = this.$.dialogauto.checked
+        data.cmd = this.$.dialogcmd.value
+        data.auto = true // this.$.dialogauto.checked
 
-        this.$.simulationq.createSimulation(data);
+        this.$.simulationq.createSimulation(data)
+
+        // FIXME: use websockets
+        let that = this
+        setTimeout(function () {
+          that.$.simulationq._tapGetItems()
+        }, 5000);
       },
       _tapDelete: function(e) {
         let id = e.target.parentNode.id.substring(12)
@@ -274,44 +259,22 @@
       },
       _onAuto: function(e) {
         var data = {};
-        // data.auto = e.target.checked
+        data.auto = e.target.checked
 
         let id = e.target.id.substring(10)
         this.$.simulationq.updateSimulation(id, data)
       },
       _onSimulationList(e) {
-        let temp = e.detail.value;
-
-        temp.splice(0, 2)
-
-        this.simulations = temp
+        this.simulations = e.detail.value
       },
-      _tapRunButton(e) {
-        this.currenccmd = ''
-        for (var i = 0; i < this.simulations.length; ++i)
-        {
-          if (this.simulations[i].data.stat == "WAITING")
-          {
-            var str = 'simulations.' + i + '.data.stat'
-            this.set(str, 'RUNNING')
-            this.currentcmd = this.simulations[i].data.cmd
-            this.$.gzcmd.tapRun()
-            break;
-          }
-        }
-      },
-      _tapKillButton(e) {
-        this.currenccmd = ''
-        for (var i = 0; i < this.simulations.length; ++i)
-        {
-          if (this.simulations[i].data.stat == "RUNNING")
-          {
-            var str = 'simulations.' + i + '.data.stat'
-            this.set(str, 'FINISHED')
-            this.$.gzcmd.tapKill()
-            break;
-          }
-        }
+      _tapStop() {
+        this.$.simulationq.kill()
+
+        // FIXME: use websockets
+        let that = this
+        setTimeout(function () {
+          that.$.simulationq._tapGetItems()
+        }, 5000);
       },
       _isFinished: function(stat) {
         return stat == "FINISHED"
@@ -324,15 +287,6 @@
       },
       _hasItems: function(items) {
         return items.length > 0
-      },
-      _strToBool: function(st) {
-        return st === "true" ? true : false
-      },
-      _canRun: function(st) {
-        return st === "ready" || st === "closed"
-      },
-      _canKill: function(st) {
-        return st === "running"
       },
       _currentStateChanged: function(e) {
         if (e.detail.value === 'closed')
