@@ -25,12 +25,6 @@
     <div class="horizontal">
 
       <div class="space"></div>
-      <template is="dom-if" if="{{isadmin}}">
-        <cs-serverstatus
-        ></cs-serverstatus>
-      </template>
-
-      <div class="space"></div>
 
       <template is="dom-if" if="{{hasmachinelauncher}}">
         <cs-machinelauncher
@@ -74,9 +68,6 @@
       attached: function() {
         console.log('cs-dashboard widget attached!')
       },
-      _currentUserChanged: function() {
-        this.isadmin = this.currentuser === getConfig().admin
-      },
       _currentPermissionsChanged: function() {
 
         // When permissions change, check if user can launch machines
@@ -102,16 +93,10 @@
           value: 'token not set',
           notify: true
         },
-        isadmin: {
-          type: Boolean,
-          value: false,
-          notify: true
-        },
         currentuser: {
           type: String,
           value: 'current user not set',
-          notify: true,
-          observer: '_currentUserChanged'
+          notify: true
         },
         currentpermissions: {
           type: Object,

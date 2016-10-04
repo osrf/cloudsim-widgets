@@ -24,10 +24,21 @@
 
     <div class="horizontal">
 
+      <div class="space"></div>
+
+      <template is="dom-if" if="{{isadmin}}">
+        <cs-serverstatus
+        ></cs-serverstatus>
+      </template>
+
+      <div class="space"></div>
+
       <cs-groups
         url=[[authurl]]
         token=[[token]]
       ></cs-groups>
+
+      <div class="space"></div>
 
     </div>
 
@@ -43,7 +54,23 @@
       attached: function() {
         console.log('cs-profile widget attached!')
       },
+
+      /// Callback when the current user has changed
+      _currentUserChanged: function() {
+        this.isadmin = this.currentuser === getConfig().admin
+      },
       properties: {
+        currentuser: {
+          type: String,
+          value: 'current user not set',
+          notify: true,
+          observer: '_currentUserChanged'
+        },
+        isadmin: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
       },
     });
   })();
