@@ -171,13 +171,15 @@
                 title="Stop"
               ></paper-icon-button>
             </template>
-            <paper-icon-button
-              icon="icons:close"
-              class="red tappable"
-              on-tap="_tapDelete"
-              id="deletebutton[[item.name]]"
-              title="Remove from queue"
-            ></paper-icon-button>
+            <template is="dom-if" if="[[!_isRunning(item.data.stat)]]">
+              <paper-icon-button
+                icon="icons:close"
+                class="red tappable"
+                on-tap="_tapDelete"
+                id="deletebutton[[item.name]]"
+                title="Remove from queue"
+              ></paper-icon-button>
+            </template>
 
           </div>
         </template>
@@ -244,6 +246,12 @@
         data.auto = true // this.$.dialogauto.checked
 
         this.$.simulationq.createSimulation(data)
+
+        // FIXME: use websockets
+        let that = this
+        setTimeout(function () {
+          that.$.simulationq._tapGetItems()
+        }, 5000);
       },
       _tapDelete: function(e) {
         let id = e.target.parentNode.id.substring(12)
@@ -261,6 +269,12 @@
       },
       _tapStop() {
         this.$.simulationq.kill()
+
+        // FIXME: use websockets
+        let that = this
+        setTimeout(function () {
+          that.$.simulationq._tapGetItems()
+        }, 5000);
       },
       _isFinished: function(stat) {
         return stat == "FINISHED"
