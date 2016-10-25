@@ -7,7 +7,7 @@
   "version": "0.0.1",
   "scripts": {
     "coveralls": "istanbul cover _mocha -- -u exports -R spec && gulp test:local && istanbul-coveralls",
-    "test": "istanbul cover --print both _mocha -- -u exports -R spec && gulp test:local",
+    "test": "istanbul cover --print both _mocha -- -u exports -R spec && ./node_modules/web-component-tester/bin/wct",
     "start": "gulp && node server/cloudsim_widgets",
     "dev": "node server/cloudsim_widgets dev"
   },
@@ -48,6 +48,7 @@
     "mocha": "^3.0.2",
     "should": "^11.1.0",
     "supertest": "^2.0.0",
-    "web-component-tester": "^4.0.0"
+    "web-component-tester": "4.0.3",
+    "web-component-tester-istanbul": "^0.10.0"
   }
 }
