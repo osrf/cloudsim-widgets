@@ -6,7 +6,8 @@
   "license": "ISC",
   "version": "0.0.1",
   "scripts": {
-    "test": "mocha && gulp test:local",
+    "coveralls": "istanbul cover _mocha -- -u exports -R spec && gulp test:local && istanbul-coveralls",
+    "test": "istanbul cover --print both _mocha -- -u exports -R spec && gulp test:local",
     "start": "gulp && node server/cloudsim_widgets",
     "dev": "node server/cloudsim_widgets dev"
   },
@@ -42,6 +43,8 @@
     "run-sequence": "^1.0.2"
   },
   "devDependencies": {
+    "istanbul": "^0.4.5",
+    "istanbul-coveralls": "^1.0.3",
     "mocha": "^3.0.2",
     "should": "^11.1.0",
     "supertest": "^2.0.0",
