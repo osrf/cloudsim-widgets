@@ -5,16 +5,18 @@ const dotenv = require('dotenv');
 dotenv.config()
 
 // Required environment variables
-if (!process.env.CLOUDSIM_AUTH_URL)
-  throw('undefined: process.env.CLOUDSIM_AUTH_URL')
-if (!process.env.CLOUDSIM_PORTAL_URL)
-  throw('undefined: process.env.CLOUDSIM_PORTAL_URL')
-if (!process.env.AUTH0_CLIENT_ID)
-  throw('undefined: process.env.AUTH0_CLIENT_ID')
-if (!process.env.AUTH0_DOMAIN)
-  throw('undefined: process.env.AUTH0_DOMAIN')
-if (!process.env.CLOUDSIM_ADMIN)
-  throw('undefined: process.env.CLOUDSIM_ADMIN')
+if (process.env.NODE_ENV != "test") {
+  if (!process.env.CLOUDSIM_AUTH_URL)
+    throw('undefined: process.env.CLOUDSIM_AUTH_URL')
+  if (!process.env.CLOUDSIM_PORTAL_URL)
+    throw('undefined: process.env.CLOUDSIM_PORTAL_URL')
+  if (!process.env.AUTH0_CLIENT_ID)
+    throw('undefined: process.env.AUTH0_CLIENT_ID')
+  if (!process.env.AUTH0_DOMAIN)
+    throw('undefined: process.env.AUTH0_DOMAIN')
+  if (!process.env.CLOUDSIM_ADMIN)
+    throw('undefined: process.env.CLOUDSIM_ADMIN')
+}
 
 exports.middleware = function(req, res, next){
   if (req.originalUrl === "/scripts/config.js") {

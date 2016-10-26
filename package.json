@@ -6,7 +6,7 @@
   "license": "ISC",
   "version": "0.0.1",
   "scripts": {
-    "test": "mocha && gulp test:local",
+    "test": "export NODE_ENV=test && mocha && ./node_modules/web-component-tester/bin/wct",
     "start": "gulp && node server/cloudsim_widgets",
     "dev": "node server/cloudsim_widgets dev"
   },
@@ -45,6 +45,7 @@
     "mocha": "^3.0.2",
     "should": "^11.1.0",
     "supertest": "^2.0.0",
+    "wct-local": "2.0.12",
     "web-component-tester": "^4.0.0"
   }
 }
