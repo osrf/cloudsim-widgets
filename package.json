@@ -6,7 +6,7 @@
   "license": "ISC",
   "version": "0.0.1",
   "scripts": {
-    "test": "mocha && ./node_modules/web-component-tester/bin/wct",
+    "test": "export NODE_ENV=test && mocha && ./node_modules/web-component-tester/bin/wct",
     "start": "gulp && node server/cloudsim_widgets",
     "dev": "node server/cloudsim_widgets dev"
   },
