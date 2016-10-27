@@ -8,6 +8,7 @@ mapping['/components/' + rootPath  +
 
 var ret = {
   'verbose' : false,
+  'browsers' : ['chrome'],
   'suites': ['app/test'],
   'webserver': {
     'pathMappings': [mapping]
