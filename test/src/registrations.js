@@ -232,7 +232,7 @@ describe('<Unit test SRC signups>', function() {
       .end(function(err,res) {
         res.status.should.be.equal(200)
         res.redirect.should.equal(false)
-        let response = getResponse(res)
+        let response = getResponse(res, true)
         response.success.should.equal(true)
         response.requester.should.equal(csAdmin)
         response.result.length.should.equal(2)
