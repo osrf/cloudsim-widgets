@@ -7,7 +7,7 @@
   "version": "0.0.1",
   "scripts": {
     "coveralls": "rm -rf coverage/ && mkdir coverage && ./node_modules/lcov-result-merger/bin/lcov-result-merger.js 'coverage*/lcov.info' 'coverage/lcov.info' && istanbul-coveralls",
-    "test": "./node_modules/eslint/bin/eslint.js server/ test/ && export NODE_ENV=test && mocha && node ./node_modules/istanbul/lib/cli.js cover --print both --dir ./coverage_server _mocha -- -u exports -R spec && ./node_modules/web-component-tester/bin/wct",
+    "test": "./node_modules/eslint/bin/eslint.js server/ test/ gulpfile.js && export NODE_ENV=test && mocha && node ./node_modules/istanbul/lib/cli.js cover --print both --dir ./coverage_server _mocha -- -u exports -R spec && ./node_modules/web-component-tester/bin/wct",
     "start": "gulp && node server/cloudsim_widgets",
     "dev": "node server/cloudsim_widgets dev"
   },

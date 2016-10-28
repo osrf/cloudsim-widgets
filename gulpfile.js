@@ -9,14 +9,9 @@ var merge = require('merge-stream');
 var path = require('path');
 var fs = require('fs');
 var glob = require('glob-all');
-var historyApiFallback = require('connect-history-api-fallback');
 var packageJson = require('./package.json');
 var crypto = require('crypto');
 var ensureFiles = require('./tasks/ensure-files.js');
-
-const middleware = require('./server/middleware')
-
-// var ghPages = require('gulp-gh-pages');
 
 var AUTOPREFIXER_BROWSERS = [
   'ie >= 10',
@@ -38,8 +33,8 @@ var dist = function(subpath) {
 
 var styleTask = function(stylesPath, srcs) {
   return gulp.src(srcs.map(function(src) {
-      return path.join('app', stylesPath, src);
-    }))
+    return path.join('app', stylesPath, src);
+  }))
     .pipe($.changed(stylesPath, {extension: '.css'}))
     .pipe($.autoprefixer(AUTOPREFIXER_BROWSERS))
     .pipe(gulp.dest('.tmp/' + stylesPath))
@@ -149,8 +144,8 @@ gulp.task('restore_index', function() {
   }).pipe(gulp.dest(dist()));
 
   return index.pipe($.size({
-      title: 'restore_index'
-    }));
+    title: 'restore_index'
+  }));
 });
 
 // Copy web fonts to dist
@@ -166,7 +161,7 @@ gulp.task('fonts', function() {
 gulp.task('html', function() {
   return optimizeHtmlTask(
     ['app/**/*.html',
-     '!app/{elements,test,bower_components}/**/*.html'],
+      '!app/{elements,test,bower_components}/**/*.html'],
     dist());
 });
 
@@ -202,19 +197,19 @@ gulp.task('cache-config', function(callback) {
     'bower_components/webcomponentsjs/webcomponents-lite.min.js',
     '{elements,scripts,styles}/**/*.*'],
     {cwd: dir}, function(error, files) {
-    if (error) {
-      callback(error);
-    } else {
-      config.precache = files;
+      if (error) {
+        callback(error);
+      } else {
+        config.precache = files;
 
-      var md5 = crypto.createHash('md5');
-      md5.update(JSON.stringify(config.precache));
-      config.precacheFingerprint = md5.digest('hex');
+        var md5 = crypto.createHash('md5');
+        md5.update(JSON.stringify(config.precache));
+        config.precacheFingerprint = md5.digest('hex');
 
-      var configPath = path.join(dir, 'cache-config.json');
-      fs.writeFile(configPath, JSON.stringify(config), callback);
-    }
-  });
+        var configPath = path.join(dir, 'cache-config.json');
+        fs.writeFile(configPath, JSON.stringify(config), callback);
+      }
+    });
 });
 
 // Clean output directory
@@ -256,4 +251,6 @@ gulp.task('deploy-gh-pages', function() {
 // Load custom tasks from the `tasks` directory
 try {
   require('require-dir')('tasks');
-} catch (err) {}
+} catch (err) {
+  console.error("Failed to load tasks")
+}
