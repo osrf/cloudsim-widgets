@@ -6,7 +6,8 @@
   "license": "ISC",
   "version": "0.0.1",
   "scripts": {
-    "test": "export NODE_ENV=test && mocha && gulp test:local",
+    "coveralls": "rm -rf coverage/ && mkdir coverage && ./node_modules/lcov-result-merger/bin/lcov-result-merger.js 'coverage*/lcov.info' 'coverage/lcov.info' && istanbul-coveralls",
+    "test": "export NODE_ENV=test && mocha && node ./node_modules/istanbul/lib/cli.js cover --print both --dir ./coverage_server _mocha -- -u exports -R spec && ./node_modules/web-component-tester/bin/wct",
     "start": "gulp && node server/cloudsim_widgets",
     "dev": "node server/cloudsim_widgets dev"
   },
@@ -37,15 +38,18 @@
     "gulp-vulcanize": "^6.0.0",
     "merge-stream": "^1.0.0",
     "morgan": "^1.7.0",
-    "path": "^0.12.7",
     "require-dir": "^0.3.0",
     "run-sequence": "^1.0.2"
   },
   "devDependencies": {
+    "istanbul": "^0.4.5",
+    "istanbul-coveralls": "^1.0.3",
+    "lcov-result-merger": "^1.2.0",
     "mocha": "^3.0.2",
     "should": "^11.1.0",
     "supertest": "^2.0.0",
     "wct-local": "2.0.12",
-    "web-component-tester": "^4.0.0"
+    "web-component-tester": "4.0.3",
+    "web-component-tester-istanbul": "^0.10.0"
   }
 }

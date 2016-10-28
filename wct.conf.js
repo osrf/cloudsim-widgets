@@ -1,19 +1,34 @@
 var path = require('path');
 
-var ret = {
-  'suites': ['app/test'],
-  'webserver': {
-    'pathMappings': []
-  },
-  'browsers': ['chrome'],
-};
-
 var mapping = {};
 var rootPath = (__dirname).split(path.sep).slice(-1)[0];
 
 mapping['/components/' + rootPath  +
 '/app/bower_components'] = 'bower_components';
 
-ret.webserver.pathMappings.push(mapping);
+var ret = {
+  'verbose' : false,
+  'browsers' : ['chrome'],
+  'suites': ['app/test'],
+  'webserver': {
+    'pathMappings': [mapping]
+  },
+  'plugins': {
+    'istanbul': {
+      'dir': './coverage_components',
+      'reporters': ['text-summary', 'lcov'],
+      'include': [
+        '/app/elements/**/*.html'
+      ],
+      "exclude": [
+      ],
+      'thresholds': {
+        'global': {
+          'statements': 10
+        }
+      }
+    }
+  }
+};
 
 module.exports = ret;
