@@ -247,9 +247,9 @@
       },
       openToast: function(e) {
         let msg = e.detail
-        if (e.detail.msg)
+        if (e.detail && e.detail.msg)
           msg = e.detail.msg
-        if (e.detail.type === "error")
+        if (e.detail && e.detail.type === "error")
         {
           this.$.errorToast.text = msg
           this.$.errorToast.open()
@@ -262,7 +262,7 @@
       },
       openErrorToast: function(e) {
         let msg = e.detail
-        if (e.detail.msg)
+        if (e.detail && e.detail.msg)
           msg = e.detail.msg
         this.$.errorToast.text = msg
         this.$.errorToast.open()

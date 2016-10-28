@@ -29,6 +29,20 @@
         assert(component)
       });
 
+      test('Status', function() {
+        // Initial stat is empty
+        assert.equal(component.stat, '')
+
+        component.launch_date = '2016-10-26T21:07:30.702Z'
+        component.termination_date = '2016-10-26T22:07:30.702Z'
+
+        // Cycle through all possible stats
+        component.stat = 'LAUNCHING'
+        component.stat = 'RUNNING'
+        component.stat = 'TERMINATING'
+        component.stat = 'TERMINATED'
+      });
+
     });
   </script>
 

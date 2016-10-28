@@ -37,6 +37,27 @@
         assert(component)
       });
 
+      test('Toast', function(done) {
+        assert(!component.$.msgToast.opened)
+        assert(!component.$.errorToast.opened)
+
+        component.addEventListener('notification', function() {
+          assert(component.$.msgToast.opened)
+          assert(!component.$.errorToast.opened)
+
+          component.addEventListener('error', function() {
+            assert(!component.$.msgToast.opened)
+            assert(component.$.errorToast.opened)
+            done()
+          });
+
+          var event = new CustomEvent('error', {'msg': 'error msg'});
+          component.dispatchEvent(event);
+        });
+
+        var event = new CustomEvent('notification', {'msg': 'notification msg'});
+        component.dispatchEvent(event);
+      });
     });
   </script>
 

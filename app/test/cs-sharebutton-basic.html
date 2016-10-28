@@ -29,6 +29,12 @@
         assert(component)
       });
 
+      test('Dialog', function() {
+        assert(!component.$.sharedialog.opened)
+        component.tapOpenDialog()
+        assert(component.$.sharedialog.opened)
+      });
+
     });
   </script>
 

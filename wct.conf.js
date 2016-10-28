@@ -16,7 +16,7 @@ var ret = {
   'plugins': {
     'istanbul': {
       'dir': './coverage_components',
-      'reporters': ['text-summary', 'lcov'],
+      'reporters': ['text', 'text-summary', 'lcov'],
       'include': [
         '/app/elements/**/*.html'
       ],
