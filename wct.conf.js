@@ -5,6 +5,7 @@ var ret = {
   'webserver': {
     'pathMappings': []
   }
+  'browsers': ['chrome'],
 };
 
 var mapping = {};
