@@ -15,36 +15,7 @@ const token = csgrant.token
 const keys = csgrant.token.generateKeys()
 token.initKeys(keys.public, keys.private)
 
-const admin = process.env.CLOUDSIM_ADMIN?process.env.CLOUDSIM_ADMIN:'admin'
-
-
-const adminTokenData = {username: admin}
-let adminToken
-
-console.log('adminTokenData', adminTokenData)
-
-function getResponse(res, print) {
-  const response = JSON.parse(res.text)
-  if(print) {
-    csgrant.dump()
-    console.trace(JSON.stringify(response, null, 2 ))
-  }
-  return response
-}
-
 describe('<Unit test Widgets>', function() {
-
-  before(function(done) {
-    token.signToken(adminTokenData, (e, tok)=>{
-      console.log('token signed for user "' + admin + '"')
-      if(e) {
-        console.log('sign error: ' + e)
-        should.fail()
-      }
-      adminToken = tok
-      done()
-    })
-  })
 
   let mtId
   describe('Make a request', function() {

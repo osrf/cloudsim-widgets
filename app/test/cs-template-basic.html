@@ -21,12 +21,21 @@
   <script>
 
     suite('cs-template tests', function() {
+      // Run before each test
       setup(function() {
         component = fixture('basic');
       });
 
       test('Load', function() {
         assert(component)
+      });
+
+      test('Call a function', function() {
+        component.templateFunction()
+      });
+
+      test('Check a property', function() {
+        assert.equal(component.templateproperty, 'template')
       });
 
     });

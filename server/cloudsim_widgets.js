@@ -23,12 +23,13 @@ app.use(morgan('combined'))
 // Redirect to HTTPS
 app.use(function (req, res, next) {
     // Insecure request?
-    if (req.get('x-forwarded-proto') == 'http') {
+    /* istanbul ignore if */
+  if (req.get('x-forwarded-proto') == 'http') {
         // Redirect to https://
-        return res.redirect('https://' + req.get('host') + req.url);
-    }
+    return res.redirect('https://' + req.get('host') + req.url);
+  }
 
-    next();
+  next();
 });
 
 // the configuration values are set in the local .env file
@@ -45,19 +46,19 @@ const adminUser = process.env.CLOUDSIM_ADMIN || 'admin'
 
 // we create 2 initial resources
 csgrant.init(adminUser, {'src_registrations': {},
-                         'ariac_registrations': {}
-                        },
+  'ariac_registrations': {}
+},
                         dbName,
                         (err)=> {
-  if(err){
-    console.log('Error loading resources: ' + err)
-    process.exit(-1)
-  }
-  else {
-    console.log('resources loaded')
-    csgrant.dump()
-  }
-})
+                          if(err){
+                            console.log('Error loading resources: ' + err)
+                            process.exit(-1)
+                          }
+                          else {
+                            console.log('resources loaded')
+                            csgrant.dump()
+                          }
+                        })
 
 // serve the app from the dist directory
 let rootDir = path.join(__dirname, '/../dist')
@@ -99,6 +100,6 @@ console.log('============================================')
 console.log('\n\n')
 
 httpServer.listen(port, function(){
-	console.log('listening on *:' + port);
+  console.log('listening on *:' + port);
 })
 

@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 dotenv.config()
 
 // Required environment variables
+/* istanbul ignore if  */
 if (process.env.NODE_ENV != "test") {
   if (!process.env.CLOUDSIM_AUTH_URL)
     throw('undefined: process.env.CLOUDSIM_AUTH_URL')
