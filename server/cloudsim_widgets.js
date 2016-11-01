@@ -75,6 +75,10 @@ app.param('resourceId', function( req, res, next, id) {
 // use the middleware module to serve config.js
 app.use(middleware.middleware)
 
+app.get('*', function(req, res){
+  res.redirect("/")
+});
+
 // Expose app
 exports = module.exports = app
 
