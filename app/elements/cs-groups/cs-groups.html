@@ -326,8 +326,7 @@
 
       /// Request to delete a group
       _onDeleteGroup(e) {
-        this.$.resources.deleteid = this.selectedgroup.name;
-        this.$.resources.delete();
+        this.$.resources.del(this.selectedgroup.name);
 
         // Close dialog
         var dialog = this.$.groupdialog
