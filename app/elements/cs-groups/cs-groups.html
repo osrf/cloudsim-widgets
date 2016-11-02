@@ -320,8 +320,8 @@
 
       /// Request to create a new group
       _onCreateGroup(e) {
-        this.$.resources.data = { resource: this.creategroupname.trim() };
-        this.$.resources.create();
+        let data = { resource: this.creategroupname.trim() };
+        this.$.resources.create(data);
       },
 
       /// Request to delete a group
@@ -383,7 +383,7 @@
         // Get updated list of groups
         this.$.resources.getAll();
 
-        this.fire('notification', 'Deleted group "' + e.detail.result.data.name
+        this.fire('notification', 'Deleted group "' + e.detail.resource.data.name
             + '"');
       },
 
