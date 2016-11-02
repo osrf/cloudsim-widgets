@@ -320,7 +320,12 @@
 
       /// Request to create a new group
       _onCreateGroup(e) {
-        let data = { resource: this.creategroupname.trim() };
+        let groupName = this.creategroupname.trim()
+        if (groupName === "") {
+          this.fire('error', "Group name must not be empty!")
+          return
+        }
+        let data = { resource: groupName };
         this.$.resources.create(data);
       },
 
