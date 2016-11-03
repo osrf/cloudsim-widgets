@@ -161,8 +161,7 @@
       /// Callback when the decline button is pressed
       _onDecline: function(e) {
         this.declining = true;
-        this.$.resources.deleteid = e.target.parentElement.id;
-        this.$.resources.delete();
+        this.$.resources.del(e.target.parentElement.id);
       },
 
       /// Callback when the widget server notifies that the user was i
@@ -212,8 +211,7 @@
         }
 
         // Step 2: remove user from signup list (widgets server)
-        this.$.resources.deleteid = this.selectedid;
-        this.$.resources.delete();
+        this.$.resources.del(this.selectedid);
       },
 
       properties: {
