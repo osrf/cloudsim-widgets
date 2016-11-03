@@ -2,7 +2,6 @@
 
 console.log('test/src/registrations.js')
 
-const util = require('util')
 const should = require('should')
 const supertest = require('supertest')
 

@@ -46,22 +46,22 @@ function setRoutes(app) {
         csgrant.createResource(req.user, resourceName,
           {username: req.user}, (err, data) => {
 
-          if (err) {
-            res.status(500).jsonp(error(err))
-            return;
-          }
+            if (err) {
+              res.status(500).jsonp(error(err))
+              return;
+            }
 
-          let r = {};
-          r.success = true
-          r.result = data
-          r.id = resourceName
+            let r = {};
+            r.success = true
+            r.result = data
+            r.id = resourceName
 
           // Share it with cloudsim admin
-          let adminUsername = 'admin';
-          if (process.env.CLOUDSIM_ADMIN)
-            adminUsername = process.env.CLOUDSIM_ADMIN;
+            let adminUsername = 'admin';
+            if (process.env.CLOUDSIM_ADMIN)
+              adminUsername = process.env.CLOUDSIM_ADMIN;
 
-          csgrant.grantPermission(req.user, adminUsername, r.id, false,
+            csgrant.grantPermission(req.user, adminUsername, r.id, false,
             function(err) {
               if (err) {
                 res.status(500).jsonp(error(err))
@@ -78,11 +78,11 @@ function setRoutes(app) {
                   }
 
                   res.jsonp(r);
-              })
+                })
+            })
           })
-        })
       })
-  })
+    })
 
   // Remove a signup request from the list.
   // * CLOUDSIM_ADMIN should be able to remove any request.
@@ -93,7 +93,7 @@ function setRoutes(app) {
     csgrant.ownsResource(':srcsignup', false),
     function (req, res) {
 
-      csgrant.deleteResource(req.user, req.srcsignup, (err, data) => {
+      csgrant.deleteResource(req.user, req.srcsignup, (err) => {
         let r = {};
         if (err) {
           res.status(500).jsonp(error(err))

@@ -37,10 +37,10 @@ const adminUser = process.env.CLOUDSIM_ADMIN || 'admin'
 
 // we create 2 initial resources
 csgrant.init(adminUser, {'src_registrations': {},
-                         'ariac_registrations': {},
-                         'src_admins': {},
-                         'ariac_admins': {}
-                        },
+  'ariac_registrations': {},
+  'src_admins': {},
+  'ariac_admins': {}
+},
                         dbName,
                         process.env.CLOUDSIM_WIDGETS_DB,
                         (err)=> {
