@@ -19,8 +19,16 @@ app.use(cors())
 app.use(bodyParser.json())
 
 // prints all requests to the terminal
-app.use(morgan('combined'))
-
+app.use(morgan('combined', {
+  skip: function (req, res) {
+    // skip /api stuff
+    const isApi = req.originalUrl.startsWith('/api/')
+    if (isApi) {
+      return true
+    }
+    return false
+  }
+}))
 
 // the configuration values are set in the local .env file
 // this loads the .env content and puts it in the process environment.
@@ -59,6 +67,7 @@ let rootDir = path.join(__dirname, '/../dist')
 if (process.argv[2] === 'dev')
   rootDir = path.join(__dirname, '/../app')
 app.use("/", express.static(rootDir));
+app.use("/api", express.static(path.join(__dirname, '/../api')));
 
 // setup the routes
 app.get('/permissions',
