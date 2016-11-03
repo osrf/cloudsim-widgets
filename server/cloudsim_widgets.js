@@ -44,15 +44,15 @@ csgrant.init(adminUser, {'src_registrations': {},
                         dbName,
                         process.env.CLOUDSIM_WIDGETS_DB,
                         (err)=> {
-  if(err){
-    console.log('Error loading resources: ' + err)
-    process.exit(-1)
-  }
-  else {
-    console.log('resources loaded')
-    csgrant.dump()
-  }
-})
+                          if(err){
+                            console.log('Error loading resources: ' + err)
+                            process.exit(-1)
+                          }
+                          else {
+                            console.log('resources loaded')
+                            csgrant.dump()
+                          }
+                        })
 
 // serve the app from the dist directory
 let rootDir = path.join(__dirname, '/../dist')
@@ -97,6 +97,6 @@ console.log('============================================')
 console.log('\n\n')
 
 httpServer.listen(port, function(){
-	console.log('listening on *:' + port);
+  console.log('listening on *:' + port);
 })
 

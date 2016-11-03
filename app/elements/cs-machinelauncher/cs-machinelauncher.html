@@ -121,21 +121,21 @@
           return;
         }
 
-        this.$.resources.data =  {
-              token: this.token,
-              region: this.machine.region,
-              machineImage: this.machine.image,
-              hardware: this.machine.hardware
-          }
+        let data =  {
+          token: this.token,
+          region: this.machine.region,
+          machineImage: this.machine.image,
+          hardware: this.machine.hardware
+        }
 
-        this.$.resources.create();
+        this.$.resources.create(data);
         this.fire('notification', {msg: "Request to launch a \"" + this.machine.name + "\" has been sent.", type: "msg"})
       },
       _onLaunched: function(e) {
         let success = e.detail.success
         let msg = e.detail.message
 
-        if (success && success == false)
+        if (success != undefined && success == false)
         {
           this.fire('notification', {msg: msg, type: "error"})
         }

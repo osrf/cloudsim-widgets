@@ -43,8 +43,7 @@
         console.log('cs-machinekillbutton widget attached!')
       },
       tapKill(e) {
-        this.$.resources.deleteid = this.machine_id;
-        this.$.resources.delete();
+        this.$.resources.del(this.machine_id);
         this.fire('notification',
             {msg: "Request to kill machine has been sent.", type: "msg"})
       },

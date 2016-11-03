@@ -320,14 +320,18 @@
 
       /// Request to create a new group
       _onCreateGroup(e) {
-        this.$.resources.data = { resource: this.creategroupname.trim() };
-        this.$.resources.create();
+        let groupName = this.creategroupname.trim()
+        if (groupName === "") {
+          this.fire('error', "Group name must not be empty!")
+          return
+        }
+        let data = { resource: groupName };
+        this.$.resources.create(data);
       },
 
       /// Request to delete a group
       _onDeleteGroup(e) {
-        this.$.resources.deleteid = this.selectedgroup.name;
-        this.$.resources.delete();
+        this.$.resources.del(this.selectedgroup.name);
 
         // Close dialog
         var dialog = this.$.groupdialog
@@ -384,7 +388,7 @@
         // Get updated list of groups
         this.$.resources.getAll();
 
-        this.fire('notification', 'Deleted group "' + e.detail.result.data.name
+        this.fire('notification', 'Deleted group "' + e.detail.resource.data.name
             + '"');
       },
 

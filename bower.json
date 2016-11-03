@@ -5,7 +5,7 @@
     "gold-email-input": "PolymerElements/gold-email-input#^1.0.7",
     "gz-cmd": "osrf/gz-cmd#0.0.3",
     "gz-grant": "osrf/gz-grant#0.0.9",
-    "gz-resources": "osrf/gz-resources#0.0.5",
+    "gz-resources": "osrf/gz-resources#0.0.6",
     "gz-simulationq": "osrf/gz-simulationq#0.0.9",
     "gz-simulatorq": "osrf/gz-simulatorq#0.0.3",
     "gz-token": "osrf/gz-token#0.2.0",
