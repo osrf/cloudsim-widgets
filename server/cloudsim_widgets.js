@@ -56,6 +56,7 @@ let rootDir = path.join(__dirname, '/../dist')
 if (process.argv[2] === 'dev')
   rootDir = path.join(__dirname, '/../app')
 app.use("/", express.static(rootDir));
+app.use("/api", express.static(path.join(__dirname, '/../api')));
 
 // setup the routes
 app.get('/permissions',
