@@ -82,13 +82,12 @@ describe('<Unit test SRC signups>', function() {
     })
   })
 
-  describe('Check initial registrations with cloudsim admin', function() {
+  describe('Check initial pending registrations with cloudsim admin', function() {
     it('should be empty', function(done) {
       agent
       .get('/srcsignups')
       .set('Accept', 'application/json')
       .set('authorization', csAdminToken)
-      .send({})
       .end(function(err,res) {
         res.status.should.be.equal(200)
         res.redirect.should.equal(false)
@@ -101,13 +100,12 @@ describe('<Unit test SRC signups>', function() {
     })
   })
 
-  describe('Check initial registrations with competition admin', function() {
+  describe('Check initial pending registrations with competition admin', function() {
     it('should be authorized and empty', function(done) {
       agent
       .get('/srcsignups')
       .set('Accept', 'application/json')
       .set('authorization', srcAdminToken)
-      .send({})
       .end(function(err,res) {
         res.status.should.be.equal(200)
         res.redirect.should.equal(false)
@@ -120,13 +118,12 @@ describe('<Unit test SRC signups>', function() {
     })
   })
 
-  describe('Check initial registrations with competitor', function() {
+  describe('Check initial pending registrations with competitor', function() {
     it('should be authorized and empty', function(done) {
       agent
       .get('/srcsignups')
       .set('Accept', 'application/json')
       .set('authorization', srcComp1Token)
-      .send({})
       .end(function(err,res) {
         res.status.should.be.equal(200)
         res.redirect.should.equal(false)
@@ -146,7 +143,6 @@ describe('<Unit test SRC signups>', function() {
       .post('/srcsignups')
       .set('Accept', 'application/json')
       .set('authorization', srcComp1Token)
-      .send({})
       .end(function(err,res) {
         should.not.exist(err);
         should.exist(res);
@@ -166,7 +162,6 @@ describe('<Unit test SRC signups>', function() {
       .get('/srcsignups')
       .set('Accept', 'application/json')
       .set('authorization', srcComp2Token)
-      .send({})
       .end(function(err,res) {
         res.status.should.be.equal(200)
         res.redirect.should.equal(false)
@@ -186,7 +181,6 @@ describe('<Unit test SRC signups>', function() {
       .post('/srcsignups')
       .set('Accept', 'application/json')
       .set('authorization', srcComp2Token)
-      .send({})
       .end(function(err,res) {
         should.not.exist(err);
         should.exist(res);
@@ -206,7 +200,6 @@ describe('<Unit test SRC signups>', function() {
       .get('/srcsignups')
       .set('Accept', 'application/json')
       .set('authorization', srcComp2Token)
-      .send({})
       .end(function(err,res) {
         res.status.should.be.equal(200)
         res.redirect.should.equal(false)
@@ -227,7 +220,6 @@ describe('<Unit test SRC signups>', function() {
       .get('/srcsignups')
       .set('Accept', 'application/json')
       .set('authorization', csAdminToken)
-      .send({})
       .end(function(err,res) {
         res.status.should.be.equal(200)
         res.redirect.should.equal(false)
@@ -250,7 +242,6 @@ describe('<Unit test SRC signups>', function() {
       .get('/srcsignups')
       .set('Accept', 'application/json')
       .set('authorization', srcAdminToken)
-      .send({})
       .end(function(err,res) {
         res.status.should.be.equal(200)
         res.redirect.should.equal(false)
@@ -273,7 +264,6 @@ describe('<Unit test SRC signups>', function() {
       .delete('/srcsignups/' + registrationId1)
       .set('Accept', 'application/json')
       .set('authorization', srcComp2Token)
-      .send({})
       .end(function(err,res) {
         res.status.should.be.equal(401)
         res.redirect.should.equal(false)
@@ -290,7 +280,6 @@ describe('<Unit test SRC signups>', function() {
       .delete('/srcsignups/' + registrationId1)
       .set('Accept', 'application/json')
       .set('authorization', srcComp1Token)
-      .send({})
       .end(function(err,res) {
         res.status.should.be.equal(200)
         res.redirect.should.equal(false)
@@ -307,7 +296,6 @@ describe('<Unit test SRC signups>', function() {
       .get('/srcsignups')
       .set('Accept', 'application/json')
       .set('authorization', csAdminToken)
-      .send({})
       .end(function(err,res) {
         res.status.should.be.equal(200)
         res.redirect.should.equal(false)
@@ -328,7 +316,6 @@ describe('<Unit test SRC signups>', function() {
       .delete('/srcsignups/' + registrationId2)
       .set('Accept', 'application/json')
       .set('authorization', srcAdminToken)
-      .send({})
       .end(function(err,res) {
         res.status.should.be.equal(200)
         res.redirect.should.equal(false)
@@ -345,7 +332,6 @@ describe('<Unit test SRC signups>', function() {
       .get('/srcsignups')
       .set('Accept', 'application/json')
       .set('authorization', csAdminToken)
-      .send({})
       .end(function(err,res) {
         res.status.should.be.equal(200)
         res.redirect.should.equal(false)

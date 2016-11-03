@@ -59,6 +59,10 @@
             "name": "permissions",
             "description": "Manage user access to resources",
           },
+          {
+            "name": "srcsignups",
+            "description": "Manage registrations for SRC",
+          },
         ],
         paths: {
           // /permissions
@@ -86,10 +90,10 @@
                         "type": "boolean",
                       },
                       "operation": {
-                        "type": "string",
+                        "$ref": "#\/definitions\/Operation"
                       },
                       "requester": {
-                        "type": "string",
+                        "$ref": "#\/definitions\/Requester"
                       },
                       "result": {
                         "type" : "array",
@@ -227,13 +231,13 @@
                         "type": "boolean",
                       },
                       "operation": {
-                        "type": "string",
+                        "$ref": "#\/definitions\/Operation"
                       },
                       "requester": {
-                        "type": "string",
+                        "$ref": "#\/definitions\/Requester"
                       },
                       "resource": {
-                        "type": "string",
+                        "$ref": "#\/definitions\/ResourceId"
                       },
                       "result": {
                         "$ref": "#\/definitions\/Resource"
@@ -252,27 +256,187 @@
               ]
             },
           },
+          // /srcsignups
+          "\/srcsignups": {
+            // GET
+            "get": {
+              "tags": [
+                "srcsignups"
+              ],
+              "summary": "Get all pending requests to participate in SRC",
+              "description": "Competition admins should see all pending requests, while each competitor only sees their own.",
+              "consumes": [
+                "application\/json",
+              ],
+              "produces": [
+                "application\/json"
+              ],
+              "parameters": [],
+              "responses": {
+                "200": {
+                  "description": "Success",
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                      },
+                      "operation": {
+                        "$ref": "#\/definitions\/Operation"
+                      },
+                      "requester": {
+                        "$ref": "#\/definitions\/Requester"
+                      },
+                      "result": {
+                        "type" : "array",
+                        "items": {
+                          "$ref": "#\/definitions\/ResourceWithoutPerm"
+                        },
+                      },
+                    },
+                  },
+                },
+                "401": {
+                  "description": "Not authorized"
+                }
+              },
+              "security": [
+                {
+                  "token": [],
+                }
+              ]
+            },
+            // POST
+            "post": {
+              "tags": [
+                "srcsignups"
+              ],
+              "summary": "Request to participate in SRC",
+              "description": "This is meant to be used by prospective competitors. It adds the requesting user to the pending queue.",
+              "consumes": [
+                "application\/json",
+              ],
+              "produces": [
+                "application\/json"
+              ],
+              "parameters": [],
+              "responses": {
+                "200": {
+                  "description": "Success",
+                  "schema": {
+                    "type": "object",
+                    "properties" : {
+                      "success": {
+                        "type": "boolean",
+                      },
+                      "id": {
+                        "type": "string",
+                        "default": "Id of request resource",
+                      },
+                    },
+                  },
+                },
+                "401": {
+                  "description": "Not authorized"
+                }
+              },
+              "security": [
+                {
+                  "token": [],
+                }
+              ]
+            },
+          },
+          // /srcsignups/{resourceId}
+          "\/srcsignups\/{resourceId}": {
+            // DELETE
+            "delete": {
+              "tags": [
+                "srcsignups"
+              ],
+              "summary": "Remove a signup request from the list.",
+              "description": "A prospect competitor can use this to cancel their request to participate. Admins can use it to remove anyone from the list, regardless of whether they were accepted into the competition or not.",
+              "consumes": [
+                "application\/json",
+              ],
+              "produces": [
+                "application\/json"
+              ],
+              "parameters": [
+                {
+                  "name": "resourceId",
+                  "in": "path",
+                  "description": "Id of signup resource",
+                  "required": true,
+                  "type": "string",
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Success",
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                      },
+                      "resource": {
+                        "$ref": "#\/definitions\/ResourceWithoutPerm"
+                      },
+                    },
+                  },
+                },
+                "401": {
+                  "description": "Not authorized"
+                }
+              },
+              "security": [
+                {
+                  "token": [],
+                }
+              ]
+            },
+          },
         },
         definitions: {
-          "ResourceName": {
-            "type": "object",
-            "properties": {
-              "resource": {
-                "type": "string",
-              },
-            },
+          "Operation": {
+            "type": "string",
+            "default": "description of operation",
+          },
+          "Requester": {
+            "type": "string",
+            "default": "user who sent the request",
+          },
+          "Grantee": {
+            "type": "string",
+            "default": "target user",
+          },
+          "ResourceId": {
+            "type": "string",
+            "default": "resource id",
           },
           "Resource": {
             "type": "object",
             "properties": {
               "name": {
-                "type": "string",
+                "$ref": "#\/definitions\/ResourceId"
               },
               "data": {
                 "type": "object",
               },
               "permissions": {
                 "$ref": "#\/definitions\/Permissions"
+              },
+            },
+          },
+          "ResourceWithoutPerm": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "$ref": "#\/definitions\/ResourceId"
+              },
+              "data": {
+                "type": "object",
               },
             },
           },
@@ -283,6 +447,7 @@
               "properties": {
                 "username": {
                   "type": "string",
+                  "default": "unique id for user",
                 },
                 "permissions": {
                   "type": "object",
@@ -299,10 +464,10 @@
             "type": "object",
             "properties": {
               "resource": {
-                "type": "string",
+                "$ref": "#\/definitions\/ResourceId"
               },
               "grantee": {
-                "type": "string",
+                "$ref": "#\/definitions\/Grantee"
               },
               "readOnly": {
                 "type": "boolean",
@@ -316,22 +481,23 @@
                 "type": "boolean",
               },
               "operation": {
-                "type": "string",
+                "$ref": "#\/definitions\/Operation"
               },
               "requester": {
-                "type": "string",
+                "$ref": "#\/definitions\/Requester"
               },
               "grantee": {
-                "type": "string",
+                "$ref": "#\/definitions\/Grantee"
               },
               "resource": {
-                "type": "string",
+                "$ref": "#\/definitions\/ResourceId"
               },
               "readOnly": {
                 "type": "boolean",
               },
               "msg": {
                 "type": "string",
+                "default": "message about operation",
               },
             },
           },

@@ -15,18 +15,29 @@ function setRoutes(app) {
   app.get('/srcsignups',
     csgrant.authenticate,
     csgrant.userResources,
-    function (req, res, next) {
-      // we're going to filter out the non
-      // srcsignups types before the next middleware.
+    function (req, res) {
+      // we are only interested in srcsignup- types
       req.allResources = req.userResources
       req.userResources = req.allResources.filter( (obj)=>{
         if(obj.name.indexOf('srcsignup-') == 0)
           return true
         return false
       })
-      next()
-    },
-    csgrant.allResources)
+
+      // Remove permissions because we don't want users knowing the names of
+      // admins
+      req.userResources.forEach(function (resource) {
+        resource.permissions = undefined
+      })
+
+      const r = {success: true,
+        operation: 'get all srcsignup resources for user',
+        requester: req.user,
+        result: req.userResources
+      }
+
+      res.jsonp(r)
+    })
 
   // Add a request to participate in the competition.
   // This should be used by prospect competitors.
@@ -44,7 +55,7 @@ function setRoutes(app) {
 
         // Create a resource for the request
         csgrant.createResource(req.user, resourceName,
-          {username: req.user}, (err, data) => {
+          {username: req.user}, (err) => {
 
             if (err) {
               res.status(500).jsonp(error(err))
@@ -53,10 +64,9 @@ function setRoutes(app) {
 
             let r = {};
             r.success = true
-            r.result = data
             r.id = resourceName
 
-          // Share it with cloudsim admin
+            // Share it with cloudsim admin
             let adminUsername = 'admin';
             if (process.env.CLOUDSIM_ADMIN)
               adminUsername = process.env.CLOUDSIM_ADMIN;
@@ -99,6 +109,11 @@ function setRoutes(app) {
           res.status(500).jsonp(error(err))
           return;
         }
+
+        // Remove permissions because we don't want users knowing the names of
+        // admins
+        req.resourceData.permissions = undefined
+
         r.success = true;
         r.resource = req.resourceData;
         res.jsonp(r);
