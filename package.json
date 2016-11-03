@@ -42,6 +42,7 @@
     "run-sequence": "^1.0.2"
   },
   "devDependencies": {
+    "eslint": "^3.9.0",
     "istanbul": "^0.4.5",
     "istanbul-coveralls": "^1.0.3",
     "lcov-result-merger": "^1.2.0",
