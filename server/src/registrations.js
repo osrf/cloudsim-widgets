@@ -26,9 +26,9 @@ function setRoutes(app) {
 
       // Remove permissions because we don't want users knowing the names of
       // admins
-      req.userResources.forEach(function (resource) {
-        resource.permissions = undefined
-      })
+//      req.userResources.forEach(function (resource) {
+//        resource.permissions = undefined
+//      })
 
       const r = {success: true,
         operation: 'get all srcsignup resources for user',
@@ -112,7 +112,7 @@ function setRoutes(app) {
 
         // Remove permissions because we don't want users knowing the names of
         // admins
-        req.resourceData.permissions = undefined
+//        req.resourceData.permissions = undefined
 
         r.success = true;
         r.resource = req.resourceData;
