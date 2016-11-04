@@ -6,24 +6,26 @@
   </style>
   <template>
 
-    <gz-simulatorq
-      id="simulatorq"
-      token={{token}}
-      on-simulatorqupdated="onSimulatorqUpdated"
-      url={{portalurl}}
-    ></gz-simulatorq>
+    <gz-resources
+      id="resources"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="simulator"
+      on-resourcesupdated="_onQUpdated"
+      on-resource="refresh"
+    ></gz-resources>
 
     <template is="dom-repeat" items="{{listitems}}" id="list">
       <cs-machineitem
-        itemid="[[item.id]]"
-        stat="[[item.status]]"
-        machine_ip="[[item.machine_ip]]"
-        launch_date="[[item.launch_date]]"
-        termination_date="[[item.termination_date]]"
+        itemid="[[item.name]]"
+        stat="[[item.data.status]]"
+        machine_ip="[[item.data.machine_ip]]"
+        launch_date="[[item.data.launch_date]]"
+        termination_date="[[item.data.termination_date]]"
         readonly="[[item.currentreadonly]]"
-        region="[[item.region]]"
-        token="{{token}}"
-        portalurl="{{portalurl}}"
+        region="[[item.data.region]]"
+        token="[[token]]"
+        portalurl="[[portalurl]]"
       ></cs-machineitem>
     </template>
 
@@ -37,14 +39,15 @@
       is: 'cs-machinelist',
       // Attached
       attached: function() {
-        this.refresh()
+        if (this.token != "") {
+          this.$.resources.connect();
+          this.refresh()
+        }
+
         console.log('cs-machinelist widget attached!')
       },
-      onSimulatorqUpdated: function(e) {
-        if (e.detail.success)
-        {
-          this.updateList(e.detail.items);
-        }
+      _onQUpdated: function(e) {
+        this.updateList(e.detail);
       },
       updateList: function(items) {
         this.sortByReverseLaunchDate(items);
@@ -52,17 +55,11 @@
         // Fill with permissions for current user
         for (var i = 0; i < items.length; ++i)
         {
-          if (items[i].owner.username === this.currentuser)
+          for (var j = 0; j < items[i].permissions.length; ++j)
           {
-            items[i].currentreadonly = false
-            continue
-          }
-
-          for (var j = 0; j < items[i].users.length; ++j)
-          {
-            if (items[i].users[j].username === this.currentuser)
+            if (items[i].permissions[j].username === this.currentuser)
             {
-              items[i].currentreadonly = items[i].users[j].readOnly
+              items[i].currentreadonly = items[i].permissions[0].permissions.readOnly
               break
             }
           }
@@ -71,14 +68,21 @@
         this.set('listitems', items);
       },
       refresh() {
-        this.$.simulatorq.tapGet();
+        this.$.resources.getAll();
+      },
+      _onTokenChanged() {
+        if (this.token == "")
+          return
+
+        this.$.resources.connect();
+        this.refresh()
       },
       sortByReverseLaunchDate: function(items) {
         items.sort(this.compareDates)
       },
       compareDates: function(a, b) {
-        let aDate = new Date(a.launch_date)
-        let bDate = new Date(b.launch_date)
+        let aDate = new Date(a.data.launch_date)
+        let bDate = new Date(b.data.launch_date)
         if (aDate < bDate)
             return 1;
         if (aDate > bDate)
@@ -93,8 +97,9 @@
         },
         token: {
           type: String,
-          value: 'placeholder',
-          notify: true
+          value: '',
+          notify: true,
+          observer: '_onTokenChanged'
         },
         listitems: {
           type: Array,
