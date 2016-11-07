@@ -51,6 +51,7 @@ csgrant.init(adminUser, {'src_registrations': {},
 },
                         dbName,
                         process.env.CLOUDSIM_WIDGETS_DB,
+                        httpServer,
                         (err)=> {
                           if(err){
                             console.log('Error loading resources: ' + err)
