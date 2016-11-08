@@ -8,35 +8,50 @@ function setRoutes(app) {
   // Request participation
   /////////////////////////////////////////////////
 
-  // Get all signup requests which the user can see:
-  // * CLOUDSIM_ADMIN should see all.
-  // * Team "src-admins" should see all.
-  // * Each competitor can only see their own request.
+  // Get pending requests to particpate
+  // * Team "src-admins" gets a list of pending requests.
+  // * A new user can only see if they have a pending request.
   app.get('/srcsignups',
     csgrant.authenticate,
-    csgrant.userResources,
     function (req, res) {
-      // we are only interested in srcsignup- types
-      req.allResources = req.userResources
-      req.userResources = req.allResources.filter( (obj)=>{
-        if(obj.name.indexOf('srcsignup-') == 0)
-          return true
-        return false
-      })
 
-      // Remove permissions because we don't want users knowing the names of
-      // admins
-//      req.userResources.forEach(function (resource) {
-//        resource.permissions = undefined
-//      })
+      // Is admin?
+      let isAdmin = false
+      if (req.identities.indexOf('src-admins') >= 0)
+        isAdmin = true
 
-      const r = {success: true,
-        operation: 'get all srcsignup resources for user',
-        requester: req.user,
-        result: req.userResources
-      }
+      // Is competitor?
+      let isCompetitor = false
+      if (req.identities.indexOf('src-competitors') >= 0)
+        isCompetitor = true
 
-      res.jsonp(r)
+      csgrant.loadData('srcsignups', (err, d) => {
+        if (err) {
+          res.status(500).jsonp(error(err))
+          return;
+        }
+
+        // Requests list
+        let data = []
+        if (d && d.data && d.data.constructor === Array)
+          data = d.data
+
+        // Request pending
+        let pending = false
+        if (!isAdmin && !isCompetitor && data.indexOf(req.user) >= 0)
+          pending = true
+
+        // Response
+        const r = {
+          success: true,
+          isAdmin: isAdmin,
+          isCompetitor: isCompetitor,
+          pending: (isAdmin || isCompetitor) ? undefined : pending,
+          pendingList: isAdmin ? data : undefined,
+        }
+
+        res.jsonp(r)
+      });
     })
 
   // Add a request to participate in the competition.
@@ -45,87 +60,139 @@ function setRoutes(app) {
     csgrant.authenticate,
     function (req, res) {
 
-      // Generate unique id
-      csgrant.getNextResourceId('srcsignup', (err, resourceName) => {
+      // Is admin?
+      if (req.identities.indexOf('src-admins') >= 0) {
 
-        if (err) {
-          res.status(500).jsonp(error(err))
-          return
+        // Response
+        const r = {
+          success: false,
+          msg: "Can't request to participate, user is SRC admin."
         }
 
-        // Create a resource for the request
-        csgrant.createResource(req.user, resourceName,
-          {username: req.user}, (err) => {
+        res.jsonp(r)
+        return
+      }
 
-            if (err) {
-              res.status(500).jsonp(error(err))
-              return;
-            }
 
-            let r = {};
-            r.success = true
-            r.id = resourceName
+      // Is competitor?
+      if (req.identities.indexOf('src-competitors') >= 0) {
 
-            // Share it with cloudsim admin
-            let adminUsername = 'admin';
-            if (process.env.CLOUDSIM_ADMIN)
-              adminUsername = process.env.CLOUDSIM_ADMIN;
+        // Response
+        const r = {
+          success: false,
+          msg: "Can't request to participate, user is already SRC competitor."
+        }
 
-            csgrant.grantPermission(req.user, adminUsername, r.id, false,
-            function(err) {
-              if (err) {
-                res.status(500).jsonp(error(err))
-                return;
-              }
+        res.jsonp(r)
+        return
+      }
 
-              // Share it with src-admins team.
-              csgrant.grantPermission(req.user, "src-admins", r.id, false,
-                function(err) {
-
-                  if (err) {
-                    res.status(500).jsonp(error(err))
-                    return;
-                  }
-
-                  res.jsonp(r);
-                })
-            })
-          })
-      })
-    })
-
-  // Remove a signup request from the list.
-  // * CLOUDSIM_ADMIN should be able to remove any request.
-  // * Team "src-admins" should be able to remove any request.
-  // * Each competitor can only remove their own request.
-  app.delete('/srcsignups/:srcsignup',
-    csgrant.authenticate,
-    csgrant.ownsResource(':srcsignup', false),
-    function (req, res) {
-
-      csgrant.deleteResource(req.user, req.srcsignup, (err) => {
-        let r = {};
+      csgrant.loadData('srcsignups', (err, d) => {
         if (err) {
           res.status(500).jsonp(error(err))
           return;
         }
 
-        // Remove permissions because we don't want users knowing the names of
-        // admins
-//        req.resourceData.permissions = undefined
+        // Requests list
+        let data = []
+        if (d && d.data && d.data.constructor === Array)
+          data = d.data
 
-        r.success = true;
-        r.resource = req.resourceData;
-        res.jsonp(r);
+        if (data.indexOf(req.user) >= 0) {
+          // Response
+          const r = {
+            success: false,
+            msg: "Request to participate already pending."
+          }
+
+          res.jsonp(r)
+          return
+        }
+
+        // Append this user's name to the list
+        data.push(req.user)
+
+        csgrant.saveData('srcsignups', {'data': data}, (err) => {
+          if (err) {
+            res.status(500).jsonp(error(err))
+            return;
+          }
+
+          // Response
+          const r = {
+            success: true,
+            pending: true
+          }
+
+          res.jsonp(r)
+        })
       })
-    }
-  )
+    })
 
-  // srcsignup route parameter
-  app.param('srcsignup', function(req, res, next, id) {
-    req.srcsignup = id;
-    next();
-  })
+  // Remove a signup request from the list.
+  // * Team "src-admins" should be able to remove any request.
+  // * Each user can only remove their own request.
+  app.delete('/srcsignups',
+    csgrant.authenticate,
+    function (req, res) {
+
+      if (!req.query.username) {
+        res.status(400).jsonp({'success': false, 'error': "Missing username in query."})
+        return
+      }
+
+      // Is admin?
+      let isAdmin = false
+      if (req.identities.indexOf('src-admins') >= 0)
+        isAdmin = true
+
+      if (!isAdmin && req.user != req.query.username) {
+        res.status(401).jsonp({'success': false, 'error': 'Not authorized.'})
+        return
+      }
+
+      csgrant.loadData('srcsignups', (err, d) => {
+        if (err) {
+          res.status(500).jsonp(error(err))
+          return;
+        }
+
+        // Requests list
+        let data = []
+        if (d && d.data && d.data.constructor === Array)
+          data = d.data
+
+        let id = data.indexOf(req.query.username)
+
+        if (id == -1) {
+
+          // Response
+          const r = {
+            success: false,
+            msg: "User [" + req.query.username + "] not in pending list."
+          }
+
+          res.jsonp(r)
+          return
+        }
+
+        data.splice(id, 1)
+
+        csgrant.saveData('srcsignups', {'data': data}, (err) => {
+          if (err) {
+            res.status(500).jsonp(error(err))
+            return;
+          }
+
+          // Response
+          const r = {
+            success: true,
+          }
+
+          res.jsonp(r)
+        })
+      })
+    })
 }
 
 exports.setRoutes = setRoutes

@@ -264,7 +264,7 @@
                 "srcsignups"
               ],
               "summary": "Get all pending requests to participate in SRC",
-              "description": "Competition admins should see all pending requests, while each competitor only sees their own.",
+              "description": "Competition admins should see all pending requests, while each competitor only sees whether they have a pending request.",
               "consumes": [
                 "application\/json",
               ],
@@ -281,16 +281,19 @@
                       "success": {
                         "type": "boolean",
                       },
-                      "operation": {
-                        "$ref": "#\/definitions\/Operation"
+                      "isAdmin": {
+                        "type": "boolean",
                       },
-                      "requester": {
-                        "$ref": "#\/definitions\/Requester"
+                      "isCompetitor": {
+                        "type": "boolean",
                       },
-                      "result": {
+                      "pending": {
+                        "type": "boolean",
+                      },
+                      "pendingList": {
                         "type" : "array",
                         "items": {
-                          "$ref": "#\/definitions\/ResourceWithoutPerm"
+                          "type": "string"
                         },
                       },
                     },
@@ -329,15 +332,21 @@
                       "success": {
                         "type": "boolean",
                       },
-                      "id": {
+                      "pending": {
+                        "type": "boolean",
+                      },
+                      "msg": {
                         "type": "string",
-                        "default": "Id of request resource",
+                        "default": "Case not successful, explanation goes here.",
                       },
                     },
                   },
                 },
                 "401": {
                   "description": "Not authorized"
+                },
+                "500": {
+                  "description": "Internal error"
                 }
               },
               "security": [
@@ -346,9 +355,6 @@
                 }
               ]
             },
-          },
-          // /srcsignups/{resourceId}
-          "\/srcsignups\/{resourceId}": {
             // DELETE
             "delete": {
               "tags": [
@@ -364,9 +370,9 @@
               ],
               "parameters": [
                 {
-                  "name": "resourceId",
-                  "in": "path",
-                  "description": "Id of signup resource",
+                  "name": "username",
+                  "in": "query",
+                  "description": "Username to remove from list",
                   "required": true,
                   "type": "string",
                 }

@@ -20,23 +20,28 @@ token.initKeys(keys.public, keys.private)
 // * cloudsim admin
 // * competition admin
 // * competition participant
+// * prospectice participants
 const csAdmin = process.env.CLOUDSIM_ADMIN ?
     process.env.CLOUDSIM_ADMIN:'admin'
 
-const csAdminTokenData = {identities: [csAdmin]}
+const csAdminTokenData = {identities: [csAdmin, "src-admins", "src-competitors"]}
 let csAdminToken
 
 const srcAdmin = "src-admin"
 const srcAdminTokenData = {identities: [srcAdmin, "src-admins"]}
 let srcAdminToken
 
-const srcComp1 = "src-competitor1"
-const srcComp1TokenData = {identities: [srcComp1]}
-let srcComp1Token
+const srcCompetitor = "src-competitor"
+const srcCompetitorTokenData = {identities: [srcCompetitor, "src-competitors"]}
+let srcCompetitorToken
 
-const srcComp2 = "src-competitor2"
-const srcComp2TokenData = {identities: [srcComp2]}
-let srcComp2Token
+const srcNew1 = "src-new-user1"
+const srcNew1TokenData = {identities: [srcNew1]}
+let srcNew1Token
+
+const srcNew2 = "src-new-user2"
+const srcNew2TokenData = {identities: [srcNew2]}
+let srcNew2Token
 
 function getResponse(res, print) {
   const response = JSON.parse(res.text)
@@ -50,32 +55,48 @@ function getResponse(res, print) {
 describe('<Unit test SRC signups>', function() {
 
   before(function(done) {
-    token.signToken(csAdminTokenData, (e, tok)=>{
-      console.log('token signed for user "' + csAdmin + '"')
-      if(e) {
-        console.log('sign error: ' + e)
-        should.fail()
-      }
-      csAdminToken = tok
-      csgrant.token.signToken(srcAdminTokenData, (e, tok)=>{
-        console.log('token signed for user "' + srcAdminTokenData.identities[0]  + '"')
+    // This doesn't work here, see cloudsim-grant issue #13
+    csgrant.model.clearDb()
+
+    // Workaround:
+    csgrant.saveData('srcsignups', {}, (err)=>{
+
+      should.not.exist(err);
+
+      token.signToken(csAdminTokenData, (e, tok)=>{
+        console.log('token signed for user "' + csAdmin + '"')
         if(e) {
           console.log('sign error: ' + e)
+          should.fail()
         }
-        srcAdminToken = tok
-        csgrant.token.signToken(srcComp1TokenData, (e, tok)=>{
-          console.log('token signed for user "' + srcComp1TokenData.identities[0]  + '"')
+        csAdminToken = tok
+        csgrant.token.signToken(srcAdminTokenData, (e, tok)=>{
+          console.log('token signed for user "' + srcAdminTokenData.identities[0]  + '"')
           if(e) {
             console.log('sign error: ' + e)
           }
-          srcComp1Token = tok
-          csgrant.token.signToken(srcComp2TokenData, (e, tok)=>{
-            console.log('token signed for user "' + srcComp2TokenData.identities[0]  + '"')
+          srcAdminToken = tok
+          csgrant.token.signToken(srcCompetitorTokenData, (e, tok)=>{
+            console.log('token signed for user "' + srcCompetitorTokenData.identities[0]  + '"')
             if(e) {
               console.log('sign error: ' + e)
             }
-            srcComp2Token = tok
-            done()
+            srcCompetitorToken = tok
+            csgrant.token.signToken(srcNew1TokenData, (e, tok)=>{
+              console.log('token signed for user "' + srcNew1TokenData.identities[0]  + '"')
+              if(e) {
+                console.log('sign error: ' + e)
+              }
+              srcNew1Token = tok
+              csgrant.token.signToken(srcNew2TokenData, (e, tok)=>{
+                console.log('token signed for user "' + srcNew2TokenData.identities[0]  + '"')
+                if(e) {
+                  console.log('sign error: ' + e)
+                }
+                srcNew2Token = tok
+                done()
+              })
+            })
           })
         })
       })
@@ -93,8 +114,10 @@ describe('<Unit test SRC signups>', function() {
         res.redirect.should.equal(false)
         let response = getResponse(res)
         response.success.should.equal(true)
-        response.requester.should.equal(csAdmin)
-        response.result.length.should.equal(0)
+        response.isAdmin.should.equal(true)
+        response.isCompetitor.should.equal(true)
+        should.not.exist(response.pending)
+        response.pendingList.length.should.equal(0)
         done()
       })
     })
@@ -111,38 +134,77 @@ describe('<Unit test SRC signups>', function() {
         res.redirect.should.equal(false)
         let response = getResponse(res)
         response.success.should.equal(true)
-        response.requester.should.equal(srcAdmin)
-        response.result.length.should.equal(0)
+        response.isAdmin.should.equal(true)
+        response.isCompetitor.should.equal(false)
+        should.not.exist(response.pending)
+        response.pendingList.length.should.equal(0)
         done()
       })
     })
   })
 
-  describe('Check initial pending registrations with competitor', function() {
+  describe('Check initial pending registrations with new user', function() {
     it('should be authorized and empty', function(done) {
       agent
       .get('/srcsignups')
       .set('Accept', 'application/json')
-      .set('authorization', srcComp1Token)
+      .set('authorization', srcNew1Token)
       .end(function(err,res) {
         res.status.should.be.equal(200)
         res.redirect.should.equal(false)
         let response = getResponse(res)
         response.success.should.equal(true)
-        response.requester.should.equal(srcComp1)
-        response.result.length.should.equal(0)
+        response.isAdmin.should.equal(false)
+        response.isCompetitor.should.equal(false)
+        response.pending.should.equal(false)
+        should.not.exist(response.pendingList)
         done()
       })
     })
   })
 
-  let registrationId1;
-  describe('Competitor requests to participate', function() {
-    it('should successfully create a resource', function(done) {
+  describe('Admin can\'t request to participate', function() {
+    it('should not be successful', function(done) {
       agent
       .post('/srcsignups')
       .set('Accept', 'application/json')
-      .set('authorization', srcComp1Token)
+      .set('authorization', csAdminToken)
+      .end(function(err,res) {
+        should.not.exist(err);
+        should.exist(res);
+        res.status.should.be.equal(200);
+        res.redirect.should.equal(false);
+        const response = JSON.parse(res.text);
+        response.success.should.equal(false)
+        done()
+      })
+    })
+  })
+
+  describe('Competitors can\'t request to participate again', function() {
+    it('should not be successful', function(done) {
+      agent
+      .post('/srcsignups')
+      .set('Accept', 'application/json')
+      .set('authorization', srcCompetitorToken)
+      .end(function(err,res) {
+        should.not.exist(err);
+        should.exist(res);
+        res.status.should.be.equal(200);
+        res.redirect.should.equal(false);
+        const response = JSON.parse(res.text);
+        response.success.should.equal(false)
+        done()
+      })
+    })
+  })
+
+  describe('New user requests to participate', function() {
+    it('should be successfully added to pending list', function(done) {
+      agent
+      .post('/srcsignups')
+      .set('Accept', 'application/json')
+      .set('authorization', srcNew1Token)
       .end(function(err,res) {
         should.not.exist(err);
         should.exist(res);
@@ -150,37 +212,55 @@ describe('<Unit test SRC signups>', function() {
         res.redirect.should.equal(false);
         const response = JSON.parse(res.text);
         response.success.should.equal(true)
-        registrationId1 = response.id
         done()
       })
     })
   })
 
-  describe('Check that competitor2 can\'t see the request from competitor1', function() {
-    it('should be authorized and empty', function(done) {
+  describe('Check that new user 2 can\'t see the request from new user 1', function() {
+    it('should be authorized and not have a list', function(done) {
       agent
       .get('/srcsignups')
       .set('Accept', 'application/json')
-      .set('authorization', srcComp2Token)
+      .set('authorization', srcNew2Token)
       .end(function(err,res) {
         res.status.should.be.equal(200)
         res.redirect.should.equal(false)
         let response = getResponse(res)
         response.success.should.equal(true)
-        response.requester.should.equal(srcComp2)
-        response.result.length.should.equal(0)
+        response.isAdmin.should.equal(false)
+        response.isCompetitor.should.equal(false)
+        response.pending.should.equal(false)
+        should.not.exist(response.pendingList)
         done()
       })
     })
   })
 
-  let registrationId2;
-  describe('Competitor 2 also requests to participate', function() {
-    it('should successfully create a resource', function(done) {
+  describe('New user can\'t request to participate twice', function() {
+    it('should not be successfully', function(done) {
       agent
       .post('/srcsignups')
       .set('Accept', 'application/json')
-      .set('authorization', srcComp2Token)
+      .set('authorization', srcNew1Token)
+      .end(function(err,res) {
+        should.not.exist(err);
+        should.exist(res);
+        res.status.should.be.equal(200);
+        res.redirect.should.equal(false);
+        const response = JSON.parse(res.text);
+        response.success.should.equal(false)
+        done()
+      })
+    })
+  })
+
+  describe('New user 2 also requests to participate', function() {
+    it('should be successfully added to pending list', function(done) {
+      agent
+      .post('/srcsignups')
+      .set('Accept', 'application/json')
+      .set('authorization', srcNew2Token)
       .end(function(err,res) {
         should.not.exist(err);
         should.exist(res);
@@ -188,27 +268,26 @@ describe('<Unit test SRC signups>', function() {
         res.redirect.should.equal(false);
         const response = JSON.parse(res.text);
         response.success.should.equal(true)
-        registrationId2 = response.id
         done()
       })
     })
   })
 
-  describe('Check that competitor2 can only see their own request', function() {
-    it('should be authorized and empty', function(done) {
+  describe('Check that new user 2 can only see their own request', function() {
+    it('should see pending', function(done) {
       agent
       .get('/srcsignups')
       .set('Accept', 'application/json')
-      .set('authorization', srcComp2Token)
+      .set('authorization', srcNew2Token)
       .end(function(err,res) {
         res.status.should.be.equal(200)
         res.redirect.should.equal(false)
         let response = getResponse(res)
         response.success.should.equal(true)
-        response.requester.should.equal(srcComp2)
-        response.result.length.should.equal(1)
-        response.result[0].name.should.equal(registrationId2);
-        response.result[0].data.username.should.equal(srcComp2);
+        response.isAdmin.should.equal(false)
+        response.isCompetitor.should.equal(false)
+        response.pending.should.equal(true)
+        should.not.exist(response.pendingList)
         done()
       })
     })
@@ -225,12 +304,12 @@ describe('<Unit test SRC signups>', function() {
         res.redirect.should.equal(false)
         let response = getResponse(res)
         response.success.should.equal(true)
-        response.requester.should.equal(csAdmin)
-        response.result.length.should.equal(2)
-        response.result[0].name.should.equal(registrationId1);
-        response.result[0].data.username.should.equal(srcComp1);
-        response.result[1].name.should.equal(registrationId2);
-        response.result[1].data.username.should.equal(srcComp2);
+        response.isAdmin.should.equal(true)
+        response.isCompetitor.should.equal(true)
+        should.not.exist(response.pending)
+        response.pendingList.length.should.equal(2)
+        response.pendingList[0].should.equal(srcNew1);
+        response.pendingList[1].should.equal(srcNew2);
         done()
       })
     })
@@ -247,39 +326,74 @@ describe('<Unit test SRC signups>', function() {
         res.redirect.should.equal(false)
         let response = getResponse(res)
         response.success.should.equal(true)
-        response.requester.should.equal(srcAdmin)
-        response.result.length.should.equal(2)
-        response.result[0].name.should.equal(registrationId1);
-        response.result[0].data.username.should.equal(srcComp1);
-        response.result[1].name.should.equal(registrationId2);
-        response.result[1].data.username.should.equal(srcComp2);
+        response.isAdmin.should.equal(true)
+        response.isCompetitor.should.equal(false)
+        should.not.exist(response.pending)
+        response.pendingList.length.should.equal(2)
+        response.pendingList[0].should.equal(srcNew1);
+        response.pendingList[1].should.equal(srcNew2);
         done()
       })
     })
   })
 
-  describe('Check that src competitor 2 can\'t cancel competitor 1\'s registration request', function() {
+  describe('Check it\'s not possible to delete registration without query', function() {
+    it('should not be possible to remove user', function(done) {
+      agent
+      .delete('/srcsignups/')
+      .set('Accept', 'application/json')
+      .set('authorization', csAdminToken)
+      .end(function(err,res) {
+        res.status.should.be.equal(400)
+        res.redirect.should.equal(false)
+        let response = getResponse(res)
+        response.success.should.equal(false)
+        should.exist(response.error)
+        done()
+      })
+    })
+  })
+
+  describe('Check it\'s not possible to delete inexistent user', function() {
+    it('should not be possible to remove user', function(done) {
+      agent
+      .delete('/srcsignups/?username=notauser')
+      .set('Accept', 'application/json')
+      .set('authorization', csAdminToken)
+      .end(function(err,res) {
+        res.status.should.be.equal(200)
+        res.redirect.should.equal(false)
+        let response = getResponse(res)
+        response.success.should.equal(false)
+        should.exist(response.msg)
+        done()
+      })
+    })
+  })
+
+  describe('Check that src new user 2 can\'t cancel new user 1\'s registration request', function() {
     it('should not be possible to remove another user', function(done) {
       agent
-      .delete('/srcsignups/' + registrationId1)
+      .delete('/srcsignups/?username=' + srcNew1)
       .set('Accept', 'application/json')
-      .set('authorization', srcComp2Token)
+      .set('authorization', srcNew2Token)
       .end(function(err,res) {
         res.status.should.be.equal(401)
         res.redirect.should.equal(false)
         let response = getResponse(res)
         response.success.should.equal(false)
+        should.exist(response.error)
         done()
       })
     })
   })
 
-  describe('Check that competitor 1 can cancel their own registration request', function() {
+  describe('Check that new user 1 can cancel their own registration request', function() {
     it('should be possible to remove themselves from the list', function(done) {
       agent
-      .delete('/srcsignups/' + registrationId1)
+      .delete('/srcsignups?username=' + srcNew1)
       .set('Accept', 'application/json')
-      .set('authorization', srcComp1Token)
+      .set('authorization', srcNew1Token)
       .end(function(err,res) {
         res.status.should.be.equal(200)
         res.redirect.should.equal(false)
@@ -291,7 +405,7 @@ describe('<Unit test SRC signups>', function() {
   })
 
   describe('Check with cloudsim admin that registration request was removed', function() {
-    it('should only have competitor 2', function(done) {
+    it('should only have new user 2', function(done) {
       agent
       .get('/srcsignups')
       .set('Accept', 'application/json')
@@ -301,10 +415,11 @@ describe('<Unit test SRC signups>', function() {
         res.redirect.should.equal(false)
         let response = getResponse(res)
         response.success.should.equal(true)
-        response.requester.should.equal(csAdmin)
-        response.result.length.should.equal(1)
-        response.result[0].name.should.equal(registrationId2);
-        response.result[0].data.username.should.equal(srcComp2);
+        response.isAdmin.should.equal(true)
+        response.isCompetitor.should.equal(true)
+        should.not.exist(response.pending)
+        response.pendingList.length.should.equal(1)
+        response.pendingList[0].should.equal(srcNew2);
         done()
       })
     })
@@ -313,7 +428,7 @@ describe('<Unit test SRC signups>', function() {
   describe('Check that src admin can cancel a user\'s registration request', function() {
     it('should be possible to remove any user from the list', function(done) {
       agent
-      .delete('/srcsignups/' + registrationId2)
+      .delete('/srcsignups/?username=' + srcNew2)
       .set('Accept', 'application/json')
       .set('authorization', srcAdminToken)
       .end(function(err,res) {
@@ -337,8 +452,10 @@ describe('<Unit test SRC signups>', function() {
         res.redirect.should.equal(false)
         let response = getResponse(res)
         response.success.should.equal(true)
-        response.requester.should.equal(csAdmin)
-        response.result.length.should.equal(0)
+        response.isAdmin.should.equal(true)
+        response.isCompetitor.should.equal(true)
+        should.not.exist(response.pending)
+        response.pendingList.length.should.equal(0)
         done()
       })
     })

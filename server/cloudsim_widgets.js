@@ -70,21 +70,6 @@ if (process.argv[2] === 'dev')
 app.use("/", express.static(rootDir));
 app.use("/api", express.static(path.join(__dirname, '/../api')));
 
-// setup the routes
-// app.get('/permissions',
-//   csgrant.authenticate,
-//   csgrant.userResources,
-//   csgrant.allResources)
-// app.post('/permissions', csgrant.authenticate, csgrant.grant)
-// app.delete('/permissions',csgrant.authenticate, csgrant.revoke)
-//
-// app.get('/permissions/:resourceId', csgrant.authenticate,
-//   csgrant.ownsResource(':resourceId', true), csgrant.resource)
-// app.param('resourceId', function( req, res, next, id) {
-//   req.resourceId = id
-//   next()
-// })
-
 srcregistrations.setRoutes(app);
 
 // use the middleware module to serve config.js
