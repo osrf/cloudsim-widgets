@@ -49,14 +49,27 @@
   <template>
 
     <!-- To handle the signup list -->
-    <gz-resources
-      id="resources"
-      url="[[baseUrl]]"
-      token="[[token]]"
-      resourcename="srcsignup"
-      on-resourcesupdated="_onResources"
-      on-deleted="_onRemoved"
-    ></gz-resources>
+    <iron-ajax
+      id="ajaxget"
+      method="GET"
+      url=[[baseUrl]]/srcsignups
+      handle-as="json"
+      on-response="_onPending"
+      on-error="_getError"
+      content-type="application/json"
+      debounce-duration="300"
+    ></iron-ajax>
+
+    <iron-ajax
+      id="ajaxdelete"
+      method="DELETE"
+      url=[[baseUrl]]/srcsignups
+      handle-as="json"
+      on-response="_onRemoved"
+      on-error="_deleteError"
+      content-type="application/json"
+      debounce-duration="300"
+    ></iron-ajax>
 
     <!-- To invite users to team -->
     <gz-grant
@@ -82,14 +95,14 @@
 
           <div class="horizontal center">
 
-            <span class="username" title="[[item.data.username]]">[[item.data.username]]</span>
+            <span class="username" title="[[item]]">[[item]]</span>
 
             <div class="space"></div>
 
             <paper-icon-button
               class="green miniButton"
               icon="icons:check"
-              id="[[item.name]]"
+              id="[[item]]"
               title="Accept"
               on-tap="_onAccept">
             </paper-icon-button>
@@ -97,7 +110,7 @@
             <paper-icon-button
               class="red miniButton"
               icon="icons:close"
-              id="[[item.name]]"
+              id="[[item]]"
               title="Decline"
               on-tap="_onDecline">
             </paper-icon-button>
@@ -131,15 +144,33 @@
       /// Callback when the token has been updated
       _onTokenUpdated: function() {
         if (this.token !== "") {
-          this.$.resources.getAll();
+          this._getPending()
           this.$.grant.getall();
         }
       },
 
-      /// Callback when the list of resources had been updated
-      _onResources: function() {
-        this.users = this.$.resources.resources;
-        this.nousers = (this.users.length == 0)
+      /// Get pending requests
+      _getPending: function() {
+        this.$.ajaxget.headers.authorization = this.token.trim()
+        this.$.ajaxget.generateRequest()
+      },
+
+      /// Callback when receiving the list of pending requests
+      _onPending: function() {
+        const resp = this.$.ajaxget.lastResponse
+        console.assert(resp)
+
+        this.users = resp.pendingList
+        this.nousers = (this.users && this.users.length == 0)
+      },
+
+      /// Callback when there's an error on get
+      _getError: function() {
+        const err = this.$.ajaxpost.lastError
+        console.assert(err)
+
+        console.log(err)
+        this.fire('error', 'Error signing up: ' + err.msg)
       },
 
       /// Callback when permissions have been updated
@@ -151,7 +182,6 @@
         })
 
         if (!group) {
-          console.error("Couldn't find group [src-competitors]");
           return;
         }
 
@@ -161,17 +191,34 @@
       /// Callback when the decline button is pressed
       _onDecline: function(e) {
         this.declining = true;
-        this.$.resources.del(e.target.parentElement.id);
+        this._delete(e.target.parentElement.id)
+      },
+
+      /// Remove a user
+      _delete: function(name) {
+        this.$.ajaxdelete.headers.authorization = this.token.trim()
+        this.$.ajaxdelete.params = {'username' : name}
+        this.$.ajaxdelete.body = {}
+        this.$.ajaxdelete.generateRequest()
       },
 
       /// Callback when the widget server notifies that the user was i
       /// successfully removed from the signup list.
       _onRemoved: function(e) {
-        this.$.resources.getAll();
+        this._getPending()
         if (this.declining)
           this.fire('notification', 'Declined user\'s participation request.');
         else
           this.fire('notification', 'Accepted participation request.');
+      },
+
+      /// Callback when there's an error on get
+      _deleteError: function() {
+        const err = this.$.ajaxpost.lastError
+        console.assert(err)
+
+        console.log(err)
+        this.fire('error', 'Error signing up: ' + err.msg)
       },
 
       /// Callback when the accept button is pressed
@@ -187,8 +234,8 @@
         this.selectedid = e.target.parentElement.id;
 
         let that = this;
-        const user = this.users.find(function(resource){
-          return resource.name === that.selectedid;
+        const user = this.users.find(function(username){
+          return username === that.selectedid;
         })
 
         if (!user) {
@@ -196,7 +243,7 @@
           return;
         }
 
-        const data = { grantee: user.data.username,
+        const data = { grantee: user,
                        resource: this.groupid,
                        readonly: true}
         this.$.grant.grant(data);
@@ -211,7 +258,7 @@
         }
 
         // Step 2: remove user from signup list (widgets server)
-        this.$.resources.del(this.selectedid);
+        this._delete(this.selectedid)
       },
 
       properties: {

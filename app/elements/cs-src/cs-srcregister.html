@@ -23,15 +23,27 @@
   <template>
 
     <!-- TODO: this could be inside if loggedin, but then we can't use this.$.resources -->
-    <gz-resources
-      id="resources"
-      url="[[baseUrl]]"
-      token="[[token]]"
-      resourcename="srcsignup"
-      data="[[data]]"
-      on-created="_onRequested"
-      on-resourcesupdated="_onResources"
-    ></gz-resources>
+    <iron-ajax
+      id="ajaxpost"
+      method="POST"
+      url=[[baseUrl]]/srcsignups
+      handle-as="json"
+      on-response="_onRequested"
+      on-error="_postError"
+      content-type="application/json"
+      debounce-duration="300"
+    ></iron-ajax>
+
+    <iron-ajax
+      id="ajaxget"
+      method="GET"
+      url=[[baseUrl]]/srcsignups
+      handle-as="json"
+      on-response="_onPending"
+      on-error="_getError"
+      content-type="application/json"
+      debounce-duration="300"
+    ></iron-ajax>
 
     <paper-header-panel class="blue">
       <div class="paper-header">
@@ -42,7 +54,7 @@
     <template is="dom-if" if="[[loggedin]]">
 
       <!-- NEW USERS -->
-      <template is="dom-if" if="[[new]]">
+      <template is="dom-if" if="[[!pending]]">
         <h1>
           Click the following button if you'd like to participate in the competition.
           You'll receive an email once your participation was accepted.
@@ -53,7 +65,7 @@
       </template>
 
       <!-- WAITING ON APPROVAL -->
-      <template is="dom-if" if="[[waiting]]">
+      <template is="dom-if" if="[[pending]]">
         <h1>
           You've requested to participate in this competition.
           Waiting on approval by administrators.
@@ -91,36 +103,65 @@
 
       /// Callback when request button is pressed
       _tapRequest: function() {
-        this.$.resources.create();
+        this.$.ajaxpost.headers.authorization = this.token.trim()
+        this.$.ajaxpost.body = {}
+        this.$.ajaxpost.generateRequest()
+
         this.fire('notification', "Sending request to participate in SRC.")
       },
 
-      /// Callback when successfully requested
+      /// Callback when requested
       _onRequested: function() {
-        this.$.resources.getAll();
+        const resp = this.$.ajaxpost.lastResponse
+        console.assert(resp)
+
+        if (!resp.success) {
+          const msg = 'Could not register: ' + resp.msg
+          this.fire('error', msg)
+          return
+        }
+
+        this._getPending()
         this.fire('notification', "Successfully requested to participate in SRC.")
       },
 
-      /// Callback when the list of resources had been updated
-      _onResources: function() {
-        let resources = this.$.resources.resources;
+      /// Callback when there's an error on request
+      _postError: function() {
+        const err = this.$.ajaxpost.lastError
+        console.assert(err)
 
-        if (resources && resources.length > 0) {
+        console.log(err)
+        this.fire('error', 'Error signing up: ' + err.msg)
+      },
 
-          let that = this;
-          const request = resources.find(function(resource){
-            return resource.data.username === that.currentuser;
-          })
+      /// Get pending requests
+      _getPending: function() {
+        this.$.ajaxget.headers.authorization = this.token.trim()
+        this.$.ajaxget.generateRequest()
+      },
 
-          this.new = false;
-          this.waiting = true;
-        }
+      /// Callback when we get the requests
+      _onPending: function() {
+        const resp = this.$.ajaxget.lastResponse
+        console.assert(resp)
+
+        this.competitor = resp.isCompetitor
+        this.pending = resp.pending
+      },
+
+      /// Callback when there's an error on get
+      _getError: function() {
+        const err = this.$.ajaxpost.lastError
+        console.assert(err)
+
+        console.log(err)
+        this.fire('error', 'Error signing up: ' + err.msg)
       },
 
       /// Callback when the token has been updated
       _onTokenUpdated: function() {
         if (this.token !== "")
-          this.$.resources.getAll();
+          this._getPending();
       },
 
       properties: {
@@ -131,15 +172,8 @@
           notify: true
         },
 
-        /// True if user is new to the competition (never requested to participate)
-        new: {
-          type: Boolean,
-          value: true,
-          notify: true
-        },
-
         /// True if user's approval to participate is pending.
-        waiting: {
+        pending: {
           type: Boolean,
           value: false,
           notify: true
@@ -149,20 +183,6 @@
         competitor: {
           type: Boolean,
           value: false,
-          notify: true
-        },
-
-        /// Name of current user
-        currentuser: {
-          type: String,
-          value: "not set",
-          notify: true
-        },
-
-        /// Data for registration
-        data: {
-          type: Object,
-          value: {},
           notify: true
         },
 
