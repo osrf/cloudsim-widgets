@@ -26,7 +26,7 @@
     <iron-ajax
       id="ajaxpost"
       method="POST"
-      url=[[baseUrl]]/srcsignups
+      url=[[baseUrl]]/[[route]]
       handle-as="json"
       on-response="_onRequested"
       on-error="_postError"
@@ -37,7 +37,7 @@
     <iron-ajax
       id="ajaxget"
       method="GET"
-      url=[[baseUrl]]/srcsignups
+      url=[[baseUrl]]/[[route]]
       handle-as="json"
       on-response="_onPending"
       on-error="_getError"
@@ -105,22 +105,31 @@
 
       /// Callback when request button is pressed
       _tapRequest: function() {
+        this.fire('notification', "Sending request to participate in SRC.")
+
         this.$.ajaxpost.headers.authorization = this.token.trim()
         this.$.ajaxpost.body = {}
-        this.$.ajaxpost.generateRequest()
-
-        this.fire('notification', "Sending request to participate in SRC.")
+        return this.$.ajaxpost.generateRequest()
       },
 
       /// Callback when requested
-      _onRequested: function() {
-        const resp = this.$.ajaxpost.lastResponse
-        console.assert(resp)
+      _onRequested: function(req) {
+
+        let resp
+        if (req && req.detail && req.detail.response)
+          resp = req.detail.response
+        else
+          resp = this.$.ajaxpost.lastResponse
+
+        if (!resp) {
+          console.log("No response in request or in lastResponse")
+          return;
+        }
 
         if (!resp.success) {
           const msg = 'Could not register: ' + resp.msg
 
-          console.error(msg)
+          console.log(msg)
           this.fire('error', msg)
           return
         }
@@ -131,11 +140,13 @@
 
       /// Callback when there's an error on request
       _postError: function() {
-        const err = this.$.ajaxpost.lastError
-        console.assert(err)
+        let msg = 'Error registering'
 
-        console.error(err)
-        this.fire('error', 'Error registering: ' + err.msg)
+        if (this.$.ajaxpost.lastError)
+          msg += ": " + this.$.ajaxpost.lastError.msg
+
+        console.log(msg)
+        this.fire('error', msg)
       },
 
       /// Get pending requests
@@ -145,14 +156,23 @@
       },
 
       /// Callback when we get the requests
-      _onPending: function() {
-        const resp = this.$.ajaxget.lastResponse
-        console.assert(resp)
+      _onPending: function(req) {
+
+        let resp
+        if (req && req.detail && req.detail.response)
+          resp = req.detail.response
+        else
+          resp = this.$.ajaxget.lastResponse
+
+        if (!resp) {
+          console.log("No response in request or in lastResponse")
+          return;
+        }
 
         if (!resp.success) {
           const msg = 'Could not check registration status: ' + resp.msg
 
-          console.error(msg)
+          console.log(msg)
           this.fire('error', msg)
           return
         }
@@ -163,11 +183,13 @@
 
       /// Callback when there's an error on get
       _getError: function() {
-        const err = this.$.ajaxpost.lastError
-        console.assert(err)
+        let msg = 'Error signing up'
 
-        console.error(err)
-        this.fire('error', 'Error signing up: ' + err.msg)
+        if (this.$.ajaxpost.lastError)
+          msg += ": " + this.$.ajaxget.lastError.msg
+
+        console.log(msg)
+        this.fire('error', msg)
       },
 
       /// Callback when the token has been updated
@@ -204,6 +226,12 @@
           value: '',
           notify: true,
           observer: '_onTokenUpdated'
+        },
+
+        /// Route for requests
+        route: {
+          type: String,
+          value: 'srcsignup',
         },
       },
     });
