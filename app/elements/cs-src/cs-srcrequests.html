@@ -160,6 +160,14 @@
         const resp = this.$.ajaxget.lastResponse
         console.assert(resp)
 
+        if (!resp.success) {
+          const msg = 'Could not check registration status: ' + resp.msg
+
+          console.error(msg)
+          this.fire('error', msg)
+          return
+        }
+
         this.users = resp.pendingList
         this.nousers = (this.users && this.users.length == 0)
       },
@@ -169,7 +177,7 @@
         const err = this.$.ajaxpost.lastError
         console.assert(err)
 
-        console.log(err)
+        console.error(err)
         this.fire('error', 'Error signing up: ' + err.msg)
       },
 
@@ -181,9 +189,8 @@
           return permission.data.name === 'src-competitors'
         })
 
-        if (!group) {
+        if (!group)
           return;
-        }
 
         this.groupid = group.name;
       },
@@ -202,7 +209,7 @@
         this.$.ajaxdelete.generateRequest()
       },
 
-      /// Callback when the widget server notifies that the user was i
+      /// Callback when the widget server notifies that the user was
       /// successfully removed from the signup list.
       _onRemoved: function(e) {
         this._getPending()
@@ -217,8 +224,8 @@
         const err = this.$.ajaxpost.lastError
         console.assert(err)
 
-        console.log(err)
-        this.fire('error', 'Error signing up: ' + err.msg)
+        console.error(err)
+        this.fire('error', 'Error removing registration: ' + err.msg)
       },
 
       /// Callback when the accept button is pressed
@@ -226,24 +233,17 @@
         this.declining = false;
 
         if (this.groupid.length == 0) {
-          console.error("Missing id for group [src-competitors]");
+          let msg = "Missing id for group [src-competitors]"
+
+          console.error(msg);
+          this.fire('error', 'Error giving user the competitor identity: ' + msg)
           return;
         }
 
         // Step 1: request auth server to add the user to src-competitors
         this.selectedid = e.target.parentElement.id;
 
-        let that = this;
-        const user = this.users.find(function(username){
-          return username === that.selectedid;
-        })
-
-        if (!user) {
-          console.error("Couldn't find user for id [" + this.selectedid + "]");
-          return;
-        }
-
-        const data = { grantee: user,
+        const data = { grantee: this.selectedid,
                        resource: this.groupid,
                        readonly: true}
         this.$.grant.grant(data);
@@ -254,6 +254,7 @@
 
         if (!e.detail.success) {
           console.error(e);
+          this.fire('error', 'Error giving user the competitor identity')
           return;
         }
 

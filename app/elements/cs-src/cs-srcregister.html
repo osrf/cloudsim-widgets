@@ -22,7 +22,7 @@
   </style>
   <template>
 
-    <!-- TODO: this could be inside if loggedin, but then we can't use this.$.resources -->
+    <!-- TODO: this could be inside if loggedin, but then we can't use this.$.ajax* -->
     <iron-ajax
       id="ajaxpost"
       method="POST"
@@ -56,12 +56,14 @@
       <!-- NEW USERS -->
       <template is="dom-if" if="[[!pending]]">
         <h1>
-          Click the following button if you'd like to participate in the competition.
-          You'll receive an email once your participation was accepted.
+          Click the following button if you'd like to participate in the competition. <br>
+          An administrator will respond to the request shortly.
         </h1>
-        <paper-button raised on-click="_tapRequest">
-          Request!
-        </paper-button>
+        <center>
+          <paper-button raised on-click="_tapRequest">
+            Request!
+          </paper-button>
+        </center>
       </template>
 
       <!-- WAITING ON APPROVAL -->
@@ -117,6 +119,8 @@
 
         if (!resp.success) {
           const msg = 'Could not register: ' + resp.msg
+
+          console.error(msg)
           this.fire('error', msg)
           return
         }
@@ -130,8 +134,8 @@
         const err = this.$.ajaxpost.lastError
         console.assert(err)
 
-        console.log(err)
-        this.fire('error', 'Error signing up: ' + err.msg)
+        console.error(err)
+        this.fire('error', 'Error registering: ' + err.msg)
       },
 
       /// Get pending requests
@@ -145,6 +149,14 @@
         const resp = this.$.ajaxget.lastResponse
         console.assert(resp)
 
+        if (!resp.success) {
+          const msg = 'Could not check registration status: ' + resp.msg
+
+          console.error(msg)
+          this.fire('error', msg)
+          return
+        }
+
         this.competitor = resp.isCompetitor
         this.pending = resp.pending
       },
@@ -154,7 +166,7 @@
         const err = this.$.ajaxpost.lastError
         console.assert(err)
 
-        console.log(err)
+        console.error(err)
         this.fire('error', 'Error signing up: ' + err.msg)
       },
 
