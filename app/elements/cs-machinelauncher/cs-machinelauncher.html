@@ -172,11 +172,21 @@
         machines: {
           type: Array,
           readonly: true,
-          value: [{ id: "large_v0.1.4",
+          value: [{
+                    id: "large_v0.1.5",
+                    name: "large v0.1.5",
+                    region: "us-west-1",
+                    image: "ami-35e5af55",
+                    hardware: "m4.large"
+                  },
+
+                  {
+                    id: "large_v0.1.4",
                     name: "large v0.1.4 gzweb",
                     region: "us-west-1",
                     image: "ami-ca4e07aa",
-                    hardware: "m4.large"},
+                    hardware: "m4.large"
+                  },
 
                   { id: "small_v0.0.4",
                     name: "small v0.0.4",
