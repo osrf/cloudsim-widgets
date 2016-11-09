@@ -185,7 +185,7 @@
       _getError: function() {
         let msg = 'Error signing up'
 
-        if (this.$.ajaxpost.lastError)
+        if (this.$.ajaxget.lastError)
           msg += ": " + this.$.ajaxget.lastError.msg
 
         console.log(msg)

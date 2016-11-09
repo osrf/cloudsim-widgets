@@ -52,7 +52,7 @@
     <iron-ajax
       id="ajaxget"
       method="GET"
-      url=[[baseUrl]]/srcsignups
+      url=[[baseUrl]]/[[route]]
       handle-as="json"
       on-response="_onPending"
       on-error="_getError"
@@ -63,7 +63,7 @@
     <iron-ajax
       id="ajaxdelete"
       method="DELETE"
-      url=[[baseUrl]]/srcsignups
+      url=[[baseUrl]]/[[route]]
       handle-as="json"
       on-response="_onRemoved"
       on-error="_deleteError"
@@ -163,7 +163,7 @@
         if (!resp.success) {
           const msg = 'Could not check registration status: ' + resp.msg
 
-          console.error(msg)
+          console.log(msg)
           this.fire('error', msg)
           return
         }
@@ -174,11 +174,13 @@
 
       /// Callback when there's an error on get
       _getError: function() {
-        const err = this.$.ajaxpost.lastError
-        console.assert(err)
+        let msg = 'Error signing up'
 
-        console.error(err)
-        this.fire('error', 'Error signing up: ' + err.msg)
+        if (this.$.ajaxget.lastError)
+          msg += ": " + this.$.ajaxget.lastError.msg
+
+        console.log(msg)
+        this.fire('error', msg)
       },
 
       /// Callback when permissions have been updated
@@ -221,11 +223,13 @@
 
       /// Callback when there's an error on get
       _deleteError: function() {
-        const err = this.$.ajaxpost.lastError
-        console.assert(err)
+        let msg = 'Error removing registration'
 
-        console.error(err)
-        this.fire('error', 'Error removing registration: ' + err.msg)
+        if (this.$.ajaxdelete.lastError)
+          msg += ": " + this.$.ajaxdelete.lastError.msg
+
+        console.log(msg)
+        this.fire('error', msg)
       },
 
       /// Callback when the accept button is pressed
@@ -235,7 +239,7 @@
         if (this.groupid.length == 0) {
           let msg = "Missing id for group [src-competitors]"
 
-          console.error(msg);
+          console.log(msg);
           this.fire('error', 'Error giving user the competitor identity: ' + msg)
           return;
         }
@@ -253,7 +257,7 @@
       _onAccepted: function(e) {
 
         if (!e.detail.success) {
-          console.error(e);
+          console.log(e);
           this.fire('error', 'Error giving user the competitor identity')
           return;
         }
@@ -270,6 +274,24 @@
           value: '',
           notify: true,
           observer: '_onTokenUpdated'
+        },
+
+        /// Route for requests
+        route: {
+          type: String,
+          value: 'srcsignup',
+        },
+
+        /// Array of users
+        users: {
+          type: Array,
+          value: [],
+        },
+
+        /// Whether the number of users is zero
+        nousers: {
+          type: Boolean,
+          value: true,
         },
       },
     });
