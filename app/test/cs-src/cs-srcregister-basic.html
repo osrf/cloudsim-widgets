@@ -19,21 +19,144 @@
 
   <test-fixture id="basic">
     <template>
-      <cs-srcregister></cs-srcregister>
+      <cs-srcregister
+        token="fake token"
+      ></cs-srcregister>
     </template>
   </test-fixture>
 
   <script>
 
     suite('cs-srcregister tests', function() {
+
+      let component
+      let server
+
+      const responseHeaders = {
+        json: { 'Content-Type': 'application/json' }
+      };
+
       setup(function() {
-        component = fixture('basic');
+
+        // Fake server
+        server = sinon.fakeServer.create();
+        server.respondWith(
+          'GET',
+          /\/pending_success.*/, [
+            200,
+            responseHeaders.json,
+            '{"success":true, "pending":true}'
+          ]
+        );
+        server.respondWith(
+          'GET',
+          /\/pending_fail.*/, [
+            200,
+            responseHeaders.json,
+            '{"success":false}'
+          ]
+        );
+        server.respondWith(
+          'POST',
+          /\/request_success.*/, [
+            200,
+            responseHeaders.json,
+            '{"success":true}'
+          ]
+        );
+        server.respondWith(
+          'POST',
+          /\/request_fail.*/, [
+            200,
+            responseHeaders.json,
+            '{"success":false}'
+          ]
+        );
       });
 
-      test('Load', function() {
-        assert(component)
+      teardown(function() {
+        server.restore();
       });
 
+      suite('Requests', function() {
+        setup(function() {
+          component = fixture('basic');
+          assert(component)
+        });
+
+        test('Get pending success', function(done) {
+
+          expect(component.pending).to.be.equal(false)
+
+          component.route = 'pending_success'
+          component._getPending()
+          server.respond()
+
+          component.$.ajaxget.addEventListener('response', function(res) {
+            expect(component.pending).to.be.equal(true)
+            expect(component.competitor).to.not.exist
+            done();
+          })
+        })
+
+        test('Get pending failure', function(done) {
+
+          expect(component.pending).to.be.equal(false)
+
+          component.route = 'pending_fail'
+          component._getPending()
+          server.respond()
+
+          component.$.ajaxget.addEventListener('response', function(res) {
+            expect(component.pending).to.be.equal(false)
+            done();
+          })
+        })
+
+        test('Get error', function(done) {
+
+          component.route = 'bad_route'
+          component._getPending()
+          server.respond()
+
+          component.$.ajaxget.addEventListener('error', function(res) {
+            done();
+          })
+        })
+
+        test('Post request success', function(done) {
+
+          component.route = 'request_success'
+          component._tapRequest()
+          server.respond()
+
+          component.$.ajaxpost.addEventListener('response', function(res) {
+            done();
+          })
+        })
+
+        test('Post request failure', function(done) {
+
+          component.route = 'request_fail'
+          component._tapRequest()
+          server.respond()
+
+          component.$.ajaxpost.addEventListener('response', function(res) {
+            done();
+          })
+        })
+
+        test('Post error', function(done) {
+
+          component.route = 'bad_route'
+          component._tapRequest()
+          server.respond()
+
+          component.$.ajaxpost.addEventListener('error', function(res) {
+            done();
+          })
+        })
+      })
     });
   </script>
 

@@ -52,6 +52,22 @@ app.use("/api", express.static(path.join(__dirname, '/../api')));
 
 srcregistrations.setRoutes(app);
 
+app.get('/*', function(req, res, next){
+
+  if (req.originalUrl == '/scripts/config.js')
+    return next()
+
+  if ((req.originalUrl.match(/\//g) || []).length > 1) {
+    let newRoute = req.originalUrl.substr(1)
+    newRoute = "/" + newRoute.replace('/', '-')
+    console.log("Tried to get [" + req.originalUrl + "], sending [" + newRoute + "]")
+    res.redirect(newRoute)
+    return
+  }
+
+  res.sendFile(path.join(rootDir, '/index.html'));
+});
+
 // use the middleware module to serve config.js
 app.use(middleware.middleware)
 
