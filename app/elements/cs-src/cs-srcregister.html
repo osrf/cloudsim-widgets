@@ -22,6 +22,29 @@
   </style>
   <template>
 
+    <!-- TODO: this could be inside if loggedin, but then we can't use this.$.ajax* -->
+    <iron-ajax
+      id="ajaxpost"
+      method="POST"
+      url=[[baseUrl]]/[[route]]
+      handle-as="json"
+      on-response="_onRequested"
+      on-error="_postError"
+      content-type="application/json"
+      debounce-duration="300"
+    ></iron-ajax>
+
+    <iron-ajax
+      id="ajaxget"
+      method="GET"
+      url=[[baseUrl]]/[[route]]
+      handle-as="json"
+      on-response="_onPending"
+      on-error="_getError"
+      content-type="application/json"
+      debounce-duration="300"
+    ></iron-ajax>
+
     <paper-header-panel class="blue">
       <div class="paper-header">
         <h1 class="title">Register for the Secret Robotics Competition!</h1>
@@ -29,13 +52,35 @@
     </paper-header-panel>
 
     <template is="dom-if" if="[[loggedin]]">
-      <h1>
-        Click the following button if you'd like to participate in the competition.
-        You'll receive an email once your participation was accepted.
-      </h1>
-      <paper-button raised on-click="_tapRequest">
-        Request!
-      </paper-button>
+
+      <!-- NEW USERS -->
+      <template is="dom-if" if="[[!pending]]">
+        <h1>
+          Click the following button if you'd like to participate in the competition. <br>
+          An administrator will respond to the request shortly.
+        </h1>
+        <center>
+          <paper-button raised on-click="_tapRequest">
+            Request!
+          </paper-button>
+        </center>
+      </template>
+
+      <!-- WAITING ON APPROVAL -->
+      <template is="dom-if" if="[[pending]]">
+        <h1>
+          You've requested to participate in this competition.
+          Waiting on approval by administrators.
+        </h1>
+      </template>
+
+      <!-- ALREADY IN COMPETITION -->
+      <template is="dom-if" if="[[competitor]]">
+        <h1>
+          You're already a participant. Go to the <a href="[[baseUrl]]srckiosk">competition kiosk</a>.
+        </h1>
+      </template>
+
     </template>
 
     <template is="dom-if" if="[[!loggedin]]">
@@ -57,20 +102,136 @@
       attached: function() {
         console.log('cs-srcregister widget attached!')
       },
+
+      /// Callback when request button is pressed
       _tapRequest: function() {
-        // TODO: Backend
-        this.fire('notification', "User '" + this.currentuser + "' requested to participate in SRC.")
+        this.fire('notification', "Sending request to participate in SRC.")
+
+        this.$.ajaxpost.headers.authorization = this.token.trim()
+        this.$.ajaxpost.body = {}
+        return this.$.ajaxpost.generateRequest()
       },
+
+      /// Callback when requested
+      _onRequested: function(req) {
+
+        let resp
+        if (req && req.detail && req.detail.response)
+          resp = req.detail.response
+        else
+          resp = this.$.ajaxpost.lastResponse
+
+        if (!resp) {
+          console.log("No response in request or in lastResponse")
+          return;
+        }
+
+        if (!resp.success) {
+          const msg = 'Could not register: ' + resp.msg
+
+          console.log(msg)
+          this.fire('error', msg)
+          return
+        }
+
+        this._getPending()
+        this.fire('notification', "Successfully requested to participate in SRC.")
+      },
+
+      /// Callback when there's an error on request
+      _postError: function() {
+        let msg = 'Error registering'
+
+        if (this.$.ajaxpost.lastError)
+          msg += ": " + this.$.ajaxpost.lastError.msg
+
+        console.log(msg)
+        this.fire('error', msg)
+      },
+
+      /// Get pending requests
+      _getPending: function() {
+        this.$.ajaxget.headers.authorization = this.token.trim()
+        this.$.ajaxget.generateRequest()
+      },
+
+      /// Callback when we get the requests
+      _onPending: function(req) {
+
+        let resp
+        if (req && req.detail && req.detail.response)
+          resp = req.detail.response
+        else
+          resp = this.$.ajaxget.lastResponse
+
+        if (!resp) {
+          console.log("No response in request or in lastResponse")
+          return;
+        }
+
+        if (!resp.success) {
+          const msg = 'Could not check registration status: ' + resp.msg
+
+          console.log(msg)
+          this.fire('error', msg)
+          return
+        }
+
+        this.competitor = resp.isCompetitor
+        this.pending = resp.pending
+      },
+
+      /// Callback when there's an error on get
+      _getError: function() {
+        let msg = 'Error signing up'
+
+        if (this.$.ajaxget.lastError)
+          msg += ": " + this.$.ajaxget.lastError.msg
+
+        console.log(msg)
+        this.fire('error', msg)
+      },
+
+      /// Callback when the token has been updated
+      _onTokenUpdated: function() {
+        if (this.token !== "")
+          this._getPending();
+      },
+
       properties: {
+        /// True if user is logged in
         loggedin: {
           type: Boolean,
           value: false,
           notify: true
         },
-        currentuser: {
-          type: String,
-          value: "not set",
+
+        /// True if user's approval to participate is pending.
+        pending: {
+          type: Boolean,
+          value: false,
           notify: true
+        },
+
+        /// True if user is already a competitor.
+        competitor: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+
+        /// Token for authentication
+        token: {
+          type: String,
+          value: '',
+          notify: true,
+          observer: '_onTokenUpdated'
+        },
+
+        /// Route for requests
+        route: {
+          type: String,
+          value: 'srcsignup',
         },
       },
     });

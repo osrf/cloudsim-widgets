@@ -56,19 +56,20 @@
         swagger: "2.0",
         tags: [
           {
-            "name": "permissions",
-            "description": "Manage user access to resources",
+            "name": "srcsignups",
+            "description": "Manage registrations for SRC",
           },
         ],
         paths: {
-          // /permissions
-          "\/permissions": {
+          // /srcsignups
+          "\/srcsignups": {
             // GET
             "get": {
               "tags": [
-                "permissions"
+                "srcsignups"
               ],
-              "summary": "Get all permissions for a user",
+              "summary": "Get all pending requests to participate in SRC",
+              "description": "Competition admins should see all pending requests, while each competitor only sees whether they have a pending request.",
               "consumes": [
                 "application\/json",
               ],
@@ -85,16 +86,19 @@
                       "success": {
                         "type": "boolean",
                       },
-                      "operation": {
-                        "type": "string",
+                      "isAdmin": {
+                        "type": "boolean",
                       },
-                      "requester": {
-                        "type": "string",
+                      "isCompetitor": {
+                        "type": "boolean",
                       },
-                      "result": {
+                      "pending": {
+                        "type": "boolean",
+                      },
+                      "pendingList": {
                         "type" : "array",
                         "items": {
-                          "$ref": "#\/definitions\/Resource"
+                          "type": "string"
                         },
                       },
                     },
@@ -113,71 +117,34 @@
             // POST
             "post": {
               "tags": [
-                "permissions"
+                "srcsignups"
               ],
-              "summary": "Grant a user permission to a resource",
+              "summary": "Request to participate in SRC",
+              "description": "This is meant to be used by prospective competitors. It adds the requesting user to the pending queue.",
               "consumes": [
                 "application\/json",
               ],
               "produces": [
                 "application\/json"
               ],
-              "parameters": [
-                {
-                  "in": "body",
-                  "name": "body",
-                  "description": "Object with grant information",
-                  "required": true,
-                  "schema": {
-                    "$ref": "#\/definitions\/PermissionsRequest"
-                  }
-                }
-              ],
+              "parameters": [],
               "responses": {
                 "200": {
                   "description": "Success",
                   "schema": {
-                    "$ref": "#\/definitions\/PermissionsResponse"
-                  },
-                },
-                "401": {
-                  "description": "Not authorized"
-                }
-              },
-              "security": [
-                {
-                  "token": [],
-                }
-              ]
-            },
-            // DELETE
-            "delete": {
-              "tags": [
-                "permissions"
-              ],
-              "summary": "Revoke a user permission from a resource",
-              "consumes": [
-                "application\/json",
-              ],
-              "produces": [
-                "application\/json"
-              ],
-              "parameters": [
-                {
-                  "in": "body",
-                  "name": "body",
-                  "description": "Object with revoke information",
-                  "required": true,
-                  "schema": {
-                    "$ref": "#\/definitions\/PermissionsRequest"
-                  }
-                }
-              ],
-              "responses": {
-                "200": {
-                  "description": "Success",
-                  "schema": {
-                    "$ref": "#\/definitions\/PermissionsResponse"
+                    "type": "object",
+                    "properties" : {
+                      "success": {
+                        "type": "boolean",
+                      },
+                      "pending": {
+                        "type": "boolean",
+                      },
+                      "msg": {
+                        "type": "string",
+                        "default": "Case not successful, explanation goes here.",
+                      },
+                    },
                   },
                 },
                 "401": {
@@ -193,15 +160,13 @@
                 }
               ]
             },
-          },
-          // /permissions/{resourceId}
-          "\/permissions\/{resourceId}": {
-            // GET
-            "get": {
+            // DELETE
+            "delete": {
               "tags": [
-                "permissions"
+                "srcsignups"
               ],
-              "summary": "Get permissions for a resource",
+              "summary": "Remove a signup request from the list.",
+              "description": "A prospect competitor can use this to cancel their request to participate. Admins can use it to remove anyone from the list, regardless of whether they were accepted into the competition or not.",
               "consumes": [
                 "application\/json",
               ],
@@ -210,9 +175,9 @@
               ],
               "parameters": [
                 {
-                  "name": "resourceId",
-                  "in": "path",
-                  "description": "Id of resource",
+                  "name": "username",
+                  "in": "query",
+                  "description": "Username to remove from list",
                   "required": true,
                   "type": "string",
                 }
@@ -226,20 +191,8 @@
                       "success": {
                         "type": "boolean",
                       },
-                      "operation": {
-                        "type": "string",
-                      },
-                      "requester": {
-                        "type": "string",
-                      },
-                      "resource": {
-                        "type": "string",
-                      },
-                      "result": {
-                        "$ref": "#\/definitions\/Resource"
-                      },
-                    }
-                  }
+                    },
+                  },
                 },
                 "401": {
                   "description": "Not authorized"
@@ -254,25 +207,44 @@
           },
         },
         definitions: {
-          "ResourceName": {
-            "type": "object",
-            "properties": {
-              "resource": {
-                "type": "string",
-              },
-            },
+          "Operation": {
+            "type": "string",
+            "default": "description of operation",
+          },
+          "Requester": {
+            "type": "string",
+            "default": "user who sent the request",
+          },
+          "Grantee": {
+            "type": "string",
+            "default": "target user",
+          },
+          "ResourceId": {
+            "type": "string",
+            "default": "resource id",
           },
           "Resource": {
             "type": "object",
             "properties": {
               "name": {
-                "type": "string",
+                "$ref": "#\/definitions\/ResourceId"
               },
               "data": {
                 "type": "object",
               },
               "permissions": {
                 "$ref": "#\/definitions\/Permissions"
+              },
+            },
+          },
+          "ResourceWithoutPerm": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "$ref": "#\/definitions\/ResourceId"
+              },
+              "data": {
+                "type": "object",
               },
             },
           },
@@ -283,6 +255,7 @@
               "properties": {
                 "username": {
                   "type": "string",
+                  "default": "unique id for user",
                 },
                 "permissions": {
                   "type": "object",
@@ -299,10 +272,10 @@
             "type": "object",
             "properties": {
               "resource": {
-                "type": "string",
+                "$ref": "#\/definitions\/ResourceId"
               },
               "grantee": {
-                "type": "string",
+                "$ref": "#\/definitions\/Grantee"
               },
               "readOnly": {
                 "type": "boolean",
@@ -316,22 +289,23 @@
                 "type": "boolean",
               },
               "operation": {
-                "type": "string",
+                "$ref": "#\/definitions\/Operation"
               },
               "requester": {
-                "type": "string",
+                "$ref": "#\/definitions\/Requester"
               },
               "grantee": {
-                "type": "string",
+                "$ref": "#\/definitions\/Grantee"
               },
               "resource": {
-                "type": "string",
+                "$ref": "#\/definitions\/ResourceId"
               },
               "readOnly": {
                 "type": "boolean",
               },
               "msg": {
                 "type": "string",
+                "default": "message about operation",
               },
             },
           },

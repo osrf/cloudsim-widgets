@@ -13,6 +13,7 @@ const path = require('path')
 const csgrant = require('cloudsim-grant')
 // custom routes
 const middleware = require('./middleware')
+const srcregistrations = require('./src/registrations.js')
 
 app.use(cors())
 app.use(bodyParser.json())
@@ -42,7 +43,6 @@ const port = process.env.PORT || 5000
 // the user with write access to the initial resources
 const adminUser = process.env.CLOUDSIM_ADMIN || 'admin'
 
-
 // serve the app from the dist directory
 let rootDir = path.join(__dirname, '/../dist')
 if (process.argv[2] === 'dev')
@@ -50,20 +50,7 @@ if (process.argv[2] === 'dev')
 app.use("/", express.static(rootDir));
 app.use("/api", express.static(path.join(__dirname, '/../api')));
 
-// setup the routes
-app.get('/permissions',
-  csgrant.authenticate,
-  csgrant.userResources,
-  csgrant.allResources)
-app.post('/permissions', csgrant.authenticate, csgrant.grant)
-app.delete('/permissions',csgrant.authenticate, csgrant.revoke)
-
-app.get('/permissions/:resourceId', csgrant.authenticate,
-  csgrant.ownsResource(':resourceId', true), csgrant.resource)
-app.param('resourceId', function( req, res, next, id) {
-  req.resourceId = id
-  next()
-})
+srcregistrations.setRoutes(app);
 
 // use the middleware module to serve config.js
 app.use(middleware.middleware)
@@ -84,10 +71,8 @@ console.log('redis database url: ' + process.env.CLOUDSIM_WIDGETS_DB)
 console.log('============================================')
 console.log('\n\n')
 
-// we create 2 initial resources
-const resources = {'src_registrations': {},
-  'ariac_registrations': {}
-}
+// initial resources
+const resources = {}
 
 csgrant.init(adminUser,
   resources,

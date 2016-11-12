@@ -1,33 +1,31 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-  <title>cs-srcregister-basic</title>
+  <title>cs-srcrequests-basic</title>
 
   <script src="../../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
   <script src="../../bower_components/web-component-tester/browser.js"></script>
 
   <!-- Import the element to test -->
-  <link rel="import" href="../../elements/cs-src/cs-srcregister.html">
+  <link rel="import" href="../../elements/cs-src/cs-srcrequests.html">
 
 </head>
 <body>
   <script>
-    function getConfig() {
-      return {auth : 'auth', portal : 'portal'}
-    }
   </script>
 
   <test-fixture id="basic">
     <template>
-      <cs-srcregister
+      <cs-srcrequests
         token="fake token"
-      ></cs-srcregister>
+        authurl="/"
+      ></cs-srcrequests>
     </template>
   </test-fixture>
 
   <script>
 
-    suite('cs-srcregister tests', function() {
+    suite('cs-srcrequests tests', function() {
 
       let component
       let server
@@ -45,7 +43,7 @@
           /\/pending_success.*/, [
             200,
             responseHeaders.json,
-            '{"success":true, "pending":true}'
+            '{"success":true, "pendingList":["newuser"]}'
           ]
         );
         server.respondWith(
@@ -57,19 +55,27 @@
           ]
         );
         server.respondWith(
-          'POST',
-          /\/request_success.*/, [
+          'DELETE',
+          /\/decline_success.*/, [
             200,
             responseHeaders.json,
             '{"success":true}'
           ]
         );
         server.respondWith(
-          'POST',
-          /\/request_fail.*/, [
+          'DELETE',
+          /\/accept_success.*/, [
             200,
             responseHeaders.json,
-            '{"success":false}'
+            '{"success":true}'
+          ]
+        );
+        server.respondWith(
+          'GET',
+          /\/permissions.*/, [
+            200,
+            responseHeaders.json,
+            '{"success": true, "permissions":["name": "group_id", "data": {"name": "src-competitors"}]}'
           ]
         );
       });
@@ -86,29 +92,32 @@
 
         test('Get pending success', function(done) {
 
-          expect(component.pending).to.be.equal(false)
+          expect(component.users.length).to.be.equal(0)
+          expect(component.nousers).to.be.equal(true)
 
           component.route = 'pending_success'
           component._getPending()
           server.respond()
 
           component.$.ajaxget.addEventListener('response', function(res) {
-            expect(component.pending).to.be.equal(true)
-            expect(component.competitor).to.not.exist
+            expect(component.users.length).to.be.equal(1)
+            expect(component.nousers).to.be.equal(false)
             done();
           })
         })
 
         test('Get pending failure', function(done) {
 
-          expect(component.pending).to.be.equal(false)
+          expect(component.users.length).to.be.equal(0)
+          expect(component.nousers).to.be.equal(true)
 
           component.route = 'pending_fail'
           component._getPending()
           server.respond()
 
           component.$.ajaxget.addEventListener('response', function(res) {
-            expect(component.pending).to.be.equal(false)
+            expect(component.users.length).to.be.equal(0)
+            expect(component.nousers).to.be.equal(true)
             done();
           })
         })
@@ -119,43 +128,60 @@
           component._getPending()
           server.respond()
 
+          let alreadyDone = false
           component.$.ajaxget.addEventListener('error', function(res) {
-            done();
+            if (!alreadyDone) {
+              done();
+              alreadyDone = true
+            }
           })
         })
 
-        test('Post request success', function(done) {
+        test('Decline success', function(done) {
 
-          component.route = 'request_success'
-          component._tapRequest()
+          component.route = 'decline_success'
+          component._onDecline({'target':{'parentElement':{'id':'delete_username'}}})
           server.respond()
 
-          component.$.ajaxpost.addEventListener('response', function(res) {
+          component.$.ajaxdelete.addEventListener('response', function(res) {
             done();
           })
         })
 
-        test('Post request failure', function(done) {
+        test('Accept success', function(done) {
 
-          component.route = 'request_fail'
-          component._tapRequest()
+          component.route = 'accept_success'
+          component.groupid = 'the_group_id'
+          component._onAccept({'target':{'parentElement':{'id':'delete_username'}}})
           server.respond()
 
-          component.$.ajaxpost.addEventListener('response', function(res) {
+          component.$.grant.addEventListener('granted', function(res) {
             done();
           })
         })
 
-        test('Post error', function(done) {
+        test('Accept without group id', function() {
+
+          component.route = 'accept_success'
+          component.groupid = ''
+          component._onAccept({'target':{'parentElement':{'id':'delete_username'}}})
+        })
+
+        test('Delete error', function(done) {
 
           component.route = 'bad_route'
-          component._tapRequest()
+          component._onDecline({'target':{'parentElement':{'id':'delete_username'}}})
           server.respond()
 
-          component.$.ajaxpost.addEventListener('error', function(res) {
-            done();
+          let alreadyDone = false
+          component.$.ajaxget.addEventListener('error', function(res) {
+            if (!alreadyDone) {
+              done();
+              alreadyDone = true
+            }
           })
         })
+
       })
     });
   </script>

@@ -1,0 +1,300 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-srcrequests">
+  <style>
+    /* common */
+    .space {
+      @apply(--layout-flex);
+    }
+    .red {
+      --iron-icon-fill-color: #f00;
+    }
+    .green {
+      --iron-icon-fill-color: rgb(20, 255, 20);
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+    }
+    .center {
+      @apply(--layout-center);
+      text-align: center;
+    }
+
+    /* main */
+    paper-material {
+      text-align: center;
+      padding: 1em;
+      margin: 1em;
+      width: 15em;
+    }
+    h1 {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    .content {
+      overflow: auto;
+      margin: 0;
+      padding: 1em;
+    }
+    .username {
+      max-width: 15em;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    .miniButton {
+      width: 2.2em;
+    }
+  </style>
+  <template>
+
+    <!-- To handle the signup list -->
+    <iron-ajax
+      id="ajaxget"
+      method="GET"
+      url=[[baseUrl]]/[[route]]
+      handle-as="json"
+      on-response="_onPending"
+      on-error="_getError"
+      content-type="application/json"
+      debounce-duration="300"
+    ></iron-ajax>
+
+    <iron-ajax
+      id="ajaxdelete"
+      method="DELETE"
+      url=[[baseUrl]]/[[route]]
+      handle-as="json"
+      on-response="_onRemoved"
+      on-error="_deleteError"
+      content-type="application/json"
+      debounce-duration="300"
+    ></iron-ajax>
+
+    <!-- To invite users to team -->
+    <gz-grant
+      id="grant"
+      url="[[authurl]]"
+      token="[[token]]"
+      on-granted="_onAccepted"
+      on-permissionsupdated="_onAllPermissions"
+    ></gz-grant>
+
+    <paper-material elevation="1">
+
+      <h1>
+        <iron-icon
+          icon="icons:warning"
+        ></iron-icon>
+        Requests to compete
+      </h1>
+
+      <div class="content">
+
+        <template is="dom-repeat" items="[[users]]">
+
+          <div class="horizontal center">
+
+            <span class="username" title="[[item]]">[[item]]</span>
+
+            <div class="space"></div>
+
+            <paper-icon-button
+              class="green miniButton"
+              icon="icons:check"
+              id="[[item]]"
+              title="Accept"
+              on-tap="_onAccept">
+            </paper-icon-button>
+
+            <paper-icon-button
+              class="red miniButton"
+              icon="icons:close"
+              id="[[item]]"
+              title="Decline"
+              on-tap="_onDecline">
+            </paper-icon-button>
+          </div>
+
+        </template>
+
+        <template is="dom-if" if="[[nousers]]">
+          <div class="username">
+            There are no requests
+          </div>
+        </template>
+
+      </div>
+
+    </paper-material>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-srcrequests',
+      // Attached
+      attached: function() {
+        console.log('cs-srcrequests widget attached!')
+      },
+
+      /// Callback when the token has been updated
+      _onTokenUpdated: function() {
+        if (this.token !== "") {
+          this._getPending()
+          this.$.grant.getall();
+        }
+      },
+
+      /// Get pending requests
+      _getPending: function() {
+        this.$.ajaxget.headers.authorization = this.token.trim()
+        this.$.ajaxget.generateRequest()
+      },
+
+      /// Callback when receiving the list of pending requests
+      _onPending: function() {
+        const resp = this.$.ajaxget.lastResponse
+        console.assert(resp)
+
+        if (!resp.success) {
+          const msg = 'Could not check registration status: ' + resp.msg
+
+          console.log(msg)
+          this.fire('error', msg)
+          return
+        }
+
+        this.users = resp.pendingList
+        this.nousers = (this.users && this.users.length == 0)
+      },
+
+      /// Callback when there's an error on get
+      _getError: function() {
+        let msg = 'Error signing up'
+
+        if (this.$.ajaxget.lastError)
+          msg += ": " + this.$.ajaxget.lastError.msg
+
+        console.log(msg)
+        this.fire('error', msg)
+      },
+
+      /// Callback when permissions have been updated
+      _onAllPermissions: function(e) {
+        var permissions = this.$.grant.permissions
+
+        const group = permissions.find(function(permission){
+          return permission.data.name === 'src-competitors'
+        })
+
+        if (!group)
+          return;
+
+        this.groupid = group.name;
+      },
+
+      /// Callback when the decline button is pressed
+      _onDecline: function(e) {
+        this.declining = true;
+        this._delete(e.target.parentElement.id)
+      },
+
+      /// Remove a user
+      _delete: function(name) {
+        this.$.ajaxdelete.headers.authorization = this.token.trim()
+        this.$.ajaxdelete.params = {'username' : name}
+        this.$.ajaxdelete.body = {}
+        this.$.ajaxdelete.generateRequest()
+      },
+
+      /// Callback when the widget server notifies that the user was
+      /// successfully removed from the signup list.
+      _onRemoved: function(e) {
+        this._getPending()
+        if (this.declining)
+          this.fire('notification', 'Declined user\'s participation request.');
+        else
+          this.fire('notification', 'Accepted participation request.');
+      },
+
+      /// Callback when there's an error on get
+      _deleteError: function() {
+        let msg = 'Error removing registration'
+
+        if (this.$.ajaxdelete.lastError)
+          msg += ": " + this.$.ajaxdelete.lastError.msg
+
+        console.log(msg)
+        this.fire('error', msg)
+      },
+
+      /// Callback when the accept button is pressed
+      _onAccept: function(e) {
+        this.declining = false;
+
+        if (this.groupid.length == 0) {
+          let msg = "Missing id for group [src-competitors]"
+
+          console.log(msg);
+          this.fire('error', 'Error giving user the competitor identity: ' + msg)
+          return;
+        }
+
+        // Step 1: request auth server to add the user to src-competitors
+        this.selectedid = e.target.parentElement.id;
+
+        const data = { grantee: this.selectedid,
+                       resource: this.groupid,
+                       readonly: true}
+        this.$.grant.grant(data);
+      },
+
+      /// Callback when the auth server successfully added user to group.
+      _onAccepted: function(e) {
+
+        if (!e.detail.success) {
+          console.log(e);
+          this.fire('error', 'Error giving user the competitor identity')
+          return;
+        }
+
+        // Step 2: remove user from signup list (widgets server)
+        this._delete(this.selectedid)
+      },
+
+      properties: {
+
+        /// Token for authentication
+        token: {
+          type: String,
+          value: '',
+          notify: true,
+          observer: '_onTokenUpdated'
+        },
+
+        /// Route for requests
+        route: {
+          type: String,
+          value: 'srcsignup',
+        },
+
+        /// Array of users
+        users: {
+          type: Array,
+          value: [],
+        },
+
+        /// Whether the number of users is zero
+        nousers: {
+          type: Boolean,
+          value: true,
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>
