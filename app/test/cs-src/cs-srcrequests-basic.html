@@ -12,28 +12,177 @@
 </head>
 <body>
   <script>
-    function getConfig() {
-      return {auth : 'auth', portal : 'portal'}
-    }
   </script>
 
   <test-fixture id="basic">
     <template>
-      <cs-srcrequests></cs-srcrequests>
+      <cs-srcrequests
+        token="fake token"
+        authurl="/"
+      ></cs-srcrequests>
     </template>
   </test-fixture>
 
   <script>
 
     suite('cs-srcrequests tests', function() {
+
+      let component
+      let server
+
+      const responseHeaders = {
+        json: { 'Content-Type': 'application/json' }
+      };
+
       setup(function() {
-        component = fixture('basic');
+
+        // Fake server
+        server = sinon.fakeServer.create();
+        server.respondWith(
+          'GET',
+          /\/pending_success.*/, [
+            200,
+            responseHeaders.json,
+            '{"success":true, "pendingList":["newuser"]}'
+          ]
+        );
+        server.respondWith(
+          'GET',
+          /\/pending_fail.*/, [
+            200,
+            responseHeaders.json,
+            '{"success":false}'
+          ]
+        );
+        server.respondWith(
+          'DELETE',
+          /\/decline_success.*/, [
+            200,
+            responseHeaders.json,
+            '{"success":true}'
+          ]
+        );
+        server.respondWith(
+          'DELETE',
+          /\/accept_success.*/, [
+            200,
+            responseHeaders.json,
+            '{"success":true}'
+          ]
+        );
+        server.respondWith(
+          'GET',
+          /\/permissions.*/, [
+            200,
+            responseHeaders.json,
+            '{"success": true, "permissions":["name": "group_id", "data": {"name": "src-competitors"}]}'
+          ]
+        );
       });
 
-      test('Load', function() {
-        assert(component)
+      teardown(function() {
+        server.restore();
       });
 
+      suite('Requests', function() {
+        setup(function() {
+          component = fixture('basic');
+          assert(component)
+        });
+
+        test('Get pending success', function(done) {
+
+          expect(component.users.length).to.be.equal(0)
+          expect(component.nousers).to.be.equal(true)
+
+          component.route = 'pending_success'
+          component._getPending()
+          server.respond()
+
+          component.$.ajaxget.addEventListener('response', function(res) {
+            expect(component.users.length).to.be.equal(1)
+            expect(component.nousers).to.be.equal(false)
+            done();
+          })
+        })
+
+        test('Get pending failure', function(done) {
+
+          expect(component.users.length).to.be.equal(0)
+          expect(component.nousers).to.be.equal(true)
+
+          component.route = 'pending_fail'
+          component._getPending()
+          server.respond()
+
+          component.$.ajaxget.addEventListener('response', function(res) {
+            expect(component.users.length).to.be.equal(0)
+            expect(component.nousers).to.be.equal(true)
+            done();
+          })
+        })
+
+        test('Get error', function(done) {
+
+          component.route = 'bad_route'
+          component._getPending()
+          server.respond()
+
+          let alreadyDone = false
+          component.$.ajaxget.addEventListener('error', function(res) {
+            if (!alreadyDone) {
+              done();
+              alreadyDone = true
+            }
+          })
+        })
+
+        test('Decline success', function(done) {
+
+          component.route = 'decline_success'
+          component._onDecline({'target':{'parentElement':{'id':'delete_username'}}})
+          server.respond()
+
+          component.$.ajaxdelete.addEventListener('response', function(res) {
+            done();
+          })
+        })
+
+        test('Accept success', function(done) {
+
+          component.route = 'accept_success'
+          component.groupid = 'the_group_id'
+          component._onAccept({'target':{'parentElement':{'id':'delete_username'}}})
+          server.respond()
+
+          component.$.grant.addEventListener('granted', function(res) {
+            done();
+          })
+        })
+
+        test('Accept without group id', function() {
+
+          component.route = 'accept_success'
+          component.groupid = ''
+          component._onAccept({'target':{'parentElement':{'id':'delete_username'}}})
+        })
+
+        test('Delete error', function(done) {
+
+          component.route = 'bad_route'
+          component._onDecline({'target':{'parentElement':{'id':'delete_username'}}})
+          server.respond()
+
+          let alreadyDone = false
+          component.$.ajaxget.addEventListener('error', function(res) {
+            if (!alreadyDone) {
+              done();
+              alreadyDone = true
+            }
+          })
+        })
+
+      })
     });
   </script>
 
