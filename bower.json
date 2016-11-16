@@ -7,7 +7,7 @@
     "gz-grant": "osrf/gz-grant#0.0.10",
     "gz-resources": "osrf/gz-resources#0.0.7",
     "gz-simulationq": "osrf/gz-simulationq#0.0.9",
-    "gz-token": "osrf/gz-token#0.2.0",
+    "gz-token": "osrf/gz-token#0.2.1",
     "iron-ajax": "PolymerElements/iron-ajax#^1.4.3",
     "iron-flex-layout": "PolymerElements/iron-flex-layout#^1.3.1",
     "iron-icons": "PolymerElements/iron-icons#^1.1.3",
