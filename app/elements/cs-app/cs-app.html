@@ -107,6 +107,11 @@
         ></cs-ariacregister>
       </section>
 
+      <!-- SASC public routes -->
+      <section data-route="sasc" style="padding: 0em">
+        <cs-saschome/>
+      </section>
+
       <!-- Secure routes -->
       <section data-route="secure">
 
@@ -213,6 +218,23 @@
 
               </section>
 
+              <!-- SASC secure routes -->
+              <section data-route="sasc">
+
+                <iron-pages attr-for-selected="data-route" selected="{{sascRoute}}">
+
+                  <section data-route="home">
+                    <cs-saschome/>
+                  </section>
+
+                  <section data-route="kiosk">
+                    <cs-sasckiosk/>
+                  </section>
+
+                </iron-pages>
+
+              </section>
+
             </iron-pages>
           </div>
 
@@ -309,6 +331,15 @@
 
         this.$.menu.isariacuser = this.isariaccompetitor || this.isariacorganizer
         this.$.dashboard.isariacuser = this.isariaccompetitor || this.isariacorganizer
+
+        // SASC
+        this.issascadmin = (this.currentuser === getConfig().admin ||
+                               this.identities.indexOf("sasc-admins") > -1);
+        this.issasccompetitor = (!this.issascadmin &&
+            this.identities.indexOf("sasc-competitors") > -1);
+
+        this.$.menu.issascuser = this.issasccompetitor || this.issascadmin
+        this.$.dashboard.issascuser = this.issasccompetitor || this.issascadmin
 
         // Get permissions from gz-grant
         this.$.grant.getall();

@@ -122,6 +122,22 @@
         </a>
       </template>
 
+      <!-- SASC -->
+      <template is="dom-if" if="[[issascuser]]">
+        <a data-route="sasc" href="{{baseUrl}}sasc">
+          <paper-item>
+            <iron-icon icon="hardware:toys"></iron-icon>
+            SASC
+          </paper-item>
+        </a>
+
+        <a data-route="sasc" href="{{baseUrl}}sasc">
+          <paper-item class="subitem">
+            <span>Competition Kiosk</span>
+          </paper-item>
+        </a>
+      </template>
+
     </paper-menu>
 
   </template>

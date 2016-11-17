@@ -1,0 +1,66 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-saschome">
+  <style>
+    .title {
+      font-size: 2em;
+    }
+    .blue {
+      background-color: rgb(68, 138, 201);
+      color: #fff;
+    }
+    .paper-header {
+      padding: 1em;
+    }
+    .paper-header > h1 {
+      text-align: center;
+    }
+    .content {
+      padding: 3em;
+    }
+    .vertical {
+      @apply(--layout-vertical);
+    }
+  </style>
+  <template>
+
+    <paper-header-panel class="blue">
+      <div class="paper-header">
+        <h1 class="title">Service Academies Swarm Competition</h1>
+      </div>
+    </paper-header-panel>
+
+    <div class="content">
+      <p>
+        Text about competition
+        Text about competition
+        Text about competition
+        Text about competition
+        Text about competition
+        Text about competition
+        Text about competition
+        Text about competition
+        Text about competition
+        Text about competition
+      </p>
+    </div>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-saschome',
+      // Attached
+      attached: function() {
+        console.log('cs-saschome widget attached!')
+      },
+      properties: {
+      },
+    });
+  })();
+  </script>
+</dom-module>

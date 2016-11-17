@@ -1,0 +1,197 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-sasckiosk">
+  <style>
+    :root {
+      --paper-tab-ink: #fff;
+      --paper-tabs-selection-bar-color: #fff;
+      --paper-tabs: {
+        color: #fff;
+      }
+    }
+    .title {
+      font-size: 2em;
+    }
+    .space {
+      @apply(--layout-flex);
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+    .blue {
+      background-color: rgb(68, 138, 201);
+      color: #fff;
+    }
+    .grey {
+      background-color: #d7d7d7;
+      color: rgb(68, 138, 201);
+    }
+    .floating {
+      margin-top: -1.2em;
+      margin-left: 1em;
+    }
+    .paper-header {
+      padding: 1em;
+    }
+    .paper-header > h1 {
+      text-align: center;
+    }
+    paper-tabs {
+      margin-top: -69px;
+      margin-left: 20px;
+    }
+    .new-content {
+      width: 50%;
+    }
+  </style>
+  <template>
+
+    <paper-header-panel class="blue">
+      <div class="paper-header">
+        <h1 class="title">Rounds</h1>
+      </div>
+    </paper-header-panel>
+
+    <paper-fab
+      mini
+      class="grey floating"
+      icon="icons:add"
+      title="Start a new round"
+      on-tap="_onNew"
+    ></paper-fab>
+
+    <paper-tabs scrollable attr-for-selected="value" selected="{{currentpage}}">
+      <template is="dom-repeat" items="{{rounds}}">
+        <paper-tab value="[[item.name]]">[[item.name]]</paper-tab>
+      </template>
+    </paper-tabs>
+
+    <iron-pages attr-for-selected="data-route" selected="{{currentpage}}">
+
+      <section data-route="empty">
+        <center>
+          <p>You have no rounds running.</p>
+          <paper-button flat on-tap="_onNew">Start one now</paper-button></p>
+        </center>
+      </section>
+
+      <section data-route="new">
+        <center>
+          <div class="new-content">
+            <p>Start a new round.</p>
+
+            <paper-input value="{{roundname}}" label="Round name" required></paper-input>
+
+            <div class="horizontal">
+              <p>Blue team:</p>
+              <div class="space"></div>
+              <paper-dropdown-menu label="Competitor">
+                <paper-listbox
+                  class="dropdown-content"
+                  attr-for-selected="value"
+                  selected={{blueuser}}
+                 >
+                  <template is="dom-repeat" items=[[competitors]]>
+                    <paper-item value="[[item]]">[[item]]</paper-item>
+                  </template>
+                </paper-listbox>
+              </paper-dropdown-menu>
+            </div>
+
+            <div class="horizontal">
+              <p>Gold team:</p>
+              <div class="space"></div>
+              <paper-dropdown-menu label="Competitor">
+                <paper-listbox
+                  class="dropdown-content"
+                  attr-for-selected="value"
+                  selected={{reduser}}
+                 >
+                  <template is="dom-repeat" items=[[competitors]]>
+                    <paper-item value="[[item]]">[[item]]</paper-item>
+                  </template>
+                </paper-listbox>
+              </paper-dropdown-menu>
+            </div>
+
+            <paper-button
+              raised
+              class="blue"
+              on-tap="_onContinue"
+            >Continue</paper-button></p>
+
+          </div>
+        </center>
+      </section>
+
+      <template is="dom-repeat" items="{{rounds}}">
+        <section data-route="[[item.name]]">
+          <center>
+            <p>[[item.name]]</p>
+          </center>
+        </section>
+      </template>
+
+    </iron-pages>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-sasckiosk',
+
+      // Attached
+      attached: function() {
+        console.log('cs-sasckiosk widget attached!')
+
+        this.competitors = [
+          "team1@email.com",
+          "team2@email.com",
+          "team3@email.com",
+        ]
+      },
+
+      // Go to page to start new round
+      _onNew: function() {
+        this.currentpage = "new"
+      },
+
+      // Continue starting new round
+      _onContinue: function() {
+        // TODO: Register this competition on widgets server
+        console.log(this.roundname, this.blueuser, this.reduser)
+
+        // Callback:
+        this._onNewRound()
+      },
+
+      // Callback from widgets server when a new round has been
+      // registered
+      _onNewRound: function() {
+        this.push('rounds', {name: this.roundname})
+
+        this.currentpage = this.roundname
+
+      },
+
+      properties: {
+        rounds: {
+          type: Array,
+          value: [],
+          notify: true
+        },
+        currentpage: {
+          type: String,
+          value: 'empty',
+          notify: true
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>
