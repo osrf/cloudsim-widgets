@@ -20,9 +20,17 @@
       @apply(--layout-horizontal);
       @apply(--layout-center);
     }
+    .vertical {
+      @apply(--layout-vertical);
+      @apply(--layout-center);
+    }
     .blue {
       background-color: rgb(68, 138, 201);
       color: #fff;
+    }
+    .white {
+      background-color: #fff;
+      color: #222;
     }
     .grey {
       background-color: #d7d7d7;
@@ -45,8 +53,37 @@
     .new-content {
       width: 50%;
     }
+    .box-header > h4 {
+      color: #eee;
+    }
+    .box-header {
+      background-color: rgb(68, 138, 201);
+      color: #353535;
+      margin: 0;
+      padding-right: 1em;
+      padding-left: 1em;
+    }
+    .box-content {
+      overflow: auto;
+      margin: 0;
+      padding: 1em;
+    }
+    .box {
+      max-width: 70%;
+      min-width: 30%;
+      margin-top: 1em;
+    }
   </style>
   <template>
+
+    <!-- For launching machines -->
+    <gz-resources
+      id="resources"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="simulator"
+      on-created="_onLaunched"
+    ></gz-resources>
 
     <paper-header-panel class="blue">
       <div class="paper-header">
@@ -129,7 +166,43 @@
       <template is="dom-repeat" items="{{rounds}}">
         <section data-route="[[item.name]]">
           <center>
-            <p>[[item.name]]</p>
+            <paper-material elevation="1" class="box">
+              <div class="box-header horizontal">
+                <h4>Arbiter</h4>
+                <div class="space"></div>
+                <template is="dom-if" if="{{_isNotLaunched(item.arbiter.status)}}">
+                  <paper-button
+                    raised
+                    class="white"
+                    on-tap="_onLaunchArbiter"
+                  >
+                    Launch
+                  </paper-button>
+                </template>
+              </div>
+              <div class="box-content">
+                <div class="vertical">
+                  <div class="horizontal">
+                    Status: [[item.arbiter.status]]
+                    <div class="space"></div>
+                  </div>
+                  <template is="dom-if" if="{{_isRunning(item.arbiter.status)}}">
+                    <div class="horizontal">
+                      Public IP:
+                      [[item.arbiter.machine_ip]]
+                    </div>
+                    <div class="horizontal">
+                      SSH keys:
+                      <cs-downloadkeysbutton
+                        simurl="[[item.arbiter.machine_ip]]"
+                        token="[[token]]"
+                      ></cs-downloadkeysbutton>
+                    <div>
+                  </template>
+                <div>
+                <div class="space"></div>
+              </div>
+            </paper-material>
           </center>
         </section>
       </template>
@@ -173,10 +246,66 @@
       // Callback from widgets server when a new round has been
       // registered
       _onNewRound: function() {
-        this.push('rounds', {name: this.roundname})
+        this.push('rounds', {
+          name: this.roundname,
+          arbiter: {
+            status: 'NOT LAUNCHED'
+          },
+        })
 
         this.currentpage = this.roundname
 
+      },
+
+      // When Launch button is pressed
+      _onLaunchArbiter(e) {
+
+        // TODO: use real arbiter data
+        let data =  {
+          token: this.token,
+          region: "us-west-1",
+          image: "ami-4b37752b",
+          hardware: "t2.small"
+        }
+
+//        this.$.resources.create(data);
+        this.fire('notification', {msg:
+            "Request to launch an arbiter for \"" + this.currentpage +
+            "\" has been sent.", type: "msg"})
+      },
+
+      // Callback once machine has been launched
+      _onLaunched: function(e) {
+console.log(e)
+        let success = e.detail.success
+        let msg = e.detail.message
+
+        if (success != undefined && success == false)
+        {
+          this.fire('notification', {msg: msg, type: "error"})
+        }
+        else
+        {
+          this.fire('notification', {msg: "Machine has been launched.", type: "msg"})
+
+          const that = this
+          let round = this.rounds.findIndex(function(element) {
+            // FIXME: Can we be sure it's the current page?
+            return element.name == that.currentpage
+          })
+
+        //  this.rounds[round].arbiter = e.detail
+        }
+      },
+
+      // Check if it's running
+      _isRunning: function(itemStatus) {
+        return itemStatus == 'RUNNING' ? true : false;
+      },
+
+      // Check if it's not launched
+      _isNotLaunched: function(itemStatus) {
+        return itemStatus == 'NOT LAUNCHED' ? true : false;
       },
 
       properties: {
@@ -188,6 +317,16 @@
         currentpage: {
           type: String,
           value: 'empty',
+          notify: true
+        },
+        portalurl: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        token: {
+          type: String,
+          value: '',
           notify: true
         },
       },
