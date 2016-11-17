@@ -16,6 +16,11 @@
     .space {
       @apply(--layout-flex);
     }
+    .about-half {
+      min-width: 45%;
+      margin-right: 2%;
+      margin-left: 2%;
+    }
     .horizontal {
       @apply(--layout-horizontal);
       @apply(--layout-center);
@@ -46,6 +51,9 @@
     .paper-header > h1 {
       text-align: center;
     }
+    .content {
+      height: 2000px;
+    }
     paper-tabs {
       margin-top: -69px;
       margin-left: 20px;
@@ -72,6 +80,9 @@
       max-width: 70%;
       min-width: 30%;
       margin-top: 1em;
+    }
+    .full {
+      min-width: 100%;
     }
   </style>
   <template>
@@ -128,9 +139,9 @@
                 <paper-listbox
                   class="dropdown-content"
                   attr-for-selected="value"
-                  selected={{blueuser}}
-                 >
-                  <template is="dom-repeat" items=[[competitors]]>
+                  selected="{{blueuser}}"
+                >
+                  <template is="dom-repeat" items="[[competitors]]">
                     <paper-item value="[[item]]">[[item]]</paper-item>
                   </template>
                 </paper-listbox>
@@ -144,9 +155,9 @@
                 <paper-listbox
                   class="dropdown-content"
                   attr-for-selected="value"
-                  selected={{reduser}}
+                  selected="{{golduser}}"
                  >
-                  <template is="dom-repeat" items=[[competitors]]>
+                  <template is="dom-repeat" items="[[competitors]]">
                     <paper-item value="[[item]]">[[item]]</paper-item>
                   </template>
                 </paper-listbox>
@@ -166,6 +177,8 @@
       <template is="dom-repeat" items="{{rounds}}">
         <section data-route="[[item.name]]">
           <center>
+
+            <!-- ARBITER -->
             <paper-material elevation="1" class="box">
               <div class="box-header horizontal">
                 <h4>Arbiter</h4>
@@ -203,7 +216,39 @@
                 <div class="space"></div>
               </div>
             </paper-material>
+            <!-- /ARBITER -->
+
           </center>
+
+          <div class="horizontal box full">
+
+            <!-- BLUE TEAM -->
+            <div class="about-half">
+              <paper-header-panel class="blue">
+                <div class="paper-header">
+                  <h4>Blue</h4>
+                  <p>[[item.blueuser]]</p>
+                </div>
+              </paper-header-panel>
+              <div class="content">
+                Must launch arbiter before teams
+              </div>
+            </div>
+
+            <!-- GOLD TEAM -->
+            <div class="about-half">
+              <paper-header-panel class="blue">
+                <div class="paper-header">
+                  <h4>Gold</h4>
+                  <p>[[item.golduser]]</p>
+                </div>
+              </paper-header-panel>
+              <div class="content">
+                Must launch arbiter before teams
+              </div>
+            </div>
+
+          </div>
         </section>
       </template>
 
@@ -236,8 +281,16 @@
 
       // Continue starting new round
       _onContinue: function() {
+        if (this.roundname === "" ||
+            !this.blueuser ||
+            !this.golduser) {
+
+          this.fire('error', 'No fields can be empty.')
+          return
+        }
+
         // TODO: Register this competition on widgets server
-        console.log(this.roundname, this.blueuser, this.reduser)
+        console.log(this.roundname, this.blueuser, this.golduser)
 
         // Callback:
         this._onNewRound()
@@ -248,6 +301,8 @@
       _onNewRound: function() {
         this.push('rounds', {
           name: this.roundname,
+          blueuser: this.blueuser,
+          golduser: this.golduser,
           arbiter: {
             status: 'NOT LAUNCHED'
           },
