@@ -172,11 +172,28 @@
         machines: {
           type: Array,
           readonly: true,
-          value: [{ id: "large_v0.1.4",
+          value: [{
+                    id: "sasc_v0.1.6a",
+                    name: "sasc v0.1.6a",
+                    region: "us-west-1",
+                    image: "ami-f0abfe90",
+                    hardware: "m4.large"
+                  },
+                  {
+                    id: "large_v0.1.6c",
+                    name: "large v0.1.6c",
+                    region: "us-west-1",
+                    image: "ami-7b683d1b",
+                    hardware: "m4.large"
+                  },
+
+                  {
+                    id: "large_v0.1.4",
                     name: "large v0.1.4 gzweb",
                     region: "us-west-1",
                     image: "ami-ca4e07aa",
-                    hardware: "m4.large"},
+                    hardware: "m4.large"
+                  },
 
                   { id: "small_v0.0.4",
                     name: "small v0.0.4",
