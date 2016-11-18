@@ -127,7 +127,12 @@
           image: this.machine.image,
           hardware: this.machine.hardware
         }
-
+        // hack to inject options without a gui
+        if (options) {
+          data.options = options
+          console.log('\n\ncreating machine with options')
+          console.log(JSON.stringify(data, null, 2))
+        }
         this.$.resources.create(data);
         this.fire('notification', {msg: "Request to launch a \"" + this.machine.name + "\" has been sent.", type: "msg"})
       },
