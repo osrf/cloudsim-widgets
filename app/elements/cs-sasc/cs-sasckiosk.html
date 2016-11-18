@@ -77,6 +77,15 @@
       on-updated="_onUpdateComplete"
     ></gz-resources>
 
+    <!-- To get competitors list -->
+    <gz-resources
+      id="competitorsresources"
+      url="[[authurl]]"
+      token="[[token]]"
+      resourcename="group"
+      on-resourcesupdated="_onGroups"
+    ></gz-resources>
+
     <paper-header-panel class="blue">
       <div class="paper-header">
         <h1 class="title">Rounds</h1>
@@ -183,12 +192,6 @@
       // Attached
       attached: function() {
         console.log('cs-sasckiosk widget attached!')
-
-        this.competitors = [
-          "team1@email.com",
-          "team2@email.com",
-          "team3@email.com",
-        ]
       },
 
       // Callback when the token has been updated
@@ -215,6 +218,7 @@
 
       // Go to page to start new round
       _onNew: function() {
+        this.$.competitorsresources.getAll();
         this.currentpage = "new"
       },
 
@@ -273,6 +277,21 @@
         // No need to do anything here for now
       },
 
+      // Callback when receiving list of groups
+      _onGroups: function() {
+        let group = this.$.competitorsresources.resources.find(
+          function(g){
+            return g.data.name === 'sasc-competitors'
+          })
+
+        let temp = []
+        for (var i = 0; i< group.permissions.length; ++i) {
+          temp.push(group.permissions[i].username)
+        }
+
+        this.set('competitors', temp)
+      },
+
       properties: {
         rounds: {
           type: Array,
@@ -299,6 +318,11 @@
           value: '',
           notify: true,
           observer: '_onTokenUpdated'
+        },
+        competitors: {
+          type: Array,
+          value: [],
+          notify: true,
         },
       },
     });
