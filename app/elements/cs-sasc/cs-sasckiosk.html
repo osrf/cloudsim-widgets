@@ -16,11 +16,6 @@
     .space {
       @apply(--layout-flex);
     }
-    .about-half {
-      min-width: 45%;
-      margin-right: 2%;
-      margin-left: 2%;
-    }
     .horizontal {
       @apply(--layout-horizontal);
       @apply(--layout-center);
@@ -32,10 +27,6 @@
     .blue {
       background-color: rgb(68, 138, 201);
       color: #fff;
-    }
-    .white {
-      background-color: #fff;
-      color: #222;
     }
     .grey {
       background-color: #d7d7d7;
@@ -72,40 +63,8 @@
     .new-content {
       width: 50%;
     }
-    .box-header > h4 {
-      color: #eee;
-    }
-    .box-header {
-      background-color: rgb(68, 138, 201);
-      color: #353535;
-      margin: 0;
-      padding-right: 1em;
-      padding-left: 1em;
-    }
-    .box-content {
-      overflow: auto;
-      margin: 0;
-      padding: 1em;
-    }
-    .box {
-      max-width: 70%;
-      min-width: 30%;
-      margin-top: 1em;
-    }
-    .full {
-      min-width: 100%;
-    }
   </style>
   <template>
-
-    <!-- For launching machines -->
-    <gz-resources
-      id="launchresources"
-      url="[[portalurl]]"
-      token="[[token]]"
-      resourcename="simulator"
-      on-created="_onLaunched"
-    ></gz-resources>
 
     <!-- For managing rounds -->
     <gz-resources
@@ -115,7 +74,7 @@
       resourcename="sascround"
       on-created="_onNewRound"
       on-resourcesupdated="_onAllRounds"
-      on-updated="_onRoundUpdated"
+      on-updated="_onUpdateComplete"
     ></gz-resources>
 
     <paper-header-panel class="blue">
@@ -198,79 +157,15 @@
 
       <template is="dom-repeat" items="{{rounds}}">
         <section data-route="[[item.data.name]]">
-          <center>
-
-            <!-- ARBITER -->
-            <paper-material elevation="1" class="box">
-              <div class="box-header horizontal">
-                <h4>Arbiter: "[[item.data.name]]"</h4>
-                <div class="space"></div>
-                <template is="dom-if" if="{{_isNotLaunched(item.data.arbiter.status)}}">
-                  <paper-button
-                    raised
-                    class="white"
-                    on-tap="_onLaunchArbiter"
-                  >
-                    Launch
-                  </paper-button>
-                </template>
-              </div>
-              <div class="box-content">
-                <div class="vertical">
-                  <div class="horizontal">
-                    Status: [[item.data.arbiter.status]]
-                    <div class="space"></div>
-                  </div>
-                  <template is="dom-if" if="{{_isRunning(item.data.arbiter.status)}}">
-                    <div class="horizontal">
-                      Public IP:
-                      [[item.data.arbiter.machine_ip]]
-                    </div>
-                    <div class="horizontal">
-                      SSH keys:
-                      <cs-downloadkeysbutton
-                        simurl="[[item.data.arbiter.machine_ip]]"
-                        token="[[token]]"
-                      ></cs-downloadkeysbutton>
-                    <div>
-                  </template>
-                <div>
-                <div class="space"></div>
-              </div>
-            </paper-material>
-            <!-- /ARBITER -->
-
-          </center>
-
-          <div class="horizontal box full">
-
-            <!-- BLUE TEAM -->
-            <div class="about-half">
-              <paper-header-panel class="blue">
-                <div class="paper-header">
-                  <h4>Blue</h4>
-                  <p>[[item.data.blueuser]]</p>
-                </div>
-              </paper-header-panel>
-              <div class="content">
-                Must launch arbiter before teams
-              </div>
-            </div>
-
-            <!-- GOLD TEAM -->
-            <div class="about-half">
-              <paper-header-panel class="blue">
-                <div class="paper-header">
-                  <h4>Gold</h4>
-                  <p>[[item.data.golduser]]</p>
-                </div>
-              </paper-header-panel>
-              <div class="content">
-                Must launch arbiter before teams
-              </div>
-            </div>
-
-          </div>
+          <cs-sascround
+            token="[[token]]"
+            portalurl="[[portalurl]]"
+            keysurl="[[keysurl]]"
+            rounddata=[[item.data]]
+            on-rounddataupdated=_onRoundUpdated
+            id="[[item.name]]"
+          >
+          </cs-sascround>
         </section>
       </template>
 
@@ -367,85 +262,15 @@
         this.fire('notification', 'Started round "' + resp.result.data.name + '".')
       },
 
-      // When arbiter launch button is pressed
-      _onLaunchArbiter(e) {
-
-        const that = this
-        let currentRound = this.rounds.find(function(element) {
-          return (element.data.name === that.currentpage)
-        })
-
-        let data =  {
-          token: this.token,
-          region: "us-west-1",
-          image: "ami-4b37752b",
-          hardware: "t2.small",
-          options: {
-            role: 'arbiter',
-            keyName: currentRound.name,
-            keyServerUrl: this.keysurl,
-            token: this.token,
-          }
-        }
-
-        this.$.launchresources.create(data);
-        this.fire('notification', {msg:
-            "Request to launch an arbiter for \"" + this.currentpage +
-            "\" has been sent.", type: "msg"})
-      },
-
-      // Callback once machine has been launched
-      _onLaunched: function(e) {
-        let success = e.detail.success
-        let msg = e.detail.message
-
-        if (success != undefined && success == false)
-        {
-          this.fire('notification', {msg: msg, type: "error"})
-          return
-        }
-
-        // Save arbiter id to widgets
-        const that = this
-        let i = 0;
-        for (; i < this.rounds.length; i++) {
-          if (this.rounds[i].data.name === this.currentpage) {
-            break
-          }
-        }
-
-        let data = {
-          arbiter: {
-            id: e.detail.id,
-            ip: e.detail.machine_ip,
-            status: e.detail.status
-          }
-        }
-
-        this.$.roundsresources.update(this.rounds[i].name, data)
-
-        this.fire('notification', {msg: 'Arbiter for "' + this.currentpage +
-            '" has been launched.', type: "msg"})
-      },
-
-      // Callback when a round has been updated
+      // Callback when a round has been updated from downstream
       _onRoundUpdated: function(e) {
-        console.log("UPDATED")
-        console.log(e.detail)
-
-
-
-        // TODO: Use portal resources websocket to keep updating
+        // Update the round info stored in the widgets server
+        this.$.roundsresources.update(e.target.id, e.detail)
       },
 
-      // Check if it's running
-      _isRunning: function(itemStatus) {
-        return itemStatus == 'RUNNING' ? true : false;
-      },
-
-      // Check if it's not launched
-      _isNotLaunched: function(itemStatus) {
-        return itemStatus == 'NOT LAUNCHED' ? true : false;
+      // Callback from widgets when it as completed the update
+      _onUpdateComplete: function(e) {
+        // No need to do anything here for now
       },
 
       properties: {

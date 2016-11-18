@@ -1,0 +1,277 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-sascround">
+  <style>
+    .space {
+      @apply(--layout-flex);
+    }
+    .about-half {
+      min-width: 45%;
+      margin-right: 2%;
+      margin-left: 2%;
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+    .vertical {
+      @apply(--layout-vertical);
+      @apply(--layout-center);
+    }
+    .blue {
+      background-color: rgb(68, 138, 201);
+      color: #fff;
+    }
+    .white {
+      background-color: #fff;
+      color: #222;
+    }
+    .grey {
+      background-color: #d7d7d7;
+      color: rgb(68, 138, 201);
+    }
+    .floating {
+      margin-top: -1.2em;
+      margin-left: 1em;
+      z-index: 1000;
+    }
+    .paper-header {
+      padding: 1em;
+    }
+    .paper-header > h1 {
+      text-align: center;
+    }
+    .paper-header > h4 {
+      margin: 0;
+      text-align: center;
+    }
+    .paper-header > p {
+      margin-bottom: 0;
+      color: #ddd;
+      text-align: center;
+    }
+    .content {
+      padding: 1em;
+      height: 100%;
+    }
+    .new-content {
+      width: 50%;
+    }
+    .box-header > h4 {
+      color: #eee;
+    }
+    .box-header {
+      background-color: rgb(68, 138, 201);
+      color: #353535;
+      margin: 0;
+      padding-right: 1em;
+      padding-left: 1em;
+    }
+    .box-content {
+      overflow: auto;
+      margin: 0;
+      padding: 1em;
+    }
+    .box {
+      max-width: 70%;
+      min-width: 30%;
+      margin-top: 1em;
+    }
+    .full {
+      min-width: 100%;
+    }
+  </style>
+  <template>
+
+    <!-- For launching machines -->
+    <gz-resources
+      id="launchresources"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="simulator"
+      on-created="_onLaunched"
+    ></gz-resources>
+
+    <center>
+
+      <!-- ARBITER -->
+      <paper-material elevation="1" class="box">
+        <div class="box-header horizontal">
+          <h4>Arbiter: "[[rounddata.name]]"</h4>
+          <div class="space"></div>
+          <template is="dom-if" if="{{_isNotLaunched(rounddata.arbiter.status)}}">
+            <paper-button
+              raised
+              class="white"
+              on-tap="_onLaunchArbiter"
+            >
+              Launch
+            </paper-button>
+          </template>
+        </div>
+        <div class="box-content">
+          <div class="vertical">
+            <div class="horizontal">
+              Status: [[rounddata.arbiter.status]]
+              <div class="space"></div>
+            </div>
+            <template is="dom-if" if="{{_isRunning(rounddata.arbiter.status)}}">
+              <div class="horizontal">
+                Public IP:
+                [[rounddata.arbiter.machine_ip]]
+              </div>
+              <div class="horizontal">
+                SSH keys:
+                <cs-downloadkeysbutton
+                  simurl="[[rounddata.arbiter.machine_ip]]"
+                  token="[[token]]"
+                ></cs-downloadkeysbutton>
+              <div>
+            </template>
+          <div>
+          <div class="space"></div>
+        </div>
+      </paper-material>
+      <!-- /ARBITER -->
+
+    </center>
+
+    <div class="horizontal box full">
+
+      <!-- BLUE TEAM -->
+      <div class="about-half">
+        <paper-header-panel class="blue">
+          <div class="paper-header">
+            <h4>Blue</h4>
+            <p>[[rounddata.blueuser]]</p>
+          </div>
+        </paper-header-panel>
+        <div class="content">
+          Must launch arbiter before teams
+        </div>
+      </div>
+
+      <!-- GOLD TEAM -->
+      <div class="about-half">
+        <paper-header-panel class="blue">
+          <div class="paper-header">
+            <h4>Gold</h4>
+            <p>[[rounddata.golduser]]</p>
+          </div>
+        </paper-header-panel>
+        <div class="content">
+          Must launch arbiter before teams
+        </div>
+      </div>
+
+    </div>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-sascround',
+
+      // Attached
+      attached: function() {
+        console.log('cs-sascround widget attached!')
+      },
+
+      // Callback when the token has been updated
+      _onTokenUpdated: function() {
+        if (this.token !== "") {
+          // do something
+        }
+      },
+
+      // When arbiter launch button is pressed
+      _onLaunchArbiter(e) {
+
+        let data =  {
+          token: this.token,
+          region: "us-west-1",
+          image: "ami-4b37752b",
+          hardware: "t2.small",
+          options: {
+            role: 'arbiter',
+            keyName: this.rounddata.name,
+            keyServerUrl: this.keysurl,
+            token: this.token,
+          }
+        }
+
+        this.$.launchresources.create(data);
+        this.fire('notification', {msg:
+            "Request to launch an arbiter for \"" + this.rounddata.name +
+            "\" has been sent.", type: "msg"})
+      },
+
+      // Callback once machine has been launched
+      _onLaunched: function(e) {
+        let success = e.detail.success
+        let msg = e.detail.message
+
+        if (success != undefined && success == false)
+        {
+          this.fire('notification', {msg: msg, type: "error"})
+          return
+        }
+
+        // Update round info on widgets server
+        let data = {
+          arbiter: {
+            id: e.detail.id,
+            ip: e.detail.machine_ip,
+            status: e.detail.status
+          }
+        }
+
+        this.set('rounddata.arbiter', data.arbiter)
+        this.fire('rounddataupdated', this.rounddata)
+
+
+        this.fire('notification', {msg: 'Arbiter for "' + this.rounddata.name +
+            '" has been launched.', type: "msg"})
+      },
+
+      // Check if it's running
+      _isRunning: function(itemStatus) {
+        return itemStatus == 'RUNNING' ? true : false;
+      },
+
+      // Check if it's not launched
+      _isNotLaunched: function(itemStatus) {
+        return itemStatus == 'NOT LAUNCHED' ? true : false;
+      },
+
+      properties: {
+        portalurl: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        keysurl: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        token: {
+          type: String,
+          value: '',
+          notify: true,
+          observer: '_onTokenUpdated'
+        },
+        rounddata: {
+          type: Object,
+          value: {},
+          notify: true,
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>
