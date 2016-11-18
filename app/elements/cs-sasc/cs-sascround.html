@@ -10,6 +10,16 @@
       min-width: 45%;
       margin-right: 2%;
       margin-left: 2%;
+      @apply(--layout-self-start);
+    }
+    .quarter {
+      max-width: 60%;
+      margin-right: 2%;
+      margin-left: 2%;
+      margin-bottom: 1em;
+    }
+    .start {
+      @apply(--layout-self-start);
     }
     .horizontal {
       @apply(--layout-horizontal);
@@ -31,6 +41,10 @@
       background-color: #d7d7d7;
       color: rgb(68, 138, 201);
     }
+    .property {
+      font-weight: bold;
+      color: #7a7a7a;
+    }
     .floating {
       margin-top: -1.2em;
       margin-left: 1em;
@@ -45,6 +59,9 @@
     .paper-header > h4 {
       margin: 0;
       text-align: center;
+    }
+    .paper-header > h5 {
+      margin: 0;
     }
     .paper-header > p {
       margin-bottom: 0;
@@ -90,6 +107,7 @@
       url="[[portalurl]]"
       token="[[token]]"
       resourcename="simulator"
+      on-resourcesupdated="_onSimulatorsUpdated"
       on-created="_onLaunched"
     ></gz-resources>
 
@@ -112,17 +130,16 @@
         </div>
         <div class="box-content">
           <div class="vertical">
-            <div class="horizontal">
-              Status: [[rounddata.arbiter.status]]
-              <div class="space"></div>
+            <div class="horizontal start">
+              <span class="property">Status: </span> [[rounddata.arbiter.status]]
             </div>
             <template is="dom-if" if="{{_isRunning(rounddata.arbiter.status)}}">
-              <div class="horizontal">
-                Public IP:
+              <div class="horizontal start">
+                <span class="property">Public IP: </span>
                 [[rounddata.arbiter.machine_ip]]
               </div>
-              <div class="horizontal">
-                SSH keys:
+              <div class="horizontal start">
+                <span class="property">SSH keys: </span>
                 <cs-downloadkeysbutton
                   simurl="[[rounddata.arbiter.machine_ip]]"
                   token="[[token]]"
@@ -147,8 +164,43 @@
             <p>[[rounddata.blueuser]]</p>
           </div>
         </paper-header-panel>
+
+        <template is="dom-if" if="{{_isRunning(rounddata.arbiter.status)}}">
+          <paper-fab
+            mini
+            class="grey floating"
+            icon="icons:add"
+            title="Launch a new payload"
+            on-tap="_onLaunchBlue"
+          ></paper-fab>
+        </template>
+
         <div class="content">
-          Must launch arbiter before teams
+          <template is="dom-if" if="{{!_isRunning(rounddata.arbiter.status)}}">
+            Arbiter must be running before launching team machines.
+          </template>
+          <template is="dom-repeat" items="{{bluepayloads}}">
+            <center>
+              <paper-material
+                class="quarter"
+              >
+                <div>
+
+                  <paper-header-panel class="blue">
+                    <div class="paper-header">
+                      <h5>Payload ([[index]])</h5>
+                    </div>
+                  </paper-header-panel>
+
+                  <div class="content">
+                    <span class="property">Status: </span> [[item.status]]
+                  </div>
+
+                </div>
+              </paper-material>
+            </center>
+          </template>
+          <div class="space"></div>
         </div>
       </div>
 
@@ -160,10 +212,47 @@
             <p>[[rounddata.golduser]]</p>
           </div>
         </paper-header-panel>
+
+        <template is="dom-if" if="{{_isRunning(rounddata.arbiter.status)}}">
+          <paper-fab
+            mini
+            class="grey floating"
+            icon="icons:add"
+            title="Launch a new payload"
+            on-tap="_onLaunchGold"
+          ></paper-fab>
+        </template>
+
         <div class="content">
-          Must launch arbiter before teams
+          <template is="dom-if" if="{{!_isRunning(rounddata.arbiter.status)}}">
+            Arbiter must be running before launching team machines.
+          </template>
+          <template is="dom-repeat" items="{{goldpayloads}}">
+            <center>
+              <paper-material
+                class="quarter"
+              >
+                <div>
+
+                  <paper-header-panel class="blue">
+                    <div class="paper-header">
+                      <h5>Payload ([[index]])</h5>
+                    </div>
+                  </paper-header-panel>
+
+                  <div class="content">
+                    <p>[[item.status]]</p>
+                    <p>[[item.machine_ip]]</p>
+                  </div>
+
+                </div>
+              </paper-material>
+            </center>
+          </template>
+          <div class="space"></div>
         </div>
       </div>
+
 
     </div>
 
@@ -184,8 +273,17 @@
       // Callback when the token has been updated
       _onTokenUpdated: function() {
         if (this.token !== "") {
-          // do something
+        // TODO: Connect websocket to get simulator updates
+        //  this.$.launchresources.connect();
         }
+      },
+
+      // Callback when the rounddata has been updated
+      _onRounddataUpdated: function() {
+        if (this.rounddata.bluepayloads && this.rounddata.bluepayloads.length > 0)
+          this.set('bluepayloads', this.rounddata.bluepayloads)
+        if (this.rounddata.goldpayloads && this.rounddata.goldpayloads.length > 0)
+          this.set('goldpayloads', this.rounddata.goldpayloads)
       },
 
       // When arbiter launch button is pressed
@@ -204,9 +302,58 @@
           }
         }
 
+        this.launching = 'arbiter'
         this.$.launchresources.create(data);
         this.fire('notification', {msg:
             "Request to launch an arbiter for \"" + this.rounddata.name +
+            "\" has been sent.", type: "msg"})
+      },
+
+      // When blue launch button is pressed
+      _onLaunchBlue(e) {
+
+        let data =  {
+          token: this.token,
+          region: "us-west-1",
+          image: "ami-4b37752b",
+          hardware: "t2.small",
+          options: {
+            role: 'payload',
+            team: 'blue',
+            keyName: this.rounddata.name,
+            keyServerUrl: this.keysurl,
+            token: this.token,
+          }
+        }
+
+        this.launching = 'blue'
+        this.$.launchresources.create(data);
+        this.fire('notification', {msg:
+            "Request to launch an Blue Payload for \"" + this.rounddata.name +
+            "\" has been sent.", type: "msg"})
+      },
+
+      // When gold launch button is pressed
+      _onLaunchGold(e) {
+
+        let data =  {
+          token: this.token,
+          region: "us-west-1",
+          image: "ami-4b37752b",
+          hardware: "t2.small",
+          options: {
+            role: 'payload',
+            team: 'gold',
+            keyName: this.rounddata.name,
+            keyServerUrl: this.keysurl,
+            token: this.token,
+          }
+        }
+
+        this.launching = 'gold'
+        this.$.launchresources.create(data);
+        this.fire('notification', {msg:
+            "Request to launch an Gold Payload for \"" + this.rounddata.name +
             "\" has been sent.", type: "msg"})
       },
 
@@ -221,31 +368,86 @@
           return
         }
 
-        // Update round info on widgets server
-        let data = {
-          arbiter: {
+        // Arbiter
+        if (this.launching == 'arbiter') {
+
+          // Update round info on widgets server
+          let data = {
+            arbiter: {
+              id: e.detail.id,
+              ip: e.detail.machine_ip,
+              status: e.detail.status
+            }
+          }
+
+          this.set('rounddata.arbiter', data.arbiter)
+          this.fire('rounddataupdated', this.rounddata)
+
+
+          this.fire('notification', {msg: 'Arbiter for "' + this.rounddata.name +
+              '" has been launched.', type: "msg"})
+        }
+        else if (this.launching == 'blue') {
+
+          // Update round info on widgets server
+          let data = {
             id: e.detail.id,
             ip: e.detail.machine_ip,
             status: e.detail.status
           }
+
+          // Local array
+          this.push('bluepayloads', data)
+
+          // Data structure that will be shared
+          if (!this.rounddata.bluepayloads)
+            this.rounddata.bluepayloads = []
+          this.rounddata.bluepayloads.push(data)
+
+          this.fire('rounddataupdated', this.rounddata)
+
+          this.fire('notification', {msg: 'Gold payload for "' + this.rounddata.name +
+              '" has been launched.', type: "msg"})
         }
+        else if (this.launching == 'gold') {
 
-        this.set('rounddata.arbiter', data.arbiter)
-        this.fire('rounddataupdated', this.rounddata)
+          // Update round info on widgets server
+          let data = {
+            id: e.detail.id,
+            ip: e.detail.machine_ip,
+            status: e.detail.status
+          }
 
+          // Local array
+          this.push('goldpayloads', data)
 
-        this.fire('notification', {msg: 'Arbiter for "' + this.rounddata.name +
-            '" has been launched.', type: "msg"})
+          // Data structure that will be shared
+          if (!this.rounddata.goldpayloads)
+            this.rounddata.goldpayloads = []
+          this.rounddata.goldpayloads.push(data)
+
+          this.fire('rounddataupdated', this.rounddata)
+
+          this.fire('notification', {msg: 'Gold payload for "' + this.rounddata.name +
+              '" has been launched.', type: "msg"})
+        }
       },
 
       // Check if it's running
+      // TODO: Remove LAUNCHING, now only for debugging
       _isRunning: function(itemStatus) {
-        return itemStatus == 'RUNNING' ? true : false;
+        return (itemStatus === 'RUNNING' || itemStatus === 'LAUNCHING') ? true : false;
       },
 
       // Check if it's not launched
       _isNotLaunched: function(itemStatus) {
         return itemStatus == 'NOT LAUNCHED' ? true : false;
+      },
+
+      // Callback when a simulator has been updated from the portal
+      _onSimulatorUpdated: function(e) {
+console.log("SIMUP")
+console.log(e.detail)
       },
 
       properties: {
@@ -268,6 +470,22 @@
         rounddata: {
           type: Object,
           value: {},
+          notify: true,
+          observer: '_onRounddataUpdated'
+        },
+        launching: {
+          type: String,
+          value: '',
+          notify: true,
+        },
+        bluepayloads: {
+          type: Array,
+          value: [],
+          notify: true,
+        },
+        goldpayloads: {
+          type: Array,
+          value: [],
           notify: true,
         },
       },
