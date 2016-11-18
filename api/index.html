@@ -205,6 +205,146 @@
               ]
             },
           },
+          // /sascrounds
+          "\/sascrounds": {
+            // GET
+            "get": {
+              "tags": [
+                "sascrounds"
+              ],
+              "summary": "Get all SASC rounds for a user",
+              "consumes": [
+                "application\/json",
+              ],
+              "produces": [
+                "application\/json"
+              ],
+              "parameters": [],
+              "responses": {
+                "200": {
+                  "description": "Success",
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                      },
+                    },
+                  },
+                },
+                "401": {
+                  "description": "Not authorized"
+                }
+              },
+              "security": [
+                {
+                  "token": [],
+                }
+              ]
+            },
+            // POST
+            "post": {
+              "tags": [
+                "sascrounds"
+              ],
+              "summary": "Start a new round",
+              "consumes": [
+                "application\/json",
+              ],
+              "produces": [
+                "application\/json"
+              ],
+              "parameters": [
+                {
+                  "in": "body",
+                  "name": "body",
+                  "description": "Round information",
+                  "required": true,
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                      },
+                      "blueuser": {
+                        "type": "string",
+                      },
+                      "golduser": {
+                        "type": "string",
+                      },
+                    },
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Success",
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                      },
+                    },
+                  },
+                },
+                "401": {
+                  "description": "Not authorized"
+                }
+              },
+              "security": [
+                {
+                  "token": [],
+                }
+              ]
+            },
+          },
+          // /sascrounds
+          "\/sascrounds\/{resourceId}": {
+            // DELETE
+            "delete": {
+              "tags": [
+                "sascrounds"
+              ],
+              "summary": "Start a new round",
+              "consumes": [
+                "application\/json",
+              ],
+              "produces": [
+                "application\/json"
+              ],
+              "parameters": [
+                {
+                  "name": "resourceId",
+                  "in": "path",
+                  "description": "Id of sascround resource",
+                  "required": true,
+                  "type": "string",
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Success",
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                      },
+                    },
+                  },
+                },
+                "401": {
+                  "description": "Not authorized"
+                }
+              },
+              "security": [
+                {
+                  "token": [],
+                }
+              ]
+            },
+          },
         },
         definitions: {
           "Operation": {

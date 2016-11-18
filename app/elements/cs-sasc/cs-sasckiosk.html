@@ -44,6 +44,7 @@
     .floating {
       margin-top: -1.2em;
       margin-left: 1em;
+      z-index: 1000;
     }
     .paper-header {
       padding: 1em;
@@ -51,8 +52,18 @@
     .paper-header > h1 {
       text-align: center;
     }
+    .paper-header > h4 {
+      margin: 0;
+      text-align: center;
+    }
+    .paper-header > p {
+      margin-bottom: 0;
+      color: #ddd;
+      text-align: center;
+    }
     .content {
-      height: 2000px;
+      padding: 1em;
+      height: 100%;
     }
     paper-tabs {
       margin-top: -69px;
@@ -89,11 +100,21 @@
 
     <!-- For launching machines -->
     <gz-resources
-      id="resources"
+      id="launchresources"
       url="[[portalurl]]"
       token="[[token]]"
       resourcename="simulator"
       on-created="_onLaunched"
+    ></gz-resources>
+
+    <!-- For managing rounds -->
+    <gz-resources
+      id="roundsresources"
+      url="[[baseUrl]]"
+      token="[[token]]"
+      resourcename="sascround"
+      on-created="_onNewRound"
+      on-resourcesupdated="_onAllRounds"
     ></gz-resources>
 
     <paper-header-panel class="blue">
@@ -112,7 +133,7 @@
 
     <paper-tabs scrollable attr-for-selected="value" selected="{{currentpage}}">
       <template is="dom-repeat" items="{{rounds}}">
-        <paper-tab value="[[item.name]]">[[item.name]]</paper-tab>
+        <paper-tab value="[[item.data.name]]">[[item.data.name]]</paper-tab>
       </template>
     </paper-tabs>
 
@@ -175,7 +196,7 @@
       </section>
 
       <template is="dom-repeat" items="{{rounds}}">
-        <section data-route="[[item.name]]">
+        <section data-route="[[item.data.name]]">
           <center>
 
             <!-- ARBITER -->
@@ -183,7 +204,7 @@
               <div class="box-header horizontal">
                 <h4>Arbiter</h4>
                 <div class="space"></div>
-                <template is="dom-if" if="{{_isNotLaunched(item.arbiter.status)}}">
+                <template is="dom-if" if="{{_isNotLaunched(item.data.arbiter.status)}}">
                   <paper-button
                     raised
                     class="white"
@@ -196,18 +217,18 @@
               <div class="box-content">
                 <div class="vertical">
                   <div class="horizontal">
-                    Status: [[item.arbiter.status]]
+                    Status: [[item.data.arbiter.status]]
                     <div class="space"></div>
                   </div>
-                  <template is="dom-if" if="{{_isRunning(item.arbiter.status)}}">
+                  <template is="dom-if" if="{{_isRunning(item.data.arbiter.status)}}">
                     <div class="horizontal">
                       Public IP:
-                      [[item.arbiter.machine_ip]]
+                      [[item.data.arbiter.machine_ip]]
                     </div>
                     <div class="horizontal">
                       SSH keys:
                       <cs-downloadkeysbutton
-                        simurl="[[item.arbiter.machine_ip]]"
+                        simurl="[[item.data.arbiter.machine_ip]]"
                         token="[[token]]"
                       ></cs-downloadkeysbutton>
                     <div>
@@ -227,7 +248,7 @@
               <paper-header-panel class="blue">
                 <div class="paper-header">
                   <h4>Blue</h4>
-                  <p>[[item.blueuser]]</p>
+                  <p>[[item.data.blueuser]]</p>
                 </div>
               </paper-header-panel>
               <div class="content">
@@ -240,7 +261,7 @@
               <paper-header-panel class="blue">
                 <div class="paper-header">
                   <h4>Gold</h4>
-                  <p>[[item.golduser]]</p>
+                  <p>[[item.data.golduser]]</p>
                 </div>
               </paper-header-panel>
               <div class="content">
@@ -274,6 +295,28 @@
         ]
       },
 
+      // Callback when the token has been updated
+      _onTokenUpdated: function() {
+        if (this.token !== "") {
+          this._getRounds()
+        }
+      },
+
+      // Get list of all rounds for this user
+      _getRounds: function() {
+        this.$.roundsresources.getAll()
+      },
+
+      // Callback from widgets server with all rounds for this user
+      _onAllRounds: function(e) {
+        this.set('rounds', e.detail)
+
+        if (this.rounds.length == 0)
+          this.currentpage = "empty"
+        else if (this.currentpage == "" || this.currentpage == "empty")
+          this.currentpage = this.rounds[0].data.name
+      },
+
       // Go to page to start new round
       _onNew: function() {
         this.currentpage = "new"
@@ -289,41 +332,62 @@
           return
         }
 
-        // TODO: Register this competition on widgets server
-        console.log(this.roundname, this.blueuser, this.golduser)
-
-        // Callback:
-        this._onNewRound()
-      },
-
-      // Callback from widgets server when a new round has been
-      // registered
-      _onNewRound: function() {
-        this.push('rounds', {
+        let data = {
           name: this.roundname,
           blueuser: this.blueuser,
           golduser: this.golduser,
           arbiter: {
             status: 'NOT LAUNCHED'
           },
-        })
+        }
 
-        this.currentpage = this.roundname
+        this.$.roundsresources.create(data);
 
+        this.fire('notification', 'Sending request to start round "' + this.roundname + '".')
       },
 
-      // When Launch button is pressed
+      // Callback from widgets server when a new round has been
+      // registered
+      _onNewRound: function(e) {
+        let resp = e.detail
+
+        if (!resp.success) {
+          const msg = 'Could not start round: ' + resp.msg
+
+          console.log(msg)
+          this.fire('error', msg)
+          return
+        }
+
+        this.push('rounds', resp.result)
+
+        this.currentpage = resp.result.name
+
+        this.fire('notification', 'Started round "' + resp.result.data.name + '".')
+      },
+
+      // When arbiter launch button is pressed
       _onLaunchArbiter(e) {
 
-        // TODO: use real arbiter data
+        const that = this
+        let currentRound = this.rounds.find(function(element) {
+          return (element.data.name === that.currentpage)
+        })
+
         let data =  {
           token: this.token,
           region: "us-west-1",
           image: "ami-4b37752b",
-          hardware: "t2.small"
+          hardware: "t2.small",
+          options: {
+            role: 'arbiter',
+            keyName: currentRound.name,
+            keyServerUrl: this.keysurl,
+            token: this.token,
+          }
         }
 
-//        this.$.resources.create(data);
+        this.$.launchresources.create(data);
         this.fire('notification', {msg:
             "Request to launch an arbiter for \"" + this.currentpage +
             "\" has been sent.", type: "msg"})
@@ -331,26 +395,31 @@
 
       // Callback once machine has been launched
       _onLaunched: function(e) {
-console.log(e)
         let success = e.detail.success
         let msg = e.detail.message
 
         if (success != undefined && success == false)
         {
           this.fire('notification', {msg: msg, type: "error"})
+          return
         }
-        else
-        {
-          this.fire('notification', {msg: "Machine has been launched.", type: "msg"})
 
-          const that = this
-          let round = this.rounds.findIndex(function(element) {
-            // FIXME: Can we be sure it's the current page?
-            return element.name == that.currentpage
-          })
-
-        //  this.rounds[round].arbiter = e.detail
+        // Save arbiter id to widgets
+        const that = this
+        for (var i = 0; i < this.rounds.length; i++) {
+          if (this.rounds[i].data.name === this.currentpage) {
+            this.rounds[i].data.arbiter.id = e.detail.id
+            this.rounds[i].data.arbiter.machine_ip = e.detail.machine_ip
+            this.rounds[i].data.arbiter.status = e.detail.status
+          }
         }
+
+        // TODO: must fill arbiter status and ip
+        // Use portal resources websocker
+console.log(this.rounds)
+
+        this.fire('notification', {msg: 'Arbiter for "' + this.currentpage +
+            '" has been launched.', type: "msg"})
       },
 
       // Check if it's running
@@ -379,10 +448,16 @@ console.log(e)
           value: '',
           notify: true
         },
-        token: {
+        keysurl: {
           type: String,
           value: '',
           notify: true
+        },
+        token: {
+          type: String,
+          value: '',
+          notify: true,
+          observer: '_onTokenUpdated'
         },
       },
     });

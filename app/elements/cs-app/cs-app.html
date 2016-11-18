@@ -231,6 +231,7 @@
                     <cs-sasckiosk
                       token="[[token]]"
                       portalurl="[[portalurl]]"
+                      keysurl="[[keysurl]]"
                     ></cs-sasckiosk>
                   </section>
 
@@ -260,6 +261,7 @@
         // Get configuration from environment variables
         this.authurl = getConfig().auth
         this.portalurl = getConfig().portal
+        this.keysurl = getConfig().keys
         this.auth0_id = getConfig().auth0_id
         this.auth0_domain = getConfig().auth0_domain
 
@@ -371,6 +373,11 @@
         portalurl: {
           type: String,
           value: 'https://localhost:4000',
+          notify: true
+        },
+        keysurl: {
+          type: String,
+          value: 'https://localhost:4001',
           notify: true
         },
         auth0_id: {

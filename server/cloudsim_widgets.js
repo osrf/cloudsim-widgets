@@ -14,6 +14,7 @@ const csgrant = require('cloudsim-grant')
 // custom routes
 const middleware = require('./middleware')
 const srcregistrations = require('./src/registrations.js')
+const sascrounds = require('./sasc/rounds.js')
 
 app.use(cors())
 app.use(bodyParser.json())
@@ -51,6 +52,7 @@ app.use("/", express.static(rootDir));
 app.use("/api", express.static(path.join(__dirname, '/../api')));
 
 srcregistrations.setRoutes(app);
+sascrounds.setRoutes(app);
 
 app.get('/*', function(req, res, next){
 

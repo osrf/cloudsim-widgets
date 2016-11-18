@@ -158,7 +158,8 @@
       /// Callback when receiving the list of pending requests
       _onPending: function() {
         const resp = this.$.ajaxget.lastResponse
-        console.assert(resp)
+        if (!resp)
+          return
 
         if (!resp.success) {
           const msg = 'Could not check registration status: ' + resp.msg
