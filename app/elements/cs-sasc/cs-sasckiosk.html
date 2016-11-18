@@ -259,6 +259,9 @@
           return
         }
 
+        // Fill name, it's missing due to inconsistent API
+        resp.result.name = resp.id
+
         this.push('rounds', resp.result)
 
         this.currentpage = resp.result.data.name
@@ -269,7 +272,10 @@
       // Callback when a round has been updated from downstream
       _onRoundUpdated: function(e) {
         // Update the round info stored in the widgets server
-        this.$.roundsresources.update(e.target.id, e.detail)
+        if (e.target && e.target.id)
+          this.$.roundsresources.update(e.target.id, e.detail)
+        else
+          console.log(e)
       },
 
       // Callback from widgets when it as completed the update
