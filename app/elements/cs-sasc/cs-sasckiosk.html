@@ -115,6 +115,7 @@
       resourcename="sascround"
       on-created="_onNewRound"
       on-resourcesupdated="_onAllRounds"
+      on-updated="_onRoundUpdated"
     ></gz-resources>
 
     <paper-header-panel class="blue">
@@ -202,7 +203,7 @@
             <!-- ARBITER -->
             <paper-material elevation="1" class="box">
               <div class="box-header horizontal">
-                <h4>Arbiter</h4>
+                <h4>Arbiter: "[[item.data.name]]"</h4>
                 <div class="space"></div>
                 <template is="dom-if" if="{{_isNotLaunched(item.data.arbiter.status)}}">
                   <paper-button
@@ -361,7 +362,7 @@
 
         this.push('rounds', resp.result)
 
-        this.currentpage = resp.result.name
+        this.currentpage = resp.result.data.name
 
         this.fire('notification', 'Started round "' + resp.result.data.name + '".')
       },
@@ -406,20 +407,35 @@
 
         // Save arbiter id to widgets
         const that = this
-        for (var i = 0; i < this.rounds.length; i++) {
+        let i = 0;
+        for (; i < this.rounds.length; i++) {
           if (this.rounds[i].data.name === this.currentpage) {
-            this.rounds[i].data.arbiter.id = e.detail.id
-            this.rounds[i].data.arbiter.machine_ip = e.detail.machine_ip
-            this.rounds[i].data.arbiter.status = e.detail.status
+            break
           }
         }
 
-        // TODO: must fill arbiter status and ip
-        // Use portal resources websocker
-console.log(this.rounds)
+        let data = {
+          arbiter: {
+            id: e.detail.id,
+            ip: e.detail.machine_ip,
+            status: e.detail.status
+          }
+        }
+
+        this.$.roundsresources.update(this.rounds[i].name, data)
 
         this.fire('notification', {msg: 'Arbiter for "' + this.currentpage +
             '" has been launched.', type: "msg"})
+      },
+
+      // Callback when a round has been updated
+      _onRoundUpdated: function(e) {
+        console.log("UPDATED")
+        console.log(e.detail)
+
+
+
+        // TODO: Use portal resources websocket to keep updating
       },
 
       // Check if it's running
