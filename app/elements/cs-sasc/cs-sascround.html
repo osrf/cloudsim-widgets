@@ -114,42 +114,44 @@
     <center>
 
       <!-- ARBITER -->
-      <paper-material elevation="1" class="box">
-        <div class="box-header horizontal">
-          <h4>Arbiter: "[[rounddata.name]]"</h4>
-          <div class="space"></div>
-          <template is="dom-if" if="{{_isNotLaunched(rounddata.arbiter.status)}}">
-            <paper-button
-              raised
-              class="white"
-              on-tap="_onLaunchArbiter"
-            >
-              Launch
-            </paper-button>
-          </template>
-        </div>
-        <div class="box-content">
-          <div class="vertical">
-            <div class="horizontal start">
-              <span class="property">Status: </span> [[rounddata.arbiter.status]]
-            </div>
-            <template is="dom-if" if="{{_isRunning(rounddata.arbiter.status)}}">
-              <div class="horizontal start">
-                <span class="property">Public IP: </span>
-                [[rounddata.arbiter.machine_ip]]
-              </div>
-              <div class="horizontal start">
-                <span class="property">SSH keys: </span>
-                <cs-downloadkeysbutton
-                  simurl="[[rounddata.arbiter.machine_ip]]"
-                  token="[[token]]"
-                ></cs-downloadkeysbutton>
-              <div>
+      <template is="dom-if" if="[[rounddata.arbiter]]">
+        <paper-material elevation="1" class="box">
+          <div class="box-header horizontal">
+            <h4>Arbiter: "[[rounddata.name]]"</h4>
+            <div class="space"></div>
+            <template is="dom-if" if="{{_isNotLaunched(rounddata.arbiter.status)}}">
+              <paper-button
+                raised
+                class="white"
+                on-tap="_onLaunchArbiter"
+              >
+                Launch
+              </paper-button>
             </template>
-          <div>
-          <div class="space"></div>
-        </div>
-      </paper-material>
+          </div>
+          <div class="box-content">
+            <div class="vertical">
+              <div class="horizontal start">
+                <span class="property">Status: </span> [[rounddata.arbiter.status]]
+              </div>
+              <template is="dom-if" if="{{_isRunning(rounddata.arbiter.status)}}">
+                <div class="horizontal start">
+                  <span class="property">Public IP: </span>
+                  [[rounddata.arbiter.machine_ip]]
+                </div>
+                <div class="horizontal start">
+                  <span class="property">SSH keys: </span>
+                  <cs-downloadkeysbutton
+                    simurl="[[rounddata.arbiter.machine_ip]]"
+                    token="[[token]]"
+                  ></cs-downloadkeysbutton>
+                <div>
+              </template>
+            <div>
+            <div class="space"></div>
+          </div>
+        </paper-material>
+      </template>
       <!-- /ARBITER -->
 
     </center>
@@ -157,102 +159,108 @@
     <div class="horizontal box full">
 
       <!-- BLUE TEAM -->
-      <div class="about-half">
-        <paper-header-panel class="blue">
-          <div class="paper-header">
-            <h4>Blue</h4>
-            <p>[[rounddata.blueuser]]</p>
-          </div>
-        </paper-header-panel>
+      <template is="dom-if" if="[[_isUser(rounddata.blueuser)]]">
+        <div class="about-half">
+          <paper-header-panel class="blue">
+            <div class="paper-header">
+              <h4>Blue</h4>
+              <p>[[rounddata.blueuser]]</p>
+            </div>
+          </paper-header-panel>
 
-        <template is="dom-if" if="{{_isRunning(rounddata.arbiter.status)}}">
-          <paper-fab
-            mini
-            class="grey floating"
-            icon="icons:add"
-            title="Launch a new payload"
-            on-tap="_onLaunchBlue"
-          ></paper-fab>
-        </template>
-
-        <div class="content">
-          <template is="dom-if" if="{{!_isRunning(rounddata.arbiter.status)}}">
-            Arbiter must be running before launching team machines.
+          <template is="dom-if" if="{{_isRunning(rounddata.arbiter.status)}}">
+            <paper-fab
+              mini
+              class="grey floating"
+              icon="icons:add"
+              title="Launch a new payload"
+              on-tap="_onLaunchBlue"
+            ></paper-fab>
           </template>
-          <template is="dom-repeat" items="{{bluepayloads}}">
-            <center>
-              <paper-material
-                class="quarter"
-              >
-                <div>
 
-                  <paper-header-panel class="blue">
-                    <div class="paper-header">
-                      <h5>Payload ([[index]])</h5>
+          <div class="content">
+            <template is="dom-if" if="[[rounddata.arbiter]]">
+              <template is="dom-if" if="{{!_isRunning(rounddata.arbiter.status)}}">
+                Arbiter must be running before launching team machines.
+              </template>
+            </template>
+            <template is="dom-repeat" items="{{bluepayloads}}">
+              <center>
+                <paper-material
+                  class="quarter"
+                >
+                  <div>
+
+                    <paper-header-panel class="blue">
+                      <div class="paper-header">
+                        <h5>Payload ([[index]])</h5>
+                      </div>
+                    </paper-header-panel>
+
+                    <div class="content">
+                      <span class="property">Status: </span> [[item.status]]
                     </div>
-                  </paper-header-panel>
 
-                  <div class="content">
-                    <span class="property">Status: </span> [[item.status]]
                   </div>
-
-                </div>
-              </paper-material>
-            </center>
-          </template>
-          <div class="space"></div>
+                </paper-material>
+              </center>
+            </template>
+            <div class="space"></div>
+          </div>
         </div>
-      </div>
+      </template>
 
       <!-- GOLD TEAM -->
-      <div class="about-half">
-        <paper-header-panel class="blue">
-          <div class="paper-header">
-            <h4>Gold</h4>
-            <p>[[rounddata.golduser]]</p>
-          </div>
-        </paper-header-panel>
+      <template is="dom-if" if="[[_isUser(rounddata.golduser)]]">
+        <div class="about-half">
+          <paper-header-panel class="blue">
+            <div class="paper-header">
+              <h4>Gold</h4>
+              <p>[[rounddata.golduser]]</p>
+            </div>
+          </paper-header-panel>
 
-        <template is="dom-if" if="{{_isRunning(rounddata.arbiter.status)}}">
-          <paper-fab
-            mini
-            class="grey floating"
-            icon="icons:add"
-            title="Launch a new payload"
-            on-tap="_onLaunchGold"
-          ></paper-fab>
-        </template>
-
-        <div class="content">
-          <template is="dom-if" if="{{!_isRunning(rounddata.arbiter.status)}}">
-            Arbiter must be running before launching team machines.
+          <template is="dom-if" if="{{_isRunning(rounddata.arbiter.status)}}">
+            <paper-fab
+              mini
+              class="grey floating"
+              icon="icons:add"
+              title="Launch a new payload"
+              on-tap="_onLaunchGold"
+            ></paper-fab>
           </template>
-          <template is="dom-repeat" items="{{goldpayloads}}">
-            <center>
-              <paper-material
-                class="quarter"
-              >
-                <div>
 
-                  <paper-header-panel class="blue">
-                    <div class="paper-header">
-                      <h5>Payload ([[index]])</h5>
+          <div class="content">
+            <template is="dom-if" if="[[rounddata.arbiter]]">
+              <template is="dom-if" if="{{!_isRunning(rounddata.arbiter.status)}}">
+                Arbiter must be running before launching team machines.
+              </template>
+            </template>
+            <template is="dom-repeat" items="{{goldpayloads}}">
+              <center>
+                <paper-material
+                  class="quarter"
+                >
+                  <div>
+
+                    <paper-header-panel class="blue">
+                      <div class="paper-header">
+                        <h5>Payload ([[index]])</h5>
+                      </div>
+                    </paper-header-panel>
+
+                    <div class="content">
+                      <span class="property">Status: </span> [[item.status]]
                     </div>
-                  </paper-header-panel>
 
-                  <div class="content">
-                    <p>[[item.status]]</p>
-                    <p>[[item.machine_ip]]</p>
                   </div>
-
-                </div>
-              </paper-material>
-            </center>
-          </template>
-          <div class="space"></div>
+                </paper-material>
+              </center>
+            </template>
+            <div class="space"></div>
+          </div>
         </div>
-      </div>
-
+      </template>
 
     </div>
 
@@ -368,6 +376,9 @@
           return
         }
 
+      // FIXME: If different launch buttons are pressed one after another quickly,
+      // this.launching doesn't correspond to the one being launched anymore!!!!
+
         // Arbiter
         if (this.launching == 'arbiter') {
 
@@ -442,6 +453,11 @@
       // Check if it's not launched
       _isNotLaunched: function(itemStatus) {
         return itemStatus == 'NOT LAUNCHED' ? true : false;
+      },
+
+      // Check if the current user is the given user
+      _isUser: function(user) {
+        return user === this.currentuser
       },
 
       // Callback when a simulator has been updated from the portal
