@@ -1,5 +1,9 @@
+.env
 node_modules
 dist
 bower_components
 .tmp
 .publish/
+npm-debug.log
+coverage_components
+coverage_server

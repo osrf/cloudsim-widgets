@@ -1,6 +1,9 @@
-[ ![Codeship Status for osrf/cloudsim-widgets](https://codeship.com/projects/17ac82b0-0e62-0134-df85-7ab2ad815cc6/status?branch=production)](https://codeship.com/projects/156369)
+[ ![Codeship Status for osrf/cloudsim-widgets](https://codeship.com/projects/17ac82b0-0e62-0134-df85-7ab2ad815cc6/status?branch=default)](https://codeship.com/projects/156369)
+
+[![Coverage Status](https://coveralls.io/repos/bitbucket/osrf/cloudsim-widgets/badge.svg?branch=default)](https://coveralls.io/bitbucket/osrf/cloudsim-widgets?branch=default)
 
 [![Dependency Status](https://www.versioneye.com/user/projects/57ca396c968d64004d976620/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/57ca396c968d64004d976620)
+
 
 ![](cloudsim.png)
 
@@ -136,3 +139,4 @@ These style files are located in the [styles folder](app/styles/).
 Web apps built with Polymer Starter Kit come configured with support for [Web Component Tester](https://github.com/Polymer/web-component-tester) - Polymer's preferred tool for authoring and running unit tests. This makes testing your element based applications a pleasant experience.
 
 [Read more](https://github.com/Polymer/web-component-tester#html-suites) about using Web Component tester.
+
