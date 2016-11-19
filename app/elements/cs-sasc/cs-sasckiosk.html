@@ -268,8 +268,18 @@
         this.currentpage = resp.result.data.name
 
         this.fire('notification', 'Started round "' + resp.result.data.name + '".')
+
+        //
       },
 
+/*
+      _onServerKeysGenerated: function() {
+        // id of the key
+        const vpnResourceId
+        roundData = {arbiter:{vpnKey: vpnResourceId}}
+        this.$.roundsresources.update(roundid, roundData)
+      }
+*/
       // Callback when a round has been updated from downstream
       _onRoundUpdated: function(e) {
         // Update the round info stored in the widgets server
