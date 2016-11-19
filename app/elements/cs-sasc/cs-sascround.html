@@ -35,6 +35,9 @@
       background-color: #d7d7d7;
       color: rgb(68, 138, 201);
     }
+    .red {
+      --iron-icon-fill-color: #f00;
+    }
     .property {
       font-weight: bold;
       color: #7a7a7a;
@@ -126,6 +129,28 @@
                 Launch
               </paper-button>
             </template>
+            <template is="dom-if" if="{{!_isNotLaunched(rounddata.arbiter.status)}}">
+              <template is="dom-if" if="{{!_isFinished()}}">
+                <paper-button
+                  raised
+                  class="white"
+                  on-tap="_onFinish"
+                  title="Kill all machines in this round"
+                >
+                  <iron-icon icon="icons:close" class="red"></iron-icon>
+                  Finish round
+                </paper-button>
+              </template>
+            </template>
+            <template is="dom-if" if="{{_isFinished()}}">
+              <paper-button
+                flat
+                class="blue"
+                title="Round has been finished"
+              >
+                Round is finished
+              </paper-button>
+            </template>
           </div>
           <div class="box-content">
             <div class="vertical">
@@ -187,9 +212,12 @@
           </template>
 
           <div class="content">
+            <template is="dom-if" if="{{_isEmpty(bluepayloads)}}">
+              There are no blue payloads running yet.
+            </template>
             <template is="dom-if" if="[[rounddata.arbiter]]">
-              <template is="dom-if" if="{{!_isRunning(rounddata.arbiter.status)}}">
-                Arbiter must be running before launching team machines.
+              <template is="dom-if" if="{{_isNotLaunched(rounddata.arbiter.status)}}">
+                <br/><br/>Arbiter must be running before launching team machines.
               </template>
             </template>
             <template is="dom-repeat" items="{{bluepayloads}}">
@@ -234,9 +262,12 @@
           </template>
 
           <div class="content">
+            <template is="dom-if" if="{{_isEmpty(goldpayloads)}}">
+              There are no gold payloads running yet.
+            </template>
             <template is="dom-if" if="[[rounddata.arbiter]]">
-              <template is="dom-if" if="{{!_isRunning(rounddata.arbiter.status)}}">
-                Arbiter must be running before launching team machines.
+              <template is="dom-if" if="{{_isNotLaunched(rounddata.arbiter.status)}}">
+                <br/><br/>Arbiter must be running before launching team machines.
               </template>
             </template>
             <template is="dom-repeat" items="{{goldpayloads}}">
@@ -388,7 +419,6 @@
           this.set('rounddata.arbiter', data.arbiter)
           this.fire('rounddataupdated', this.rounddata)
 
-
           this.fire('notification', {msg: 'Arbiter for "' + this.rounddata.name +
               '" has been launched.', type: "msg"})
         }
@@ -438,6 +468,36 @@
         }
       },
 
+      // When user presses Finish Round button
+      _onFinish: function() {
+        // Arbiter
+        if (this.rounddata.arbiter)
+          this.$.launchresources.del(this.rounddata.arbiter.id);
+
+        // Blue
+        if (this.rounddata.bluepayloads) {
+          for (var i = 0; i < this.rounddata.bluepayloads.length; ++i) {
+            this.$.launchresources.del(this.rounddata.bluepayloads[i].id);
+          }
+        }
+
+        // Gold
+        if (this.rounddata.goldpayloads) {
+          for (var i = 0; i < this.rounddata.goldpayloads.length; ++i) {
+            this.$.launchresources.del(this.rounddata.goldpayloads[i].id);
+          }
+        }
+
+        // FIXME: This is not forcing the html to reevaluate,
+        // "Round is finished" will only show on refresh
+        this.set('rounddata.finished', true)
+        this.fire('rounddataupdated', this.rounddata)
+
+        this.fire('notification', {msg:
+            'Requested to kill all machines for round "' +
+            this.rounddata.name +'"', type: "msg"})
+      },
+
       // Check if it's running
       _isRunning: function(itemStatus) {
         return (itemStatus === 'RUNNING') ? true : false;
@@ -451,6 +511,16 @@
       // Check if the current user is the given user
       _isUser: function(user) {
         return user === this.currentuser || this.rounddata.arbiter
+      },
+
+      // Check if an array is empty
+      _isEmpty: function(a) {
+        return a.length == 0
+      },
+
+      // Check if round is finished
+      _isFinished: function() {
+        return this.rounddata.finished
       },
 
       // Callback when a simulator has been updated from the portal
