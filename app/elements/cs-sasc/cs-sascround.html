@@ -108,6 +108,7 @@
       token="[[token]]"
       resourcename="simulator"
       on-resourcesupdated="_onSimulatorsUpdated"
+      on-resource="_refresh"
       on-created="_onLaunched"
     ></gz-resources>
 
@@ -282,8 +283,14 @@
       _onTokenUpdated: function() {
         if (this.token !== "") {
         // TODO: Connect websocket to get simulator updates
-        //  this.$.launchresources.connect();
+          this.$.launchresources.connect();
+          this._refresh()
         }
+      },
+
+      // Ask for new info on machines
+      _refresh() {
+        this.$.launchresources.getAll();
       },
 
       // Callback when the rounddata has been updated
@@ -386,7 +393,7 @@
           let data = {
             arbiter: {
               id: e.detail.id,
-              ip: e.detail.machine_ip,
+              machine_ip: e.detail.machine_ip,
               status: e.detail.status
             }
           }
@@ -403,7 +410,7 @@
           // Update round info on widgets server
           let data = {
             id: e.detail.id,
-            ip: e.detail.machine_ip,
+            machine_ip: e.detail.machine_ip,
             status: e.detail.status
           }
 
@@ -425,7 +432,7 @@
           // Update round info on widgets server
           let data = {
             id: e.detail.id,
-            ip: e.detail.machine_ip,
+            machine_ip: e.detail.machine_ip,
             status: e.detail.status
           }
 
@@ -445,9 +452,8 @@
       },
 
       // Check if it's running
-      // TODO: Remove LAUNCHING, now only for debugging
       _isRunning: function(itemStatus) {
-        return (itemStatus === 'RUNNING' || itemStatus === 'LAUNCHING') ? true : false;
+        return (itemStatus === 'RUNNING') ? true : false;
       },
 
       // Check if it's not launched
@@ -457,13 +463,55 @@
 
       // Check if the current user is the given user
       _isUser: function(user) {
-        return user === this.currentuser
+        return user === this.currentuser || this.rounddata.arbiter
       },
 
       // Callback when a simulator has been updated from the portal
-      _onSimulatorUpdated: function(e) {
-console.log("SIMUP")
-console.log(e.detail)
+      _onSimulatorsUpdated: function(e) {
+        let simulators = e.detail
+
+        let that = this
+        // Arbiter
+        if (this.rounddata.arbiter) {
+
+          let sim = simulators.find(function(s){
+            return s.name === that.rounddata.arbiter.id
+          })
+          if (sim)
+            this.set('rounddata.arbiter', sim.data)
+        }
+
+        // FIXME: Arrays not properly updated, go polymer woohoo
+        // Blue
+        let b = this.bluepayloads
+        if (this.bluepayloads.length > 0) {
+
+          for (var i = 0; i < this.bluepayloads.length; ++i) {
+
+            let sim = simulators.find(function(s){
+              return s.name === that.bluepayloads[i].id
+            })
+            if (sim)
+              b[i] = sim.data
+          }
+        }
+        this.set('bluepayloads', b)
+
+        // Gold
+        let g = this.goldpayloads
+        if (this.goldpayloads.length > 0) {
+
+          for (var i = 0; i < this.goldpayloads.length; ++i) {
+
+            let sim = simulators.find(function(s){
+              return s.name === that.goldpayloads[i].id
+            })
+            if (sim)
+              b[i] = sim.data
+          }
+        }
+        this.set('goldpayloads', g)
+
       },
 
       properties: {
