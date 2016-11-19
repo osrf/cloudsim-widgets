@@ -12,12 +12,6 @@
       margin-left: 2%;
       @apply(--layout-self-start);
     }
-    .quarter {
-      max-width: 60%;
-      margin-right: 2%;
-      margin-left: 2%;
-      margin-bottom: 1em;
-    }
     .start {
       @apply(--layout-self-start);
     }
@@ -59,9 +53,6 @@
     .paper-header > h4 {
       margin: 0;
       text-align: center;
-    }
-    .paper-header > h5 {
-      margin: 0;
     }
     .paper-header > p {
       margin-bottom: 0;
@@ -186,25 +177,10 @@
               </template>
             </template>
             <template is="dom-repeat" items="{{bluepayloads}}">
-              <center>
-                <paper-material
-                  class="quarter"
-                >
-                  <div>
-
-                    <paper-header-panel class="blue">
-                      <div class="paper-header">
-                        <h5>Payload ([[index]])</h5>
-                      </div>
-                    </paper-header-panel>
-
-                    <div class="content">
-                      <span class="property">Status: </span> [[item.status]]
-                    </div>
-
-                  </div>
-                </paper-material>
-              </center>
+              <cs-sascpayload
+                index="[[index]]"
+                data="[[item]]"
+              ></cs-sascpayload>
             </template>
             <div class="space"></div>
           </div>
@@ -238,25 +214,10 @@
               </template>
             </template>
             <template is="dom-repeat" items="{{goldpayloads}}">
-              <center>
-                <paper-material
-                  class="quarter"
-                >
-                  <div>
-
-                    <paper-header-panel class="blue">
-                      <div class="paper-header">
-                        <h5>Payload ([[index]])</h5>
-                      </div>
-                    </paper-header-panel>
-
-                    <div class="content">
-                      <span class="property">Status: </span> [[item.status]]
-                    </div>
-
-                  </div>
-                </paper-material>
-              </center>
+              <cs-sascpayload
+                index="[[index]]"
+                data="[[item]]"
+              ></cs-sascpayload>
             </template>
             <div class="space"></div>
           </div>
@@ -424,7 +385,7 @@
 
           this.fire('rounddataupdated', this.rounddata)
 
-          this.fire('notification', {msg: 'Gold payload for "' + this.rounddata.name +
+          this.fire('notification', {msg: 'Blue payload for "' + this.rounddata.name +
               '" has been launched.', type: "msg"})
         }
         else if (this.launching == 'gold') {
@@ -481,9 +442,7 @@
             this.set('rounddata.arbiter', sim.data)
         }
 
-        // FIXME: Arrays not properly updated, go polymer woohoo
         // Blue
-        let b = this.bluepayloads
         if (this.bluepayloads.length > 0) {
 
           for (var i = 0; i < this.bluepayloads.length; ++i) {
@@ -492,13 +451,18 @@
               return s.name === that.bluepayloads[i].id
             })
             if (sim)
-              b[i] = sim.data
+              this.bluepayloads[i] = sim.data
           }
         }
-        this.set('bluepayloads', b)
+
+        // Hack needed for arrays to update
+        let b_copy = []
+        for (var i = 0; i < this.bluepayloads.length; ++i) {
+          b_copy.push(this.bluepayloads[i])
+        }
+        this.set('bluepayloads', b_copy)
 
         // Gold
-        let g = this.goldpayloads
         if (this.goldpayloads.length > 0) {
 
           for (var i = 0; i < this.goldpayloads.length; ++i) {
@@ -507,10 +471,16 @@
               return s.name === that.goldpayloads[i].id
             })
             if (sim)
-              b[i] = sim.data
+              this.goldpayloads[i] = sim.data
           }
         }
-        this.set('goldpayloads', g)
+
+        // Hack needed for arrays to update
+        let g_copy = []
+        for (var i = 0; i < this.goldpayloads.length; ++i) {
+          g_copy.push(this.goldpayloads[i])
+        }
+        this.set('goldpayloads', g_copy)
 
       },
 
