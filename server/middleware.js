@@ -32,10 +32,6 @@ exports.middleware = function(req, res, next){
            auth0_id: "${process.env.AUTH0_CLIENT_ID}",
            auth0_domain: "${process.env.AUTH0_DOMAIN}",
            admin: "${process.env.CLOUDSIM_ADMIN}",
-           src_competitor: "${process.env.SRC_COMPETITOR}",
-           src_admin: "${process.env.SRC_ADMIN}",
-           ariac_competitor: "${process.env.ARIAC_COMPETITOR}",
-           ariac_admin: "${process.env.ARIAC_ADMIN}",
          }
       }
     `

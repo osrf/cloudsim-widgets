@@ -17,7 +17,6 @@ token.initKeys(keys.public, keys.private)
 
 describe('<Unit test Widgets>', function() {
 
-  let mtId
   describe('Make a request', function() {
     it('should be possible to get config.js', function(done) {
       agent
