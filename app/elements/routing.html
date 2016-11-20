@@ -6,24 +6,45 @@
     var changeEvent = new CustomEvent("uri-change", {});
 
     page('/', function() {
-      app.topLevelRoute = 'home';
-
+      if (app.loggedin)
+      {
+        app.topLevelRoute = 'secure';
+        app.secureRoute = 'dashboard';
+      }
+      else
+      {
+        app.topLevelRoute = 'home';
+      }
       setTimeout(function () {
         window.dispatchEvent(changeEvent)
       }, 100);
     });
 
     page(app.baseUrl, function() {
-      app.topLevelRoute = 'home';
-
+      if (app.loggedin)
+      {
+        app.topLevelRoute = 'secure';
+        app.secureRoute = 'dashboard';
+      }
+      else
+      {
+        app.topLevelRoute = 'home';
+      }
       setTimeout(function () {
         window.dispatchEvent(changeEvent)
       }, 100);
     });
 
     page('/home', function() {
-      app.topLevelRoute = 'home';
-
+      if (app.loggedin)
+      {
+        app.topLevelRoute = 'secure';
+        app.secureRoute = 'dashboard';
+      }
+      else
+      {
+        app.topLevelRoute = 'home';
+      }
       setTimeout(function () {
         window.dispatchEvent(changeEvent)
       }, 100);
@@ -31,6 +52,21 @@
 
     page('/stayintouch', function() {
       app.topLevelRoute = 'stayintouch';
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
+    });
+
+    page('/dashboard', function() {
+      if (app.loggedin)
+      {
+        app.topLevelRoute = 'secure';
+        app.secureRoute = 'dashboard';
+      }
+      else
+      {
+        app.topLevelRoute = 'home';
+      }
       setTimeout(function () {
         window.dispatchEvent(changeEvent)
       }, 100);

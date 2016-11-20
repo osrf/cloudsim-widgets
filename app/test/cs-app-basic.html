@@ -11,6 +11,15 @@
 
 </head>
 <body>
+  <script>
+    function getConfig() {
+      return {auth : 'auth',
+              portal : 'portal',
+              auth0_id : 'id',
+              auth0_domain : 'domain'}
+    }
+  </script>
+
   <test-fixture id="basic">
     <template>
       <cs-app></cs-app>
@@ -21,11 +30,49 @@
 
     suite('cs-app tests', function() {
       setup(function() {
-        component = fixture('basic');
+        app = fixture('basic');
       });
 
       test('Load', function() {
-        assert(component)
+        assert(app)
+      });
+
+      test('Check that requesting login doesn\'t break anything', function() {
+        app._requestLogin()
+      });
+
+      test('Check that requesting logout doesn\'t break anything', function() {
+        app._requestLogout()
+      });
+
+      test('Logging in and out', function() {
+
+        // State before logging in
+        assert(!app.loggedin)
+        assert(app.token == "")
+        assert(app.currentuser == "")
+        assert(app.identities.length == 0)
+
+        // Fake response from gz-token
+        let e = {
+          detail: {
+            token: "token",
+            identities: ["username", "userteam"],
+          }
+        }
+        app._onLogin(e)
+
+        assert(app.loggedin)
+        assert(app.token == "token")
+        assert(app.currentuser == "username")
+        assert(app.identities.length == 2)
+
+        app._onLogout()
+
+        assert(!app.loggedin)
+        assert(app.token == "")
+        assert(app.currentuser == "")
+        assert(app.identities.length == 0)
       });
 
     });

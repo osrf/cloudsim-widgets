@@ -1,37 +1,37 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-  <title>cs-toptoolbar-basic</title>
+  <title>cs-dashboard-basic</title>
 
   <script src="../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
   <script src="../bower_components/web-component-tester/browser.js"></script>
 
   <!-- Import the element to test -->
-  <link rel="import" href="../elements/cs-toptoolbar/cs-toptoolbar.html">
+  <link rel="import" href="../elements/cs-dashboard/cs-dashboard.html">
 
 </head>
 <body>
+  <script>
+    function getConfig() {
+      return {auth : 'auth', portal : 'portal'}
+    }
+  </script>
 
   <test-fixture id="basic">
     <template>
-      <cs-toptoolbar></cs-toptoolbar>
+      <cs-dashboard></cs-dashboard>
     </template>
   </test-fixture>
 
   <script>
 
-    suite('cs-toptoolbar tests', function() {
+    suite('cs-dashboard tests', function() {
       setup(function() {
         component = fixture('basic');
       });
 
       test('Load', function() {
         assert(component)
-      });
-
-      test('Tap login and logout and nothing breaks', function() {
-        component._tapLogin()
-        component._tapLogout()
       });
 
     });

@@ -5,13 +5,42 @@
 
   <template>
     <style>
+
+      paper-drawer-panel {
+        /* space for toolbar */
+        margin-top: 64px;
+        height: calc(100% - 64px);
+      }
+
+      /* Height of the scroll area */
+      .content {
+        overflow: auto;
+        background-color: #f3f3f3;
+      }
+
       .pad {
         padding: 3em;
       }
+
     </style>
+
+    <!-- For login / logout -->
+    <gz-token
+      id="token"
+      url="[[authurl]]"
+      auth0_id="[[auth0_id]]"
+      auth0_domain="[[auth0_domain]]"
+      on-login="_onLogin"
+      on-logout="_onLogout"
+    ></gz-token>
 
     <!-- Main Toolbar -->
     <cs-toptoolbar
+      authurl="[[authurl]]"
+      currentuser="[[currentuser]]"
+      loggedin="[[loggedin]]"
+      on-loginrequest="_requestLogin"
+      on-logoutrequest="_requestLogout"
     ></cs-toptoolbar>
 
     <!-- Parent pages: secure / public -->
@@ -26,6 +55,41 @@
         <cs-home/>
       </section>
 
+      <!-- Secure routes -->
+      <section data-route="secure">
+
+        <!-- Drawer / panel -->
+        <paper-drawer-panel>
+
+          <!-- Main Menu -->
+          <cs-menu
+            drawer
+            fixed
+          ></cs-menu>
+
+          <!-- Main Content -->
+          <div class="content" main>
+
+            <iron-pages attr-for-selected="data-route" selected="[[secureRoute]]">
+
+              <!-- Dashboard -->
+              <section data-route="dashboard">
+                <cs-dashboard
+                  authurl="[[authurl]]"
+                  portalurl="[[portalurl]]"
+                  token="[[token]]"
+                  currentuser="[[currentuser]]"
+                ></cs-dashboard>
+              </section>
+
+            </iron-pages>
+          </div>
+
+        </paper-drawer-panel>
+
+      </section>
+      <!-- /secure -->
+
     </iron-pages>
 
   </template>
@@ -36,14 +100,109 @@
 
       is: 'cs-app',
 
+      // Attached
       attached: function() {
+
+        // Get configuration from environment variables
+        this.authurl = getConfig().auth
+        this.portalurl = getConfig().portal
+        this.auth0_id = getConfig().auth0_id
+        this.auth0_domain = getConfig().auth0_domain
 
         // Sets app default base URL
         this.baseUrl = '/';
-
-        console.log('cs-app widget attached!')
       },
+
+      // Forward request to login to gz-token
+      _requestLogin() {
+        this.$.token.tapLogin();
+      },
+
+      // Forward request to logout to gz-token
+      _requestLogout() {
+        this.$.token.tapLogout();
+      },
+
+      // When gz-token confirms login
+      _onLogin(e) {
+        this.loggedin = true
+        this.token = e.detail.token;
+        this.currentuser = e.detail.identities[0];
+        this.identities = e.detail.identities;
+
+        // Reload page with logged in routes
+        page(window.location.pathname);
+      },
+
+      // When gz-token confirms logout
+      _onLogout() {
+        this.loggedin = false
+        this.token = ""
+        this.currentuser = ""
+        this.identities = []
+
+        // Reload page with logged out routes
+        page('/');
+      },
+
+      // Propeties
       properties: {
+
+        // Auth server URL
+        authurl: {
+          type: String,
+          value: '',
+          notify: true
+        },
+
+        // Portal server URL
+        portalurl: {
+          type: String,
+          value: '',
+          notify: true
+        },
+
+        // Auth0 Id
+        auth0_id: {
+          type: String,
+          value: '',
+          notify: true
+        },
+
+        // Auth0 domain
+        auth0_domain: {
+          type: String,
+          value: '',
+          notify: true
+        },
+
+        // Whether currently logged in
+        loggedin: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+
+        // Authentication token from cloudsim-auth
+        token: {
+          type: String,
+          value: '',
+          notify: true
+        },
+
+        // Username for current user
+        currentuser: {
+          type: String,
+          value: '',
+          notify: true
+        },
+
+        // Array of identities for current user
+        identities: {
+          type: Array,
+          value: [],
+          notify: true
+        },
       }
     });
 

@@ -1,0 +1,40 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-dashboard">
+  <style>
+
+    :host {
+      display: block;
+      padding-top: 3em;
+      @apply(--paper-font-common-base);
+    }
+
+  </style>
+
+  <template>
+
+    <center>
+      You have no machines running.
+    </center>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-dashboard',
+
+      // Attached
+      attached: function() {
+      },
+
+      // Properties
+      properties: {
+      },
+    });
+  })();
+  </script>
+</dom-module>

@@ -5,6 +5,15 @@
   <template>
     <style>
 
+      paper-button.raised {
+        background-color: rgb(68, 138, 201);
+        color: rgb(255, 255, 255);
+      }
+
+      paper-button.flat {
+        color: rgb(68, 138, 201);
+      }
+
       #mainToolbar .middle-container,
       #mainToolbar .bottom-container {
         @apply(--layout-horizontal);
@@ -54,6 +63,24 @@
 
         <div class="top top-container">
 
+          <template is="dom-if" if="[[!loggedin]]">
+            <paper-button raised class="raised" id="loginbutton" on-tap="_tapLogin">
+              <iron-icon icon="social:person"></iron-icon>
+              Log in
+            </paper-button>
+          </template>
+
+          <template is="dom-if" if="[[loggedin]]">
+            <a href="[[baseUrl]]profile">
+              <paper-button flat class="flat" id="usernamelabel">
+                {{currentuser}}
+              </paper-button></a> <!-- Leave /a in same line -->
+            <paper-button raised class="raised" id="logoutbutton" on-tap="_tapLogout">
+              <iron-icon icon="icons:exit-to-app"></iron-icon>
+              Log out
+            </paper-button>
+          </template>
+
         </div>
         <!-- Application name -->
         <div class="middle middle-container">
@@ -69,16 +96,35 @@
 
   <script>
 
-
   (function() {
     'use strict';
 
     Polymer({
       is: 'cs-toptoolbar',
+
+      // Attached
       attached: function() {
-        console.log('cs-toptoolbar widget [' + this.title + '] attached!')
       },
+
+      // When user taps login button
+      _tapLogin() {
+        this.fire('loginrequest')
+      },
+
+      // When user taps logout button
+      _tapLogout() {
+        this.fire('logoutrequest')
+      },
+
+      // Properties
       properties: {
+
+        // Whether currently logged in
+        loggedin: {
+          type: Boolean,
+          value: 'false',
+          notify: true
+        },
       }
     });
   })();

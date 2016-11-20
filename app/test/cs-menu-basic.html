@@ -1,26 +1,30 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-  <title>cs-toptoolbar-basic</title>
+  <title>cs-menu-basic</title>
 
   <script src="../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
   <script src="../bower_components/web-component-tester/browser.js"></script>
 
   <!-- Import the element to test -->
-  <link rel="import" href="../elements/cs-toptoolbar/cs-toptoolbar.html">
+  <link rel="import" href="../elements/cs-menu/cs-menu.html">
 
 </head>
 <body>
+  <script>
+    // Fake app
+    let app = {}
+  </script>
 
   <test-fixture id="basic">
     <template>
-      <cs-toptoolbar></cs-toptoolbar>
+      <cs-menu></cs-menu>
     </template>
   </test-fixture>
 
   <script>
 
-    suite('cs-toptoolbar tests', function() {
+    suite('cs-menu tests', function() {
       setup(function() {
         component = fixture('basic');
       });
@@ -29,9 +33,16 @@
         assert(component)
       });
 
-      test('Tap login and logout and nothing breaks', function() {
-        component._tapLogin()
-        component._tapLogout()
+      test('URI change', function() {
+        // Nothing selected
+        assert(!component.$.menu.selected)
+
+        // Trigger change
+        component._uriChanged()
+
+        // Check current path is selected
+        assert(component.$.menu.selected ==
+          'components/cloudsim-widgets/app/test/cs-menu-basic.html')
       });
 
     });
