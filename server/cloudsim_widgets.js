@@ -18,7 +18,16 @@ app.use(cors())
 app.use(bodyParser.json())
 
 // prints all requests to the terminal
-app.use(morgan('combined'))
+app.use(morgan('combined', {
+  skip: function (req) {
+    // skip /api stuff
+    const isApi = req.originalUrl.startsWith('/api/')
+    if (isApi) {
+      return true
+    }
+    return false
+  }
+}))
 
 // Redirect to HTTPS
 app.use(function (req, res, next) {
@@ -37,6 +46,7 @@ app.use(function (req, res, next) {
 dotenv.load()
 
 const dbName = 'cloudsim-widgets' + (app.get('env') === 'test'? '-test': '')
+process.env.CLOUDSIM_WIDGETS_DB = process.env.CLOUDSIM_WIDGETS_DB || 'localhost'
 
 // the port of the server
 const port = process.env.PORT || 5000
@@ -44,42 +54,28 @@ const port = process.env.PORT || 5000
 // the user with write access to the initial resources
 const adminUser = process.env.CLOUDSIM_ADMIN || 'admin'
 
-// we create 2 initial resources
-csgrant.init(adminUser, {'src_registrations': {},
-  'ariac_registrations': {}
-},
-                        dbName,
-                        (err)=> {
-                          if(err){
-                            console.log('Error loading resources: ' + err)
-                            process.exit(-1)
-                          }
-                          else {
-                            console.log('resources loaded')
-                            csgrant.dump()
-                          }
-                        })
-
 // serve the app from the dist directory
 let rootDir = path.join(__dirname, '/../dist')
+/* istanbul ignore if  */
 if (process.argv[2] === 'dev')
   rootDir = path.join(__dirname, '/../app')
 app.use("/", express.static(rootDir));
 
-// setup the routes
-app.get('/permissions',
-  csgrant.authenticate,
-  csgrant.userResources,
-  csgrant.allResources)
-app.post('/permissions', csgrant.authenticate, csgrant.grant)
-app.delete('/permissions',csgrant.authenticate, csgrant.revoke)
+app.get('/*', function(req, res, next){
 
-app.get('/permissions/:resourceId', csgrant.authenticate,
-  csgrant.ownsResource(':resourceId', true), csgrant.resource)
-app.param('resourceId', function( req, res, next, id) {
-  req.resourceId = id
-  next()
-})
+  if (req.originalUrl == '/scripts/config.js')
+    return next()
+
+  if ((req.originalUrl.match(/\//g) || []).length > 1) {
+    let newRoute = req.originalUrl.substr(1)
+    newRoute = "/" + newRoute.replace('/', '-')
+    console.log("Tried to get [" + req.originalUrl + "], sending [" + newRoute + "]")
+    res.redirect(newRoute)
+    return
+  }
+
+  res.sendFile(path.join(rootDir, '/index.html'));
+});
 
 // use the middleware module to serve config.js
 app.use(middleware.middleware)
@@ -95,11 +91,31 @@ console.log('port: ' + port)
 console.log('cloudsim-grant version: ', require('cloudsim-grant/package.json').version)
 console.log('admin user: ' + adminUser)
 console.log('environment: ' + app.get('env'), process.env.NODE_ENV)
-console.log('redis database: ' + dbName)
+console.log('redis database name: ' + dbName)
+console.log('redis database url: ' + process.env.CLOUDSIM_WIDGETS_DB)
 console.log('============================================')
 console.log('\n\n')
 
-httpServer.listen(port, function(){
-  console.log('listening on *:' + port);
-})
+// initial resources
+const resources = {}
+
+csgrant.init(adminUser,
+  resources,
+  dbName,
+  process.env.CLOUDSIM_WIDGETS_DB,
+  httpServer,
+  (err)=> {
+    if(err){
+      console.log('Error loading resources: ' + err)
+      process.exit(-1)
+    }
+    else {
+      console.log('resources loaded')
+      csgrant.dump()
+      httpServer.listen(port, function(){
+        console.log('listening on *:' + port);
+      })
+    }
+  })
+
 

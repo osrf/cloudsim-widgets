@@ -32,6 +32,30 @@ describe('<Unit test Widgets>', function() {
         done()
       })
     })
+
+    it('should be possible to get /', function(done) {
+      agent
+      .get('/')
+      .set('Accept', 'application/json')
+      .send({})
+      .end(function(err,res) {
+        res.status.should.be.equal(200)
+        res.redirect.should.equal(false)
+        done()
+      })
+    })
+
+    it('should be possible to get /home', function(done) {
+      agent
+      .get('/home')
+      .set('Accept', 'application/json')
+      .send({})
+      .end(function(err,res) {
+        res.status.should.be.equal(200)
+        res.redirect.should.equal(false)
+        done()
+      })
+    })
   })
 
   after(function(done) {
