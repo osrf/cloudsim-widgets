@@ -22,6 +22,12 @@
         padding: 3em;
       }
 
+      #errorToast {
+        --paper-toast-background-color: #e74747
+      }
+      #msgToast {
+        --paper-toast-background-color: rgb(43, 137, 222)
+      }
     </style>
 
     <!-- For login / logout -->
@@ -41,6 +47,18 @@
       token="[[token]]"
       on-permissionsupdated="_onPermissions"
     ></gz-grant>
+
+    <paper-toast
+      id="errorToast"
+      class="fit-bottom"
+      duration="0">
+      <paper-button onclick="errorToast.toggle()" class="yellow-button">Got it!</paper-button>
+    </paper-toast>
+
+    <paper-toast
+      id="msgToast"
+      class="fit-bottom">
+    </paper-toast>
 
     <!-- Main Toolbar -->
     <cs-toptoolbar
@@ -128,6 +146,41 @@
 
         // Sets app default base URL
         this.baseUrl = '/';
+
+        // Toaster events
+        this.addEventListener('notification', function(e) {
+          this._openToast(e);
+        });
+
+        this.addEventListener('error', function(e) {
+          this._openErrorToast(e);
+        });
+      },
+
+      // Open notification toast
+      _openToast: function(e) {
+        let msg = e.detail
+        if (e.detail.msg)
+          msg = e.detail.msg
+        if (e.detail.type === "error")
+        {
+          this.$.errorToast.text = msg
+          this.$.errorToast.open()
+        }
+        else
+        {
+          this.$.msgToast.text = msg
+          this.$.msgToast.open()
+        }
+      },
+
+      // Open error toast
+      _openErrorToast: function(e) {
+        let msg = e.detail
+        if (e.detail.msg)
+          msg = e.detail.msg
+        this.$.errorToast.text = msg
+        this.$.errorToast.open()
       },
 
       // Forward request to login to gz-token
