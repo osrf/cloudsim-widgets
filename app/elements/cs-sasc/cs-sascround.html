@@ -112,6 +112,20 @@
       on-created="_onLaunched"
     ></gz-resources>
 
+   <gz-keys
+      id="bluekeys"
+      url="[[keysurl]]"
+      token="[[token]]"
+      keytype="tap/sasc"
+      on-created="_onBlueKeyGenerated"
+    ></gz-keys>
+   <gz-keys
+      id="goldkeys"
+      url="[[keysurl]]"
+      token="[[token]]"
+      keytype="tap/sasc"
+      on-created="_onGoldKeyGenerated"
+    ></gz-keys>
     <center>
 
       <!-- ARBITER -->
@@ -189,13 +203,14 @@
               <h4>Blue</h4>
               <p>[[rounddata.blueuser]]</p>
 
-              <paper-fab
-                mini
-                class="grey key"
-                icon="communication:vpn-key"
-                title="Download OCU keys"
-                on-tap="_onDownloadKeysBlue"
-              ></paper-fab>
+              <a href="[[blueOcu1DownloadLink]]" target="_blank">
+                <paper-fab
+                  mini
+                  class="grey key"
+                  icon="communication:vpn-key"
+                  title="Download OCU keys"
+                ></paper-fab>
+              </a>
             </div>
           </paper-header-panel>
 
@@ -293,6 +308,7 @@
         console.log('cs-sascround widget attached!')
       },
 
+
       // Callback when the token has been updated
       _onTokenUpdated: function() {
         if (this.token !== "") {
@@ -309,10 +325,32 @@
 
       // Callback when the rounddata has been updated
       _onRounddataUpdated: function() {
+        if(this.rounddata.blueKeyResourceId === undefined) {
+          this.$.bluekeys.create("blue key for " + this.rounddata.name, 1196)
+        }
+        if(this.rounddata.goldKeyResourceId === undefined) {
+          this.$.goldkeys.create("gold key for " + this.rounddata.name, 1197)
+        }
         if (this.rounddata.bluepayloads && this.rounddata.bluepayloads.length > 0)
           this.set('bluepayloads', this.rounddata.bluepayloads)
         if (this.rounddata.goldpayloads && this.rounddata.goldpayloads.length > 0)
           this.set('goldpayloads', this.rounddata.goldpayloads)
+
+        if (this.rounddata.arbiter && this.rounddata.arbiter.machine_ip) {
+          // Blue
+          this.$.bluekeys.keyid = this.rounddata.blueKeyResourceId
+          this.$.bluekeys.serverip = this.rounddata.arbiter.machine_ip
+
+          this.$.bluekeys.clientid = 'ocu-001'
+          this.blueOcu1DownloadLink = this.$.bluekeys.clienturl
+
+          // Gold
+          this.$.goldkeys.keyid = this.rounddata.goldKeyResourceId
+          this.$.goldkeys.serverip = this.rounddata.arbiter.machine_ip
+
+          this.$.goldkeys.clientid = 'ocu-001'
+          this.goldOcu1DownloadLink = this.$.goldkeys.clienturl
+        }
       },
 
       // When arbiter launch button is pressed
@@ -321,21 +359,36 @@
         let data =  {
           token: this.token,
           region: "us-west-1",
-          image: "ami-4b37752b",
-          hardware: "t2.small",
+          image: "ami-d1e0b5b1", // sasc c0.1.6e
+          hardware: "m4.large",
           options: {
             role: 'arbiter',
-            keyName: this.rounddata.name,
-            keyServerUrl: this.keysurl,
-            token: this.token,
+            "blue_route": this.rounddata.blueServerRoute,
+            "gold_route": this.rounddata.goldServerRoute,
+            "blue_subnet" : "192.168.2",
+            "gold_subnet" : "192.168.3",
+            "token": this.token,
           }
         }
-
         this.launching = 'arbiter'
         this.$.launchresources.create(data);
         this.fire('notification', {msg:
             "Request to launch an arbiter for \"" + this.rounddata.name +
             "\" has been sent.", type: "msg"})
+      },
+      _onGoldKeyGenerated: function(e) {
+        const key = e.detail.id
+        console.log('Got the gold key: ' + key, ' ', e.detail.serverRoute)
+        this.set('rounddata.goldServerRoute', e.detail.serverRoute)
+        this.set('rounddata.goldKeyResourceId', key)
+        this.fire('rounddataupdated', this.rounddata)
+      },
+       _onBlueKeyGenerated: function(e) {
+        const key = e.detail.id
+        console.log('Got the blue key: ' + key, ' ', e.detail.serverRoute)
+        this.set('rounddata.blueServerRoute', e.detail.serverRoute)
+        this.set('rounddata.blueKeyResourceId', key)
+        this.fire('rounddataupdated', this.rounddata)
       },
 
       // When blue launch button is pressed
@@ -530,8 +583,10 @@
           let sim = simulators.find(function(s){
             return s.name === that.rounddata.arbiter.id
           })
-          if (sim)
+          if (sim) {
             this.set('rounddata.arbiter', sim.data)
+            this.fire('rounddataupdated', this.rounddata)
+          }
         }
 
         // Blue
@@ -578,7 +633,9 @@
 
       // Callback when user presses blue key button
       _onDownloadKeysBlue: function(e) {
-        // TODO: Request keys from key server
+
+        // Request keys from key server
+
         this.fire('notification', 'Asked to download OCU keys for Blue Team')
       },
 
