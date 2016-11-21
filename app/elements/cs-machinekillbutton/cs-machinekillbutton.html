@@ -1,0 +1,87 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-machinekillbutton">
+  <style>
+    .miniButton {
+      font-size: 0.8em;
+      width: 7em;
+    }
+    .miniButton iron-icon {
+      width: 1.5em;
+      margin-right: 0.2em;
+    }
+    .killButton > iron-icon {
+      --iron-icon-fill-color: #f00;
+    }
+  </style>
+  <template>
+
+    <!-- For machine killing -->
+    <gz-resources
+      id="resources"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="simulator"
+      on-deleted="_onKilled"
+    ></gz-resources>
+
+    <paper-button raised class="killButton miniButton" on-tap="_tapKill">
+      <iron-icon icon="icons:close"></iron-icon>
+      Kill
+    </paper-button>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-machinekillbutton',
+
+      // Attached
+      attached: function() {
+      },
+
+      // When kill button is tapped
+      _tapKill(e) {
+        this.$.resources.del(this.machine_id);
+        this.fire('notification',
+            {msg: "Request to kill machine has been sent.", type: "msg"})
+      },
+
+      // Response that machine has been killed
+      _onKilled: function() {
+        this.fire('notification',
+            {msg: "Machine has been killed.", type: "msg"})
+      },
+
+      // Properties
+      properties: {
+
+        // Portal server URL
+        portalurl: {
+          type: String,
+          value: '',
+          notify: true
+        },
+
+        // Authentication token from cloudsim-auth
+        token: {
+          type: String,
+          value: 'placeholder',
+          notify: true
+        },
+
+        // Id of machine to kill
+        machine_id: {
+          type: String,
+          value: 'placeholder',
+          notify: true
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>

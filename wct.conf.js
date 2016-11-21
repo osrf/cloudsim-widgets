@@ -26,7 +26,7 @@ var ret = {
       ],
       'thresholds': {
         'global': {
-          'statements': 90
+          'statements': 65
         }
       }
     }

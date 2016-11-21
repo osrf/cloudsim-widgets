@@ -1,0 +1,36 @@
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>cs-machineitem-basic</title>
+
+  <script src="../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+  <script src="../bower_components/web-component-tester/browser.js"></script>
+
+  <!-- Import the element to test -->
+  <link rel="import" href="../elements/cs-machineitem/cs-machineitem.html">
+
+</head>
+<body>
+
+  <test-fixture id="basic">
+    <template>
+      <cs-machineitem></cs-machineitem>
+    </template>
+  </test-fixture>
+
+  <script>
+
+    suite('cs-machineitem tests', function() {
+      setup(function() {
+        component = fixture('basic');
+      });
+
+      test('Load', function() {
+        assert(component)
+      });
+
+    });
+  </script>
+
+</body>
+</html>

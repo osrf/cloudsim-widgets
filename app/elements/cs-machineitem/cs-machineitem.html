@@ -1,0 +1,180 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-machineitem">
+  <style>
+    .pad {
+      padding: 0 16px;
+      @apply(--layout-flex);
+      @apply(--layout-center);
+      @apply(--layout-horizontal);
+    }
+    .pad > div {
+      padding-right: 1em;
+    }
+    .bigIcon {
+      --iron-icon-height: 50px;
+      --iron-icon-width: 50px;
+    }
+    .launchingStatus > iron-icon {
+      --iron-icon-fill-color: #ff0;
+    }
+    .runningStatus > iron-icon {
+      --iron-icon-fill-color: #00f;
+    }
+    .terminatingStatus > iron-icon {
+      --iron-icon-fill-color: #f00;
+    }
+    .machineInfo {
+      color: gray;
+      text-align: left;
+      font-size: 0.8em;
+    }
+    .vertical {
+      @apply(--layout-vertical);
+    }
+    .item {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+      padding: 20px;
+      background-color: white;
+      margin-bottom: 10px;
+    }
+    paper-material {
+      margin: auto;
+      text-align: center;
+    }
+  </style>
+  <template>
+
+    <paper-material elevation="2" style="margin: 1em">
+
+      <div id="item[[itemid]]">
+
+        <div class="item" tabindex$="[[tabIndex]]">
+
+          <iron-icon class="bigIcon" icon="hardware:computer"></iron-icon>
+
+          <div class="pad">
+
+            <!-- LINK TO MACHINE -->
+            <template is="dom-if" if="{{!_isTerminating(stat)}}">
+              <div><a href="http://{{machine_ip}}" target="_blank">[[machine_ip]]</a></div>
+            </template>
+
+            <!-- STATUS -->
+            <div class$="[[_getStatusClass(stat)]]">
+              <!-- <iron-icon icon="icons:cloud"></iron-icon> -->
+              [[stat]]
+            </div>
+
+            <!-- INFO -->
+            <div class="machineInfo">
+              <b>Launch date</b>: [[_prettyDate(launch_date)]]<br>
+              <template is="dom-if" if="{{_isTerminating(stat)}}">
+                <b>Termination date</b>: [[_prettyDate(termination_date)]]<br>
+              </template>
+            </div>
+
+          </div>
+
+          <!-- BUTTONS -->
+          <template is="dom-if" if="[[!readonly]]">
+
+            <template is="dom-if" if="{{!_isTerminating(stat)}}">
+
+              <div class="vertical">
+
+                <template is="dom-if" if="{{_isRunning(stat)}}">
+
+                  <cs-sharebutton
+                    token=[[token]]
+                    resource="[[itemid]]"
+                    grantee="{{grantee}}"
+                    url="[[portalurl]]"
+                    dialogmessage='Share machine [[machine_ip]]'
+                    grant_success_msg='Shared machine "[[machine_ip]]"'
+                    grant_failure_error='Could not share machine "[[machine_ip]]"'
+                    revoke_success_msg='User no longer has access to "[[machine_ip]]"'
+                    revoke_failure_error='Could not revoke machine "[[machine_ip]]"'
+                    hasreadonly
+                  ></cs-sharebutton>
+
+                </template>
+
+                <cs-machinekillbutton
+                  portalUrl=[[portalurl]]
+                  token=[[token]]
+                  machine_id="[[itemid]]"
+                ></cs-machinekillbutton>
+
+               </div>
+            </template>
+          </template>
+        </div>
+
+      </div>
+    </paper-material>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-machineitem',
+
+      // Attached
+      attached: function() {
+      },
+
+      // Check if status is RUNNING
+      _isRunning: function(itemStatus) {
+        return itemStatus == 'RUNNING' ? true : false;
+      },
+
+      // Check if status is TERMINATING or TERMINATED
+      _isTerminating: function(itemStatus) {
+        return (itemStatus == 'TERMINATING' || itemStatus == 'TERMINATED') ? true : false;
+      },
+
+      // Get CSS class accorting to status
+      _getStatusClass: function(itemStatus) {
+        let itemClass = 'launchingStatus'
+        if (itemStatus == 'RUNNING')
+          itemClass = 'runningStatus'
+        else if (itemStatus == 'TERMINATING' || itemStatus == 'TERMINATED')
+          itemClass = 'terminatingStatus'
+        else if (itemStatus == 'LAUNCHING')
+          itemClass = 'launchingStatus'
+        return itemClass;
+      },
+
+      // Pretify date
+      _prettyDate: function(date) {
+        let d = new Date(date);
+        return d.toString();
+      },
+
+      // PRoperties
+      properties: {
+
+        // Current machine status
+        stat: {
+          type: String,
+          value: '',
+          notify: true
+        },
+
+        // Whether current user has readonly access
+        readonly: {
+          type: Boolean,
+          value: true,
+          notify: true
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>

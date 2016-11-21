@@ -1,0 +1,255 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-machinelauncher">
+  <style>
+    .iconPadding {
+      padding-right: 1em;
+    }
+    .space {
+      @apply(--layout-flex);
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+    .description {
+      text-align: left;
+      font-size: 0.8em;
+      color: #888;
+    }
+    #launchbutton {
+      background-color: rgb(68, 138, 201);
+      color: white;
+      padding: 0.5em;
+    }
+    paper-material {
+      margin: 1em;
+      text-align: center;
+      padding: 1em;
+    }
+  </style>
+  <template>
+
+    <!-- To launch machines -->
+    <gz-resources
+      id="resources"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="simulator"
+      data="[[machinedata]]"
+      on-created="_onLaunched"
+    ></gz-resources>
+
+    <paper-material elevation="1">
+
+      <div class="horizontal">
+
+        <h1>
+          <iron-icon
+            icon="hardware:computer"
+            class="iconPadding"
+          ></iron-icon>
+          Launch a machine
+        </h1>
+
+        <div class="space"></div>
+
+        <cs-sharebutton
+          token=[[token]]
+          resource="simulators"
+          url="[[portalurl]]"
+          dialogmessage='Grant permission to launch'
+          grant_success_msg='User is now allowed to launch machines.'
+          revoke_success_msg='User is no longer allowed to launch machines.'
+          grant_failure_error='It was not possible to allow user to launch machines.'
+          revoke_failure_error='It was not possible to prevent user from launching machines.'
+          mini
+        ></cs-sharebutton>
+
+      </div>
+
+      <div class="horizontal">
+
+        <paper-dropdown-menu
+          label="Machine types"
+          selected="0"
+          on-iron-select="_machineSelected">
+
+          <paper-listbox class="dropdown-content" attr-for-selected="machine" selected="large_v0.1.4">
+            <template is="dom-repeat" items=[[machines]]>
+              <paper-item machine="[[item.id]]">[[item.name]]</paper-item>
+            </template>
+          </paper-listbox>
+
+        </paper-dropdown-menu>
+        <paper-button raised id="launchbutton" on-tap="_tapLaunch">
+          Launch!
+        </paper-button>
+      </div>
+
+      <div class="description">
+        <div><b>Region</b>: [[machine.region]]</div>
+        <div><b>Hardware</b>: [[machine.hardware]]</div>
+        <div><b>Software</b>: [[machine.image]]</div>
+      </div>
+    </paper-material>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-machinelauncher',
+
+      // Attached
+      attached: function() {
+
+        window.addEventListener('logout', function(e) {
+          that.token = "";
+        });
+      },
+
+      // Tap button has been pressed
+      _tapLaunch() {
+
+        if (this.machine.region == "" ||
+            this.machine.imagee == "" ||
+            this.machine.hardware == "")
+        {
+          this.fire('notification', {msg:
+              "Missing some information. Machine can't be launched.",
+              type: "error"})
+          return;
+        }
+
+        let data =  {
+          token: this.token,
+          region: this.machine.region,
+          image: this.machine.image,
+          hardware: this.machine.hardware
+        }
+
+        // hack to inject options without a gui
+        try {
+          if (options) {
+            data.options = options
+            console.log('\n\ncreating machine with options')
+            console.log(JSON.stringify(data, null, 2))
+          }
+        }
+        catch(e) {
+          console.log('no options')
+        }
+        this.$.resources.create(data);
+        this.fire('notification',
+            {msg: "Request to launch a \"" + this.machine.name + "\" has been sent.",
+            type: "msg"})
+      },
+
+      // Response that machine has been launched
+      _onLaunched: function(e) {
+        let success = e.detail.success
+        let msg = e.detail.message
+
+        if (success != undefined && success == false)
+        {
+          this.fire('notification', {msg: msg, type: "error"})
+        }
+        else
+        {
+          this.fire('notification', {msg: "Machine has been launched.", type: "msg"})
+        }
+      },
+
+      // When a machine is selected on the dropdown
+      _machineSelected: function(e) {
+        var selectedItem = e.target.selectedItem;
+        if (!selectedItem)
+          return
+        var selectedMachineId = e.target.selectedItem.machine
+
+        // get machine data from user selection
+        this.machine = this.machines.filter( (item)=>{
+          return (item.id == selectedMachineId)? true: false
+        })[0]
+      },
+
+      // Properties
+      properties: {
+
+        // Portal server URL
+        portalurl: {
+          type: String,
+          value: '',
+          notify: true
+        },
+
+        // Authentication token from cloudsim-auth
+        token: {
+          type: String,
+          value: '',
+          notify: true
+        },
+
+        // Info for selected machine
+        machine: {
+          type: Object,
+          value: '',
+          readonly: true
+        },
+
+        // Machine options
+        machines: {
+          type: Array,
+          readonly: true,
+          value: [{
+                    id: "sasc_v0.1.6e",
+                    name: "sasc v0.1.6e",
+                    region: "us-west-1",
+                    image: "ami-d1e0b5b1",
+                    hardware: "m4.large"
+                  },
+                  {
+                    id: "large_xenial",
+                    name: "large ubuntu 16.04 (no cloudsim)",
+                    region: "us-west-1",
+                    image: "ami-6e165d0e",
+                    hardware: "m4.large"
+                  },
+                  {
+                    id: "large_v0.1.6c",
+                    name: "large v0.1.6c",
+                    region: "us-west-1",
+                    image: "ami-7b683d1b",
+                    hardware: "m4.large"
+                  },
+
+                  {
+                    id: "large_v0.1.4",
+                    name: "large v0.1.4 gzweb",
+                    region: "us-west-1",
+                    image: "ami-ca4e07aa",
+                    hardware: "m4.large"
+                  },
+
+                  { id: "small_v0.0.4",
+                    name: "small v0.0.4",
+                    region: "us-west-1",
+                    image: "ami-4b37752b",
+                    hardware: "t2.small"},
+
+                  { id: "gear_0.1",
+                    name: "gear v0.1",
+                    region: "us-west-1",
+                    hardware: "g2.2xlarge",
+                    image: "ami-537a3833"}
+                 ]
+        }
+      },
+    });
+  })();
+  </script>
+</dom-module>

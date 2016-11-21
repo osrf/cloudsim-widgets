@@ -34,6 +34,14 @@
       on-logout="_onLogout"
     ></gz-token>
 
+    <!-- For permissions in the portal -->
+    <gz-grant
+      id="grant"
+      url="[[portalurl]]"
+      token="[[token]]"
+      on-permissionsupdated="_onPermissions"
+    ></gz-grant>
+
     <!-- Main Toolbar -->
     <cs-toptoolbar
       authurl="[[authurl]]"
@@ -79,6 +87,7 @@
                   portalurl="[[portalurl]]"
                   token="[[token]]"
                   currentuser="[[currentuser]]"
+                  currentpermissions="[[currentpermissions]]"
                 ></cs-dashboard>
               </section>
 
@@ -138,6 +147,9 @@
         this.currentuser = e.detail.identities[0];
         this.identities = e.detail.identities;
 
+        // Get permissions from gz-grant
+        this.$.grant.getall();
+
         // Reload page with logged in routes
         page(window.location.pathname);
       },
@@ -151,6 +163,14 @@
 
         // Reload page with logged out routes
         page('/');
+      },
+
+      // Permissions updated from gz-grant
+      _onPermissions: function(e) {
+        this.currentpermissions = this.$.grant.permissions
+
+        // Reload page with user routes
+        page(window.location.pathname);
       },
 
       // Propeties
@@ -202,6 +222,13 @@
         currentuser: {
           type: String,
           value: '',
+          notify: true
+        },
+
+        // Permissions for current user
+        currentpermissions: {
+          type: Array,
+          value: [],
           notify: true
         },
 
