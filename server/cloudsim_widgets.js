@@ -13,6 +13,7 @@ const path = require('path')
 const csgrant = require('cloudsim-grant')
 // custom routes
 const middleware = require('./middleware')
+const sascrounds = require('./sasc/rounds.js')
 
 app.use(cors())
 app.use(bodyParser.json())
@@ -60,6 +61,9 @@ let rootDir = path.join(__dirname, '/../dist')
 if (process.argv[2] === 'dev')
   rootDir = path.join(__dirname, '/../app')
 app.use("/", express.static(rootDir));
+app.use("/api", express.static(path.join(__dirname, '/../api')));
+
+sascrounds.setRoutes(app);
 
 app.get('/*', function(req, res, next){
 
