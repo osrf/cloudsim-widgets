@@ -251,20 +251,20 @@
       if (app.loggedin)
       {
         app.topLevelRoute = 'secure';
-        app.secureRoute = 'sasc';
 
         if (app.issasccompetitor || app.issascadmin)
         {
+          app.secureRoute = 'sasc';
           app.sascRoute = 'kiosk';
         }
         else
         {
-          app.sascRoute = 'home';
+          app.secureRoute = 'dashboard';
         }
       }
       else
       {
-        app.topLevelRoute = 'sasc';
+        app.topLevelRoute = 'home';
       }
       setTimeout(function () {
         window.dispatchEvent(changeEvent)
