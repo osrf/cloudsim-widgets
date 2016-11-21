@@ -72,6 +72,21 @@
       }, 100);
     });
 
+    page('/profile', function() {
+      if (app.loggedin)
+      {
+        app.topLevelRoute = 'secure';
+        app.secureRoute = 'profile';
+      }
+      else
+      {
+        app.topLevelRoute = 'home';
+      }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
+    });
+
     // 404
     page('*', function() {
       page.redirect(app.baseUrl);

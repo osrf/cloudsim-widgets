@@ -1,0 +1,114 @@
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>cs-sharebutton-basic</title>
+
+  <script src="../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+  <script src="../bower_components/web-component-tester/browser.js"></script>
+
+  <!-- Import the element to test -->
+  <link rel="import" href="../elements/cs-sharebutton/cs-sharebutton.html">
+
+</head>
+<body>
+
+  <test-fixture id="basic">
+    <template>
+      <cs-sharebutton></cs-sharebutton>
+    </template>
+  </test-fixture>
+
+  <script>
+
+    suite('cs-sharebutton tests', function() {
+      setup(function() {
+        component = fixture('basic');
+      });
+
+      test('Load', function() {
+        assert(component)
+      });
+
+      test('Open dialog', function() {
+
+        assert(component.$.sharedialog)
+        assert(!component.$.sharedialog.opened)
+
+        component._tapOpenDialog()
+
+        assert(component.$.sharedialog.opened)
+      });
+
+      test('Tap grant button', function() {
+
+        // Without user
+        assert(component.$.sharedialoguser.value === '')
+        component._tapGrant()
+
+        // With user
+        component.$.sharedialoguser.value = 'username'
+        component._tapGrant()
+
+        // With readonly
+        assert(!component.hasreadonly)
+        component.hasreadonly = true
+        component._tapGrant()
+      });
+
+      test('Tap revoke button', function() {
+
+        let e = {currentTarget: {dataArgs: 'revokee'}}
+        component._tapRevoke(e)
+      });
+
+      test('On grant response', function() {
+
+        // Success
+        let e = {detail: {success: true}}
+        component._onGranted(e)
+
+        // Failure
+        e.detail.success = false
+        component._onGranted(e)
+      });
+
+      test('On revoke response', function() {
+
+        // Success
+        let e = {detail: {success: true}}
+        component._onRevoked(e)
+
+        // Failure
+        e.detail.success = false
+        component._onRevoked(e)
+      });
+
+      test('Get read only', function() {
+
+        assert(component._getReadOnly(true) == 0)
+        assert(component._getReadOnly(false) == 1)
+      });
+
+      test('Changing permissions via dropdown', function() {
+
+        component.permissions = [{username: 'grantee', permissions: {readOnly: true}}]
+
+        // Revoke
+        let e = {target: {id: 'grantee', selectedItem: {innerText: 'revoke'}}}
+        component._onPermission(e)
+
+        // Read -> write
+        e = {target: {id: 'grantee', selectedItem: {innerText: 'write'}}}
+        component._onPermission(e)
+
+        // Write -> read
+        component.permissions[0].permissions.readOnly = false
+        e = {target: {id: 'grantee', selectedItem: {innerText: 'read'}}}
+        component._onPermission(e)
+      });
+
+    });
+  </script>
+
+</body>
+</html>
