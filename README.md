@@ -51,23 +51,6 @@ simulations with the community).
 Components can be run from the local machine, and point to different servers.
 Components live in the `app/elements` folder.
 
-#### gz-accounts
-
-Add and remove users to the authentication server. This needs a server that
-implements the authentication (see
-[`cloudsim-auth`](https://bitbucket.org/osrf/cloudsim-auth)).
-
-#### gz-cmd
-
-This widget allows to run command line commands on a machine. The server
- component is [`cloudsim-sim`](https://bitbucket.org/osrf/cloudsim-sim).
-
-#### gz-simlist
-
-This widget displays the list of simulations that a user has acccess to. It
-connects to the
-[`cloudsim-portal`](https://bitbucket.org/osrf/cloudsim-portal) server.
-
 #### gz-token
 
 This widget allows the user to log in the system and get identity tokens from

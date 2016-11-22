@@ -185,17 +185,6 @@
         </template>
 
       </template>
-
-        <gz-cmd
-          id="gzcmd"
-          token="[[token]]"
-          url="[[simurl]]"
-          cmd="[[currentcmd]]"
-          state="{{currentstate}}"
-          on-state-changed="_currentStateChanged"
-          gui
-          hidden$=[[!_hasItems(simulations)]]
-        ></gz-cmd>
     </div>
 
   </template>
@@ -288,20 +277,6 @@
       _hasItems: function(items) {
         return items.length > 0
       },
-      _currentStateChanged: function(e) {
-        if (e.detail.value === 'closed')
-        {
-          for (var i = 0; i < this.simulations.length; ++i)
-          {
-            if (this.simulations[i].data.stat == "RUNNING")
-            {
-              var str = 'simulations.' + i + '.data.stat'
-              this.set(str, 'FINISHED')
-              break;
-            }
-          }
-        }
-      },
       properties: {
         simurl: {
           type: String,
@@ -312,11 +287,6 @@
           type: String,
           value: 'placeholder',
           notify: true
-        },
-        currentstate: {
-          type: String,
-          value: 'ready',
-          notify: true,
         },
         simulations: {
           type: Array,
