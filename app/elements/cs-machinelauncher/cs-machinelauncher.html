@@ -127,6 +127,17 @@
           image: this.machine.image,
           hardware: this.machine.hardware
         }
+         // hack to inject options without a gui
+        try {
+          if (ami) {
+            data.image = ami
+            console.log('\n\ncreating machine with ami: ' + ami)
+          }
+        }
+        catch(e) {
+          console.log('no ami')
+        }
+
         // hack to inject options without a gui
         try {
           if (options) {
