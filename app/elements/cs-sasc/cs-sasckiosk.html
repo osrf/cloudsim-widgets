@@ -226,11 +226,25 @@
 
       // Continue starting new round
       _onContinue: function() {
+
+        // Check for empty fields
         if (this.roundname === "" ||
             !this.blueuser ||
             !this.golduser) {
 
           this.fire('error', 'No fields can be empty.')
+          return
+        }
+
+        // Check if round name is unique
+        const that = this
+        let round = this.rounds.find(function(r) {
+          return r.data.name == that.roundname
+        })
+
+        if (round) {
+          this.fire('error', 'There\'s already a round called "' +
+              this.roundname + '".')
           return
         }
 
