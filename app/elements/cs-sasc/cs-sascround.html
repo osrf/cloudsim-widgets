@@ -422,7 +422,7 @@
         let data =  {
           token: this.token,
           region: "us-west-1",
-          image: this.machineImage,
+          image: this.machineimage,
           hardware: "m4.large",
           options: {
             role: 'arbiter',
@@ -470,7 +470,7 @@
         let data =  {
           token: this.token,
           region: "us-west-1",
-          image: this.machineImage,
+          image: this.machineimage,
           hardware: "m4.large",
           options: {
             role: 'payload',
@@ -500,7 +500,7 @@
         let data =  {
           token: this.token,
           region: "us-west-1",
-          image: this.machineImage,
+          image: this.machineimage,
           hardware: "m4.large",
           options: {
             role: 'payload',
@@ -750,9 +750,9 @@
           notify: true,
         },
 
-        machineImage: {
+        machineimage: {
           type: String,
-          value: "ami-7f23771f" // sasc v0.1.6f
+          value: ''
         }
       },
     });

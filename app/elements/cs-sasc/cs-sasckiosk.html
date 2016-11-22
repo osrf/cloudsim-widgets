@@ -172,6 +172,7 @@
             portalurl="[[portalurl]]"
             keysurl="[[keysurl]]"
             rounddata=[[item.data]]
+            machineimage="[[machineimage]]"
             on-rounddataupdated=_onRoundUpdated
             id="[[item.name]]"
           >
@@ -333,6 +334,10 @@
           value: [],
           notify: true,
         },
+        machineimage: {
+          type: String,
+          value: "ami-7f23771f"
+        }
       },
     });
   })();
