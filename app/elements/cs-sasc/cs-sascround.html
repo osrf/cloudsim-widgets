@@ -23,8 +23,16 @@
       @apply(--layout-vertical);
       @apply(--layout-center);
     }
-    .blue {
+    .cloudsim-blue {
       background-color: rgb(68, 138, 201);
+      color: #fff;
+    }
+    .blue {
+      background-color: rgb(60, 107, 177);
+      color: #fff;
+    }
+    .gold {
+      background-color: rgb(126, 111, 57);
       color: #fff;
     }
     .white {
@@ -64,7 +72,7 @@
       text-align: center;
     }
     .paper-header > p {
-      margin-bottom: 0;
+      margin-bottom: 1em;
       color: #ddd;
       text-align: center;
     }
@@ -98,6 +106,22 @@
     .full {
       min-width: 100%;
     }
+    .dropdown {
+      --paper-input-container-label: {
+        color: #fff;
+      };
+      --paper-input-container-input: {
+        color: #fff;
+      }
+      --paper-input-container-underline: {
+        display: none;
+      };
+      max-width: 6em;
+    }
+    .ocu-item {
+      text-decoration: none;
+      color: #222;
+    }
   </style>
   <template>
 
@@ -112,6 +136,7 @@
       on-created="_onLaunched"
     ></gz-resources>
 
+   <!-- For getting VPN keys -->
    <gz-keys
       id="bluekeys"
       url="[[keysurl]]"
@@ -126,6 +151,7 @@
       keytype="tap/sasc"
       on-created="_onGoldKeyGenerated"
     ></gz-keys>
+
     <center>
 
       <!-- ARBITER -->
@@ -159,7 +185,7 @@
             <template is="dom-if" if="{{_isFinished()}}">
               <paper-button
                 flat
-                class="blue"
+                class="cloudsim-blue"
                 title="Round has been finished"
               >
                 Round is finished
@@ -203,26 +229,41 @@
               <h4>Blue</h4>
               <p>[[rounddata.blueuser]]</p>
 
-              <a href="[[blueOcu1DownloadLink]]" target="_blank">
-                <paper-fab
-                  mini
-                  class="grey key"
-                  icon="communication:vpn-key"
-                  title="Download OCU keys"
-                ></paper-fab>
-              </a>
+              <div class="horizontal">
+
+                <!-- LAUNCH PAYLOADS -->
+                <template is="dom-if" if="{{_isRunning(rounddata.arbiter.status)}}">
+                  <paper-button
+                    raised
+                    class="white"
+                    title="Launch a new payload"
+                    on-tap="_onLaunchBlue"
+                  >Launch a payload</paper-button>
+                </template>
+
+                <div class="space"></div>
+
+                <!-- OCU keys -->
+                <paper-dropdown-menu
+                  label="OCU keys"
+                  class="dropdown"
+                >
+                  <paper-listbox
+                    class="dropdown-content"
+                  >
+                    <template is="dom-repeat" items="[[blueoculinks]]">
+                      <a class="ocu-item" href="[[item]]" target="_blank">
+                        <paper-item>ocu-[[index]]</paper-item>
+                      </a>
+                    </template>
+                  </paper-listbox>
+
+                </paper-dropdown-menu>
+
+              </div>
+
             </div>
           </paper-header-panel>
-
-          <template is="dom-if" if="{{_isRunning(rounddata.arbiter.status)}}">
-            <paper-fab
-              mini
-              class="grey floating"
-              icon="icons:add"
-              title="Launch a new payload"
-              on-tap="_onLaunchBlue"
-            ></paper-fab>
-          </template>
 
           <div class="content">
             <template is="dom-if" if="{{_isEmpty(bluepayloads)}}">
@@ -247,30 +288,46 @@
       <!-- GOLD TEAM -->
       <template is="dom-if" if="[[_isUser(rounddata.golduser)]]">
         <div class="about-half">
-          <paper-header-panel class="blue">
+          <paper-header-panel class="gold">
             <div class="paper-header">
               <h4>Gold</h4>
               <p>[[rounddata.golduser]]</p>
 
-              <paper-fab
-                mini
-                class="grey key"
-                icon="communication:vpn-key"
-                title="Download OCU keys"
-                on-tap="_onDownloadKeysGold"
-              ></paper-fab>
+              <div class="horizontal">
+
+                <!-- LAUNCH PAYLOADS -->
+                <template is="dom-if" if="{{_isRunning(rounddata.arbiter.status)}}">
+                  <paper-button
+                    raised
+                    class="white"
+                    title="Launch a new payload"
+                    on-tap="_onLaunchGold"
+                  >Launch a payload</paper-button>
+                </template>
+
+                <div class="space"></div>
+
+                <!-- OCU keys -->
+                <paper-dropdown-menu
+                  label="OCU keys"
+                  class="dropdown"
+                >
+                  <paper-listbox
+                    class="dropdown-content"
+                  >
+                    <template is="dom-repeat" items="[[goldoculinks]]">
+                      <a class="ocu-item" href="[[item]]" target="_blank">
+                        <paper-item>ocu-[[index]]</paper-item>
+                      </a>
+                    </template>
+                  </paper-listbox>
+
+                </paper-dropdown-menu>
+
+              </div>
+
             </div>
           </paper-header-panel>
-
-          <template is="dom-if" if="{{_isRunning(rounddata.arbiter.status)}}">
-            <paper-fab
-              mini
-              class="grey floating"
-              icon="icons:add"
-              title="Launch a new payload"
-              on-tap="_onLaunchGold"
-            ></paper-fab>
-          </template>
 
           <div class="content">
             <template is="dom-if" if="{{_isEmpty(goldpayloads)}}">
@@ -341,15 +398,21 @@
           this.$.bluekeys.keyid = this.rounddata.blueKeyResourceId
           this.$.bluekeys.serverip = this.rounddata.arbiter.machine_ip
 
-          this.$.bluekeys.clientid = 'ocu-001'
-          this.blueOcu1DownloadLink = this.$.bluekeys.clienturl
+          this.set('blueoculinks', [])
+          for (var i = 0; i < 5; ++i) {
+            this.$.bluekeys.clientid = 'ocu-' + i
+            this.push('blueoculinks', this.$.bluekeys.clienturl)
+          }
 
           // Gold
           this.$.goldkeys.keyid = this.rounddata.goldKeyResourceId
           this.$.goldkeys.serverip = this.rounddata.arbiter.machine_ip
 
-          this.$.goldkeys.clientid = 'ocu-001'
-          this.goldOcu1DownloadLink = this.$.goldkeys.clienturl
+          this.set('goldoculinks', [])
+          for (var i = 0; i < 5; ++i) {
+            this.$.goldkeys.clientid = 'ocu-' + i
+            this.push('goldoculinks', this.$.goldkeys.clienturl)
+          }
         }
       },
 
@@ -376,6 +439,8 @@
             "Request to launch an arbiter for \"" + this.rounddata.name +
             "\" has been sent.", type: "msg"})
       },
+
+      // Response from keys server with resource id
       _onGoldKeyGenerated: function(e) {
         const key = e.detail.id
         console.log('Got the gold key: ' + key, ' ', e.detail.serverRoute)
@@ -383,6 +448,8 @@
         this.set('rounddata.goldKeyResourceId', key)
         this.fire('rounddataupdated', this.rounddata)
       },
+
+      // Response from keys server with resource id
        _onBlueKeyGenerated: function(e) {
         const key = e.detail.id
         console.log('Got the blue key: ' + key, ' ', e.detail.serverRoute)
@@ -631,20 +698,7 @@
 
       },
 
-      // Callback when user presses blue key button
-      _onDownloadKeysBlue: function(e) {
-
-        // Request keys from key server
-
-        this.fire('notification', 'Asked to download OCU keys for Blue Team')
-      },
-
-      // Callback when user presses gold key button
-      _onDownloadKeysGold: function(e) {
-        // TODO: Request keys from key server
-        this.fire('notification', 'Asked to download OCU keys for Gold Team')
-      },
-
+      // Properties
       properties: {
         portalurl: {
           type: String,
