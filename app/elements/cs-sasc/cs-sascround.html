@@ -422,7 +422,7 @@
         let data =  {
           token: this.token,
           region: "us-west-1",
-          image: "ami-d1e0b5b1", // sasc c0.1.6e
+          image: this.machineImage,
           hardware: "m4.large",
           options: {
             role: 'arbiter',
@@ -470,7 +470,7 @@
         let data =  {
           token: this.token,
           region: "us-west-1",
-          image: "ami-d1e0b5b1", // sasc c0.1.6e
+          image: this.machineImage,
           hardware: "m4.large",
           options: {
             role: 'payload',
@@ -500,7 +500,7 @@
         let data =  {
           token: this.token,
           region: "us-west-1",
-          image: "ami-d1e0b5b1", // sasc c0.1.6e
+          image: this.machineImage,
           hardware: "m4.large",
           options: {
             role: 'payload',
@@ -749,6 +749,11 @@
           value: [],
           notify: true,
         },
+
+        machineImage: {
+          type: String,
+          value: "ami-7f23771f" // sasc v0.1.6f
+        }
       },
     });
   })();
