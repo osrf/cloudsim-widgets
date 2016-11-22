@@ -461,16 +461,22 @@
       // When blue launch button is pressed
       _onLaunchBlue(e) {
 
+        let url = this.keysurl + '/tap/sasc/client/' +
+            this.rounddata.blueKeyResourceId
+
+        // FIXME: miscount if button pressed many times fast
+        let id = 'payload-' + this.bluepayloads.length
+
         let data =  {
           token: this.token,
           region: "us-west-1",
-          image: "ami-4b37752b",
-          hardware: "t2.small",
+          image: "ami-d1e0b5b1", // sasc c0.1.6e
+          hardware: "m4.large",
           options: {
             role: 'payload',
-            team: 'blue',
-            keyName: this.rounddata.name,
-            keyServerUrl: this.keysurl,
+            client_route: url,
+            server_ip: this.rounddata.arbiter.machine_ip,
+            client_id: id,
             token: this.token,
           }
         }
@@ -485,16 +491,22 @@
       // When gold launch button is pressed
       _onLaunchGold(e) {
 
+        let url = this.keysurl + '/tap/sasc/client/' +
+            this.rounddata.goldKeyResourceId
+
+        // FIXME: miscount if button pressed many times fast
+        let id = 'payload-' + this.goldpayloads.length
+
         let data =  {
           token: this.token,
           region: "us-west-1",
-          image: "ami-4b37752b",
-          hardware: "t2.small",
+          image: "ami-d1e0b5b1", // sasc c0.1.6e
+          hardware: "m4.large",
           options: {
             role: 'payload',
-            team: 'gold',
-            keyName: this.rounddata.name,
-            keyServerUrl: this.keysurl,
+            client_route: url,
+            server_ip: this.rounddata.arbiter.machine_ip,
+            client_id: id,
             token: this.token,
           }
         }
