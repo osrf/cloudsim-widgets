@@ -400,11 +400,34 @@
 
       // Callback when the rounddata has been updated
       _onRounddataUpdated: function() {
-        if(this.rounddata.blueKeyResourceId === undefined) {
-          this.$.bluekeys.create("blue_" + this.roundid, 1196)
-        }
-        if(this.rounddata.goldKeyResourceId === undefined) {
-          this.$.goldkeys.create("gold_" + this.roundid, 1197)
+        if (!this.rounddata)
+          return
+
+        if (this.roundid != undefined && !this.requestedkeys &&
+          this.rounddata.blueuser && this.rounddata.golduser &&
+          !this.rounddata.blueKeyResourceId && !this.rounddata.goldKeyResourceId) {
+
+          this.requestedkeys = true
+
+          // blue
+          let bluedata = {
+            'name': 'blue_' + this.roundid,
+            'port': 1196,
+            'user': this.rounddata.blueuser
+          }
+
+          this.$.bluekeys.data = bluedata
+          this.$.bluekeys._createRequest()
+
+          // gold
+          let golddata = {
+            'name': 'gold_' + this.roundid,
+            'port': 1197,
+            'user': this.rounddata.golduser
+          }
+
+          this.$.goldkeys.data = golddata
+          this.$.goldkeys._createRequest()
         }
         if (this.rounddata.bluepayloads && this.rounddata.bluepayloads.length > 0) {
 
@@ -817,6 +840,7 @@
           type: String,
           value: '',
           notify: true,
+          observer: '_onRounddataUpdated'
         },
         machineimage: {
           type: String,
@@ -841,6 +865,10 @@
         goldsubnet: {
           type: String,
           value: '192.168.3',
+        },
+        requestedkeys: {
+          type: Boolean,
+          value: false,
         },
       },
     });
