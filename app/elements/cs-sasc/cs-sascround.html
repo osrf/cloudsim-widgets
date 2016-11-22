@@ -163,6 +163,7 @@
             <template is="dom-if" if="{{_isNotLaunched(rounddata.arbiter.status)}}">
               <paper-button
                 raised
+                disabled$=[[launchersdisabled]]
                 class="white"
                 on-tap="_onLaunchArbiter"
               >
@@ -235,6 +236,8 @@
                 <template is="dom-if" if="{{_isRunning(rounddata.arbiter.status)}}">
                   <paper-button
                     raised
+                    disabled$=[[launchersdisabled]]
+                    hidden$=[[hidebluelauncher]]
                     class="white"
                     title="Launch a new payload"
                     on-tap="_onLaunchBlue"
@@ -299,6 +302,8 @@
                 <template is="dom-if" if="{{_isRunning(rounddata.arbiter.status)}}">
                   <paper-button
                     raised
+                    disabled$=[[launchersdisabled]]
+                    hidden$=[[hidegoldlauncher]]
                     class="white"
                     title="Launch a new payload"
                     on-tap="_onLaunchGold"
@@ -385,10 +390,16 @@
         if(this.rounddata.goldKeyResourceId === undefined) {
           this.$.goldkeys.create("gold_" + this.roundid, 1197)
         }
-        if (this.rounddata.bluepayloads && this.rounddata.bluepayloads.length > 0)
+        if (this.rounddata.bluepayloads && this.rounddata.bluepayloads.length > 0) {
+
+          this.hidebluelauncher = true
           this.set('bluepayloads', this.rounddata.bluepayloads)
-        if (this.rounddata.goldpayloads && this.rounddata.goldpayloads.length > 0)
+        }
+        if (this.rounddata.goldpayloads && this.rounddata.goldpayloads.length > 0) {
+
+          this.hidegoldlauncher = true
           this.set('goldpayloads', this.rounddata.goldpayloads)
+        }
 
         if (this.rounddata.arbiter && this.rounddata.arbiter.machine_ip) {
           // Blue
@@ -413,8 +424,16 @@
         }
       },
 
+      // Enable / disable all 3 launchers
+      _enableLaunchers(enable) {
+        this.launchersdisabled = !enable
+      },
+
       // When arbiter launch button is pressed
       _onLaunchArbiter(e) {
+
+        // Disable all launchers until we get a response
+        this._enableLaunchers(false)
 
         let data =  {
           token: this.token,
@@ -458,11 +477,24 @@
       // When blue launch button is pressed
       _onLaunchBlue(e) {
 
+        // TODO: Change this when supporting multiple payloads
+        {
+          this.hidebluelauncher = true
+
+          if (this.bluepayloads.length > 0) {
+            console.log('Can\'t launch more than one payload at the moment.')
+            return
+          }
+
+          // let id = 'payload-' + this.bluepayloads.length
+        }
+        let id = 'payload'
+
+        // Disable all launchers until we get a response
+        this._enableLaunchers(false)
+
         let url = this.keysurl + '/tap/sasc/client/' +
             this.rounddata.blueKeyResourceId
-
-        // FIXME: miscount if button pressed many times fast
-        let id = 'payload-' + this.bluepayloads.length
 
         let data =  {
           token: this.token,
@@ -488,11 +520,24 @@
       // When gold launch button is pressed
       _onLaunchGold(e) {
 
+        // TODO: Change this when supporting multiple payloads
+        {
+          this.hidegoldlauncher = true
+
+          if (this.goldpayloads.length > 0) {
+            console.log('Can\'t launch more than one payload at the moment.')
+            return
+          }
+
+          // let id = 'payload-' + this.goldpayloads.length
+        }
+        let id = 'payload'
+
+        // Disable all launchers until we get a response
+        this._enableLaunchers(false)
+
         let url = this.keysurl + '/tap/sasc/client/' +
             this.rounddata.goldKeyResourceId
-
-        // FIXME: miscount if button pressed many times fast
-        let id = 'payload-' + this.goldpayloads.length
 
         let data =  {
           token: this.token,
@@ -525,9 +570,6 @@
           this.fire('notification', {msg: msg, type: "error"})
           return
         }
-
-      // FIXME: If different launch buttons are pressed one after another quickly,
-      // this.launching doesn't correspond to the one being launched anymore!!!!
 
         // Arbiter
         if (this.launching == 'arbiter') {
@@ -594,6 +636,10 @@
           this.fire('notification', {msg: 'Gold payload for "' + this.rounddata.name +
               '" has been launched.', type: "msg"})
         }
+
+        // Reenable all launchers
+        this._enableLaunchers(true)
+        this.launching = ''
       },
 
       // When user presses Finish Round button
@@ -759,7 +805,19 @@
         machineimage: {
           type: String,
           value: '',
-        }
+        },
+        launchersdisabled: {
+          type: Boolean,
+          value: false,
+        },
+        hidebluelauncher: {
+          type: Boolean,
+          value: false,
+        },
+        hidegoldlauncher: {
+          type: Boolean,
+          value: false,
+        },
       },
     });
   })();
