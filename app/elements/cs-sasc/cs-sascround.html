@@ -28,12 +28,14 @@
       color: #fff;
     }
     .blue {
-      background-color: rgb(60, 107, 177);
-      color: #fff;
+      background-color: rgb(145, 189, 255);
+      color: #595959;
+      --iron-icon-fill-color: #415B90;
     }
     .gold {
-      background-color: rgb(126, 111, 57);
-      color: #fff;
+      background-color: rgb(240, 223, 161);
+      color: #595959;
+      --iron-icon-fill-color: #897613;
     }
     .white {
       background-color: #fff;
@@ -73,7 +75,7 @@
     }
     .paper-header > p {
       margin-bottom: 1em;
-      color: #ddd;
+      color: #6f6f6f;
       text-align: center;
     }
     .content {
@@ -108,10 +110,10 @@
     }
     .dropdown {
       --paper-input-container-label: {
-        color: #fff;
+        color: #595959;
       };
       --paper-input-container-input: {
-        color: #fff;
+        color: #595959;
       }
       --paper-input-container-underline: {
         display: none;
@@ -163,6 +165,7 @@
             <template is="dom-if" if="{{_isNotLaunched(rounddata.arbiter.status)}}">
               <paper-button
                 raised
+                disabled$=[[launchersdisabled]]
                 class="white"
                 on-tap="_onLaunchArbiter"
               >
@@ -226,7 +229,10 @@
         <div class="about-half">
           <paper-header-panel class="blue">
             <div class="paper-header">
-              <h4>Blue</h4>
+              <h4>
+                <iron-icon icon="hardware:toys" class="blue"></iron-icon>
+                Blue
+              </h4>
               <p>[[rounddata.blueuser]]</p>
 
               <div class="horizontal">
@@ -235,6 +241,8 @@
                 <template is="dom-if" if="{{_isRunning(rounddata.arbiter.status)}}">
                   <paper-button
                     raised
+                    disabled$=[[launchersdisabled]]
+                    hidden$=[[hidebluelauncher]]
                     class="white"
                     title="Launch a new payload"
                     on-tap="_onLaunchBlue"
@@ -278,6 +286,10 @@
               <cs-sascpayload
                 index="[[index]]"
                 data="[[item]]"
+                team="blue"
+                subnet="[[bluesubnet]]"
+                arbiter_public_ip="[[rounddata.arbiter.machine_ip]]"
+                token="[[token]]"
               ></cs-sascpayload>
             </template>
             <div class="space"></div>
@@ -290,7 +302,10 @@
         <div class="about-half">
           <paper-header-panel class="gold">
             <div class="paper-header">
-              <h4>Gold</h4>
+              <h4>
+                <iron-icon icon="hardware:toys" class="gold"></iron-icon>
+                Gold
+              </h4>
               <p>[[rounddata.golduser]]</p>
 
               <div class="horizontal">
@@ -299,6 +314,8 @@
                 <template is="dom-if" if="{{_isRunning(rounddata.arbiter.status)}}">
                   <paper-button
                     raised
+                    disabled$=[[launchersdisabled]]
+                    hidden$=[[hidegoldlauncher]]
                     class="white"
                     title="Launch a new payload"
                     on-tap="_onLaunchGold"
@@ -342,6 +359,10 @@
               <cs-sascpayload
                 index="[[index]]"
                 data="[[item]]"
+                team="gold"
+                subnet="[[goldsubnet]]"
+                arbiter_public_ip="[[rounddata.arbiter.ip]]"
+                token="[[token]]"
               ></cs-sascpayload>
             </template>
             <div class="space"></div>
@@ -385,10 +406,16 @@
         if(this.rounddata.goldKeyResourceId === undefined) {
           this.$.goldkeys.create("gold_" + this.roundid, 1197)
         }
-        if (this.rounddata.bluepayloads && this.rounddata.bluepayloads.length > 0)
+        if (this.rounddata.bluepayloads && this.rounddata.bluepayloads.length > 0) {
+
+          this.hidebluelauncher = true
           this.set('bluepayloads', this.rounddata.bluepayloads)
-        if (this.rounddata.goldpayloads && this.rounddata.goldpayloads.length > 0)
+        }
+        if (this.rounddata.goldpayloads && this.rounddata.goldpayloads.length > 0) {
+
+          this.hidegoldlauncher = true
           this.set('goldpayloads', this.rounddata.goldpayloads)
+        }
 
         if (this.rounddata.arbiter && this.rounddata.arbiter.machine_ip) {
           // Blue
@@ -413,8 +440,16 @@
         }
       },
 
+      // Enable / disable all 3 launchers
+      _enableLaunchers(enable) {
+        this.launchersdisabled = !enable
+      },
+
       // When arbiter launch button is pressed
       _onLaunchArbiter(e) {
+
+        // Disable all launchers until we get a response
+        this._enableLaunchers(false)
 
         let data =  {
           token: this.token,
@@ -425,8 +460,8 @@
             role: 'arbiter',
             "blue_route": this.rounddata.blueServerRoute,
             "gold_route": this.rounddata.goldServerRoute,
-            "blue_subnet" : "192.168.2",
-            "gold_subnet" : "192.168.3",
+            "blue_subnet" : this.bluesubnet,
+            "gold_subnet" : this.goldsubnet,
             "token": this.token,
           }
         }
@@ -458,11 +493,24 @@
       // When blue launch button is pressed
       _onLaunchBlue(e) {
 
+        // TODO: Change this when supporting multiple payloads
+        {
+          this.hidebluelauncher = true
+
+          if (this.bluepayloads.length > 0) {
+            console.log('Can\'t launch more than one payload at the moment.')
+            return
+          }
+
+          // let id = 'payload-' + this.bluepayloads.length
+        }
+        let id = 'payload'
+
+        // Disable all launchers until we get a response
+        this._enableLaunchers(false)
+
         let url = this.keysurl + '/tap/sasc/client/' +
             this.rounddata.blueKeyResourceId
-
-        // FIXME: miscount if button pressed many times fast
-        let id = 'payload-' + this.bluepayloads.length
 
         let data =  {
           token: this.token,
@@ -488,11 +536,24 @@
       // When gold launch button is pressed
       _onLaunchGold(e) {
 
+        // TODO: Change this when supporting multiple payloads
+        {
+          this.hidegoldlauncher = true
+
+          if (this.goldpayloads.length > 0) {
+            console.log('Can\'t launch more than one payload at the moment.')
+            return
+          }
+
+          // let id = 'payload-' + this.goldpayloads.length
+        }
+        let id = 'payload'
+
+        // Disable all launchers until we get a response
+        this._enableLaunchers(false)
+
         let url = this.keysurl + '/tap/sasc/client/' +
             this.rounddata.goldKeyResourceId
-
-        // FIXME: miscount if button pressed many times fast
-        let id = 'payload-' + this.goldpayloads.length
 
         let data =  {
           token: this.token,
@@ -525,9 +586,6 @@
           this.fire('notification', {msg: msg, type: "error"})
           return
         }
-
-      // FIXME: If different launch buttons are pressed one after another quickly,
-      // this.launching doesn't correspond to the one being launched anymore!!!!
 
         // Arbiter
         if (this.launching == 'arbiter') {
@@ -594,6 +652,10 @@
           this.fire('notification', {msg: 'Gold payload for "' + this.rounddata.name +
               '" has been launched.', type: "msg"})
         }
+
+        // Reenable all launchers
+        this._enableLaunchers(true)
+        this.launching = ''
       },
 
       // When user presses Finish Round button
@@ -759,7 +821,27 @@
         machineimage: {
           type: String,
           value: '',
-        }
+        },
+        launchersdisabled: {
+          type: Boolean,
+          value: false,
+        },
+        hidebluelauncher: {
+          type: Boolean,
+          value: false,
+        },
+        hidegoldlauncher: {
+          type: Boolean,
+          value: false,
+        },
+        bluesubnet: {
+          type: String,
+          value: '192.168.2',
+        },
+        goldsubnet: {
+          type: String,
+          value: '192.168.3',
+        },
       },
     });
   })();
