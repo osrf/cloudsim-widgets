@@ -1,0 +1,91 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-sascpayload">
+  <style>
+    .quarter {
+      max-width: 60%;
+      margin-right: 2%;
+      margin-left: 2%;
+      margin-bottom: 1em;
+    }
+    .blue {
+      background-color: rgb(68, 138, 201);
+      color: #fff;
+    }
+    .property {
+      font-weight: bold;
+      color: #7a7a7a;
+    }
+    .paper-header {
+      padding: 1em;
+    }
+    .paper-header > h5 {
+      margin: 0;
+    }
+    .content {
+      padding: 1em;
+      height: 100%;
+    }
+  </style>
+  <template>
+
+    <center>
+      <paper-material
+        class="quarter"
+      >
+        <div>
+
+          <paper-header-panel class="blue">
+            <div class="paper-header">
+              <h5>Payload ([[index]])</h5>
+            </div>
+          </paper-header-panel>
+
+          <div class="content">
+            <span class="property">Status: </span> [[data.status]]
+          </div>
+
+        </div>
+      </paper-material>
+    </center>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-sascpayload',
+
+      // Attached
+      attached: function() {
+      },
+
+      // Check if it's running
+      _isRunning: function(itemStatus) {
+        return (itemStatus === 'RUNNING') ? true : false;
+      },
+
+      // Check if it's not launched
+      _isNotLaunched: function(itemStatus) {
+        return itemStatus == 'NOT LAUNCHED' ? true : false;
+      },
+
+      properties: {
+        index: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        data: {
+          type: Object,
+          value: {},
+          notify: true,
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>

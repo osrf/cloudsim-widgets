@@ -87,6 +87,30 @@
       }, 100);
     });
 
+    page('/sasc', function() {
+      if (app.loggedin)
+      {
+        app.topLevelRoute = 'secure';
+
+        if (app.issasccompetitor || app.issascadmin)
+        {
+          app.secureRoute = 'sasc';
+          app.sascRoute = 'kiosk';
+        }
+        else
+        {
+          app.secureRoute = 'dashboard';
+        }
+      }
+      else
+      {
+        app.topLevelRoute = 'home';
+      }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
+    });
+
     // 404
     page('*', function() {
       page.redirect(app.baseUrl);

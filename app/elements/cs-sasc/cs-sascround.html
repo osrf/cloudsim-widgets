@@ -1,0 +1,767 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-sascround">
+  <style>
+    .space {
+      @apply(--layout-flex);
+    }
+    .about-half {
+      min-width: 45%;
+      margin-right: 2%;
+      margin-left: 2%;
+      @apply(--layout-self-start);
+    }
+    .start {
+      @apply(--layout-self-start);
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+    .vertical {
+      @apply(--layout-vertical);
+      @apply(--layout-center);
+    }
+    .cloudsim-blue {
+      background-color: rgb(68, 138, 201);
+      color: #fff;
+    }
+    .blue {
+      background-color: rgb(60, 107, 177);
+      color: #fff;
+    }
+    .gold {
+      background-color: rgb(126, 111, 57);
+      color: #fff;
+    }
+    .white {
+      background-color: #fff;
+      color: #222;
+    }
+    .grey {
+      background-color: #d7d7d7;
+      color: rgb(68, 138, 201);
+    }
+    .red {
+      --iron-icon-fill-color: #f00;
+    }
+    .property {
+      font-weight: bold;
+      color: #7a7a7a;
+    }
+    .floating {
+      margin-top: -1.2em;
+      margin-left: 1em;
+      z-index: 1000;
+    }
+    .key {
+      margin-top: -3em;
+      margin-left: auto;
+      margin-right: 1em;
+      z-index: 1000;
+    }
+    .paper-header {
+      padding: 1em;
+    }
+    .paper-header > h1 {
+      text-align: center;
+    }
+    .paper-header > h4 {
+      margin: 0;
+      text-align: center;
+    }
+    .paper-header > p {
+      margin-bottom: 1em;
+      color: #ddd;
+      text-align: center;
+    }
+    .content {
+      padding: 1em;
+      height: 100%;
+    }
+    .new-content {
+      width: 50%;
+    }
+    .box-header > h4 {
+      color: #eee;
+    }
+    .box-header {
+      background-color: rgb(68, 138, 201);
+      color: #353535;
+      margin: 0;
+      padding-right: 1em;
+      padding-left: 1em;
+    }
+    .box-content {
+      overflow: auto;
+      margin: 0;
+      padding: 1em;
+    }
+    .box {
+      max-width: 70%;
+      min-width: 30%;
+      margin-top: 1em;
+    }
+    .full {
+      min-width: 100%;
+    }
+    .dropdown {
+      --paper-input-container-label: {
+        color: #fff;
+      };
+      --paper-input-container-input: {
+        color: #fff;
+      }
+      --paper-input-container-underline: {
+        display: none;
+      };
+      max-width: 6em;
+    }
+    .ocu-item {
+      text-decoration: none;
+      color: #222;
+    }
+  </style>
+  <template>
+
+    <!-- For launching machines -->
+    <gz-resources
+      id="launchresources"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="simulator"
+      on-resourcesupdated="_onSimulatorsUpdated"
+      on-resource="_refresh"
+      on-created="_onLaunched"
+    ></gz-resources>
+
+    <!-- For getting VPN keys -->
+    <gz-keys
+      id="bluekeys"
+      url="[[keysurl]]"
+      token="[[token]]"
+      keytype="tap/sasc"
+      on-created="_onBlueKeyGenerated"
+    ></gz-keys>
+    <gz-keys
+      id="goldkeys"
+      url="[[keysurl]]"
+      token="[[token]]"
+      keytype="tap/sasc"
+      on-created="_onGoldKeyGenerated"
+    ></gz-keys>
+
+    <center>
+
+      <!-- ARBITER -->
+      <template is="dom-if" if="[[rounddata.arbiter]]">
+        <paper-material elevation="1" class="box">
+          <div class="box-header horizontal">
+            <h4>Arbiter: "[[rounddata.name]]"</h4>
+            <div class="space"></div>
+            <template is="dom-if" if="{{_isNotLaunched(rounddata.arbiter.status)}}">
+              <paper-button
+                raised
+                class="white"
+                on-tap="_onLaunchArbiter"
+              >
+                Launch
+              </paper-button>
+            </template>
+            <template is="dom-if" if="{{!_isNotLaunched(rounddata.arbiter.status)}}">
+              <template is="dom-if" if="{{!_isFinished()}}">
+                <paper-button
+                  raised
+                  class="white"
+                  on-tap="_onFinish"
+                  title="Kill all machines in this round"
+                >
+                  <iron-icon icon="icons:close" class="red"></iron-icon>
+                  Finish round
+                </paper-button>
+              </template>
+            </template>
+            <template is="dom-if" if="{{_isFinished()}}">
+              <paper-button
+                flat
+                class="cloudsim-blue"
+                title="Round has been finished"
+              >
+                Round is finished
+              </paper-button>
+            </template>
+          </div>
+          <div class="box-content">
+            <div class="vertical">
+              <div class="horizontal start">
+                <span class="property">Status: </span> [[rounddata.arbiter.status]]
+              </div>
+              <template is="dom-if" if="{{_isRunning(rounddata.arbiter.status)}}">
+                <div class="horizontal start">
+                  <span class="property">Public IP: </span>
+                  [[rounddata.arbiter.machine_ip]]
+                </div>
+                <div class="horizontal start">
+                  <span class="property">SSH keys: </span>
+                  <cs-downloadkeysbutton
+                    simurl="[[rounddata.arbiter.machine_ip]]"
+                    token="[[token]]"
+                  ></cs-downloadkeysbutton>
+                <div>
+              </template>
+            <div>
+            <div class="space"></div>
+          </div>
+        </paper-material>
+      </template>
+      <!-- /ARBITER -->
+
+    </center>
+
+    <div class="horizontal box full">
+
+      <!-- BLUE TEAM -->
+      <template is="dom-if" if="[[_isUser(rounddata.blueuser)]]">
+        <div class="about-half">
+          <paper-header-panel class="blue">
+            <div class="paper-header">
+              <h4>Blue</h4>
+              <p>[[rounddata.blueuser]]</p>
+
+              <div class="horizontal">
+
+                <!-- LAUNCH PAYLOADS -->
+                <template is="dom-if" if="{{_isRunning(rounddata.arbiter.status)}}">
+                  <paper-button
+                    raised
+                    class="white"
+                    title="Launch a new payload"
+                    on-tap="_onLaunchBlue"
+                  >Launch a payload</paper-button>
+
+                  <div class="space"></div>
+
+                  <!-- OCU keys -->
+                  <paper-dropdown-menu
+                    label="OCU keys"
+                    class="dropdown"
+                  >
+                    <paper-listbox
+                      class="dropdown-content"
+                    >
+                      <template is="dom-repeat" items="[[blueoculinks]]">
+                        <a class="ocu-item" href="[[item]]" target="_blank">
+                          <paper-item>ocu-[[index]]</paper-item>
+                        </a>
+                      </template>
+                    </paper-listbox>
+
+                  </paper-dropdown-menu>
+                </template>
+
+              </div>
+
+            </div>
+          </paper-header-panel>
+
+          <div class="content">
+            <template is="dom-if" if="{{_isEmpty(bluepayloads)}}">
+              There are no blue payloads running yet.
+            </template>
+            <template is="dom-if" if="[[rounddata.arbiter]]">
+              <template is="dom-if" if="{{_isNotLaunched(rounddata.arbiter.status)}}">
+                <br/><br/>Arbiter must be running before launching team machines.
+              </template>
+            </template>
+            <template is="dom-repeat" items="{{bluepayloads}}">
+              <cs-sascpayload
+                index="[[index]]"
+                data="[[item]]"
+              ></cs-sascpayload>
+            </template>
+            <div class="space"></div>
+          </div>
+        </div>
+      </template>
+
+      <!-- GOLD TEAM -->
+      <template is="dom-if" if="[[_isUser(rounddata.golduser)]]">
+        <div class="about-half">
+          <paper-header-panel class="gold">
+            <div class="paper-header">
+              <h4>Gold</h4>
+              <p>[[rounddata.golduser]]</p>
+
+              <div class="horizontal">
+
+                <!-- LAUNCH PAYLOADS -->
+                <template is="dom-if" if="{{_isRunning(rounddata.arbiter.status)}}">
+                  <paper-button
+                    raised
+                    class="white"
+                    title="Launch a new payload"
+                    on-tap="_onLaunchGold"
+                  >Launch a payload</paper-button>
+
+                  <div class="space"></div>
+
+                  <!-- OCU keys -->
+                  <paper-dropdown-menu
+                    label="OCU keys"
+                    class="dropdown"
+                  >
+                    <paper-listbox
+                      class="dropdown-content"
+                    >
+                      <template is="dom-repeat" items="[[goldoculinks]]">
+                        <a class="ocu-item" href="[[item]]" target="_blank">
+                          <paper-item>ocu-[[index]]</paper-item>
+                        </a>
+                      </template>
+                    </paper-listbox>
+
+                  </paper-dropdown-menu>
+                </template>
+
+              </div>
+
+            </div>
+          </paper-header-panel>
+
+          <div class="content">
+            <template is="dom-if" if="{{_isEmpty(goldpayloads)}}">
+              There are no gold payloads running yet.
+            </template>
+            <template is="dom-if" if="[[rounddata.arbiter]]">
+              <template is="dom-if" if="{{_isNotLaunched(rounddata.arbiter.status)}}">
+                <br/><br/>Arbiter must be running before launching team machines.
+              </template>
+            </template>
+            <template is="dom-repeat" items="{{goldpayloads}}">
+              <cs-sascpayload
+                index="[[index]]"
+                data="[[item]]"
+              ></cs-sascpayload>
+            </template>
+            <div class="space"></div>
+          </div>
+        </div>
+      </template>
+
+    </div>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-sascround',
+
+      // Attached
+      attached: function() {
+      },
+
+      // Callback when the token has been updated
+      _onTokenUpdated: function() {
+        if (this.token !== "") {
+          this.$.launchresources.connect();
+          this._refresh()
+        }
+      },
+
+      // Ask for new info on machines
+      _refresh() {
+        this.$.launchresources.getAll();
+      },
+
+      // Callback when the rounddata has been updated
+      _onRounddataUpdated: function() {
+        if(this.rounddata.blueKeyResourceId === undefined) {
+          this.$.bluekeys.create("blue_" + this.roundid, 1196)
+        }
+        if(this.rounddata.goldKeyResourceId === undefined) {
+          this.$.goldkeys.create("gold_" + this.roundid, 1197)
+        }
+        if (this.rounddata.bluepayloads && this.rounddata.bluepayloads.length > 0)
+          this.set('bluepayloads', this.rounddata.bluepayloads)
+        if (this.rounddata.goldpayloads && this.rounddata.goldpayloads.length > 0)
+          this.set('goldpayloads', this.rounddata.goldpayloads)
+
+        if (this.rounddata.arbiter && this.rounddata.arbiter.machine_ip) {
+          // Blue
+          this.$.bluekeys.keyid = this.rounddata.blueKeyResourceId
+          this.$.bluekeys.serverip = this.rounddata.arbiter.machine_ip
+
+          this.set('blueoculinks', [])
+          for (var i = 0; i < 5; ++i) {
+            this.$.bluekeys.clientid = 'ocu-' + i
+            this.push('blueoculinks', this.$.bluekeys.clienturl)
+          }
+
+          // Gold
+          this.$.goldkeys.keyid = this.rounddata.goldKeyResourceId
+          this.$.goldkeys.serverip = this.rounddata.arbiter.machine_ip
+
+          this.set('goldoculinks', [])
+          for (var i = 0; i < 5; ++i) {
+            this.$.goldkeys.clientid = 'ocu-' + i
+            this.push('goldoculinks', this.$.goldkeys.clienturl)
+          }
+        }
+      },
+
+      // When arbiter launch button is pressed
+      _onLaunchArbiter(e) {
+
+        let data =  {
+          token: this.token,
+          region: "us-west-1",
+          image: this.machineimage,
+          hardware: "m4.large",
+          options: {
+            role: 'arbiter',
+            "blue_route": this.rounddata.blueServerRoute,
+            "gold_route": this.rounddata.goldServerRoute,
+            "blue_subnet" : "192.168.2",
+            "gold_subnet" : "192.168.3",
+            "token": this.token,
+          }
+        }
+        this.launching = 'arbiter'
+        this.$.launchresources.create(data);
+        this.fire('notification', {msg:
+            "Request to launch an arbiter for \"" + this.rounddata.name +
+            "\" has been sent.", type: "msg"})
+      },
+
+      // Response from keys server with resource id
+      _onGoldKeyGenerated: function(e) {
+        const key = e.detail.id
+        this.set('rounddata.goldServerRoute', e.detail.serverRoute)
+        this.set('rounddata.goldKeyResourceId', key)
+        this._onRounddataUpdated()
+        this.fire('rounddataupdated', this.rounddata)
+      },
+
+      // Response from keys server with resource id
+       _onBlueKeyGenerated: function(e) {
+        const key = e.detail.id
+        this.set('rounddata.blueServerRoute', e.detail.serverRoute)
+        this.set('rounddata.blueKeyResourceId', key)
+        this._onRounddataUpdated()
+        this.fire('rounddataupdated', this.rounddata)
+      },
+
+      // When blue launch button is pressed
+      _onLaunchBlue(e) {
+
+        let url = this.keysurl + '/tap/sasc/client/' +
+            this.rounddata.blueKeyResourceId
+
+        // FIXME: miscount if button pressed many times fast
+        let id = 'payload-' + this.bluepayloads.length
+
+        let data =  {
+          token: this.token,
+          region: "us-west-1",
+          image: this.machineimage,
+          hardware: "m4.large",
+          options: {
+            role: 'payload',
+            client_route: url,
+            server_ip: this.rounddata.arbiter.machine_ip,
+            client_id: id,
+            token: this.token,
+          }
+        }
+
+        this.launching = 'blue'
+        this.$.launchresources.create(data);
+        this.fire('notification', {msg:
+            "Request to launch a blue payload for \"" + this.rounddata.name +
+            "\" has been sent.", type: "msg"})
+      },
+
+      // When gold launch button is pressed
+      _onLaunchGold(e) {
+
+        let url = this.keysurl + '/tap/sasc/client/' +
+            this.rounddata.goldKeyResourceId
+
+        // FIXME: miscount if button pressed many times fast
+        let id = 'payload-' + this.goldpayloads.length
+
+        let data =  {
+          token: this.token,
+          region: "us-west-1",
+          image: this.machineimage,
+          hardware: "m4.large",
+          options: {
+            role: 'payload',
+            client_route: url,
+            server_ip: this.rounddata.arbiter.machine_ip,
+            client_id: id,
+            token: this.token,
+          }
+        }
+
+        this.launching = 'gold'
+        this.$.launchresources.create(data);
+        this.fire('notification', {msg:
+            "Request to launch a gold payload for \"" + this.rounddata.name +
+            "\" has been sent.", type: "msg"})
+      },
+
+      // Callback once machine has been launched
+      _onLaunched: function(e) {
+        let success = e.detail.success
+        let msg = e.detail.message
+
+        if (success != undefined && success == false)
+        {
+          this.fire('notification', {msg: msg, type: "error"})
+          return
+        }
+
+      // FIXME: If different launch buttons are pressed one after another quickly,
+      // this.launching doesn't correspond to the one being launched anymore!!!!
+
+        // Arbiter
+        if (this.launching == 'arbiter') {
+
+          // Update round info on widgets server
+          let data = {
+            arbiter: {
+              id: e.detail.id,
+              machine_ip: e.detail.machine_ip,
+              status: e.detail.status
+            }
+          }
+
+          this.set('rounddata.arbiter', data.arbiter)
+          this._onRounddataUpdated()
+          this.fire('rounddataupdated', this.rounddata)
+
+          this.fire('notification', {msg: 'Arbiter for "' + this.rounddata.name +
+              '" has been launched.', type: "msg"})
+        }
+        else if (this.launching == 'blue') {
+
+          // Update round info on widgets server
+          let data = {
+            id: e.detail.id,
+            machine_ip: e.detail.machine_ip,
+            status: e.detail.status
+          }
+
+          // Local array
+          this.push('bluepayloads', data)
+
+          // Data structure that will be shared
+          if (!this.rounddata.bluepayloads)
+            this.rounddata.bluepayloads = []
+          this.rounddata.bluepayloads.push(data)
+
+          this._onRounddataUpdated()
+          this.fire('rounddataupdated', this.rounddata)
+
+          this.fire('notification', {msg: 'Blue payload for "' + this.rounddata.name +
+              '" has been launched.', type: "msg"})
+        }
+        else if (this.launching == 'gold') {
+
+          // Update round info on widgets server
+          let data = {
+            id: e.detail.id,
+            machine_ip: e.detail.machine_ip,
+            status: e.detail.status
+          }
+
+          // Local array
+          this.push('goldpayloads', data)
+
+          // Data structure that will be shared
+          if (!this.rounddata.goldpayloads)
+            this.rounddata.goldpayloads = []
+          this.rounddata.goldpayloads.push(data)
+
+          this._onRounddataUpdated()
+          this.fire('rounddataupdated', this.rounddata)
+
+          this.fire('notification', {msg: 'Gold payload for "' + this.rounddata.name +
+              '" has been launched.', type: "msg"})
+        }
+      },
+
+      // When user presses Finish Round button
+      _onFinish: function() {
+        // Arbiter
+        if (this.rounddata.arbiter)
+          this.$.launchresources.del(this.rounddata.arbiter.id);
+
+        // Blue
+        if (this.rounddata.bluepayloads) {
+          for (var i = 0; i < this.rounddata.bluepayloads.length; ++i) {
+            this.$.launchresources.del(this.rounddata.bluepayloads[i].id);
+          }
+        }
+
+        // Gold
+        if (this.rounddata.goldpayloads) {
+          for (var i = 0; i < this.rounddata.goldpayloads.length; ++i) {
+            this.$.launchresources.del(this.rounddata.goldpayloads[i].id);
+          }
+        }
+
+        // FIXME: This is not forcing the html to reevaluate,
+        // "Round is finished" will only show on refresh
+        this.set('rounddata.finished', true)
+        this._onRounddataUpdated()
+        this.fire('rounddataupdated', this.rounddata)
+
+        this.fire('notification', {msg:
+            'Requested to kill all machines for round "' +
+            this.rounddata.name +'"', type: "msg"})
+      },
+
+      // Check if it's running
+      _isRunning: function(itemStatus) {
+        return (itemStatus === 'RUNNING') ? true : false;
+      },
+
+      // Check if it's not launched
+      _isNotLaunched: function(itemStatus) {
+        return itemStatus == 'NOT LAUNCHED' ? true : false;
+      },
+
+      // Check if the current user is the given user
+      _isUser: function(user) {
+        return user === this.currentuser || this.rounddata.arbiter
+      },
+
+      // Check if an array is empty
+      _isEmpty: function(a) {
+        return a.length == 0
+      },
+
+      // Check if round is finished
+      _isFinished: function() {
+        return this.rounddata.finished
+      },
+
+      // Callback when a simulator has been updated from the portal
+      _onSimulatorsUpdated: function(e) {
+        let simulators = e.detail
+
+        let that = this
+        // Arbiter
+        if (this.rounddata.arbiter) {
+
+          let sim = simulators.find(function(s){
+            return s.name === that.rounddata.arbiter.id
+          })
+          if (sim) {
+            this.set('rounddata.arbiter', sim.data)
+            this._onRounddataUpdated()
+            this.fire('rounddataupdated', this.rounddata)
+          }
+        }
+
+        // Blue
+        if (this.bluepayloads.length > 0) {
+
+          for (var i = 0; i < this.bluepayloads.length; ++i) {
+
+            let sim = simulators.find(function(s){
+              return s.name === that.bluepayloads[i].id
+            })
+            if (sim)
+              this.bluepayloads[i] = sim.data
+          }
+        }
+
+        // Hack needed for arrays to update
+        let b_copy = []
+        for (var i = 0; i < this.bluepayloads.length; ++i) {
+          b_copy.push(this.bluepayloads[i])
+        }
+        this.set('bluepayloads', b_copy)
+
+        // Gold
+        if (this.goldpayloads.length > 0) {
+
+          for (var i = 0; i < this.goldpayloads.length; ++i) {
+
+            let sim = simulators.find(function(s){
+              return s.name === that.goldpayloads[i].id
+            })
+            if (sim)
+              this.goldpayloads[i] = sim.data
+          }
+        }
+
+        // Hack needed for arrays to update
+        let g_copy = []
+        for (var i = 0; i < this.goldpayloads.length; ++i) {
+          g_copy.push(this.goldpayloads[i])
+        }
+        this.set('goldpayloads', g_copy)
+
+      },
+
+      // Properties
+      properties: {
+        portalurl: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        keysurl: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        token: {
+          type: String,
+          value: '',
+          notify: true,
+          observer: '_onTokenUpdated'
+        },
+        rounddata: {
+          type: Object,
+          value: {},
+          notify: true,
+          observer: '_onRounddataUpdated'
+        },
+        launching: {
+          type: String,
+          value: '',
+          notify: true,
+        },
+        bluepayloads: {
+          type: Array,
+          value: [],
+          notify: true,
+        },
+        goldpayloads: {
+          type: Array,
+          value: [],
+          notify: true,
+        },
+        roundid: {
+          type: String,
+          value: '',
+          notify: true,
+        },
+        machineimage: {
+          type: String,
+          value: '',
+        }
+      },
+    });
+  })();
+  </script>
+</dom-module>

@@ -1,0 +1,345 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-sasckiosk">
+  <style>
+    :root {
+      --paper-tab-ink: #fff;
+      --paper-tabs-selection-bar-color: #fff;
+      --paper-tabs: {
+        color: #fff;
+      }
+    }
+    .title {
+      font-size: 2em;
+    }
+    .space {
+      @apply(--layout-flex);
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+    .vertical {
+      @apply(--layout-vertical);
+      @apply(--layout-center);
+    }
+    .blue {
+      background-color: rgb(68, 138, 201);
+      color: #fff;
+    }
+    .grey {
+      background-color: #d7d7d7;
+      color: rgb(68, 138, 201);
+    }
+    .floating {
+      margin-top: -1.2em;
+      margin-left: 1em;
+      z-index: 1000;
+    }
+    .paper-header {
+      padding: 1em;
+    }
+    .paper-header > h1 {
+      text-align: center;
+    }
+    .paper-header > h4 {
+      margin: 0;
+      text-align: center;
+    }
+    .paper-header > p {
+      margin-bottom: 0;
+      color: #ddd;
+      text-align: center;
+    }
+    .content {
+      padding: 1em;
+      height: 100%;
+    }
+    paper-tabs {
+      margin-top: -69px;
+      margin-left: 20px;
+    }
+    .new-content {
+      width: 50%;
+    }
+  </style>
+  <template>
+
+    <!-- For managing rounds -->
+    <gz-resources
+      id="roundsresources"
+      url="[[baseUrl]]"
+      token="[[token]]"
+      resourcename="sascround"
+      on-created="_onNewRound"
+      on-resourcesupdated="_onAllRounds"
+      on-updated="_onUpdateComplete"
+    ></gz-resources>
+
+    <!-- To get competitors list -->
+    <gz-resources
+      id="competitorsresources"
+      url="[[authurl]]"
+      token="[[token]]"
+      resourcename="group"
+      on-resourcesupdated="_onGroups"
+    ></gz-resources>
+
+    <paper-header-panel class="blue">
+      <div class="paper-header">
+        <h1 class="title">Rounds</h1>
+      </div>
+    </paper-header-panel>
+
+    <paper-fab
+      mini
+      class="grey floating"
+      icon="icons:add"
+      title="Start a new round"
+      on-tap="_onNew"
+    ></paper-fab>
+
+    <paper-tabs scrollable attr-for-selected="value" selected="{{currentpage}}">
+      <template is="dom-repeat" items="{{rounds}}">
+        <paper-tab value="[[item.data.name]]">[[item.data.name]]</paper-tab>
+      </template>
+    </paper-tabs>
+
+    <iron-pages attr-for-selected="data-route" selected="{{currentpage}}">
+
+      <section data-route="empty">
+        <center>
+          <p>You have no rounds running.</p>
+          <paper-button flat on-tap="_onNew">Start one now</paper-button></p>
+        </center>
+      </section>
+
+      <section data-route="new">
+        <center>
+          <div class="new-content">
+            <p>Start a new round.</p>
+
+            <paper-input value="{{roundname}}" label="Round name" required></paper-input>
+
+            <div class="horizontal">
+              <p>Blue team:</p>
+              <div class="space"></div>
+              <paper-dropdown-menu label="Competitor">
+                <paper-listbox
+                  class="dropdown-content"
+                  attr-for-selected="value"
+                  selected="{{blueuser}}"
+                >
+                  <template is="dom-repeat" items="[[competitors]]">
+                    <paper-item value="[[item]]">[[item]]</paper-item>
+                  </template>
+                </paper-listbox>
+              </paper-dropdown-menu>
+            </div>
+
+            <div class="horizontal">
+              <p>Gold team:</p>
+              <div class="space"></div>
+              <paper-dropdown-menu label="Competitor">
+                <paper-listbox
+                  class="dropdown-content"
+                  attr-for-selected="value"
+                  selected="{{golduser}}"
+                 >
+                  <template is="dom-repeat" items="[[competitors]]">
+                    <paper-item value="[[item]]">[[item]]</paper-item>
+                  </template>
+                </paper-listbox>
+              </paper-dropdown-menu>
+            </div>
+
+            <paper-button
+              raised
+              class="blue"
+              on-tap="_onContinue"
+            >Continue</paper-button></p>
+
+          </div>
+        </center>
+      </section>
+
+      <template is="dom-repeat" items="{{rounds}}">
+        <section data-route="[[item.data.name]]">
+          <cs-sascround
+            token="[[token]]"
+            currentuser="[[currentuser]]"
+            portalurl="[[portalurl]]"
+            keysurl="[[keysurl]]"
+            rounddata=[[item.data]]
+            machineimage="[[machineimage]]"
+            roundid=[[item.name]]
+            on-rounddataupdated=_onRoundUpdated
+            id="[[item.name]]"
+          >
+          </cs-sascround>
+        </section>
+      </template>
+
+    </iron-pages>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-sasckiosk',
+
+      // Attached
+      attached: function() {
+      },
+
+      // Callback when the token has been updated
+      _onTokenUpdated: function() {
+        if (this.token !== "") {
+          this._getRounds()
+        }
+      },
+
+      // Get list of all rounds for this user
+      _getRounds: function() {
+        this.$.roundsresources.getAll()
+      },
+
+      // Callback from widgets server with all rounds for this user
+      _onAllRounds: function(e) {
+        this.set('rounds', e.detail)
+
+        if (this.rounds.length == 0)
+          this.currentpage = "empty"
+        else if (this.currentpage == "" || this.currentpage == "empty")
+          this.currentpage = this.rounds[0].data.name
+      },
+
+      // Go to page to start new round
+      _onNew: function() {
+        this.$.competitorsresources.getAll();
+        this.currentpage = "new"
+      },
+
+      // Continue starting new round
+      _onContinue: function() {
+        if (this.roundname === "" ||
+            !this.blueuser ||
+            !this.golduser) {
+
+          this.fire('error', 'No fields can be empty.')
+          return
+        }
+
+        let data = {
+          name: this.roundname,
+          blueuser: this.blueuser,
+          golduser: this.golduser,
+          arbiter: {
+            status: 'NOT LAUNCHED'
+          },
+        }
+
+        this.$.roundsresources.create(data);
+
+        this.fire('notification', 'Sending request to start round "' + this.roundname + '".')
+      },
+
+      // Callback from widgets server when a new round has been
+      // registered
+      _onNewRound: function(e) {
+        let resp = e.detail
+
+        if (!resp.success) {
+          const msg = 'Could not start round: ' + resp.msg
+
+          console.log(msg)
+          this.fire('error', msg)
+          return
+        }
+
+        // Fill name, it's missing due to inconsistent API
+        resp.result.name = resp.id
+
+        this.push('rounds', resp.result)
+
+        this.currentpage = resp.result.data.name
+
+        this.fire('notification', 'Started round "' + resp.result.data.name + '".')
+      },
+
+      // Callback when a round has been updated from downstream
+      _onRoundUpdated: function(e) {
+        // Update the round info stored in the widgets server
+        if (e.target && e.target.id)
+          this.$.roundsresources.update(e.target.id, e.detail)
+        else
+          console.log(e)
+      },
+
+      // Callback from widgets when it as completed the update
+      _onUpdateComplete: function(e) {
+        // No need to do anything here for now
+      },
+
+      // Callback when receiving list of groups
+      _onGroups: function() {
+        let group = this.$.competitorsresources.resources.find(
+          function(g){
+            return g.data.name === 'sasc-competitors'
+          })
+
+        let temp = []
+        for (var i = 0; i< group.permissions.length; ++i) {
+          let user = group.permissions[i]
+          if (user.permissions.readOnly)
+            temp.push(user.username)
+        }
+
+        this.set('competitors', temp)
+      },
+
+      properties: {
+        rounds: {
+          type: Array,
+          value: [],
+          notify: true
+        },
+        currentpage: {
+          type: String,
+          value: 'empty',
+          notify: true
+        },
+        portalurl: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        keysurl: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        token: {
+          type: String,
+          value: '',
+          notify: true,
+          observer: '_onTokenUpdated'
+        },
+        competitors: {
+          type: Array,
+          value: [],
+          notify: true,
+        },
+        machineimage: {
+          type: String,
+          value: "ami-7f23771f"
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>
