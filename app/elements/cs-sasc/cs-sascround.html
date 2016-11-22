@@ -287,6 +287,9 @@
                 index="[[index]]"
                 data="[[item]]"
                 team="blue"
+                subnet="[[bluesubnet]]"
+                arbiter_public_ip="[[rounddata.arbiter.machine_ip]]"
+                token="[[token]]"
               ></cs-sascpayload>
             </template>
             <div class="space"></div>
@@ -357,6 +360,9 @@
                 index="[[index]]"
                 data="[[item]]"
                 team="gold"
+                subnet="[[goldsubnet]]"
+                arbiter_public_ip="[[rounddata.arbiter.ip]]"
+                token="[[token]]"
               ></cs-sascpayload>
             </template>
             <div class="space"></div>
@@ -454,8 +460,8 @@
             role: 'arbiter',
             "blue_route": this.rounddata.blueServerRoute,
             "gold_route": this.rounddata.goldServerRoute,
-            "blue_subnet" : "192.168.2",
-            "gold_subnet" : "192.168.3",
+            "blue_subnet" : this.bluesubnet,
+            "gold_subnet" : this.goldsubnet,
             "token": this.token,
           }
         }
@@ -827,6 +833,14 @@
         hidegoldlauncher: {
           type: Boolean,
           value: false,
+        },
+        bluesubnet: {
+          type: String,
+          value: '192.168.2',
+        },
+        goldsubnet: {
+          type: String,
+          value: '192.168.3',
         },
       },
     });

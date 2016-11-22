@@ -31,6 +31,13 @@
       padding: 1em;
       height: 100%;
     }
+    .horizontal {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+    .start {
+      @apply(--layout-self-start);
+    }
   </style>
   <template>
 
@@ -47,7 +54,30 @@
           </paper-header-panel>
 
           <div class="content">
-            <span class="property">Status: </span> [[data.status]]
+
+            <!-- STATUS -->
+            <div class="horizontal start">
+              <span class="property">Status: </span> [[data.status]]
+            </div>
+
+            <template is="dom-if" if="{{_isRunning(data.status)}}">
+
+              <!-- LOCAL IP -->
+              <div class="horizontal start">
+                <span class="property">Local IP: </span>
+                [[subnet]].10
+              </div>
+
+              <!-- LOCAL SSH -->
+              <div class="horizontal start">
+                <span class="property">SSH keys: </span>
+                <cs-downloadkeysbutton
+                  simurl="[[arbiter_public_ip]]"
+                  token="[[token]]"
+                ></cs-downloadkeysbutton>
+              <div>
+
+            </template>
           </div>
 
         </div>
@@ -90,6 +120,19 @@
         },
         team: {
           type: String,
+          notify: true,
+        },
+        subnet: {
+          type: String,
+          notify: true,
+        },
+        arbiter_public_ip: {
+          type: String,
+          notify: true,
+        },
+        token: {
+          type: String,
+          value: '',
           notify: true,
         },
       },
