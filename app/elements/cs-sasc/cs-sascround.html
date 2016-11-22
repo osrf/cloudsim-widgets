@@ -28,12 +28,14 @@
       color: #fff;
     }
     .blue {
-      background-color: rgb(60, 107, 177);
-      color: #fff;
+      background-color: rgb(145, 189, 255);
+      color: #595959;
+      --iron-icon-fill-color: #415B90;
     }
     .gold {
-      background-color: rgb(126, 111, 57);
-      color: #fff;
+      background-color: rgb(240, 223, 161);
+      color: #595959;
+      --iron-icon-fill-color: #897613;
     }
     .white {
       background-color: #fff;
@@ -73,7 +75,7 @@
     }
     .paper-header > p {
       margin-bottom: 1em;
-      color: #ddd;
+      color: #6f6f6f;
       text-align: center;
     }
     .content {
@@ -108,10 +110,10 @@
     }
     .dropdown {
       --paper-input-container-label: {
-        color: #fff;
+        color: #595959;
       };
       --paper-input-container-input: {
-        color: #fff;
+        color: #595959;
       }
       --paper-input-container-underline: {
         display: none;
@@ -227,7 +229,10 @@
         <div class="about-half">
           <paper-header-panel class="blue">
             <div class="paper-header">
-              <h4>Blue</h4>
+              <h4>
+                <iron-icon icon="hardware:toys" class="blue"></iron-icon>
+                Blue
+              </h4>
               <p>[[rounddata.blueuser]]</p>
 
               <div class="horizontal">
@@ -281,6 +286,7 @@
               <cs-sascpayload
                 index="[[index]]"
                 data="[[item]]"
+                team="blue"
               ></cs-sascpayload>
             </template>
             <div class="space"></div>
@@ -293,7 +299,10 @@
         <div class="about-half">
           <paper-header-panel class="gold">
             <div class="paper-header">
-              <h4>Gold</h4>
+              <h4>
+                <iron-icon icon="hardware:toys" class="gold"></iron-icon>
+                Gold
+              </h4>
               <p>[[rounddata.golduser]]</p>
 
               <div class="horizontal">
@@ -347,6 +356,7 @@
               <cs-sascpayload
                 index="[[index]]"
                 data="[[item]]"
+                team="gold"
               ></cs-sascpayload>
             </template>
             <div class="space"></div>
