@@ -290,7 +290,6 @@
                 data="[[item]]"
                 team="blue"
                 subnet="[[bluesubnet]]"
-                arbiter_public_ip="[[rounddata.arbiter.public.machine_ip]]"
                 token="[[token]]"
               ></cs-sascpayload>
             </template>
@@ -553,6 +552,23 @@
             server_ip: this.rounddata.arbiter.secure.machine_ip,
             client_id: id,
             token: this.token,
+            resources: [{
+              name: 'downloads',
+              permissions: [
+                {
+                  username: this.currentuser,
+                  permissions: {
+                    readOnly: false
+                  }
+                },
+                {
+                  username: this.rounddata.blueuser,
+                  permissions: {
+                    readOnly: false
+                  }
+                },
+              ]
+            }],
           }
         }
 
@@ -596,6 +612,23 @@
             server_ip: this.rounddata.arbiter.secure.machine_ip,
             client_id: id,
             token: this.token,
+            resources: [{
+              name: 'downloads',
+              permissions: [
+                {
+                  username: this.currentuser,
+                  permissions: {
+                    readOnly: false
+                  }
+                },
+                {
+                  username: this.rounddata.golduser,
+                  permissions: {
+                    readOnly: false
+                  }
+                },
+              ]
+            }],
           }
         }
 

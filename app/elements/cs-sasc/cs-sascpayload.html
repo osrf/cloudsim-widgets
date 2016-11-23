@@ -72,7 +72,7 @@
               <div class="horizontal start">
                 <span class="property">SSH keys: </span>
                 <cs-downloadkeysbutton
-                  simurl="[[arbiter_public_ip]]"
+                  simurl="[[data.machine_ip]]"
                   token="[[token]]"
                 ></cs-downloadkeysbutton>
               <div>
@@ -123,10 +123,6 @@
           notify: true,
         },
         subnet: {
-          type: String,
-          notify: true,
-        },
-        arbiter_public_ip: {
           type: String,
           notify: true,
         },
