@@ -18,7 +18,6 @@ function setRoutes(app) {
         if(obj.name.indexOf('sascround-') != 0)
           return false
 
-
         // If user has write permission, they are an admin, so they can see
         // the whole data
         if (!obj.permissions[0].permissions.readOnly)
@@ -41,10 +40,22 @@ function setRoutes(app) {
 
         if (isBlue) {
           obj.data.goldpayloads = undefined
+
+          if (obj.data.bluepayloads) {
+            for (var i = 0; i < obj.data.bluepayloads.length; ++i) {
+              obj.data.bluepayloads[i].options = undefined
+            }
+          }
         }
 
         if (isGold) {
           obj.data.bluepayloads = undefined
+
+          if (obj.data.goldpayloads) {
+            for (var i = 0; i < obj.data.goldpayloads.length; ++i) {
+              obj.data.goldpayloads[i].options = undefined
+            }
+          }
         }
 
         return true
