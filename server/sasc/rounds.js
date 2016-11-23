@@ -24,8 +24,8 @@ function setRoutes(app) {
         if (!obj.permissions[0].permissions.readOnly)
           return true
 
-        // For competitors, filter out information about arbiter and opposing
-        // team
+        // For competitors, filter out secure information about arbiter and
+        // opposing team
 
         let isBlue = (obj.data.blueuser == req.user)
         let isGold = (obj.data.golduser == req.user)
@@ -37,7 +37,7 @@ function setRoutes(app) {
         }
 
         obj.permissions = undefined
-        obj.data.arbiter = undefined
+        obj.data.arbiter.secure = undefined
 
         if (isBlue) {
           obj.data.goldpayloads = undefined

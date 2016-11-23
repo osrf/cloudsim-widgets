@@ -249,7 +249,7 @@
                   >Launch a payload</paper-button>
                 </template>
 
-                  <div class="space"></div>
+                <div class="space"></div>
 
                 <!-- OCU keys -->
                 <template is="dom-if" if="{{_isRunning(rounddata.arbiter.public.status)}}">
@@ -323,8 +323,9 @@
                     on-tap="_onLaunchGold"
                   >Launch a payload</paper-button>
 
-                  <div class="space"></div>
                 </template>
+
+                <div class="space"></div>
 
                 <!-- OCU keys -->
                 <template is="dom-if" if="{{_isRunning(rounddata.arbiter.public.status)}}">
@@ -738,10 +739,9 @@
       // Callback when current user has changed
       _onCurrentUserChanged: function() {
         this.seesblueuser = this.currentuser === this.rounddata.blueuser ||
-                          this.rounddata.arbiter.secure
+            (this.rounddata.arbiter && this.rounddata.arbiter.secure)
         this.seesgolduser = this.currentuser === this.rounddata.golduser ||
-                          this.rounddata.arbiter.secure
-
+            (this.rounddata.arbiter && this.rounddata.arbiter.secure)
       },
 
       // Check if an array is empty
@@ -760,17 +760,28 @@
 
         let that = this
         // Arbiter
-        if (this.rounddata.arbiter {
+        if (this.rounddata.arbiter && this.rounddata.arbiter.secure) {
 
           let sim = simulators.find(function(s){
-            return s.name === that.rounddata.arbiter.id
+            return s.name === that.rounddata.arbiter.secure.id
           })
-          if (sim) {
-            this.set('rounddata.arbiter', sim.data)
 
-            // Copy arbiter status outside of secure data
-            if (this.rounddata.arbiter.status == 'RUNNING')
-              this.rounddata.arbiter_running = true
+          // An admin logged in would have access to full arbiter data,
+          // and push the public parts of that to the widgets server.
+          // Unless the arbiter is online, that data never gets to public,
+          // so it never gets to competitors.
+          // This is a consequence of the portal server not being allowed to
+          // talk directly to the widgets server - all information transfer is
+          // done through the browser
+          if (sim) {
+            this.set('rounddata.arbiter.secure', sim.data)
+
+            // Copy arbiter status and ip to public area
+            let pub = {
+              'status': this.rounddata.arbiter.secure.status,
+              'machine_ip': this.rounddata.arbiter.secure.machine_ip,
+            }
+            this.set('rounddata.arbiter.public', pub)
 
             this._onRounddataUpdated()
             this.fire('rounddataupdated', this.rounddata)

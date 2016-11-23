@@ -33,8 +33,7 @@
       color: rgb(68, 138, 201);
     }
     .floating {
-      margin-top: -1.2em;
-      margin-left: 1em;
+      margin-bottom: -2em;
       z-index: 1000;
     }
     .paper-header {
@@ -57,7 +56,7 @@
       height: 100%;
     }
     paper-tabs {
-      margin-top: -69px;
+      margin-top: -48px;
       margin-left: 20px;
     }
     .new-content {
@@ -89,16 +88,18 @@
     <paper-header-panel class="blue">
       <div class="paper-header">
         <h1 class="title">Rounds</h1>
+
+        <template is="dom-if" if="[[issascadmin]]">
+          <paper-fab
+            mini
+            class="grey floating"
+            icon="icons:add"
+            title="Start a new round"
+            on-tap="_onNew"
+          ></paper-fab>
+        </template>
       </div>
     </paper-header-panel>
-
-    <paper-fab
-      mini
-      class="grey floating"
-      icon="icons:add"
-      title="Start a new round"
-      on-tap="_onNew"
-    ></paper-fab>
 
     <paper-tabs scrollable attr-for-selected="value" selected="{{currentpage}}">
       <template is="dom-repeat" items="{{rounds}}">
@@ -110,8 +111,10 @@
 
       <section data-route="empty">
         <center>
-          <p>You have no rounds running.</p>
-          <paper-button flat on-tap="_onNew">Start one now</paper-button></p>
+          <p style="margin-top: 2em">You have no rounds running.</p>
+          <template is="dom-if" if="[[issascadmin]]">
+            <paper-button flat on-tap="_onNew">Start one now</paper-button></p>
+          </template>
         </center>
       </section>
 
@@ -253,7 +256,12 @@
           blueuser: this.blueuser,
           golduser: this.golduser,
           arbiter: {
-            status: 'NOT LAUNCHED'
+            public: {
+              status: 'NOT LAUNCHED'
+            },
+            secure: {
+              status: 'NOT LAUNCHED'
+            },
           },
         }
 
@@ -351,6 +359,10 @@
         machineimage: {
           type: String,
           value: "ami-7f23771f"
+        },
+        issascadmin: {
+          type: Boolean,
+          value: false
         },
       },
     });
