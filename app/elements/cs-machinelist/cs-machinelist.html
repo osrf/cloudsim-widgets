@@ -6,6 +6,7 @@
   </style>
   <template>
 
+    <!-- To keep track of current machines -->
     <gz-resources
       id="resources"
       url="[[portalurl]]"
@@ -37,20 +38,23 @@
 
     Polymer({
       is: 'cs-machinelist',
+
       // Attached
       attached: function() {
         if (this.token != "") {
           this.$.resources.connect();
           this.refresh()
         }
+      },
 
-        console.log('cs-machinelist widget attached!')
-      },
+      // When machine list is updated
       _onQUpdated: function(e) {
-        this.updateList(e.detail);
+        this._updateList(e.detail);
       },
-      updateList: function(items) {
-        this.sortByReverseLaunchDate(items);
+
+      // Update machine list
+      _updateList: function(items) {
+        this._sortByReverseLaunchDate(items);
 
         // Fill with permissions for current user
         for (var i = 0; i < items.length; ++i)
@@ -67,9 +71,13 @@
 
         this.set('listitems', items);
       },
+
+      // Refresh list
       refresh() {
         this.$.resources.getAll();
       },
+
+      // Callback when token is changed
       _onTokenChanged() {
         if (this.token == "")
           return
@@ -77,9 +85,13 @@
         this.$.resources.connect();
         this.refresh()
       },
-      sortByReverseLaunchDate: function(items) {
+
+      // Helper to sort items according to launch date
+      _sortByReverseLaunchDate: function(items) {
         items.sort(this.compareDates)
       },
+
+      // Helper to compare dates
       compareDates: function(a, b) {
         let aDate = new Date(a.data.launch_date)
         let bDate = new Date(b.data.launch_date)
@@ -89,21 +101,36 @@
             return -1;
         return 0;
       },
+
+      // Properties
       properties: {
+
+        // Portal server URL
         portalurl: {
           type: String,
-          value: 'https://localhost:4000',
+          value: '',
           notify: true
         },
+
+        // Authentication token from cloudsim-auth
         token: {
           type: String,
           value: '',
           notify: true,
           observer: '_onTokenChanged'
         },
+
+        // List of machines
         listitems: {
           type: Array,
           value: [],
+          notify: true
+        },
+
+        // Username of user logged in
+        currentuser: {
+          type: String,
+          value: '',
           notify: true
         },
       },

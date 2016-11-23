@@ -29,6 +29,11 @@
         assert(component)
       });
 
+      test('Tap login and logout and nothing breaks', function() {
+        component._tapLogin()
+        component._tapLogout()
+      });
+
     });
   </script>
 

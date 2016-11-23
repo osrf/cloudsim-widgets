@@ -31,10 +31,9 @@
     Polymer({
       is: 'cs-stayintouchpage',
       attached: function() {
-        console.log('cs-stayintouchpage widget attached!')
       },
 
-      submitForm: function() {
+      submitForm: /* istanbul ignore next */ function() {
         document.getElementById('form').submit();
       }
 

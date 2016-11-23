@@ -5,7 +5,8 @@
   <style>
     .miniButton {
       font-size: 0.8em;
-      width: 7em;
+      width: 5em;
+      height: 1.8em;
     }
     .miniButton iron-icon {
       width: 1.5em;
@@ -34,17 +35,16 @@
       is: 'cs-downloadkeysbutton',
       // Attached
       attached: function() {
-        console.log('cs-downloadkeysbutton widget attached!')
       },
       properties: {
         simurl: {
           type: String,
-          value: 'placeholder',
+          value: '',
           notify: true
         },
         token: {
           type: String,
-          value: 'placeholder',
+          value: '',
           notify: true
         },
       },

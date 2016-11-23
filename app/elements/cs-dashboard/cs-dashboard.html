@@ -3,33 +3,35 @@
 
 <dom-module id="cs-dashboard">
   <style>
-      :host {
-        display: block;
-        padding-top: 3em;
-        @apply(--paper-font-common-base);
-      }
-      .horizontal {
-        @apply(--layout-horizontal);
-        @apply(--layout-center);
-      }
-      .center {
-        margin: auto;
-        width: 30%;
-      }
-      .space {
-        @apply(--layout-flex);
-      }
+
+    :host {
+      display: block;
+      padding-top: 3em;
+      @apply(--paper-font-common-base);
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+    .center {
+      margin: auto;
+      width: 30%;
+    }
+    .space {
+      @apply(--layout-flex);
+    }
   </style>
+
   <template>
 
     <div class="horizontal">
 
       <div class="space"></div>
 
-      <template is="dom-if" if="{{hasmachinelauncher}}">
+      <template is="dom-if" if="[[hasmachinelauncher]]">
         <cs-machinelauncher
-          portalUrl=[[portalurl]]
-          token=[[token]]
+          portalUrl="[[portalurl]]"
+          token="[[token]]"
         ></cs-machinelauncher>
       </template>
 
@@ -38,10 +40,9 @@
     </div>
 
     <cs-machinelist
-      id="machinelist"
       portalurl="[[portalurl]]"
       currentuser="[[currentuser]]"
-      token=[[token]]
+      token="[[token]]"
     ></cs-machinelist>
 
     <div class="horizontal">
@@ -66,14 +67,19 @@
 
     Polymer({
       is: 'cs-dashboard',
+
       // Attached
       attached: function() {
-        console.log('cs-dashboard widget attached!')
       },
+
+      // When permissions for current user have changed
       _currentPermissionsChanged: function() {
 
         // When permissions change, check if user can launch machines
         this.hasmachinelauncher = false
+
+        if (!this.currentpermissions)
+          return
 
         const simulators = this.currentpermissions.find(function(resource){
           return resource.name === 'simulators'
@@ -84,27 +90,39 @@
 
         this.hasmachinelauncher = !simulators.permissions[0].permissions.readOnly
       },
+
+      // Properties
       properties: {
+
+        // Portal server URL
         portalurl: {
           type: String,
-          value: 'https://localhost:4000',
+          value: '',
           notify: true
         },
+
+        // Authentication token from cloudsim-auth
         token: {
           type: String,
-          value: 'token not set',
+          value: '',
           notify: true
         },
+
+        // Username of user logged in
         currentuser: {
           type: String,
-          value: 'current user not set',
+          value: '',
           notify: true
         },
+
+        // Permissions for current user
         currentpermissions: {
-          type: Object,
+          type: Array,
           notify: true,
           observer: '_currentPermissionsChanged'
         },
+
+        // True if user can launch simulators
         hasmachinelauncher: {
           type: Boolean,
           value: false,

@@ -96,6 +96,7 @@
   </style>
   <template>
 
+    <!-- For inviting/removing people from groups -->
     <gz-grant
       id="grant"
       url="[[url]]"
@@ -106,6 +107,7 @@
       on-got="_onSinglePermission"
     ></gz-grant>
 
+    <!-- For creating/deleting groups -->
     <gz-resources
       id="resources"
       url="[[url]]"
@@ -267,7 +269,7 @@
     Polymer({
       is: 'cs-groups',
 
-      /// Callback when component is attached
+      // Callback when component is attached
       attached: function() {
 
         let that = this
@@ -283,11 +285,9 @@
             that.$.grant.getall();
           }
         });
-
-        console.log('cs-groups widget attached!')
       },
 
-      /// Open a group dialog
+      // Open a group dialog
       _onGroupDialog(e) {
         // Set selected group
         let groupName = e.target.innerText
@@ -302,6 +302,7 @@
 
           // Update the list, hopefully it will disappear
           this.$.resources.getAll();
+          return
         }
 
         this.selectedgroup = groupObj
@@ -311,40 +312,33 @@
         this.set('selectedmembers', list);
 
         // Open dialog
-        var dialog = this.$.groupdialog
-        if (dialog)
-          dialog.open();
-        else
-          console.error("Group dialog not found.")
+        this.$.groupdialog.open();
       },
 
-      /// Request to create a new group
-      _onCreateGroup(e) {
-        let groupName = this.creategroupname.trim()
-        if (groupName === "") {
+      // Request to create a new group
+      _onCreateGroup() {
+        if (!this.creategroupname || this.creategroupname.trim() === "") {
           this.fire('error', "Group name must not be empty!")
           return
         }
+
+        let groupName = this.creategroupname.trim()
         let data = { resource: groupName };
         this.$.resources.create(data);
       },
 
-      /// Request to delete a group
-      _onDeleteGroup(e) {
+      // Request to delete a group
+      _onDeleteGroup() {
         this.$.resources.del(this.selectedgroup.name);
 
         // Close dialog
-        var dialog = this.$.groupdialog
-        if (dialog)
-          dialog.close();
-        else
-          console.error("Group dialog not found.")
+        this.$.groupdialog.close();
 
         // Get updated list of groups
         this.$.resources.getAll();
       },
 
-      /// Request to remove a user from a group
+      // Request to remove a user from a group
       _onRemoveUser(e) {
         // The most general case
         let readonly = false;
@@ -360,16 +354,16 @@
         this.$.grant.revoke(data);
       },
 
-      /// Request to invite a user to a group
-      _onInvite(e) {
+      // Request to invite a user to a group
+      _onInvite() {
         const data = { grantee: this.inviteusername,
                        resource: this.selectedgroup.name,
                        readonly: !this.inviteadmin}
         this.$.grant.grant(data);
       },
 
-      /// Callback when groups have been updated
-      _onGroups: function(e) {
+      // Callback when groups have been updated
+      _onGroups: function() {
         this.groups = this.$.resources.resources
         this.nogroups = (this.groups.length == 0)
       },
@@ -392,7 +386,7 @@
             + '"');
       },
 
-      /// Callback when successfully invited someone to a group
+      // Callback when successfully invited someone to a group
       _onGranted: function(e) {
         // Get updated info on group
         this.$.grant.get(this.selectedgroup.name);
@@ -401,7 +395,7 @@
           this.fire('notification', 'User successfully invited.')
       },
 
-      /// Callback when successfully removed someone from a group
+      // Callback when successfully removed someone from a group
       _onRevoked: function(e) {
         // Get updated info on group
         this.$.grant.get(this.selectedgroup.name);
@@ -410,8 +404,8 @@
           this.fire('notification', 'User successfully removed.')
       },
 
-      /// Callback when permissions have been updated
-      _onAllPermissions: function(e) {
+      // Callback when permissions have been updated
+      _onAllPermissions: function() {
         var permissions = this.$.grant.permissions
 
         const group = permissions.find(function(permission){
@@ -424,7 +418,7 @@
         this.cancreate = !group.permissions[0].permissions.readOnly
       },
 
-      /// Callback when a single permissions has been received.
+      // Callback when a single permissions has been received.
       _onSinglePermission: function(e) {
 
         // We asked for the new permissions of the selected group
@@ -449,21 +443,21 @@
 
       properties: {
 
-        /// Array of groups for current user.
+        // Array of groups for current user.
         groups: {
           type: Array,
           value: [],
           notify: true
         },
 
-        /// True if current user can create groups.
+        // True if current user can create groups.
         cancreate: {
           type: Boolean,
           value: false,
           notify: true
         },
 
-        /// True if current user is admin of selected group.
+        // True if current user is admin of selected group.
         isselectedadmin: {
           type: Boolean,
           value: false,

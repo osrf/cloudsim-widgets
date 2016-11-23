@@ -22,10 +22,11 @@ var ret = {
         '/app/elements/**/*.html'
       ],
       "exclude": [
+        '/app/elements/routing.html'
       ],
       'thresholds': {
         'global': {
-          'statements': 10
+          'statements': 45
         }
       }
     }

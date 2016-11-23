@@ -48,33 +48,49 @@
   <template>
 
     <paper-material elevation="2" style="margin: 1em">
+
       <div id="item[[itemid]]">
+
         <div class="item" tabindex$="[[tabIndex]]">
+
           <iron-icon class="bigIcon" icon="hardware:computer"></iron-icon>
+
           <div class="pad">
-            <template is="dom-if" if="{{!isTerminating(stat)}}">
-              <div><a href="http://{{machine_ip}}:8080" target="_blank">[[machine_ip]]</a></div>
+
+            <!-- LINK TO MACHINE -->
+            <template is="dom-if" if="{{!_isTerminating(stat)}}">
+              <div><a href="http://{{machine_ip}}" target="_blank">[[machine_ip]]</a></div>
             </template>
 
-            <div class$="[[getStatusClass(stat)]]">
+            <!-- STATUS -->
+            <div class$="[[_getStatusClass(stat)]]">
               <!-- <iron-icon icon="icons:cloud"></iron-icon> -->
               [[stat]]
             </div>
+
+            <!-- INFO -->
             <div class="machineInfo">
-              <b>Launch date</b>: [[prettyDate(launch_date)]]<br>
-              <template is="dom-if" if="{{isTerminating(stat)}}">
-                <b>Termination date</b>: [[prettyDate(termination_date)]]<br>
+              <b>Launch date</b>: [[_prettyDate(launch_date)]]<br>
+              <template is="dom-if" if="{{_isTerminating(stat)}}">
+                <b>Termination date</b>: [[_prettyDate(termination_date)]]<br>
               </template>
-             </div>
+            </div>
+
           </div>
+
+          <!-- BUTTONS -->
           <template is="dom-if" if="[[!readonly]]">
-            <template is="dom-if" if="{{!isTerminating(stat)}}">
+
+            <template is="dom-if" if="{{!_isTerminating(stat)}}">
+
               <div class="vertical">
-                <template is="dom-if" if="{{isRunning(stat)}}">
+
+                <template is="dom-if" if="{{_isRunning(stat)}}">
                   <cs-downloadkeysbutton
                     simurl="[[machine_ip]]"
                     token="[[token]]"
                   ></cs-downloadkeysbutton>
+
                   <cs-sharebutton
                     token=[[token]]
                     resource="[[itemid]]"
@@ -87,12 +103,15 @@
                     revoke_failure_error='Could not revoke machine "[[machine_ip]]"'
                     hasreadonly
                   ></cs-sharebutton>
+
                 </template>
+
                 <cs-machinekillbutton
                   portalUrl=[[portalurl]]
                   token=[[token]]
                   machine_id="[[itemid]]"
                 ></cs-machinekillbutton>
+
                </div>
             </template>
           </template>
@@ -116,16 +135,23 @@
 
     Polymer({
       is: 'cs-machineitem',
+
+      // Attached
       attached: function() {
-        console.log('cs-machineitem widget attached!')
       },
-      isRunning: function(itemStatus) {
+
+      // Check if status is RUNNING
+      _isRunning: function(itemStatus) {
         return itemStatus == 'RUNNING' ? true : false;
       },
-      isTerminating: function(itemStatus) {
+
+      // Check if status is TERMINATING or TERMINATED
+      _isTerminating: function(itemStatus) {
         return (itemStatus == 'TERMINATING' || itemStatus == 'TERMINATED') ? true : false;
       },
-      getStatusClass: function(itemStatus) {
+
+      // Get CSS class accorting to status
+      _getStatusClass: function(itemStatus) {
         let itemClass = 'launchingStatus'
         if (itemStatus == 'RUNNING')
           itemClass = 'runningStatus'
@@ -135,16 +161,24 @@
           itemClass = 'launchingStatus'
         return itemClass;
       },
-      prettyDate: function(date) {
+
+      // Pretify date
+      _prettyDate: function(date) {
         let d = new Date(date);
         return d.toString();
       },
+
+      // Properties
       properties: {
+
+        // Current machine status
         stat: {
           type: String,
           value: '',
           notify: true
         },
+
+        // Whether current user has readonly access
         readonly: {
           type: Boolean,
           value: true,

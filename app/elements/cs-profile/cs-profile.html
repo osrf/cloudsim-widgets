@@ -3,23 +3,20 @@
 
 <dom-module id="cs-profile">
   <style>
-      :host {
-        display: block;
-        padding-top: 3em;
-        @apply(--paper-font-common-base);
-      }
-      .horizontal {
-        @apply(--layout-horizontal);
-        @apply(--layout-center);
-      }
-      .center {
-        margin: auto;
-        width: 30%;
-      }
-      .space {
-        @apply(--layout-flex);
-      }
+    :host {
+      display: block;
+      padding-top: 3em;
+      @apply(--paper-font-common-base);
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+    .space {
+      @apply(--layout-flex);
+    }
   </style>
+
   <template>
 
     <div class="horizontal">
@@ -34,8 +31,8 @@
       <div class="space"></div>
 
       <cs-groups
-        url=[[authurl]]
-        token=[[token]]
+        url="[[authurl]]"
+        token="[[token]]"
       ></cs-groups>
 
       <div class="space"></div>
@@ -50,16 +47,32 @@
 
     Polymer({
       is: 'cs-profile',
+
       // Attached
       attached: function() {
-        console.log('cs-profile widget attached!')
       },
 
-      /// Callback when the current user has changed
+      // Callback when the current user has changed
       _currentUserChanged: function() {
         this.isadmin = this.currentuser === getConfig().admin
       },
+
+      // Properties
       properties: {
+
+        // Auth server URL
+        authurl: {
+          type: String,
+          value: '',
+          notify: true
+        },
+
+        // Authentication token from cloudsim-auth
+        token: {
+          type: String,
+          value: '',
+          notify: true
+        },
         currentuser: {
           type: String,
           value: 'current user not set',

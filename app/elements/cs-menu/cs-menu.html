@@ -71,12 +71,28 @@
     <paper-menu attr-for-selected="data-route" selected="[[route]]" id="menu">
 
       <!-- Dashboard -->
-      <a data-route="dashboard" href="{{baseUrl}}dashboard">
+      <a data-route="dashboard" href="[[baseUrl]]dashboard">
         <paper-item>
           <iron-icon icon="icons:cloud"></iron-icon>
           <span>Dashboard</span>
         </paper-item>
       </a>
+
+      <!-- SASC -->
+      <template is="dom-if" if="[[issascuser]]">
+        <a data-route="sasc" href="{{baseUrl}}sasc">
+          <paper-item>
+            <iron-icon icon="hardware:toys"></iron-icon>
+            SASC
+          </paper-item>
+        </a>
+
+        <a data-route="sasc" href="{{baseUrl}}sasc">
+          <paper-item class="subitem">
+            <span>Competition Kiosk</span>
+          </paper-item>
+        </a>
+      </template>
 
       <!-- SRC -->
       <template is="dom-if" if="[[issrcuser]]">
@@ -132,15 +148,17 @@
 
     Polymer({
       is: 'cs-menu',
+
       // Attached
       attached: function() {
         var that = this;
         window.addEventListener('uri-change', function(e) {
-          that.uriChanged()
+          that._uriChanged()
         });
-        console.log('cs-menu widget attached!')
       },
-      uriChanged: function() {
+
+      // Callback when uri changed
+      _uriChanged: function() {
         var path = window.location.pathname
         path = path.substr(1)
         this.$.menu.selected = path
