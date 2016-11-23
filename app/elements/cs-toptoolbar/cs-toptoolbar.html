@@ -74,7 +74,7 @@
             <a href="[[baseUrl]]profile">
               <paper-button flat class="flat" id="usernamelabel">
                 {{currentuser}}
-              </paper-button></a>
+              </paper-button></a> <!-- Leave /a in same line -->
             <paper-button raised class="raised" id="logoutbutton" on-tap="_tapLogout">
               <iron-icon icon="icons:exit-to-app"></iron-icon>
               Log out
@@ -96,40 +96,30 @@
 
   <script>
 
-
   (function() {
     'use strict';
 
     Polymer({
       is: 'cs-toptoolbar',
+
       // Attached
       attached: function() {
-        console.log('cs-toptoolbar widget [' + this.title + '] attached!')
       },
+
+      // When user taps login button
       _tapLogin() {
         this.fire('loginrequest')
       },
+
+      // When user taps logout button
       _tapLogout() {
         this.fire('logoutrequest')
       },
-      onLogin() {
-        // TODO: Find a better way to set visibility
-        this.$.loginbutton.style.display = 'none'
-        this.$.logoutbutton.style.display = ''
-        this.$.usernamelabel.style.display = ''
-      },
-      onLogout() {
-        // TODO: Find a better way to set visibility
-        this.$.loginbutton.style.display = ''
-        this.$.logoutbutton.style.display = 'none'
-        this.$.usernamelabel.style.display = 'none'
-      },
+
+      // Properties
       properties: {
-        authurl: {
-          type: String,
-          value: 'https://localhost:5050',
-          notify: true
-        },
+
+        // Whether currently logged in
         loggedin: {
           type: Boolean,
           value: 'false',

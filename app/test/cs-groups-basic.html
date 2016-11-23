@@ -28,6 +28,92 @@
         assert(component)
       });
 
+      test('Open dialog', function() {
+
+        component.groups = [{data: {name: 'groupname'}, permissions: [{permissions: {readOnly: true}}]}]
+        let e = {target: {innerText: 'groupname'}}
+        component._onGroupDialog(e)
+      });
+
+      test('Create a group', function() {
+
+        // Empty group name
+        component._onCreateGroup()
+
+        // With name
+        component.creategroupname = 'groupname'
+        component._onCreateGroup()
+      });
+
+      test('Delete a group', function() {
+
+        // With name
+        component.selectedgroup = {name: 'groupname'}
+        component._onDeleteGroup()
+      });
+
+      test('Remove a user from a group', function() {
+
+        // Removee
+        let e = {target: {parentElement: {id: 'removee'}}}
+
+        // Group
+        component.selectedgroup = {name: 'groupname'}
+
+        // Remove
+        component._onRemoveUser(e)
+
+        // Group admin
+        component.isselectedadmin = true
+        component._onRemoveUser(e)
+      });
+
+      test('Add a user to a group', function() {
+
+        // Addee
+        component.inviteusername = 'addee'
+
+        // Group
+        component.selectedgroup = {name: 'groupname'}
+
+        // Add
+        component._onInvite()
+      });
+
+      test('Responses from server', function() {
+
+        // Groups have been updated
+        component._onGroups()
+
+        // Group has been created
+        let e = {detail: {result: {data: {name: 'groupname'}}}}
+        component._onGroupCreated(e)
+
+        // Group has been deleted
+        e = {detail: {resource: {data: {name: 'groupname'}}}}
+        component._onGroupDeleted(e)
+
+        // User has been added to group
+        component.selectedgroup = {name: 'groupname'}
+        e = {detail: {success: 'groupname'}}
+        component._onGranted(e)
+
+        // User has been removed from group
+        component._onRevoked(e)
+
+        // Permissions have been updated (no group)
+        component._onAllPermissions()
+
+        // Permissions have been updated (with group)
+        component.$.grant.permissions = [{name: 'groupname', permissions: [{permissions: {readOnly: true}}]}]
+        component._onAllPermissions()
+
+        // Receive a single permission
+        component.selectedgroup = {name: 'groupname'}
+        e = {detail: {resource: 'groupname', result: {permissions: [{permissions: {readOnly: true}}]}}}
+        component._onSinglePermission(e)
+      });
+
     });
   </script>
 

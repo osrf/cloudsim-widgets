@@ -11,6 +11,10 @@
 
 </head>
 <body>
+  <script>
+    // Fake app
+    let app = {}
+  </script>
 
   <test-fixture id="basic">
     <template>
@@ -27,6 +31,18 @@
 
       test('Load', function() {
         assert(component)
+      });
+
+      test('URI change', function() {
+        // Nothing selected
+        assert(!component.$.menu.selected)
+
+        // Trigger change
+        component._uriChanged()
+
+        // Check current path is selected
+        assert(component.$.menu.selected ==
+          'components/cloudsim-widgets/app/test/cs-menu-basic.html')
       });
 
     });

@@ -3,34 +3,35 @@
 
 <dom-module id="cs-machinelauncher">
   <style>
-      .iconPadding {
-        padding-right: 1em;
-      }
-      .space {
-        @apply(--layout-flex);
-      }
-      .horizontal {
-        @apply(--layout-horizontal);
-        @apply(--layout-center);
-      }
-      .description {
-        text-align: left;
-        font-size: 0.8em;
-        color: #888;
-      }
-      #launchbutton {
-        background-color: rgb(68, 138, 201);
-        color: white;
-        padding: 0.5em;
-      }
-      paper-material {
-        margin: 1em;
-        text-align: center;
-        padding: 1em;
-      }
+    .iconPadding {
+      padding-right: 1em;
+    }
+    .space {
+      @apply(--layout-flex);
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+    .description {
+      text-align: left;
+      font-size: 0.8em;
+      color: #888;
+    }
+    #launchbutton {
+      background-color: rgb(68, 138, 201);
+      color: white;
+      padding: 0.5em;
+    }
+    paper-material {
+      margin: 1em;
+      text-align: center;
+      padding: 1em;
+    }
   </style>
   <template>
 
+    <!-- To launch machines -->
     <gz-resources
       id="resources"
       url="[[portalurl]]"
@@ -43,6 +44,7 @@
     <paper-material elevation="1">
 
       <div class="horizontal">
+
         <h1>
           <iron-icon
             icon="hardware:computer"
@@ -68,6 +70,7 @@
       </div>
 
       <div class="horizontal">
+
         <paper-dropdown-menu
           label="Machine types"
           selected="0"
@@ -80,7 +83,7 @@
           </paper-listbox>
 
         </paper-dropdown-menu>
-        <paper-button raised id="launchbutton" on-tap="tapLaunch">
+        <paper-button raised id="launchbutton" on-tap="_tapLaunch">
           Launch!
         </paper-button>
       </div>
@@ -94,30 +97,31 @@
 
   </template>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.js"></script>
-
   <script>
   (function() {
     'use strict';
 
     Polymer({
       is: 'cs-machinelauncher',
+
       // Attached
       attached: function() {
 
         window.addEventListener('logout', function(e) {
           that.token = "";
         });
-
-        console.log('cs-machinelauncher widget attached!')
       },
-      tapLaunch() {
+
+      // Tap button has been pressed
+      _tapLaunch() {
 
         if (this.machine.region == "" ||
             this.machine.imagee == "" ||
             this.machine.hardware == "")
         {
-          this.fire('notification', {msg: "Missing some information. Machine can't be launched.", type: "error"})
+          this.fire('notification', {msg:
+              "Missing some information. Machine can't be launched.",
+              type: "error"})
           return;
         }
 
@@ -150,8 +154,12 @@
           console.log('no options')
         }
         this.$.resources.create(data);
-        this.fire('notification', {msg: "Request to launch a \"" + this.machine.name + "\" has been sent.", type: "msg"})
+        this.fire('notification',
+            {msg: "Request to launch a \"" + this.machine.name + "\" has been sent.",
+            type: "msg"})
       },
+
+      // Response that machine has been launched
       _onLaunched: function(e) {
         let success = e.detail.success
         let msg = e.detail.message
@@ -165,31 +173,45 @@
           this.fire('notification', {msg: "Machine has been launched.", type: "msg"})
         }
       },
+
+      // When a machine is selected on the dropdown
       _machineSelected: function(e) {
         var selectedItem = e.target.selectedItem;
         if (!selectedItem)
-          return;
+          return
         var selectedMachineId = e.target.selectedItem.machine
+
         // get machine data from user selection
-        this.machine = this.machines.filter( (item)=>{ return (item.id == selectedMachineId)? true: false })[0]
+        this.machine = this.machines.filter( (item)=>{
+          return (item.id == selectedMachineId)? true: false
+        })[0]
       },
+
+      // Properties
       properties: {
+
+        // Portal server URL
         portalurl: {
           type: String,
-          value: 'https://localhost:4000',
+          value: '',
           notify: true
         },
+
+        // Authentication token from cloudsim-auth
         token: {
           type: String,
-          value: 'placeholder',
+          value: '',
           notify: true
         },
+
+        // Info for selected machine
         machine: {
           type: Object,
           value: '',
           readonly: true
         },
 
+        // Machine options
         machines: {
           type: Array,
           readonly: true,

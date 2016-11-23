@@ -13,6 +13,7 @@ const path = require('path')
 const csgrant = require('cloudsim-grant')
 // custom routes
 const middleware = require('./middleware')
+const sascrounds = require('./sasc/rounds.js')
 const srcregistrations = require('./src/registrations.js')
 
 app.use(cors())
@@ -30,6 +31,18 @@ app.use(morgan('combined', {
   }
 }))
 
+// Redirect to HTTPS
+app.use(function (req, res, next) {
+    // Insecure request?
+    /* istanbul ignore if */
+  if (req.get('x-forwarded-proto') == 'http') {
+        // Redirect to https://
+    return res.redirect('https://' + req.get('host') + req.url);
+  }
+
+  next();
+});
+
 // the configuration values are set in the local .env file
 // this loads the .env content and puts it in the process environment.
 dotenv.load()
@@ -45,11 +58,13 @@ const adminUser = process.env.CLOUDSIM_ADMIN || 'admin'
 
 // serve the app from the dist directory
 let rootDir = path.join(__dirname, '/../dist')
+/* istanbul ignore if  */
 if (process.argv[2] === 'dev')
   rootDir = path.join(__dirname, '/../app')
 app.use("/", express.static(rootDir));
 app.use("/api", express.static(path.join(__dirname, '/../api')));
 
+sascrounds.setRoutes(app);
 srcregistrations.setRoutes(app);
 
 app.get('/*', function(req, res, next){

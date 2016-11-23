@@ -51,9 +51,6 @@
       max-width: 20em;
       text-align: left;
     }
-    a {
-      padding: 0;
-    }
     paper-dropdown-menu {
       margin-top: -1em;
       max-width: 5em;
@@ -61,20 +58,21 @@
   </style>
   <template>
 
+    <!-- Call permission routes on server -->
     <gz-grant
       id="grant"
-      url=[[url]]
-      token=[[token]]
-      resource=[[resource]]
-      permissions={{permissions}}
-      grantee=[[grantee]]
+      url="[[url]]"
+      token="[[token]]"
+      resource="[[resource]]"
+      permissions="{{permissions}}"
+      grantee="[[grantee]]"
       on-granted="_onGranted"
       on-revoked="_onRevoked"
     ></gz-grant>
 
     <!-- button -->
     <template is="dom-if" if="[[!mini]]">
-      <paper-button raised class="miniButton" on-tap="tapOpenDialog" title="[[dialogmessage]]">
+      <paper-button raised class="miniButton" on-tap="_tapOpenDialog" title="[[dialogmessage]]">
         <iron-icon icon="social:share"></iron-icon>
         Share
       </paper-button>
@@ -83,7 +81,7 @@
       <paper-icon-button
         icon="social:share"
         title="[[dialogmessage]]"
-        on-tap="tapOpenDialog"
+        on-tap="_tapOpenDialog"
       ></paper-icon-button>
     </template>
 
@@ -140,7 +138,7 @@
                   icon="icons:close"
                   class="red"
                   title="Revoke"
-                  on-tap="_onRevoke"
+                  on-tap="_tapRevoke"
                   data-args="[[item.username]]"
                 ></paper-icon-button>
               </template>
@@ -181,7 +179,7 @@
                 raised
                 dialog-confirm
                 id="sharedialogbutton"
-                on-tap="tapGrant">
+                on-tap="_tapGrant">
                 Add
               </paper-button>
             </div>
@@ -198,21 +196,22 @@
 
     Polymer({
       is: 'cs-sharebutton',
+
+      // Attached
       attached: function() {
-        console.log('cs-sharebutton widget attached!')
       },
-      tapOpenDialog(e) {
+
+      // When a button has been tapped to open the dialog
+      _tapOpenDialog() {
+
         var dialog = this.$.sharedialog
 
-        if (dialog)
-        {
-          this.$.grant.get()
-          dialog.open();
-        }
-        else
-          console.error("Dialog not found.")
+        this.$.grant.get()
+        dialog.open();
       },
-      tapGrant(e) {
+
+      // When a button has been tapped to grant permission
+      _tapGrant(e) {
         const grantee = this.$.sharedialoguser.value
         if (grantee === '')
         {
@@ -229,6 +228,8 @@
                        readonly: readonly}
         this.$.grant.grant(data)
       },
+
+      // Response from the server after granting
       _onGranted: function(e) {
         if (e.detail.success)
         {
@@ -240,6 +241,17 @@
           this.fire('error', this.grant_failure_error)
         }
       },
+
+      // When revoke button is pressed
+      _tapRevoke: function(e) {
+        // Revoke all permissions
+        const data = { grantee: e.currentTarget.dataArgs,
+                       resource: this.resource,
+                       readonly: false }
+        this.$.grant.revoke(data)
+      },
+
+      // Response from the server after revoking
       _onRevoked: function(e) {
         if (e.detail.success)
         {
@@ -251,9 +263,13 @@
           this.fire('error', this.revoke_failure_error)
         }
       },
+
+      // Convert boolean to 0/1
       _getReadOnly: function(readonly) {
         return readonly ? 0 : 1
       },
+
+      // When a new permission is chosen from the dropdown
       _onPermission: function(e) {
         const grantee = e.target.id
 
@@ -289,60 +305,72 @@
           this.$.grant.grant(data)
         }
       },
-      _onRevoke: function(e) {
-        // Revoke all permissions
-        const data = { grantee: e.currentTarget.dataArgs,
-                       resource: this.resource,
-                       readonly: false }
-        this.$.grant.revoke(data)
-      },
+
+      // Properties
       properties: {
+
+        // Authentication token from cloudsim-auth
         token: {
           type: String,
           value: 'placeholder',
           notify: true
         },
+
+        // Name of resource being granted
         resource: {
           type: String,
           value: 'placeholder',
           notify: true
         },
-        machine_ip: {
-          type: String,
-          value: 'placeholder',
-          notify: true
-        },
+
+        // Text for read only checkbox
         readonlytxt: {
           type: String,
           value: 'Read only',
           notify: true
         },
+
+        // Grantee name
         grantee: {
           type: String,
           notify: true
         },
+
+        // Notification in case of grant success
         grant_success_msg: {
           type: String
         },
+
+        // Error message in case of grant failure
         grant_failure_error: {
           type: String
         },
+
+        // Notification in case of revoke success
         revoke_success_msg: {
           type: String
         },
+
+        // Error message in case of revoke failure
         revoke_failure_error: {
           type: String
         },
+
+        // Whether there is a readonly field or not
         hasreadonly: {
           type: Boolean,
           value: false,
           notify: true
         },
+
+        // Whether it's a mini button
         mini: {
           type: Boolean,
           value: false,
           notify: true
         },
+
+        // Array of all permissions for the resource
         permissions: {
           type: Array,
           value: [],

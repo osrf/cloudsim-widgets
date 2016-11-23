@@ -23,6 +23,10 @@
         padding: 1em;
       }
 
+      .pad {
+        padding: 3em;
+      }
+
       #errorToast {
         --paper-toast-background-color: #e74747
       }
@@ -34,9 +38,9 @@
     <!-- For login / logout -->
     <gz-token
       id="token"
-      url=[[authurl]]
-      auth0_id=[[auth0_id]]
-      auth0_domain=[[auth0_domain]]
+      url="[[authurl]]"
+      auth0_id="[[auth0_id]]"
+      auth0_domain="[[auth0_domain]]"
       on-login="_onLogin"
       on-logout="_onLogout"
     ></gz-token>
@@ -44,8 +48,8 @@
     <!-- For permissions in the portal -->
     <gz-grant
       id="grant"
-      url=[[portalurl]]
-      token=[[token]]
+      url="[[portalurl]]"
+      token="[[token]]"
       on-permissionsupdated="_onPermissions"
     ></gz-grant>
 
@@ -67,19 +71,19 @@
       authurl="[[authurl]]"
       currentuser="[[currentuser]]"
       loggedin="[[loggedin]]"
-      on-loginrequest="requestLogin"
-      on-logoutrequest="requestLogout"
+      on-loginrequest="_requestLogin"
+      on-logoutrequest="_requestLogout"
     ></cs-toptoolbar>
 
     <!-- Parent pages: secure / public -->
-    <iron-pages attr-for-selected="data-route" selected="{{topLevelRoute}}">
+    <iron-pages attr-for-selected="data-route" selected="[[topLevelRoute]]">
 
       <!-- Public routes -->
-      <section data-route="stayintouch">
-        <cs-stayintouchpage></cs-stayintouchpage>
+      <section data-route="stayintouch" class="pad">
+        <cs-stayintouchpage/>
       </section>
 
-      <section data-route="home" style="padding: 0em">
+      <section data-route="home">
         <cs-home/>
       </section>
 
@@ -111,7 +115,7 @@
       <section data-route="secure">
 
         <!-- Drawer / panel -->
-        <paper-drawer-panel id="paperDrawerPanel">
+        <paper-drawer-panel>
 
           <!-- Main Menu -->
           <cs-menu
@@ -121,15 +125,15 @@
           ></cs-menu>
 
           <!-- Main Content -->
-          <div class="content" main id="headerPanelMain">
+          <div class="content" main>
 
-            <iron-pages attr-for-selected="data-route" selected="{{secureRoute}}">
+            <iron-pages attr-for-selected="data-route" selected="[[secureRoute]]">
 
               <!-- Dashboard -->
               <section data-route="dashboard">
                 <cs-dashboard
                   id="dashboard"
-                  authurl=[[authurl]]
+                  authurl="[[authurl]]"
                   portalurl="[[portalurl]]"
                   token="[[token]]"
                   currentuser="[[currentuser]]"
@@ -140,10 +144,30 @@
               <!-- Profile -->
               <section data-route="profile">
                 <cs-profile
-                  authurl=[[authurl]]
+                  authurl="[[authurl]]"
                   token="[[token]]"
                   currentuser="[[currentuser]]"
                 ></cs-profile>
+              </section>
+
+              <!-- SASC secure routes -->
+              <section data-route="sasc">
+
+                <iron-pages attr-for-selected="data-route" selected="{{sascRoute}}">
+
+                  <section data-route="kiosk">
+                    <cs-sasckiosk
+                      token="[[token]]"
+                      portalurl="[[portalurl]]"
+                      keysurl="[[keysurl]]"
+                      authurl="[[authurl]]"
+                      currentuser="[[currentuser]]"
+                      issascadmin="[[issascadmin]]"
+                    ></cs-sasckiosk>
+                  </section>
+
+                </iron-pages>
+
               </section>
 
               <!-- SRC secure routes -->
@@ -218,7 +242,8 @@
 
         </paper-drawer-panel>
 
-      </section> <!-- secure -->
+      </section>
+      <!-- /secure -->
 
     </iron-pages>
 
@@ -230,27 +255,31 @@
 
       is: 'cs-app',
 
+      // Attached
       attached: function() {
 
         // Get configuration from environment variables
         this.authurl = getConfig().auth
         this.portalurl = getConfig().portal
+        this.keysurl = getConfig().keys
         this.auth0_id = getConfig().auth0_id
         this.auth0_domain = getConfig().auth0_domain
 
         // Sets app default base URL
         this.baseUrl = '/';
 
+        // Toaster events
         this.addEventListener('notification', function(e) {
-          this.openToast(e);
+          this._openToast(e);
         });
 
         this.addEventListener('error', function(e) {
-          this.openErrorToast(e);
+          this._openErrorToast(e);
         });
-        console.log('cs-app widget attached!')
       },
-      openToast: function(e) {
+
+      // Open notification toast
+      _openToast: function(e) {
         let msg = e.detail
         if (e.detail.msg)
           msg = e.detail.msg
@@ -265,24 +294,41 @@
           this.$.msgToast.open()
         }
       },
-      openErrorToast: function(e) {
+
+      // Open error toast
+      _openErrorToast: function(e) {
         let msg = e.detail
         if (e.detail.msg)
           msg = e.detail.msg
         this.$.errorToast.text = msg
         this.$.errorToast.open()
       },
-      requestLogin() {
+
+      // Forward request to login to gz-token
+      _requestLogin() {
         this.$.token.tapLogin();
       },
-      requestLogout() {
+
+      // Forward request to logout to gz-token
+      _requestLogout() {
         this.$.token.tapLogout();
       },
+
+      // When gz-token confirms login
       _onLogin(e) {
         this.loggedin = true
         this.token = e.detail.token;
         this.currentuser = e.detail.identities[0];
         this.identities = e.detail.identities;
+
+        // SASC
+        this.issascadmin = (this.currentuser === getConfig().admin ||
+                               this.identities.indexOf("sasc-admins") > -1);
+        this.issasccompetitor = (!this.issascadmin &&
+            this.identities.indexOf("sasc-competitors") > -1);
+
+        this.$.menu.issascuser = this.issasccompetitor || this.issascadmin
+        this.$.dashboard.issascuser = this.issasccompetitor || this.issascadmin
 
         // SRC
         // For now, simulating 3 users:
@@ -316,57 +362,96 @@
         // Reload page with logged in routes
         page(window.location.pathname);
       },
-      _onLogout(e) {
+
+      // When gz-token confirms logout
+      _onLogout() {
         this.loggedin = false
+        this.token = ""
+        this.currentuser = ""
+        this.identities = []
 
         // Reload page with logged out routes
         page('/');
       },
+
+      // Permissions updated from gz-grant
       _onPermissions: function(e) {
         this.currentpermissions = this.$.grant.permissions
 
         // Reload page with user routes
         page(window.location.pathname);
       },
+
+      // Propeties
       properties: {
+
+        // Auth server URL
         authurl: {
           type: String,
-          value: 'https://localhost:5050',
+          value: '',
           notify: true
         },
+
+        // Portal server URL
         portalurl: {
           type: String,
-          value: 'https://localhost:4000',
+          value: '',
           notify: true
         },
+
+        // Keys server URL
+        keysurl: {
+          type: String,
+          value: '',
+          notify: true
+        },
+
+        // Auth0 Id
         auth0_id: {
           type: String,
           value: '',
           notify: true
         },
+
+        // Auth0 domain
         auth0_domain: {
           type: String,
           value: '',
           notify: true
         },
+
+        // Whether currently logged in
         loggedin: {
           type: Boolean,
           value: false,
           notify: true
         },
-        hasmachinelauncher: {
-          type: Boolean,
-          value: false,
-          notify: true
-        },
+
+        // Authentication token from cloudsim-auth
         token: {
           type: String,
           value: '',
           notify: true
         },
+
+        // Username for current user
         currentuser: {
           type: String,
           value: '',
+          notify: true
+        },
+
+        // Permissions for current user
+        currentpermissions: {
+          type: Array,
+          value: [],
+          notify: true
+        },
+
+        // Array of identities for current user
+        identities: {
+          type: Array,
+          value: [],
           notify: true
         },
         issrccompetitor: {
