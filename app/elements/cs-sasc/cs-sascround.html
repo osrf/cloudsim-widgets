@@ -569,7 +569,7 @@
               {
                 "name": "downloads",
                 "data": {
-                  "path": "/home/ubunu/code/cloudsim-sim/server/keys.zip"
+                  "path": "/home/ubuntu/code/cloudsim-sim/server/keys.zip"
                 },
                 "permissions": [
                   {
@@ -647,7 +647,7 @@
               {
                 "name": "downloads",
                 "data": {
-                  "path": "/home/ubunu/code/cloudsim-sim/server/keys.zip"
+                  "path": "/home/ubuntu/code/cloudsim-sim/server/keys.zip"
                 },
                 "permissions": [
                   {
@@ -725,9 +725,7 @@
           this.push('bluepayloads', data)
 
           // Data structure that will be shared
-          if (!this.rounddata.bluepayloads)
-            this.rounddata.bluepayloads = []
-          this.rounddata.bluepayloads.push(data)
+          this.rounddata.bluepayloads = this.bluepayloads
 
           this._onRounddataUpdated()
           this.fire('rounddataupdated', this.rounddata)
@@ -748,9 +746,7 @@
           this.push('goldpayloads', data)
 
           // Data structure that will be shared
-          if (!this.rounddata.goldpayloads)
-            this.rounddata.goldpayloads = []
-          this.rounddata.goldpayloads.push(data)
+          this.rounddata.goldpayloads = this.goldpayloads
 
           this._onRounddataUpdated()
           this.fire('rounddataupdated', this.rounddata)
@@ -825,6 +821,14 @@
 
       // Callback when a simulator has been updated from the portal
       _onSimulatorsUpdated: function(e) {
+
+        // Shortcut if the user is not an admin.
+        // Competitors who have other machines running might receive websocket
+        // updates, but they shouldn't have permissions to any of the
+        // competition machines
+        if (!this.rounddata.arbiter || !this.rounddata.arbiter.secure)
+          return
+
         let simulators = e.detail
 
         let that = this
@@ -851,9 +855,6 @@
               'machine_ip': this.rounddata.arbiter.secure.machine_ip,
             }
             this.set('rounddata.arbiter.public', pub)
-
-            this._onRounddataUpdated()
-            this.fire('rounddataupdated', this.rounddata)
           }
         }
 
@@ -877,6 +878,8 @@
         }
         this.set('bluepayloads', b_copy)
 
+        this.rounddata.bluepayloads = this.bluepayloads
+
         // Gold
         if (this.goldpayloads.length > 0) {
 
@@ -897,6 +900,11 @@
         }
         this.set('goldpayloads', g_copy)
 
+        this.rounddata.goldpayloads = this.goldpayloads
+
+        // Send to database
+        this._onRounddataUpdated()
+        this.fire('rounddataupdated', this.rounddata)
       },
 
       // Properties
