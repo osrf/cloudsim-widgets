@@ -171,32 +171,33 @@ function setRoutes(app) {
       const resourceName = req.sascround
       const newData = req.body
 
-      csgrant.readResource(req.user, resourceName, function(err, oldData) {
-        if(err) {
-          return res.status(500).jsonp({success: false,
-            error: 'error trying to read existing data: ' + err})
-        }
-
-        const futureData = oldData.data
-
-        // merge with existing fields of the newData, keeping old fields intact
-        for (var attrname in newData) {
-          if (newData[attrname] == "")
-            continue
-
-          futureData[attrname] = newData[attrname]
-        }
-        csgrant.updateResource(req.user, resourceName, futureData, (err, data) => {
+      csgrant.readResource(req.authorizedIdentity, resourceName,
+        function(err, oldData) {
           if(err) {
-            return res.status(500).jsonp({success: false, error: err})
+            return res.status(500).jsonp({success: false,
+              error: 'error trying to read existing data: ' + err})
           }
-          const r = {
-            success: true,
-            result: data,
+
+          const futureData = oldData.data
+
+          // merge with existing fields of the newData, keeping old fields intact
+          for (var attrname in newData) {
+            if (newData[attrname] == "")
+              continue
+
+            futureData[attrname] = newData[attrname]
           }
-          res.jsonp(r)
+          csgrant.updateResource(req.user, resourceName, futureData, (err, data) => {
+            if(err) {
+              return res.status(500).jsonp({success: false, error: err})
+            }
+            const r = {
+              success: true,
+              result: data,
+            }
+            res.jsonp(r)
+          })
         })
-      })
     })
 
   // sascround route parameter
