@@ -42,8 +42,8 @@ function setRoutes(app) {
           obj.data.goldpayloads = undefined
 
           if (obj.data.bluepayloads) {
-            for (var i = 0; i < obj.data.bluepayloads.length; ++i) {
-              obj.data.bluepayloads[i].options = undefined
+            for (var b = 0; b < obj.data.bluepayloads.length; ++b) {
+              obj.data.bluepayloads[b].options = undefined
             }
           }
         }
@@ -52,8 +52,8 @@ function setRoutes(app) {
           obj.data.bluepayloads = undefined
 
           if (obj.data.goldpayloads) {
-            for (var i = 0; i < obj.data.goldpayloads.length; ++i) {
-              obj.data.goldpayloads[i].options = undefined
+            for (var g = 0; g < obj.data.goldpayloads.length; ++g) {
+              obj.data.goldpayloads[g].options = undefined
             }
           }
         }
