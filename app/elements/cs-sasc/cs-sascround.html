@@ -552,23 +552,41 @@
             server_ip: this.rounddata.arbiter.secure.machine_ip,
             client_id: id,
             token: this.token,
-            resources: [{
-              name: 'downloads',
-              permissions: [
-                {
-                  username: this.currentuser,
-                  permissions: {
-                    readOnly: false
+            resources:
+            [
+              {
+                "name": "simulations",
+                "data": {},
+                "permissions": [
+                  {
+                    "username": this.currentuser,
+                    "permissions": {
+                      "readOnly": false
+                    }
                   }
+                ]
+              },
+              {
+                "name": "downloads",
+                "data": {
+                  "path": "/home/ubunu/code/cloudsim-sim/server/keys.zip"
                 },
-                {
-                  username: this.rounddata.blueuser,
-                  permissions: {
-                    readOnly: false
-                  }
-                },
-              ]
-            }],
+                "permissions": [
+                  {
+                    "username": this.currentuser,
+                    "permissions": {
+                      "readOnly": false
+                    }
+                  },
+                  {
+                    username: this.rounddata.blueuser,
+                    permissions: {
+                      readOnly: false
+                    }
+                  },
+                ]
+              }
+            ]
           }
         }
 
@@ -612,23 +630,41 @@
             server_ip: this.rounddata.arbiter.secure.machine_ip,
             client_id: id,
             token: this.token,
-            resources: [{
-              name: 'downloads',
-              permissions: [
-                {
-                  username: this.currentuser,
-                  permissions: {
-                    readOnly: false
+            resources:
+            [
+              {
+                "name": "simulations",
+                "data": {},
+                "permissions": [
+                  {
+                    "username": this.currentuser,
+                    "permissions": {
+                      "readOnly": false
+                    }
                   }
+                ]
+              },
+              {
+                "name": "downloads",
+                "data": {
+                  "path": "/home/ubunu/code/cloudsim-sim/server/keys.zip"
                 },
-                {
-                  username: this.rounddata.golduser,
-                  permissions: {
-                    readOnly: false
-                  }
-                },
-              ]
-            }],
+                "permissions": [
+                  {
+                    "username": this.currentuser,
+                    "permissions": {
+                      "readOnly": false
+                    }
+                  },
+                  {
+                    username: this.rounddata.golduser,
+                    permissions: {
+                      readOnly: false
+                    }
+                  },
+                ]
+              }
+            ]
           }
         }
 
