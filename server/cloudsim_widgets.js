@@ -22,6 +22,11 @@ app.use(bodyParser.json())
 // prints all requests to the terminal
 app.use(morgan('combined', {
   skip: function (req) {
+
+    // skip during tests
+    if (app.get('env') === 'test')
+      return true
+
     // skip /api stuff
     const isApi = req.originalUrl.startsWith('/api/')
     if (isApi) {
