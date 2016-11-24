@@ -31,18 +31,6 @@ app.use(morgan('combined', {
   }
 }))
 
-// Redirect to HTTPS
-app.use(function (req, res, next) {
-    // Insecure request?
-    /* istanbul ignore if */
-  if (req.get('x-forwarded-proto') == 'http') {
-        // Redirect to https://
-    return res.redirect('https://' + req.get('host') + req.url);
-  }
-
-  next();
-});
-
 // the configuration values are set in the local .env file
 // this loads the .env content and puts it in the process environment.
 dotenv.load()
