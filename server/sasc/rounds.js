@@ -36,7 +36,8 @@ function setRoutes(app) {
         }
 
         obj.permissions = undefined
-        obj.data.arbiter.secure = undefined
+        if (obj.data.arbiter)
+          obj.data.arbiter.secure = undefined
 
         if (isBlue) {
           obj.data.goldpayloads = undefined
@@ -187,16 +188,17 @@ function setRoutes(app) {
 
             futureData[attrname] = newData[attrname]
           }
-          csgrant.updateResource(req.user, resourceName, futureData, (err, data) => {
-            if(err) {
-              return res.status(500).jsonp({success: false, error: err})
-            }
-            const r = {
-              success: true,
-              result: data,
-            }
-            res.jsonp(r)
-          })
+          csgrant.updateResource(req.authorizedIdentity, resourceName,
+              futureData, (err, data) => {
+                if(err) {
+                  return res.status(500).jsonp({success: false, error: err})
+                }
+                const r = {
+                  success: true,
+                  result: data,
+                }
+                res.jsonp(r)
+              })
         })
     })
 
