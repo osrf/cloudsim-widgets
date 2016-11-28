@@ -36,7 +36,8 @@ function setRoutes(app) {
         }
 
         obj.permissions = undefined
-        obj.data.arbiter.secure = undefined
+        if (obj.data.arbiter)
+          obj.data.arbiter.secure = undefined
 
         if (isBlue) {
           obj.data.goldpayloads = undefined
