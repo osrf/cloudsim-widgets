@@ -22,6 +22,10 @@ const sascAdmin = "sasc-admin"
 const sascAdminTokenData = {identities: [sascAdmin, "sasc-admins"]}
 let sascAdminToken
 
+const sascAdmin2 = "sasc-admin2"
+const sascAdmin2TokenData = {identities: [sascAdmin2, "sasc-admins"]}
+let sascAdmin2Token
+
 const blueCompetitor = "blue-competitor"
 const blueCompetitorTokenData = {identities: [blueCompetitor, "sasc-competitors"]}
 let blueCompetitorToken
@@ -53,22 +57,28 @@ describe('<Unit test SASC rounds>', function() {
         console.log('sign error: ' + e)
       }
       sascAdminToken = tok
-      csgrant.token.signToken(blueCompetitorTokenData, (e, tok)=>{
+      csgrant.token.signToken(sascAdmin2TokenData, (e, tok)=>{
         if(e) {
           console.log('sign error: ' + e)
         }
-        blueCompetitorToken = tok
-        csgrant.token.signToken(goldCompetitorTokenData, (e, tok)=>{
+        sascAdmin2Token = tok
+        csgrant.token.signToken(blueCompetitorTokenData, (e, tok)=>{
           if(e) {
             console.log('sign error: ' + e)
           }
-          goldCompetitorToken = tok
-          csgrant.token.signToken(notCompetitorTokenData, (e, tok)=>{
+          blueCompetitorToken = tok
+          csgrant.token.signToken(goldCompetitorTokenData, (e, tok)=>{
             if(e) {
               console.log('sign error: ' + e)
             }
-            notCompetitorToken = tok
-            done()
+            goldCompetitorToken = tok
+            csgrant.token.signToken(notCompetitorTokenData, (e, tok)=>{
+              if(e) {
+                console.log('sign error: ' + e)
+              }
+              notCompetitorToken = tok
+              done()
+            })
           })
         })
       })
@@ -261,12 +271,12 @@ describe('<Unit test SASC rounds>', function() {
     })
   })
 
-  describe('Add arbiter data to round with admin', function() {
+  describe('Add arbiter data to round with another admin', function() {
     it('should append data', function(done) {
       agent
       .put('/sascrounds/' + roundId)
       .set('Accept', 'application/json')
-      .set('authorization', sascAdminToken)
+      .set('authorization', sascAdmin2Token)
       .send({
         'arbiter': {
           'public': {
