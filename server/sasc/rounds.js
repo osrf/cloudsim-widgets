@@ -188,16 +188,17 @@ function setRoutes(app) {
 
             futureData[attrname] = newData[attrname]
           }
-          csgrant.updateResource(req.user, resourceName, futureData, (err, data) => {
-            if(err) {
-              return res.status(500).jsonp({success: false, error: err})
-            }
-            const r = {
-              success: true,
-              result: data,
-            }
-            res.jsonp(r)
-          })
+          csgrant.updateResource(req.authorizedIdentity, resourceName,
+              futureData, (err, data) => {
+                if(err) {
+                  return res.status(500).jsonp({success: false, error: err})
+                }
+                const r = {
+                  success: true,
+                  result: data,
+                }
+                res.jsonp(r)
+              })
         })
     })
 
