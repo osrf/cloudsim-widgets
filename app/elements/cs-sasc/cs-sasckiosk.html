@@ -87,7 +87,7 @@
 
     <paper-header-panel class="blue">
       <div class="paper-header">
-        <h1 class="title">Rounds</h1>
+        <h1 class="title">Current Rounds</h1>
 
         <template is="dom-if" if="[[issascadmin]]">
           <paper-fab
@@ -212,7 +212,15 @@
 
       // Callback from widgets server with all rounds for this user
       _onAllRounds: function(e) {
-        this.set('rounds', e.detail)
+
+        // Take only non-finished rounds
+        let temp = []
+        for (var i = 0; i < e.detail.length; ++i) {
+          if (!e.detail[i].data.finished)
+            temp.push(e.detail[i])
+        }
+
+        this.set('rounds', temp)
 
         if (this.rounds.length == 0)
           this.currentpage = "empty"
@@ -235,6 +243,13 @@
             !this.golduser) {
 
           this.fire('error', 'No fields can be empty.')
+          return
+        }
+
+        // Check for empty fields
+        if (this.roundname === "new" || this.roundname === "empty") {
+
+          this.fire('error', 'Invalid round name, please choose another name.')
           return
         }
 
