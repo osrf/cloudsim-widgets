@@ -1,0 +1,190 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-sascfinished">
+  <style>
+    .title {
+      font-size: 2em;
+    }
+    .subheader {
+      color: rgb(68, 138, 201);
+    }
+    .property {
+      font-weight: bold;
+      color: #7a7a7a;
+    }
+    .subproperty {
+      font-weight: bold;
+      color: #7a7a7a;
+      padding-left: 1em;
+    }
+    .space {
+      @apply(--layout-flex);
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+    .vertical {
+      @apply(--layout-vertical);
+      @apply(--layout-center);
+    }
+    .blue {
+      background-color: rgb(68, 138, 201);
+      color: #fff;
+    }
+    .paper-header {
+      padding: 1em;
+    }
+    .paper-header > h1 {
+      text-align: center;
+    }
+    .heading {
+      padding: 10px 15px;
+      margin-top: 20px;
+      background-color: #f3f3f3;
+      border: 1px solid #dedede;
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
+      font-size: 18px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: rgba(0,0,0,0);
+      width: 70%;
+      text-align: left;
+    }
+    .content {
+      width: 60%;
+      padding: 15px;
+      border: 1px solid #dedede;
+      border-top: none;
+      border-bottom-left-radius: 5px;
+      border-bottom-right-radius: 5px;
+      @apply(--shadow-elevation-2dp);
+    }
+  </style>
+  <template>
+
+    <!-- For managing rounds -->
+    <gz-resources
+      id="roundsresources"
+      url="[[baseUrl]]"
+      token="[[token]]"
+      resourcename="sascround"
+      on-resourcesupdated="_onAllRounds"
+    ></gz-resources>
+
+    <paper-header-panel class="blue">
+      <div class="paper-header">
+        <h1 class="title">Finished Rounds</h1>
+      </div>
+    </paper-header-panel>
+
+    <center>
+      <template is="dom-repeat" items="{{rounds}}">
+        <paper-button
+          class="heading"
+          data-args="[[item.name]]"
+          on-tap="_toggle"
+        >
+          [[item.data.name]]
+        </paper-button>
+
+        <iron-collapse id="[[item.name]]">
+          <div class="content">
+            <div class="horizontal">
+              <span class="property">Arbiter IP: </span> [[item.data.arbiter.secure.machine_ip]]
+            </div>
+            <div class="horizontal">
+              <span class="property">Launch date: </span> [[_prettyDate(item.data.arbiter.secure.launch_date)]]
+            </div>
+            <div class="horizontal">
+              <span class="property">Termination date: </span> [[_prettyDate(item.data.arbiter.secure.termination_date)]]
+            </div>
+            <div class="horizontal">
+              <b class="subheader">Blue</b>
+            </div>
+            <div class="horizontal">
+              <span class="subproperty">Blue user: </span> [[item.data.blueuser]]
+            </div>
+            <div class="horizontal">
+              <b class="subheader">Gold</b>
+            </div>
+            <div class="horizontal">
+              <span class="subproperty">Gold user: </span> [[item.data.golduser]]
+            </div>
+            </template>
+          </div>
+        </iron-collapse>
+      </template>
+    </center>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-sascfinished',
+
+      // Attached
+      attached: function() {
+      },
+
+      // Callback when the token has been updated
+      _onTokenUpdated: function() {
+        if (this.token !== "") {
+          this._getRounds()
+        }
+      },
+
+      // Get list of all rounds for this user
+      _getRounds: function() {
+        this.$.roundsresources.getAll()
+      },
+
+      // Callback from widgets server with all rounds for this user
+      _onAllRounds: function(e) {
+
+        let temp = []
+        for (var i = 0; i < e.detail.length; ++i) {
+          if (e.detail[i].data.finished)
+            temp.push(e.detail[i])
+        }
+
+        this.set('rounds', temp)
+      },
+
+      // Toggle collapsibles
+      _toggle: function(e) {
+        this.$$('#' + e.currentTarget.dataArgs).toggle();
+      },
+
+      // Pretify date
+      _prettyDate: function(date) {
+        let d = new Date(date);
+        return d.toString();
+      },
+
+      properties: {
+        rounds: {
+          type: Array,
+          value: [],
+          notify: true
+        },
+        token: {
+          type: String,
+          value: '',
+          notify: true,
+          observer: '_onTokenUpdated'
+        },
+        competitors: {
+          type: Array,
+          value: [],
+          notify: true,
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>
