@@ -42,7 +42,7 @@
     .heading {
       padding: 10px 15px;
       margin-top: 20px;
-      background-color: #f3f3f3;
+      background-color: #dedede;
       border: 1px solid #dedede;
       border-top-left-radius: 5px;
       border-top-right-radius: 5px;
@@ -61,16 +61,20 @@
       border-bottom-right-radius: 5px;
       @apply(--shadow-elevation-2dp);
     }
+    .killButton > iron-icon {
+      --iron-icon-fill-color: #f00;
+    }
   </style>
   <template>
 
     <!-- For managing rounds -->
     <gz-resources
-      id="roundsresources"
+      id="resources"
       url="[[baseUrl]]"
       token="[[token]]"
       resourcename="sascround"
       on-resourcesupdated="_onAllRounds"
+      on-deleted="_onDeleted"
     ></gz-resources>
 
     <paper-header-panel class="blue">
@@ -91,6 +95,7 @@
 
         <iron-collapse id="[[item.name]]">
           <div class="content">
+
             <div class="horizontal">
               <span class="property">Arbiter IP: </span> [[item.data.arbiter.secure.machine_ip]]
             </div>
@@ -112,7 +117,16 @@
             <div class="horizontal">
               <span class="subproperty">Gold user: </span> [[item.data.golduser]]
             </div>
-            </template>
+
+            <paper-button
+              raised
+              class="killButton"
+              on-tap="_tapDelete"
+              data-args="[[item.name]]"
+            >
+              <iron-icon icon="icons:close"></iron-icon>
+              Erase round
+            </paper-button>
           </div>
         </iron-collapse>
       </template>
@@ -140,7 +154,7 @@
 
       // Get list of all rounds for this user
       _getRounds: function() {
-        this.$.roundsresources.getAll()
+        this.$.resources.getAll()
       },
 
       // Callback from widgets server with all rounds for this user
@@ -164,6 +178,18 @@
       _prettyDate: function(date) {
         let d = new Date(date);
         return d.toString();
+      },
+
+      // When delete button is tapped
+      _tapDelete(e) {
+        this.$.resources.del(e.currentTarget.dataArgs);
+        this._getRounds()
+      },
+
+      // Response that machine has been killed
+      _onDeleted: function(e) {
+        this.fire('notification',
+            {msg: "Round has been erased.", type: "msg"})
       },
 
       properties: {
