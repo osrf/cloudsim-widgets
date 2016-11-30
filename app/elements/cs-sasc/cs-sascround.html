@@ -545,7 +545,7 @@
           token: this.token,
           region: "us-west-1",
           image: this.machineimage,
-          hardware: "m4.large",
+          hardware: this.payloadmachinetype,
           options: {
             role: 'payload',
             client_route: url,
@@ -623,7 +623,7 @@
           token: this.token,
           region: "us-west-1",
           image: this.machineimage,
-          hardware: "m4.large",
+          hardware: this.payloadmachinetype,
           options: {
             role: 'payload',
             client_route: url,
@@ -953,6 +953,10 @@
           observer: '_onRounddataUpdated'
         },
         machineimage: {
+          type: String,
+          value: '',
+        },
+        payloadmachinetype: {
           type: String,
           value: '',
         },
