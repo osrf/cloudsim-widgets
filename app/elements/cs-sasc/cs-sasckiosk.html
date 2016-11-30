@@ -124,8 +124,6 @@
             <p>Start a new round.</p>
 
             <paper-input value="{{roundname}}" label="Round name" required></paper-input>
-            <paper-input value="{{machineimage}}" label="Payload hardware" required></paper-input>
-            <paper-input value="{{payloadmachinetype}}" label="Software" required></paper-input>
 
             <div class="horizontal">
               <p>Blue team:</p>
@@ -159,11 +157,44 @@
               </paper-dropdown-menu>
             </div>
 
+
+            <div class="horizontal">
+              <paper-icon-button
+                icon="icons:settings"
+                title="Advanced machine settings"
+                on-tap="_toggleSystem"
+              ></paper-icon-button>
+              <div class="space"></div>
+            </div>
+
+            <iron-collapse id="system">
+              <div class="content">
+
+                <div class="horizontal">
+                  <div class="vertical">
+                    <paper-input value="{{arbiterami}}" label="Arbiter software" required></paper-input>
+                    <paper-input value="{{arbiterhardware}}" label="Arbiter hardware" required></paper-input>
+                  </div>
+
+                  <div class="space"></div>
+
+                  <div class="vertical">
+                    <paper-input value="{{payloadami}}" label="Payload software" required></paper-input>
+                    <paper-input value="{{payloadhardware}}" label="Payload hardware" required></paper-input>
+                  </div>
+                </div>
+
+              </div>
+            </iron-collapse>
+
+            <br>
+
             <paper-button
               raised
               class="blue"
               on-tap="_onContinue"
             >Continue</paper-button></p>
+
           </div>
         </center>
       </section>
@@ -176,8 +207,6 @@
             portalurl="[[portalurl]]"
             keysurl="[[keysurl]]"
             rounddata=[[item.data]]
-            machineimage="[[machineimage]]"
-            payloadmachinetype="[[payloadmachinetype]]"
             roundid=[[item.name]]
             on-rounddataupdated=_onRoundUpdated
             id="[[item.name]]"
@@ -272,6 +301,10 @@
           name: this.roundname,
           blueuser: this.blueuser,
           golduser: this.golduser,
+          arbiterami: this.arbiterami,
+          payloadami: this.payloadami,
+          arbiterhardware: this.arbiterhardware,
+          payloadhardware: this.payloadhardware,
           arbiter: {
             public: {
               status: 'NOT LAUNCHED'
@@ -340,6 +373,11 @@
         this.set('competitors', temp)
       },
 
+      // Toggle collapsible system
+      _toggleSystem: function(e) {
+        this.$.system.toggle();
+      },
+
       properties: {
         rounds: {
           type: Array,
@@ -372,11 +410,19 @@
           value: [],
           notify: true,
         },
-        machineimage: {
+        arbiterami: {
           type: String,
           value: "ami-820354e2" // sasc v1.0.65b
         },
-        payloadmachinetype: {
+        payloadami: {
+          type: String,
+          value: "ami-820354e2" // sasc v1.0.65b
+        },
+        arbiterhardware: {
+          type: String,
+          value: "m4.large"
+        },
+        payloadhardware: {
           type: String,
           value: "m4.xlarge"
         },
