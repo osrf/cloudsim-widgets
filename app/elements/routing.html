@@ -43,7 +43,7 @@
       }
       else
       {
-        app.topLevelRoute = 'home';
+        page.redirect(app.baseUrl);
       }
       setTimeout(function () {
         window.dispatchEvent(changeEvent)
@@ -65,7 +65,7 @@
       }
       else
       {
-        app.topLevelRoute = 'home';
+        page.redirect(app.baseUrl);
       }
       setTimeout(function () {
         window.dispatchEvent(changeEvent)
@@ -80,7 +80,7 @@
       }
       else
       {
-        app.topLevelRoute = 'home';
+        page.redirect(app.baseUrl);
       }
       setTimeout(function () {
         window.dispatchEvent(changeEvent)
@@ -104,7 +104,31 @@
       }
       else
       {
-        app.topLevelRoute = 'home';
+        page.redirect(app.baseUrl);
+      }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
+    });
+
+    page('/sasc-finished', function() {
+      if (app.loggedin)
+      {
+        app.topLevelRoute = 'secure';
+
+        if (app.issasccompetitor || app.issascadmin)
+        {
+          app.secureRoute = 'sasc';
+          app.sascRoute = 'finished';
+        }
+        else
+        {
+          app.secureRoute = 'dashboard';
+        }
+      }
+      else
+      {
+        page.redirect(app.baseUrl);
       }
       setTimeout(function () {
         window.dispatchEvent(changeEvent)
