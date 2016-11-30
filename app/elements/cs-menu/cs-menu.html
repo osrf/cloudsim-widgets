@@ -92,6 +92,15 @@
             <span>Competition Kiosk</span>
           </paper-item>
         </a>
+
+        <template is="dom-if" if="[[issascadmin]]">
+          <a data-route="sasc" href="{{baseUrl}}sasc-finished">
+            <paper-item class="subitem">
+              <span>Finished Rounds</span>
+            </paper-item>
+          </a>
+        </template>
+
       </template>
 
     </paper-menu>
