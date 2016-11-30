@@ -483,8 +483,8 @@
         let data =  {
           token: this.token,
           region: "us-west-1",
-          image: this.machineimage,
-          hardware: "m4.large",
+          image: this.rounddata.arbiterami,
+          hardware: this.rounddata.arbiterhardware,
           options: {
             role: 'arbiter',
             "blue_route": this.rounddata.blueServerRoute,
@@ -544,8 +544,8 @@
         let data =  {
           token: this.token,
           region: "us-west-1",
-          image: this.machineimage,
-          hardware: "m4.large",
+          image: this.rounddata.payloadami,
+          hardware: this.rounddata.payloadhardware,
           options: {
             role: 'payload',
             client_route: url,
@@ -622,8 +622,8 @@
         let data =  {
           token: this.token,
           region: "us-west-1",
-          image: this.machineimage,
-          hardware: "m4.large",
+          image: this.rounddata.payloadami,
+          hardware: this.rounddata.payloadhardware,
           options: {
             role: 'payload',
             client_route: url,
@@ -951,10 +951,6 @@
           value: '',
           notify: true,
           observer: '_onRounddataUpdated'
-        },
-        machineimage: {
-          type: String,
-          value: '',
         },
         launchersdisabled: {
           type: Boolean,
