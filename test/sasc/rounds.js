@@ -529,6 +529,102 @@ describe('<Unit test SASC rounds>', function() {
     })
   })
 
+  let roundId2
+  describe('Start round where two admins are competitors', function() {
+    it('should create a resource with the correct permissions', function(done) {
+      agent
+      .post('/sascrounds')
+      .set('Accept', 'application/json')
+      .set('authorization', sascAdminToken)
+      .send({'name': roundName, 'blueuser': sascAdmin, 'golduser': sascAdmin2})
+      .end(function(err,res) {
+        res.status.should.be.equal(200)
+        let response = getResponse(res, true)
+        response.success.should.equal(true)
+
+        roundId2 = response.id
+        roundId2.indexOf('sascround').should.be.equal(0)
+
+        // Input data
+        response.result.data.name.should.equal(roundName)
+        response.result.data.blueuser.should.equal(sascAdmin)
+        response.result.data.golduser.should.equal(sascAdmin2)
+
+        // Permissions
+        response.result.permissions[sascAdmin].readOnly.should.equal(false)
+        response.result.permissions['sasc-admins'].readOnly.should.equal(false)
+
+        // 2nd admin's personal permission is read only, but they have write
+        // from the sasc-admins group
+        response.result.permissions[sascAdmin2].readOnly.should.equal(true)
+
+        done()
+      })
+    })
+  })
+
+  describe('Add secure data to round with admin who created it', function() {
+    it('should append data', function(done) {
+      agent
+      .put('/sascrounds/' + roundId2)
+      .set('Accept', 'application/json')
+      .set('authorization', sascAdmin2Token)
+      .send({
+        'arbiter': {
+          'public': {
+            'status' : 'LAUNCHING'
+          },
+          'secure': {
+            'status' : 'LAUNCHING'
+          }
+        }
+      })
+      .end(function(err,res) {
+        res.status.should.be.equal(200)
+        let response = getResponse(res)
+        response.success.should.equal(true)
+        should.exist(response.result.data.arbiter.secure)
+        done()
+      })
+    })
+  })
+
+  describe('Get round with admin who created it', function() {
+    it('should have secure data', function(done) {
+      agent
+      .get('/sascrounds')
+      .set('Accept', 'application/json')
+      .set('authorization', sascAdminToken)
+      .end(function(err,res) {
+        res.status.should.be.equal(200)
+        let response = getResponse(res, true)
+        response.success.should.equal(true)
+        response.requester.should.equal(sascAdmin)
+        response.result.length.should.equal(1)
+        should.exist(response.result[0].data.arbiter.secure)
+        done()
+      })
+    })
+  })
+
+  describe('Get round with admin who is competitor', function() {
+    it('should have secure data', function(done) {
+      agent
+      .get('/sascrounds')
+      .set('Accept', 'application/json')
+      .set('authorization', sascAdmin2Token)
+      .end(function(err,res) {
+        res.status.should.be.equal(200)
+        let response = getResponse(res, true)
+        response.success.should.equal(true)
+        response.requester.should.equal(sascAdmin2)
+        response.result.length.should.equal(1)
+        should.exist(response.result[0].data.arbiter.secure)
+        done()
+      })
+    })
+  })
+
   after(function(done) {
     console.log('after everything')
     csgrant.model.clearDb()
