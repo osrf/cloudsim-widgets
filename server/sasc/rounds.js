@@ -18,10 +18,23 @@ function setRoutes(app) {
         if(obj.name.indexOf('sascround-') != 0)
           return false
 
-        // If user has write permission, they are an admin, so they can see
-        // the whole data
-        if (!obj.permissions[0].permissions.readOnly)
-          return true
+        // If at least one of the user's indentities has write permission,
+        // they are an admin, so they can see the whole data
+        for (let i in req.identities) {
+
+          const identity = req.identities[i]
+
+          for (let o in obj.permissions) {
+
+            const permUser = obj.permissions[o].username
+
+            if (identity == permUser) {
+
+              if (!obj.permissions[o].permissions.readOnly)
+                return true
+            }
+          }
+        }
 
         // For competitors, filter out secure information about arbiter and
         // opposing team
@@ -111,36 +124,54 @@ function setRoutes(app) {
           id: resourceName
         }
 
+        const grantCompetitor = function (granter, grantee, resource, cb) {
+
+          // Check if user already has write access
+          csgrant.isAuthorized(grantee, resource, false, (err, authorized) => {
+            if (err) {
+              return cb(err)
+            }
+
+            let readOnly = !authorized
+
+            // Grant user write if already write, read otherwise
+            csgrant.grantPermission(granter, grantee, resource, readOnly, function(err) {
+              if (err) {
+                return cb(err)
+              }
+              cb()
+            })
+          })
+        }
+
+
         // Give all admins write access
-        csgrant.grantPermission(req.user, "sasc-admins", r.id, false,
-          function(err) {
+        csgrant.grantPermission(req.user, "sasc-admins", r.id, false, function(err) {
+          if (err) {
+            res.status(500).jsonp(error(err))
+            return;
+          }
+
+          // Give competitors read access
+
+          // Blue
+          grantCompetitor(req.user, resourceData.blueuser, r.id, (err) => {
             if (err) {
               res.status(500).jsonp(error(err))
               return;
             }
 
-            // Give competitors read access
+            // Gold
+            grantCompetitor(req.user, resourceData.golduser, r.id, (err) => {
+              if (err) {
+                res.status(500).jsonp(error(err))
+                return;
+              }
 
-            // Blue
-            csgrant.grantPermission(req.user, resourceData.blueuser, r.id, true,
-              function(err) {
-                if (err) {
-                  res.status(500).jsonp(error(err))
-                  return;
-                }
-
-                // Gold
-                csgrant.grantPermission(req.user, resourceData.golduser, r.id, true,
-                  function(err) {
-                    if (err) {
-                      res.status(500).jsonp(error(err))
-                      return;
-                    }
-
-                    res.jsonp(r);
-                  })
-              })
+              res.jsonp(r);
+            })
           })
+        })
       })
     })
 
