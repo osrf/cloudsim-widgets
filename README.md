@@ -89,7 +89,7 @@ Configure server URL:
 To start:
 
 ```sh
-gulp serve
+npm start
 ```
 
 
