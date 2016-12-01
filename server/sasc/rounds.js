@@ -124,6 +124,7 @@ function setRoutes(app) {
           id: resourceName
         }
 
+        // Helper function check user's authorization and then grant permission
         const grantCompetitor = function (granter, grantee, resource, cb) {
 
           // Check if user already has write access
