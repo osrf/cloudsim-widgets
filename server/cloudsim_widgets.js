@@ -57,6 +57,9 @@ if (process.argv[2] === 'dev')
 app.use("/", express.static(rootDir));
 app.use("/api", express.static(path.join(__dirname, '/../api')));
 
+// setup the /permissions routes
+csgrant.setPermissionsRoutes(app)
+
 sascrounds.setRoutes(app);
 srcregistrations.setRoutes(app);
 
@@ -96,7 +99,9 @@ console.log('============================================')
 console.log('\n\n')
 
 // initial resources
-const resources = {}
+const resources = {
+  'sascrounds': {}
+}
 
 csgrant.init(adminUser,
   resources,

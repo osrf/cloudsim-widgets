@@ -78,20 +78,11 @@ function setRoutes(app) {
       next()
     },
     csgrant.allResources)
-
   // Start a new round
   app.post('/sascrounds',
     csgrant.authenticate,
+    csgrant.ownsResource('sascrounds', false),
     function(req, res) {
-
-      let isAdmin = false
-      if (req.identities.indexOf('sasc-admins') >= 0)
-        isAdmin = true
-
-      if (!isAdmin) {
-        res.status(401).jsonp('{"error":"Only SASC admins can start rounds."}')
-        return
-      }
 
       const resourceData = req.body
 
@@ -145,32 +136,23 @@ function setRoutes(app) {
           })
         }
 
+        // Give competitors read access
 
-        // Give all admins write access
-        csgrant.grantPermission(req.user, "sasc-admins", r.id, false, function(err) {
+        // Blue
+        grantCompetitor(req.user, resourceData.blueuser, r.id, (err) => {
           if (err) {
             res.status(500).jsonp(error(err))
             return;
           }
 
-          // Give competitors read access
-
-          // Blue
-          grantCompetitor(req.user, resourceData.blueuser, r.id, (err) => {
+          // Gold
+          grantCompetitor(req.user, resourceData.golduser, r.id, (err) => {
             if (err) {
               res.status(500).jsonp(error(err))
               return;
             }
 
-            // Gold
-            grantCompetitor(req.user, resourceData.golduser, r.id, (err) => {
-              if (err) {
-                res.status(500).jsonp(error(err))
-                return;
-              }
-
-              res.jsonp(r);
-            })
+            res.jsonp(r);
           })
         })
       })
