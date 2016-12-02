@@ -337,8 +337,8 @@
       _onDeleteGroup() {
 
         this.$.confirmationdialog.open(
-            'Are you sure you\'d like to delete group "' +
-            this.selectedgroup.name + '" ? This action can\'t be reverted.',
+            'Are you sure you\'d like to delete this team? <br>' +
+            '<b>This action can\'t be reverted.</b>',
             this._onDeleteGroupConfirmation.bind(this))
       },
 
