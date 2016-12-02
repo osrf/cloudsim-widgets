@@ -1,0 +1,82 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-confirmationdialog">
+  <style>
+    paper-dialog {
+      max-width: 30%;
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+    }
+    .vertical {
+      @apply(--layout-vertical);
+    }
+  </style>
+  <template>
+
+    <paper-dialog
+      id="dialog"
+      on-iron-overlay-closed="_dismissDialog"
+      modal
+    >
+      <div class="vertical">
+        <div inner-h-t-m-l="[[text]]"></div>
+
+        <br>
+
+        <div class="horizontal">
+          <!-- cancel -->
+          <paper-button
+            raised
+            dialog-dismiss
+          >
+            Cancel
+          </paper-button>
+
+          <!-- ok -->
+          <paper-button
+            raised
+            dialog-confirm
+            autofocus
+          >
+            Ok
+          </paper-button>
+        </div>
+      </div>
+
+    </paper-dialog>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-confirmationdialog',
+
+      // Attached
+      attached: function() {
+      },
+
+      // Open the dialog
+      open(_text, _cb) {
+        this.text = _text
+        this.cb = _cb
+        this.$.dialog.open()
+      },
+
+      // Open the dialog
+      _dismissDialog(e) {
+        if (e.detail.confirmed)
+          this.cb()
+      },
+
+      // Properties
+      properties: {
+      },
+    });
+  })();
+  </script>
+</dom-module>

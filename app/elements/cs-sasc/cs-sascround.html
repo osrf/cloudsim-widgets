@@ -154,6 +154,10 @@
       on-created="_onGoldKeyGenerated"
     ></gz-keys>
 
+    <!-- confirmation dialog -->
+    <cs-confirmationdialog id="confirmationdialog">
+    </cs-confirmationdialog>
+
     <center>
 
       <!-- ARBITER -->
@@ -765,6 +769,16 @@
 
       // When user presses Finish Round button
       _onFinish: function() {
+
+        this.$.confirmationdialog.open(
+            'Are you sure you\'d like to finish this round? <br>' +
+            'The arbiter and all payloads will be terminated. <br>' +
+            '<b>This action can\'t be reverted.</b>',
+            this._onFinishConfirmation.bind(this))
+      },
+
+      _onFinishConfirmation: function() {
+
         // Arbiter
         if (this.rounddata.arbiter.secure)
           this.$.launchresources.del(this.rounddata.arbiter.secure.id);

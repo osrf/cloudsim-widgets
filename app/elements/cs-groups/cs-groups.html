@@ -119,6 +119,12 @@
       on-deleted="_onGroupDeleted"
     ></gz-resources>
 
+    <!-- confirmation dialog -->
+    <cs-confirmationdialog
+      id="confirmationdialog"
+    >
+    </cs-confirmationdialog>
+
     <paper-material elevation="1">
 
       <h1>
@@ -329,6 +335,16 @@
 
       // Request to delete a group
       _onDeleteGroup() {
+
+        this.$.confirmationdialog.open(
+            'Are you sure you\'d like to delete this team? <br>' +
+            '<b>This action can\'t be reverted.</b>',
+            this._onDeleteGroupConfirmation.bind(this))
+      },
+
+      // After user confirms the group should be deleted
+      _onDeleteGroupConfirmation() {
+
         this.$.resources.del(this.selectedgroup.name);
 
         // Close dialog
