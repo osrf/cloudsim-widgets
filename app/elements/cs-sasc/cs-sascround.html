@@ -138,6 +138,13 @@
       on-created="_onLaunched"
     ></gz-resources>
 
+    <!-- For sharing machines -->
+    <gz-grant
+      id="portalgrant"
+      url="[[portalurl]]"
+      token="[[token]]"
+    ></gz-grant>
+
     <!-- For getting VPN keys -->
     <gz-keys
       id="bluekeys"
@@ -153,6 +160,13 @@
       keytype="tap/sasc"
       on-created="_onGoldKeyGenerated"
     ></gz-keys>
+
+    <!-- For sharing keys -->
+    <gz-grant
+      id="keysgrant"
+      url="[[keysurl]]"
+      token="[[token]]"
+    ></gz-grant>
 
     <!-- confirmation dialog -->
     <cs-confirmationdialog id="confirmationdialog">
@@ -510,6 +524,13 @@
 
       // Response from keys server with resource id
       _onGoldKeyGenerated: function(e) {
+
+        // Share machine with all admins
+        const data = { grantee: 'sasc-admins',
+                       resource: e.detail.id,
+                       readonly: false }
+        this.$.keysgrant.grant(data)
+
         const key = e.detail.id
         this.set('rounddata.goldServerRoute', e.detail.serverRoute)
         this.set('rounddata.goldKeyResourceId', key)
@@ -519,6 +540,14 @@
 
       // Response from keys server with resource id
        _onBlueKeyGenerated: function(e) {
+
+        // Share machine with all admins
+        const data = { grantee: 'sasc-admins',
+                       resource: e.detail.id,
+                       readonly: false }
+        this.$.keysgrant.grant(data)
+
+        // Update data on widgets
         const key = e.detail.id
         this.set('rounddata.blueServerRoute', e.detail.serverRoute)
         this.set('rounddata.blueKeyResourceId', key)
@@ -692,6 +721,12 @@
           this.fire('notification', {msg: msg, type: "error"})
           return
         }
+
+        // Share machine with all admins
+        const data = { grantee: 'sasc-admins',
+                       resource: e.detail.id,
+                       readonly: false }
+        this.$.portalgrant.grant(data)
 
         // Arbiter
         if (this.launching == 'arbiter') {
