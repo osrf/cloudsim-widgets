@@ -525,7 +525,7 @@
       // Response from keys server with resource id
       _onGoldKeyGenerated: function(e) {
 
-        // Share machine with all admins
+        // Share key with all admins
         const data = { grantee: 'sasc-admins',
                        resource: e.detail.id,
                        readonly: false }
@@ -541,7 +541,7 @@
       // Response from keys server with resource id
        _onBlueKeyGenerated: function(e) {
 
-        // Share machine with all admins
+        // Share key with all admins
         const data = { grantee: 'sasc-admins',
                        resource: e.detail.id,
                        readonly: false }
