@@ -513,6 +513,47 @@
             "blue_subnet" : this.bluesubnet,
             "gold_subnet" : this.goldsubnet,
             "token": this.token,
+            resources:
+            [
+              {
+                "name": "simulations",
+                "data": {},
+                "permissions": [
+                  {
+                    "username": "sasc-admins",
+                    "permissions": {
+                      "readOnly": false
+                    }
+                  },
+                  {
+                    "username": this.currentuser,
+                    "permissions": {
+                      "readOnly": false
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "downloads",
+                "data": {
+                  "path": "/home/ubuntu/code/cloudsim-sim/server/keys.zip"
+                },
+                "permissions": [
+                  {
+                    "username": this.currentuser,
+                    "permissions": {
+                      "readOnly": false
+                    }
+                  },
+                  {
+                    "username": "sasc-admins",
+                    "permissions": {
+                      "readOnly": false
+                    }
+                  },
+                ]
+              }
+            ]
           }
         }
         this.launching = 'arbiter'
@@ -599,7 +640,19 @@
                     "permissions": {
                       "readOnly": false
                     }
-                  }
+                  },
+                  {
+                    "username": "sasc-admins",
+                    "permissions": {
+                      "readOnly": false
+                    }
+                  },
+                  {
+                    username: this.rounddata.blueuser,
+                    permissions: {
+                      readOnly: false
+                    }
+                  },
                 ]
               },
               {
@@ -610,6 +663,12 @@
                 "permissions": [
                   {
                     "username": this.currentuser,
+                    "permissions": {
+                      "readOnly": false
+                    }
+                  },
+                  {
+                    "username": "sasc-admins",
                     "permissions": {
                       "readOnly": false
                     }
@@ -677,7 +736,19 @@
                     "permissions": {
                       "readOnly": false
                     }
-                  }
+                  },
+                  {
+                    "username": "sasc-admins",
+                    "permissions": {
+                      "readOnly": false
+                    }
+                  },
+                  {
+                    username: this.rounddata.golduser,
+                    permissions: {
+                      readOnly: false
+                    }
+                  },
                 ]
               },
               {
@@ -688,6 +759,12 @@
                 "permissions": [
                   {
                     "username": this.currentuser,
+                    "permissions": {
+                      "readOnly": false
+                    }
+                  },
+                  {
+                    "username": "sasc-admins",
                     "permissions": {
                       "readOnly": false
                     }
