@@ -138,6 +138,13 @@
       on-created="_onLaunched"
     ></gz-resources>
 
+    <!-- For sharing machines -->
+    <gz-grant
+      id="portalgrant"
+      url="[[portalurl]]"
+      token="[[token]]"
+    ></gz-grant>
+
     <!-- For getting VPN keys -->
     <gz-keys
       id="bluekeys"
@@ -153,6 +160,13 @@
       keytype="tap/sasc"
       on-created="_onGoldKeyGenerated"
     ></gz-keys>
+
+    <!-- For sharing keys -->
+    <gz-grant
+      id="keysgrant"
+      url="[[keysurl]]"
+      token="[[token]]"
+    ></gz-grant>
 
     <!-- confirmation dialog -->
     <cs-confirmationdialog id="confirmationdialog">
@@ -499,6 +513,47 @@
             "blue_subnet" : this.bluesubnet,
             "gold_subnet" : this.goldsubnet,
             "token": this.token,
+            resources:
+            [
+              {
+                "name": "simulations",
+                "data": {},
+                "permissions": [
+                  {
+                    "username": "sasc-admins",
+                    "permissions": {
+                      "readOnly": false
+                    }
+                  },
+                  {
+                    "username": this.currentuser,
+                    "permissions": {
+                      "readOnly": false
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "downloads",
+                "data": {
+                  "path": "/home/ubuntu/code/cloudsim-sim/server/keys.zip"
+                },
+                "permissions": [
+                  {
+                    "username": this.currentuser,
+                    "permissions": {
+                      "readOnly": false
+                    }
+                  },
+                  {
+                    "username": "sasc-admins",
+                    "permissions": {
+                      "readOnly": false
+                    }
+                  },
+                ]
+              }
+            ]
           }
         }
         this.launching = 'arbiter'
@@ -510,6 +565,13 @@
 
       // Response from keys server with resource id
       _onGoldKeyGenerated: function(e) {
+
+        // Share key with all admins
+        const data = { grantee: 'sasc-admins',
+                       resource: e.detail.id,
+                       readonly: false }
+        this.$.keysgrant.grant(data)
+
         const key = e.detail.id
         this.set('rounddata.goldServerRoute', e.detail.serverRoute)
         this.set('rounddata.goldKeyResourceId', key)
@@ -519,6 +581,14 @@
 
       // Response from keys server with resource id
        _onBlueKeyGenerated: function(e) {
+
+        // Share key with all admins
+        const data = { grantee: 'sasc-admins',
+                       resource: e.detail.id,
+                       readonly: false }
+        this.$.keysgrant.grant(data)
+
+        // Update data on widgets
         const key = e.detail.id
         this.set('rounddata.blueServerRoute', e.detail.serverRoute)
         this.set('rounddata.blueKeyResourceId', key)
@@ -570,7 +640,19 @@
                     "permissions": {
                       "readOnly": false
                     }
-                  }
+                  },
+                  {
+                    "username": "sasc-admins",
+                    "permissions": {
+                      "readOnly": false
+                    }
+                  },
+                  {
+                    username: this.rounddata.blueuser,
+                    permissions: {
+                      readOnly: false
+                    }
+                  },
                 ]
               },
               {
@@ -581,6 +663,12 @@
                 "permissions": [
                   {
                     "username": this.currentuser,
+                    "permissions": {
+                      "readOnly": false
+                    }
+                  },
+                  {
+                    "username": "sasc-admins",
                     "permissions": {
                       "readOnly": false
                     }
@@ -648,7 +736,19 @@
                     "permissions": {
                       "readOnly": false
                     }
-                  }
+                  },
+                  {
+                    "username": "sasc-admins",
+                    "permissions": {
+                      "readOnly": false
+                    }
+                  },
+                  {
+                    username: this.rounddata.golduser,
+                    permissions: {
+                      readOnly: false
+                    }
+                  },
                 ]
               },
               {
@@ -659,6 +759,12 @@
                 "permissions": [
                   {
                     "username": this.currentuser,
+                    "permissions": {
+                      "readOnly": false
+                    }
+                  },
+                  {
+                    "username": "sasc-admins",
                     "permissions": {
                       "readOnly": false
                     }
@@ -692,6 +798,12 @@
           this.fire('notification', {msg: msg, type: "error"})
           return
         }
+
+        // Share machine with all admins
+        const data = { grantee: 'sasc-admins',
+                       resource: e.detail.id,
+                       readonly: false }
+        this.$.portalgrant.grant(data)
 
         // Arbiter
         if (this.launching == 'arbiter') {
