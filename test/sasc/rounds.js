@@ -539,7 +539,7 @@ describe('<Unit test SASC rounds>', function() {
       .send({'name': roundName, 'blueuser': sascAdmin, 'golduser': sascAdmin2})
       .end(function(err,res) {
         res.status.should.be.equal(200)
-        let response = getResponse(res, true)
+        let response = getResponse(res)
         response.success.should.equal(true)
 
         roundId2 = response.id
@@ -597,7 +597,7 @@ describe('<Unit test SASC rounds>', function() {
       .set('authorization', sascAdminToken)
       .end(function(err,res) {
         res.status.should.be.equal(200)
-        let response = getResponse(res, true)
+        let response = getResponse(res)
         response.success.should.equal(true)
         response.requester.should.equal(sascAdmin)
         response.result.length.should.equal(1)
@@ -615,7 +615,7 @@ describe('<Unit test SASC rounds>', function() {
       .set('authorization', sascAdmin2Token)
       .end(function(err,res) {
         res.status.should.be.equal(200)
-        let response = getResponse(res, true)
+        let response = getResponse(res)
         response.success.should.equal(true)
         response.requester.should.equal(sascAdmin2)
         response.result.length.should.equal(1)
