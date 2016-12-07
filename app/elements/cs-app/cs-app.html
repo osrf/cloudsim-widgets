@@ -139,6 +139,22 @@
 
               </section>
 
+              <!-- PRECIOUS secure routes -->
+              <section data-route="precious">
+
+                <iron-pages attr-for-selected="data-route" selected="{{preciousRoute}}">
+
+                  <section data-route="kiosk">
+                    <cs-preciouskiosk
+                      token="[[token]]"
+                      portalurl="[[portalurl]]"
+                    ></cs-preciouskiosk>
+                  </section>
+
+                </iron-pages>
+
+              </section>
+
             </iron-pages>
           </div>
 
@@ -231,6 +247,12 @@
 
         this.$.menu.issascuser = this.issasccompetitor || this.issascadmin
         this.$.menu.issascadmin = this.issascadmin
+
+        // PRECIOUS
+        this.isprecious = (this.currentuser === getConfig().admin ||
+                           this.identities.indexOf("precious") > -1);
+
+        this.$.menu.isprecious = this.isprecious
 
         // Get permissions from gz-grant
         this.$.grant.getall();

@@ -135,6 +135,30 @@
       }, 100);
     });
 
+    page('/precious', function() {
+      if (app.loggedin)
+      {
+        app.topLevelRoute = 'secure';
+
+        if (app.isprecious)
+        {
+          app.secureRoute = 'precious';
+          app.preciousRoute = 'kiosk';
+        }
+        else
+        {
+          app.secureRoute = 'dashboard';
+        }
+      }
+      else
+      {
+        page.redirect(app.baseUrl);
+      }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
+    });
+
     // 404
     page('*', function() {
       page.redirect(app.baseUrl);
