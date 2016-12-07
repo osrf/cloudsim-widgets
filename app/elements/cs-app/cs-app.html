@@ -130,16 +130,20 @@
             <iron-pages attr-for-selected="data-route" selected="[[secureRoute]]">
 
               <!-- Dashboard -->
-              <section data-route="dashboard">
-                <cs-dashboard
-                  id="dashboard"
-                  authurl="[[authurl]]"
-                  portalurl="[[portalurl]]"
-                  token="[[token]]"
-                  currentuser="[[currentuser]]"
-                  currentpermissions="[[currentpermissions]]"
-                ></cs-dashboard>
-              </section>
+              <template is="dom-if" if="[[hasmachinelauncher]]">
+                <section data-route="dashboard">
+<!--
+                  <cs-dashboard
+                    id="dashboard"
+                    authurl="[[authurl]]"
+                    portalurl="[[portalurl]]"
+                    token="[[token]]"
+                    currentuser="[[currentuser]]"
+                    currentpermissions="[[currentpermissions]]"
+                  ></cs-dashboard>
+-->
+                </section>
+              </template>
 
               <!-- Profile -->
               <section data-route="profile">
@@ -352,7 +356,6 @@
 
         this.$.menu.issascuser = this.issasccompetitor || this.issascadmin
         this.$.menu.issascadmin = this.issascadmin
-        this.$.dashboard.issascuser = this.issasccompetitor || this.issascadmin
 
         // PRECIOUS
         this.isprecious = (this.currentuser === getConfig().admin ||
@@ -371,7 +374,8 @@
             this.identities.indexOf("src-competitors") > -1);
 
         this.$.menu.issrcuser = this.issrccompetitor || this.issrcorganizer
-        this.$.dashboard.issrcuser = this.issrccompetitor || this.issrcorganizer
+        if (this.$.dashboard)
+          this.$.dashboard.issrcuser = this.issrccompetitor || this.issrcorganizer
 
         // ARIAC
         // For now, simulating 3 users:
@@ -384,7 +388,8 @@
             this.identities.indexOf("ariac-competitors") > -1);
 
         this.$.menu.isariacuser = this.isariaccompetitor || this.isariacorganizer
-        this.$.dashboard.isariacuser = this.isariaccompetitor || this.isariacorganizer
+        if (this.$.dashboard)
+          this.$.dashboard.isariacuser = this.isariaccompetitor || this.isariacorganizer
 
         // Get permissions from gz-grant
         this.$.grant.getall();

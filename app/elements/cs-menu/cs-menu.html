@@ -71,12 +71,14 @@
     <paper-menu attr-for-selected="data-route" selected="[[route]]" id="menu">
 
       <!-- Dashboard -->
-      <a data-route="dashboard" href="[[baseUrl]]dashboard">
-        <paper-item>
-          <iron-icon icon="icons:cloud"></iron-icon>
-          <span>Dashboard</span>
-        </paper-item>
-      </a>
+<!--
+        <a data-route="dashboard" href="[[baseUrl]]dashboard">
+          <paper-item>
+            <iron-icon icon="icons:cloud"></iron-icon>
+            <span>Dashboard</span>
+          </paper-item>
+        </a>
+-->
 
       <!-- SASC -->
       <template is="dom-if" if="[[issascuser]]">
