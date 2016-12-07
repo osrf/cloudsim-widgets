@@ -103,6 +103,23 @@
 
       </template>
 
+      <!-- PRECIOUS -->
+      <template is="dom-if" if="[[isprecious]]">
+        <a data-route="precious" href="{{baseUrl}}precious">
+          <paper-item>
+            <iron-icon icon="icons:lock"></iron-icon>
+            PRECIOUS
+          </paper-item>
+        </a>
+
+        <a data-route="precious" href="{{baseUrl}}precious">
+          <paper-item class="subitem">
+            <span>Kiosk</span>
+          </paper-item>
+        </a>
+
+      </template>
+
       <!-- SRC -->
       <template is="dom-if" if="[[issrcuser]]">
         <a data-route="src" href="{{baseUrl}}src">
@@ -188,6 +205,11 @@
         notify: true
       },
       issascadmin: {
+        type: Boolean,
+        value: false,
+        notify: true
+      },
+      isprecious: {
         type: Boolean,
         value: false,
         notify: true
