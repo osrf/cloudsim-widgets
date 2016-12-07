@@ -102,12 +102,6 @@
               <!-- Dashboard -->
               <section data-route="dashboard">
                 <cs-dashboard
-                  id="dashboard"
-                  authurl="[[authurl]]"
-                  portalurl="[[portalurl]]"
-                  token="[[token]]"
-                  currentuser="[[currentuser]]"
-                  currentpermissions="[[currentpermissions]]"
                 ></cs-dashboard>
               </section>
 
@@ -237,7 +231,6 @@
 
         this.$.menu.issascuser = this.issasccompetitor || this.issascadmin
         this.$.menu.issascadmin = this.issascadmin
-        this.$.dashboard.issascuser = this.issasccompetitor || this.issascadmin
 
         // Get permissions from gz-grant
         this.$.grant.getall();
