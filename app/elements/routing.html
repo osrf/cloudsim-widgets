@@ -62,12 +62,6 @@
       {
         app.topLevelRoute = 'secure';
         app.secureRoute = 'dashboard';
-
-        var simulatorq = app.querySelector('#simulatorq');
-        if (simulatorq)
-          simulatorq.tapGet()
-        else
-          console.error("Couldn't get #simulatorq")
       }
       else
       {
@@ -126,6 +120,30 @@
         {
           app.secureRoute = 'sasc';
           app.sascRoute = 'finished';
+        }
+        else
+        {
+          app.secureRoute = 'dashboard';
+        }
+      }
+      else
+      {
+        page.redirect(app.baseUrl);
+      }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
+    });
+
+    page('/precious', function() {
+      if (app.loggedin)
+      {
+        app.topLevelRoute = 'secure';
+
+        if (app.isprecious)
+        {
+          app.secureRoute = 'precious';
+          app.preciousRoute = 'kiosk';
         }
         else
         {

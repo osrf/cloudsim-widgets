@@ -55,17 +55,19 @@
 
         <div class="space"></div>
 
-        <cs-sharebutton
-          token=[[token]]
-          resource="simulators"
-          url="[[portalurl]]"
-          dialogmessage='Grant permission to launch'
-          grant_success_msg='User is now allowed to launch machines.'
-          revoke_success_msg='User is no longer allowed to launch machines.'
-          grant_failure_error='It was not possible to allow user to launch machines.'
-          revoke_failure_error='It was not possible to prevent user from launching machines.'
-          mini
-        ></cs-sharebutton>
+        <template is="dom-if" if="[[showshare]]">
+          <cs-sharebutton
+            token=[[token]]
+            resource="simulators"
+            url="[[portalurl]]"
+            dialogmessage='Grant permission to launch'
+            grant_success_msg='User is now allowed to launch machines.'
+            revoke_success_msg='User is no longer allowed to launch machines.'
+            grant_failure_error='It was not possible to allow user to launch machines.'
+            revoke_failure_error='It was not possible to prevent user from launching machines.'
+            mini
+          ></cs-sharebutton>
+        </template>
 
       </div>
 
@@ -208,6 +210,13 @@
         machine: {
           type: Object,
           value: '',
+          readonly: true
+        },
+
+        // True to show share button
+        showshare: {
+          type: Boolean,
+          value: false,
           readonly: true
         },
 
