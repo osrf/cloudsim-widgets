@@ -28,35 +28,10 @@
 
       <div class="space"></div>
 
-      <template is="dom-if" if="[[hasmachinelauncher]]">
-        <cs-machinelauncher
-          portalUrl="[[portalurl]]"
-          token="[[token]]"
-        ></cs-machinelauncher>
-      </template>
+      Welcome to CloudSim!
 
       <div class="space"></div>
 
-    </div>
-
-    <cs-machinelist
-      portalurl="[[portalurl]]"
-      currentuser="[[currentuser]]"
-      token="[[token]]"
-    ></cs-machinelist>
-
-    <div class="horizontal">
-      <template is="dom-if" if="[[!issrcuser]]">
-        <cs-srcbanner
-          class="center"
-        ></cs-srcbanner>
-      </template>
-
-      <template is="dom-if" if="[[!isariacuser]]">
-        <cs-ariacbanner
-          class="center"
-        ></cs-ariacbanner>
-      </template>
     </div>
 
   </template>
@@ -70,64 +45,6 @@
 
       // Attached
       attached: function() {
-      },
-
-      // When permissions for current user have changed
-      _currentPermissionsChanged: function() {
-
-        // When permissions change, check if user can launch machines
-        this.hasmachinelauncher = false
-
-        if (!this.currentpermissions)
-          return
-
-        const simulators = this.currentpermissions.find(function(resource){
-          return resource.name === 'simulators'
-        })
-
-        if (!simulators)
-          return
-
-        this.hasmachinelauncher = !simulators.permissions[0].permissions.readOnly
-      },
-
-      // Properties
-      properties: {
-
-        // Portal server URL
-        portalurl: {
-          type: String,
-          value: '',
-          notify: true
-        },
-
-        // Authentication token from cloudsim-auth
-        token: {
-          type: String,
-          value: '',
-          notify: true
-        },
-
-        // Username of user logged in
-        currentuser: {
-          type: String,
-          value: '',
-          notify: true
-        },
-
-        // Permissions for current user
-        currentpermissions: {
-          type: Array,
-          notify: true,
-          observer: '_currentPermissionsChanged'
-        },
-
-        // True if user can launch simulators
-        hasmachinelauncher: {
-          type: Boolean,
-          value: false,
-          notify: true
-        },
       },
     });
   })();
