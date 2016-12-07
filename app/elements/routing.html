@@ -9,25 +9,7 @@
       if (app.loggedin)
       {
         app.topLevelRoute = 'secure';
-
-        if (app.issasccompetitor || app.issascadmin) {
-          app.secureRoute = 'sasc';
-          app.sascRoute = 'kiosk';
-        }
-        else if (app.isprecious) {
-          app.secureRoute = 'precious';
-          app.preciousRoute = 'kiosk';
-        }
-        else if (app.issrccompetitor || app.issrcadmin) {
-          app.secureRoute = 'src';
-          app.srcRoute = 'kiosk';
-        }
-        else if (app.isariaccompetitor || app.isariacadmin) {
-          app.secureRoute = 'ariac';
-          app.ariacRoute = 'kiosk';
-        }
-        else
-          app.secureRoute = 'dashboard';
+        app.secureRoute = 'dashboard';
       }
       else
       {
@@ -42,25 +24,7 @@
       if (app.loggedin)
       {
         app.topLevelRoute = 'secure';
-
-        if (app.issasccompetitor || app.issascadmin) {
-          app.secureRoute = 'sasc';
-          app.sascRoute = 'kiosk';
-        }
-        else if (app.isprecious) {
-          app.secureRoute = 'precious';
-          app.preciousRoute = 'kiosk';
-        }
-        else if (app.issrccompetitor || app.issrcadmin) {
-          app.secureRoute = 'src';
-          app.srcRoute = 'kiosk';
-        }
-        else if (app.isariaccompetitor || app.isariacadmin) {
-          app.secureRoute = 'ariac';
-          app.ariacRoute = 'kiosk';
-        }
-        else
-          app.secureRoute = 'dashboard';
+        app.secureRoute = 'dashboard';
       }
       else
       {
