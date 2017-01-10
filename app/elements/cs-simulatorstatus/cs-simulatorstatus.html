@@ -1,0 +1,85 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-simulatorstatus">
+  <style>
+    .red {
+      --iron-icon-fill-color: #f00;
+    }
+    .green {
+      --iron-icon-fill-color: #0f0;
+    }
+  </style>
+
+  <template>
+
+    <iron-ajax
+      id="ajax"
+      method="GET"
+      url=[[ip]]
+      handle-as="json"
+      on-response="_onResponse"
+      on-error="_onError"
+      content-type="application/json"
+      debounce-duration="0"
+      timeout="500"
+    ></iron-ajax>
+
+    <template is="dom-if" if="[[responding]]">
+      <iron-icon icon="icons:cloud" class="green"></iron-icon>
+    </template>
+
+    <template is="dom-if" if="[[!responding]]">
+      <iron-icon icon="icons:cloud" class="red"></iron-icon>
+    </template>
+
+  </template>
+
+  <script>
+
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-simulatorstatus',
+
+      attached: function() {
+      },
+
+      _onNewIp: function() {
+        if (this.ip === "")
+          return
+
+        clearInterval(this.interval)
+
+        var that = this
+        this.interval = setInterval(function(){
+          that.$.ajax.generateRequest()
+        }, 5000);
+
+      },
+
+      /// Callback when successfully responded
+      _onResponse: function(rep) {
+        console.log(this.ip, "responding")
+        this.responding = true
+      },
+
+      /// Callback on error
+      _onError: function(rep) {
+        console.log(this.ip, "error")
+        this.responding = false
+      },
+
+      properties: {
+        ip: {
+          type: String,
+          value: '',
+          notify: true,
+          observer: '_onNewIp'
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>

@@ -221,13 +221,20 @@
               <div class="horizontal start" title="Number of payload machines per team">
                 <span class="property">Number of payloads per team: </span> [[rounddata.payloadcount]]
               </div>
-              <div class="horizontal start">
-                <span class="property">Status: </span> [[rounddata.arbiter.secure.status]]
-              </div>
+              <template is="dom-if" if="{{!_isNotLaunched(rounddata.arbiter.secure.status)}}">
+                <div class="horizontal start">
+                  <span class="property">Status: </span> [[rounddata.arbiter.secure.status]]
+                  <cs-simulatorstatus
+                    ip="[[rounddata.arbiter.secure.machine_ip]]"
+                  ><cs-simulatorstatus>
+                </div>
+              </template>
               <template is="dom-if" if="{{_isRunning(rounddata.arbiter.secure.status)}}">
                 <div class="horizontal start">
                   <span class="property">Public IP: </span>
-                  [[rounddata.arbiter.secure.machine_ip]]
+                  <a href="http://[[rounddata.arbiter.secure.machine_ip]]">
+                    [[rounddata.arbiter.secure.machine_ip]]
+                  </a>
                 </div>
                 <div class="horizontal start">
                   <span class="property">SSH keys: </span>
