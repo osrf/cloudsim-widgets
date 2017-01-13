@@ -4,47 +4,141 @@
 <dom-module id="cs-preciouskiosk">
   <style>
 
-    :host {
-      display: block;
-      padding-top: 3em;
-      @apply(--paper-font-common-base);
+    :root {
+      --paper-tab-ink: #fff;
+      --paper-tabs-selection-bar-color: #fff;
+      --paper-tabs: {
+        color: #fff;
+      }
+    }
+    .title {
+      font-size: 2em;
+    }
+    .space {
+      @apply(--layout-flex);
     }
     .horizontal {
       @apply(--layout-horizontal);
       @apply(--layout-center);
     }
-    .center {
-      margin: auto;
-      width: 30%;
+    .vertical {
+      @apply(--layout-vertical);
+      @apply(--layout-center);
     }
-    .space {
-      @apply(--layout-flex);
+    .blue {
+      background-color: rgb(68, 138, 201);
+      color: #fff;
+    }
+    .grey {
+      background-color: #d7d7d7;
+      color: rgb(68, 138, 201);
+    }
+    .floating {
+      margin-bottom: -2em;
+      z-index: 1000;
+    }
+    .paper-header {
+      padding: 1em;
+    }
+    .paper-header > h1 {
+      text-align: center;
+    }
+    .paper-header > h4 {
+      margin: 0;
+      text-align: center;
+    }
+    .paper-header > p {
+      margin-bottom: 0;
+      color: #ddd;
+      text-align: center;
+    }
+    .content {
+      padding: 1em;
+      height: 100%;
+    }
+
+    .new-content {
+      width: 50%;
+    }
+
+    a {
+        text-decoration: none;
     }
   </style>
 
   <template>
 
+    <gz-resources
+      id="resources"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="simulator"
+      on-resourcesupdated="_onQUpdated"
+      on-created="_onLaunched"
+      on-resource="refresh"
+    ></gz-resources>
+
+    <paper-header-panel class="blue">
+      <div class="paper-header">
+        <h1 class="title">Prius cup</h1>
+      </div>
+    </paper-header-panel>
+
+    <div class="horizontal">
+      <div class="space"></div>
+      <div id="gui">
+
+
+        <div class="horizontal">
+          <paper-button raised id="launchbutton" on-tap="_tapLaunch">
+              Launch
+          </paper-button>
+
+          <a href="/" target="_blank">
+            <paper-button id="playbutton" raised disabled >
+                Open [[version]] window
+            </paper-button>
+          </a>
+          <paper-button disabled raised id="resetbutton" on-tap="_tapReset">
+              Reset simulation
+          </paper-button>
+          <paper-button disabled raised id="killbutton" on-tap="_tapKill">
+              Kill
+          </paper-button>
+        </div>
+
+        <div class="horizontal">
+          <paper-icon-button
+            icon="icons:settings"
+            title="Advanced machine settings"
+            on-tap="_toggleSystem"
+          ></paper-icon-button>
+          <div class="space"></div>
+        </div>
+
+        <iron-collapse id="system">
+          <div class="content">
+            <div class="vertical">
+              <paper-input value="{{region}}" label="region" required></paper-input>
+              <paper-input value="{{software}}" label="software" required></paper-input>
+              <paper-input value="{{hardware}}" label="hardware" required></paper-input>
+            </div>
+          </div>
+        </iron-collapse>
+
+      </div>
+      <div class="space"></div>
+    </div>
+<!--
     <div class="horizontal">
 
-      <div class="space"></div>
 
-      <cs-machinelauncher
-        portalUrl="[[portalurl]]"
-        token="[[token]]"
-        machines="[[machines]]"
-      ></cs-machinelauncher>
-
-      <div class="space"></div>
-
-    </div>
-
-    <!-- This will show all machines for the user, even if they weren't launched here -->
     <cs-machinelist
       portalurl="[[portalurl]]"
       currentuser="[[currentuser]]"
       token="[[token]]"
     ></cs-machinelist>
-
+-->
   </template>
 
   <script>
@@ -56,7 +150,129 @@
 
       // Attached
       attached: function() {
+        if (this.token != "") {
+          this.$.resources.connect();
+          this.refresh()
+        }
+
       },
+
+      // When machine list is updated
+      _onQUpdated: function(e) {
+        let isRunning = false
+        const items = e.detail
+        for (let i in  items) {
+          const simulator = items[i]
+          const options = simulator.data.options
+          const state = simulator.data.status
+          if (state !== "RUNNING")
+            continue
+          if(options) {
+            if(options.role === this.options.role) {
+              isRunning = true
+              break;
+            }
+          }
+        }
+
+        if (isRunning) {
+          this.$.launchbutton.disabled = true
+          this.$.killbutton.disabled = false
+          this.$.playbutton.disabled = false
+          this.$.resetbutton.disabled = false
+        }
+        else {
+          this.$.launchbutton.disabled = false
+          this.$.killbutton.disabled = true
+          this.$.playbutton.disabled = true
+          this.$.resetbutton.disabled = true
+        }
+      },
+
+      // Callback when token is changed
+      _onTokenChanged() {
+        if (this.token == "")
+          return
+
+        this.$.resources.connect();
+        this.refresh()
+      },
+
+      refresh: function() {
+        this.$.resources.getAll()
+        console.log('Prius cup simulators refresh')
+        console.log(this.$.resources.listitems)
+      },
+
+      // Toggle collapsible system
+      _toggleSystem: function(e) {
+        this.$.system.toggle();
+      },
+
+      // Tap button has been pressed
+      _tapLaunch() {
+
+        if (this.region == "" ||
+            this.software == "" ||
+            this.hardware == "")
+        {
+          this.fire('notification', {msg:
+              "Missing some information. Machine can't be launched.",
+              type: "error"})
+          return;
+        }
+
+        let data =  {
+          token: this.token,
+          region: this.region,
+          image: this.software,
+          hardware: this.hardware,
+          options: this.options
+        }
+
+        // hack to inject options without a gui
+        try {
+          if (ami) {
+            data.image = ami
+            console.log('\n\ncreating machine with ami: ' + ami)
+          }
+        }
+        catch(e) {
+          console.log('no ami')
+        }
+
+        // hack to inject options without a gui
+        try {
+          if (options) {
+            data.options = options
+            console.log('\n\ncreating machine with options')
+            console.log(JSON.stringify(data, null, 2))
+          }
+        }
+        catch(e) {
+          console.log('no options')
+        }
+        this.$.resources.create(data);
+        this.fire('notification',
+            {msg: "Request to launch a \"" + this.name + "\" has been sent.",
+            type: "msg"})
+      },
+
+      // Response that machine has been launched
+      _onLaunched: function(e) {
+        let success = e.detail.success
+        let msg = e.detail.message
+
+        if (success != undefined && success == false)
+        {
+          this.fire('notification', {msg: msg, type: "error"})
+        }
+        else
+        {
+          this.fire('notification', {msg: "Machine has been launched.", type: "msg"})
+        }
+      },
+
 
       // Properties
       properties: {
@@ -72,36 +288,43 @@
         token: {
           type: String,
           value: '',
-          notify: true
+          notify: true,
+          observer: '_onTokenChanged'
         },
 
-        // Username of user logged in
-        currentuser: {
+        options: {
+          type: Object,
+          notify: true,
+          value: {
+            role: 'Prius cup simulator'
+          }
+        },
+
+        region: {
           type: String,
-          value: '',
+          value: 'us-west-1',
           notify: true
         },
 
-        // Machine options
-        machines: {
-          type: Array,
-          readonly: true,
-          value: [{
-                    id: "prius_v0.0.4",
-                    name: "prius cup v0.4",
-                    region: "us-west-1",
-                    image: "ami-ba5704da",
-                    hardware: "g2.2xlarge"
-                  },
-                  {
-                    id: "ubuntu_nvidia_docker_16GiB",
-                    name: "ubuntu nvidia docker 16GiB",
-                    region: "us-west-1",
-                    image: "ami-b71142d7",
-                    hardware: "g2.2xlarge"
-                  },
-                ]
-        }
+        software: {
+          type: String,
+          value: 'ami-ba5704da',
+          notify: true
+        },
+
+        hardware: {
+          type: String,
+          value: 'g2.2xlarge',
+          notify: true
+        },
+
+        version: {
+          type: String,
+          value: 'prius cup v0.4',
+          notify: true
+        },
+
+
       },
     });
   })();
