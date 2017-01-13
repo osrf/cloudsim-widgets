@@ -64,6 +64,15 @@
     a {
         text-decoration: none;
     }
+
+    #gui {
+      max-width: 70%;
+    }
+
+    paper-material {
+      padding: 1em;
+    }
+
   </style>
 
   <template>
@@ -93,83 +102,91 @@
       <div class="space"></div>
       <div id="gui">
 
-<h2>Description</h2>
-<p> The Prius cup is a Gazebo simulation of the Toyota Prius car. It features:
-<ul>
-  <li>A 3D model of the <a href="https://www.sonomaraceway.com/">Sonoma Raceway</a> with accurate curves and hills.</li>
-  <li>A simplified drive train modeled after data collected from real test drives (sampled on location, end of 2016).</li>
-  <li>A first person view, streamed in real time from <a href="http://gazebosim.org/">Gazebo</a> in the cloud</li>
-</ul>
+        <h2>Description</h2>
+        <p> The Prius cup is a Gazebo simulation of the Toyota Prius car. It features:
+        <ul>
+          <li>A 3D model of the <a href="https://www.sonomaraceway.com/">Sonoma Raceway</a> with accurate curves and hills.</li>
+          <li>A simplified drive train modeled after data collected from real test drives (sampled on location, end of 2016).</li>
+          <li>A first person view, streamed in real time from <a href="http://gazebosim.org/">Gazebo</a> in the cloud</li>
+        </ul>
 
-<br>
-Each time you play the Prius cup software, Cloudsim spins up a powerful machine instance in the Amazon Web Services cloud. As the user,
-you are responsible to launch before playing, and shut it down when you are done.
+        <paper-material elevation="1">
 
-<h2>Instructions</h2>
-<ul>
-  <li>The hardware (type: g2.2xlarge) features a powerful NVIDIA gpu (model: GRID K520) that renders every frame of the cockpit camera
-using openGL.
-  </li>
-  <li>To boot up your cloud machine, press the launch button. The launch steps takes approximately 2 minutes. This includes booting the instance from a preconfigured Amazon Disk Image that
-contains Ubuntu, OpenGL and docker, and running the Prius cup docker image that is pre loaded on disk.
-  </li>
-  <li>Once the 2 minutes are up, you can press the "Open Simulator Window" button, which will open the Prius simulation in a new browser window. Pressing this button too early shows a blank page that you can refresh later.
-  <li>
-  There, you can use the keyboard (or Joystick or Racing wheel controller) to drive around the track and experiment with energy saving driving strategies.
-  </li>
-  <li>
-  The "Reset Simulation" button respawns the Gazebo process to start anew.
-  </li>
-  <li>
-   Once you are done, please press the "Kill" button to shutdown the Cloud computer and stop the billing process.
-  </li>
-  <li>
-  If the machine is left machine running, it will shutdown automatically after 2 hours.
-  </li>
-</ul>
-        <div class="horizontal">
-          <paper-button raised id="launchbutton" on-tap="_tapLaunch">
-            <iron-icon
-              icon="hardware:computer"
-            ></iron-icon>
+          <div class="horizontal">
+            <paper-button raised id="launchbutton" on-tap="_tapLaunch">
+              <iron-icon
+                icon="hardware:computer"
+              ></iron-icon>
 
-              Launch
-          </paper-button>
-
-          <a href="http://[[machine_ip]]" target="_blank">
-            <paper-button id="playbutton" raised disabled >
-                Open new simulator window
+                Launch
             </paper-button>
-          </a>
-          <paper-button disabled raised id="resetbutton" on-tap="_tapReset">
-              Reset simulation
-          </paper-button>
-          <paper-button disabled raised id="killbutton" on-tap="_tapKill">
-            <iron-icon icon="icons:close"></iron-icon>
-              Kill
-          </paper-button>
-        </div>
 
-        <p>
-        <p>Click the gear below to edit advanced settings...</p>
-
-        <div class="horizontal">
-          <paper-icon-button
-            icon="icons:settings"
-            title="Advanced machine settings"
-            on-tap="_toggleSystem"
-          ></paper-icon-button>
-          <div class="space"></div>
-        </div>
-        <iron-collapse id="system">
-          <div class="content">
-            <div class="vertical">
-              <paper-input value="{{region}}" label="region" required></paper-input>
-              <paper-input value="{{software}}" label="software" required></paper-input>
-              <paper-input value="{{hardware}}" label="hardware" required></paper-input>
-            </div>
+            <a href="http://[[machine_ip]]" target="_blank">
+              <paper-button id="playbutton" raised disabled >
+                  Open new simulator window
+              </paper-button>
+            </a>
+            <paper-button disabled raised id="resetbutton" on-tap="_tapReset">
+                Reset simulation
+            </paper-button>
+            <paper-button disabled raised id="killbutton" on-tap="_tapKill">
+              <iron-icon icon="icons:close"></iron-icon>
+                Kill
+            </paper-button>
           </div>
-        </iron-collapse>
+
+          <p>
+          <p>Click the gear below to edit advanced settings...</p>
+
+          <div class="horizontal">
+            <paper-icon-button
+              icon="icons:settings"
+              title="Advanced machine settings"
+              on-tap="_toggleSystem"
+            ></paper-icon-button>
+            <div class="space"></div>
+          </div>
+          <iron-collapse id="system">
+            <div class="content">
+              <div class="vertical">
+                <paper-input value="{{region}}" label="region" required></paper-input>
+                <paper-input value="{{software}}" label="software" required></paper-input>
+                <paper-input value="{{hardware}}" label="hardware" required></paper-input>
+              </div>
+            </div>
+          </iron-collapse>
+
+        </paper-material>
+
+
+        <h2>Instructions</h2>
+        <br>
+        Each time you play the Prius cup software, Cloudsim spins up a powerful machine instance in the Amazon Web Services cloud. As the user,
+        you are responsible to launch before playing, and shut it down when you are done.
+
+
+       <ul>
+          <li>The hardware (type: g2.2xlarge) features a powerful NVIDIA gpu (model: GRID K520) that renders every frame of the cockpit camera
+        using openGL.
+          </li>
+          <li>To boot up your cloud machine, press the launch button. The launch steps takes approximately 2 minutes. This includes booting the instance from a preconfigured Amazon Disk Image that
+        contains Ubuntu, OpenGL and docker, and running the Prius cup docker image that is pre loaded on disk.
+          </li>
+          <li>Once the 2 minutes are up, you can press the "Open Simulator Window" button, which will open the Prius simulation in a new browser window. Pressing this button too early shows a blank page that you can refresh later.
+          <li>
+          There, you can use the keyboard (or Joystick or Racing wheel controller) to drive around the track and experiment with energy saving driving strategies.
+          </li>
+          <li>
+          The "Reset Simulation" button respawns the Gazebo process to start anew.
+          </li>
+          <li>
+           Once you are done, please press the "Kill" button to shutdown the Cloud computer and stop the billing process.
+          </li>
+          <li>
+          If the machine is left machine running, it will shutdown automatically after 2 hours.
+          </li>
+        </ul>
+
 
       </div>
       <div class="space"></div>
