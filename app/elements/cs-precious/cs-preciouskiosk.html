@@ -4,47 +4,232 @@
 <dom-module id="cs-preciouskiosk">
   <style>
 
-    :host {
-      display: block;
-      padding-top: 3em;
-      @apply(--paper-font-common-base);
+    :root {
+      --paper-tab-ink: #fff;
+      --paper-tabs-selection-bar-color: #fff;
+      --paper-tabs: {
+        color: #fff;
+      }
+    }
+    .title {
+      font-size: 2em;
+    }
+    .space {
+      @apply(--layout-flex);
     }
     .horizontal {
       @apply(--layout-horizontal);
       @apply(--layout-center);
     }
-    .center {
-      margin: auto;
-      width: 30%;
+    .vertical {
+      @apply(--layout-vertical);
+      @apply(--layout-center);
     }
-    .space {
-      @apply(--layout-flex);
+    .blue {
+      background-color: rgb(68, 138, 201);
+      color: #fff;
     }
+    .paper-header {
+      padding: 1em;
+    }
+    .paper-header > h1 {
+      text-align: center;
+    }
+    .paper-header > h4 {
+      margin: 0;
+      text-align: center;
+    }
+    .paper-header > p {
+      margin-bottom: 0;
+      color: #ddd;
+      text-align: center;
+    }
+    .content {
+      padding: 1em;
+      height: 100%;
+    }
+    a {
+      color:inherit;
+      text-decoration: none;
+    }
+    #gui {
+      max-width: 70%;
+    }
+    paper-material {
+      padding: 1em;
+    }
+    .spinning {
+      -webkit-animation:spin 3s linear infinite;
+      -moz-animation:spin 3s linear infinite;
+      animation:spin 3s linear infinite;
+    }
+    @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+    @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+    @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
   </style>
 
   <template>
 
+    <iron-ajax
+      id="resetsimulation"
+      method="GET"
+    ></iron-ajax>
+
+    <gz-resources
+      id="resources"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="simulator"
+      on-resourcesupdated="_onQUpdated"
+      on-created="_onLaunched"
+      on-resource="refresh"
+    ></gz-resources>
+
+    <paper-header-panel class="blue">
+      <div class="paper-header">
+        <h1 class="title">[[version]]</h1>
+      </div>
+    </paper-header-panel>
+
     <div class="horizontal">
 
       <div class="space"></div>
+      <div id="gui">
 
-      <cs-machinelauncher
-        portalUrl="[[portalurl]]"
-        token="[[token]]"
-        machines="[[machines]]"
-      ></cs-machinelauncher>
+        <p>
+          The Prius Challenge is a Gazebo simulation of the
+          <a href="http://www.toyota.com/prius" target="_blank">Toyota Prius</a>
+          car. It features:
+        <ul>
+          <li>
+            A 3D model of the
+            <a href="https://www.sonomaraceway.com/" target="_blank">Sonoma Raceway</a>
+            with curves and hills.
+          </li>
+          <li>
+            A simplified drive train modeled after data collected from real test drives (sampled on location, end of 2016).
+          </li>
+          <li>
+            A first person view, streamed in real time from
+            <a href="http://gazebosim.org/" target="_blank">Gazebo</a>
+            in the cloud.
+          </li>
+          <li>
+            The hardware (Amazon Elastic Compute type g2.2xlarge) features a powerful NVIDIA gpu
+            (model: GRID K520) that renders every frame of the cockpit camera using openGL. Each simulation is run on its own machine.
+          </li>
 
+        </ul>
+
+        <!-- BUTTONS -->
+        <div class="horizontal">
+
+          <div class="space"></div>
+
+          <paper-material elevation="1">
+
+            <div class="horizontal">
+              <paper-button raised id="launchbutton" on-tap="_tapLaunch">
+                <template is="dom-if" if="[[!waiting]]">
+                  <iron-icon icon="hardware:computer"></iron-icon>
+                </template>
+
+                <template is="dom-if" if="[[waiting]]">
+                  <iron-icon icon="icons:refresh" class="spinning" title="Waiting">
+                  </iron-icon>
+                </template>
+                  Launch
+              </paper-button>
+
+              <a href="http://[[machine_ip]]" target="_blank">
+                <paper-button id="playbutton" raised disabled>
+                  <iron-icon icon="notification:time-to-leave"></iron-icon>
+                    Open simulator
+                </paper-button>
+              </a>
+
+              <paper-button disabled raised id="resetbutton" on-tap="_tapReset">
+                  <iron-icon icon="icons:refresh"></iron-icon>
+                  Reset simulation
+              </paper-button>
+
+              <paper-button disabled raised id="killbutton" on-tap="_tapKill">
+                <iron-icon icon="icons:close"></iron-icon>
+                  Kill
+              </paper-button>
+
+            </div>
+
+            <p>
+
+            <div class="horizontal">
+              <paper-icon-button
+                icon="icons:settings"
+                title="Advanced machine settings"
+                on-tap="_toggleSystem"
+              ></paper-icon-button> [[machine_ip]]
+              <div class="space"></div>
+            </div>
+            <iron-collapse id="system">
+              <div class="content">
+                <div class="vertical">
+                  <paper-input value="{{region}}" label="region" required></paper-input>
+                  <paper-input value="{{software}}" label="software" required></paper-input>
+                  <paper-input value="{{hardware}}" label="hardware" required></paper-input>
+                </div>
+              </div>
+            </iron-collapse>
+
+          </paper-material>
+
+          <div class="space"></div>
+
+        </div>
+
+
+        <h2>Instructions</h2>
+        <br>
+        Each time you play the Prius Challenge software, CloudSim spins up a
+        powerful machine instance in the Amazon Web Services cloud. As the user,
+        you are responsible to launch before playing, and shut it down when you
+        are done.
+
+        <ul>
+          <li>
+            To boot up your cloud machine, press the <b>LAUNCH</b> button. The
+            launch step takes approximately 2 minutes. This includes booting the
+            instance from a preconfigured Amazon Disk Image that contains
+            Ubuntu, OpenGL and docker, and running the Prius Challenge docker
+            image that is pre-loaded on disk.
+          </li>
+          <li>
+            Once the 2 minutes are up, you can press the <b>OPEN SIMULATOR</b>
+            button, which will open the Prius simulation in a new browser window.
+            Pressing this button too early shows a blank page that you can refresh
+            later.
+          <li>
+            There, you can use the keyboard (or Joystick or Racing wheel
+            controller) to drive around the track and experiment with energy
+            saving driving strategies.
+          </li>
+          <li>
+            The <b>RESET SIMULATION</b> button respawns the Gazebo process to
+            start a new run.
+          </li>
+          <li>
+            Once you are done, please press the <b>KILL</b> button to shutdown
+            the cloud computer and stop the billing process.
+          </li>
+          <li>
+            If the machine is left running, it will shutdown automatically after 2 hours.
+          </li>
+        </ul>
+
+      </div>
       <div class="space"></div>
 
     </div>
-
-    <!-- This will show all machines for the user, even if they weren't launched here -->
-    <cs-machinelist
-      portalurl="[[portalurl]]"
-      currentuser="[[currentuser]]"
-      token="[[token]]"
-    ></cs-machinelist>
-
   </template>
 
   <script>
@@ -56,6 +241,160 @@
 
       // Attached
       attached: function() {
+        if (this.token != "") {
+          this.$.resources.connect();
+          this.refresh()
+        }
+      },
+
+      _tapKill(e) {
+        console.log('About to kill machine:', this.machine_id)
+        this.$.resources.del(this.machine_id)
+        this._setRunningMode()
+        this.fire('notification',
+            {msg: "Request to kill machine has been sent.", type: "msg"})
+      },
+
+      _tapReset(e) {
+        this.$.resetsimulation.headers.authorization = this.token.trim()
+        this.$.resetsimulation.url = 'http://' + this.machine_ip + '/reset'
+        this.$.resetsimulation.generateRequest()
+      },
+
+      // disables button in the ui when a machine is running
+      _setRunningMode() {
+        this.$.launchbutton.disabled = true
+        this.$.killbutton.disabled = false
+        this.$.playbutton.disabled = false
+        this.$.resetbutton.disabled = false
+        this.waiting = false
+      },
+
+      // enables buttons when machine can be launched
+      _setLaunchMode() {
+        this.$.launchbutton.disabled = false
+        this.$.killbutton.disabled = true
+        this.$.playbutton.disabled = true
+        this.$.resetbutton.disabled = true
+      },
+
+      // When machine list is updated
+      _onQUpdated: function(e) {
+        let runningMachine = null
+        const items = e.detail
+        for (let i in  items) {
+          const simulator = items[i]
+          const options = simulator.data.options
+          const state = simulator.data.status
+          if (state !== "RUNNING") {
+            continue
+          }
+          if(options) {
+            // is this machine a prius challenge server?
+            if(options.role === this.options.role) {
+              runningMachine = simulator
+              break;
+            }
+          }
+        }
+
+        // did we find a running instance?
+        if (runningMachine) {
+          this.machine_id = runningMachine.data.id
+          this.machine_ip = runningMachine.data.machine_ip
+          this._setRunningMode()
+        }
+        else if (!this.waiting) {
+          // no machine running... allow launch
+          this.machine_id = ''
+          this.machine_ip = ''
+          this._setLaunchMode()
+        }
+      },
+
+      // Callback when token is changed
+      _onTokenChanged() {
+        if (this.token == "")
+          return
+
+        this.$.resources.connect();
+        this.refresh()
+      },
+
+      refresh: function() {
+        this.$.resources.getAll()
+      },
+
+      // Toggle collapsible system
+      _toggleSystem: function(e) {
+        this.$.system.toggle();
+      },
+
+      // Tap button has been pressed
+      _tapLaunch() {
+
+        if (this.region == "" ||
+            this.software == "" ||
+            this.hardware == "")
+        {
+          this.fire('notification', {msg:
+              "Missing some information. Machine can't be launched.",
+              type: "error"})
+          return;
+        }
+
+        let data =  {
+          token: this.token,
+          region: this.region,
+          image: this.software,
+          hardware: this.hardware,
+          options: this.options
+        }
+
+        // hack to inject options without a gui
+        try {
+          if (ami) {
+            data.image = ami
+            console.log('\n\ncreating machine with ami: ' + ami)
+          }
+        }
+        catch(e) {
+          console.log('no ami')
+        }
+
+        // hack to inject options without a gui
+        try {
+          if (options) {
+            data.options = options
+            console.log('\n\ncreating machine with options')
+            console.log(JSON.stringify(data, null, 2))
+          }
+        }
+        catch(e) {
+          console.log('no options')
+        }
+        this.$.launchbutton.disabled = true
+        this.$.resources.create(data)
+        this.fire('notification',
+            {msg: "Request to launch a \"" + this.name + "\" has been sent.",
+            type: "msg"})
+
+        this.waiting = true;
+      },
+
+      // Response that machine has been launched
+      _onLaunched: function(e) {
+        let success = e.detail.success
+        let msg = e.detail.message
+
+        if (success != undefined && success == false)
+        {
+          this.fire('notification', {msg: msg, type: "error"})
+        }
+        else
+        {
+          this.fire('notification', {msg: "Machine has been launched.", type: "msg"})
+        }
       },
 
       // Properties
@@ -72,36 +411,58 @@
         token: {
           type: String,
           value: '',
-          notify: true
+          notify: true,
+          observer: '_onTokenChanged'
         },
 
-        // Username of user logged in
-        currentuser: {
+        // the simulator resource
+        machine_id: {
           type: String,
-          value: '',
+          value: ''
+        },
+
+        machine_ip: {
+          type: String,
+          value: ''
+        },
+        options: {
+          type: Object,
+          notify: true,
+          value: {
+            role: 'Prius Challenge simulator'
+          }
+        },
+
+        region: {
+          type: String,
+          value: 'us-west-1',
           notify: true
         },
 
-        // Machine options
-        machines: {
-          type: Array,
-          readonly: true,
-          value: [{
-                    id: "prius_v0.0.5",
-                    name: "prius cup v0.5",
-                    region: "us-west-1",
-                    image: "ami-8693c0e6",
-                    hardware: "g2.2xlarge"
-                  },
-                  {
-                    id: "ubuntu_nvidia_docker_16GiB",
-                    name: "ubuntu nvidia docker 16GiB",
-                    region: "us-west-1",
-                    image: "ami-b71142d7",
-                    hardware: "g2.2xlarge"
-                  },
-                ]
-        }
+        software: {
+          type: String,
+          value: 'ami-8693c0e6',
+          notify: true
+        },
+
+        hardware: {
+          type: String,
+          value: 'g2.2xlarge',
+          notify: true
+        },
+
+        // this is displayed prominently in the window header
+        version: {
+          type: String,
+          value: 'Prius Challenge v0.5',
+          notify: true
+        },
+
+        waiting: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
       },
     });
   })();
