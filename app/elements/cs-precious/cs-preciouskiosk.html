@@ -48,10 +48,6 @@
       padding: 1em;
       height: 100%;
     }
-    a {
-      color:inherit;
-      text-decoration: none;
-    }
     #gui {
       max-width: 70%;
     }
@@ -139,24 +135,12 @@
                   <iron-icon icon="icons:refresh" class="spinning" title="Waiting">
                   </iron-icon>
                 </template>
-                  Launch
-              </paper-button>
-
-              <a href="http://[[machine_ip]]" target="_blank">
-                <paper-button id="playbutton" raised disabled>
-                  <iron-icon icon="notification:time-to-leave"></iron-icon>
-                    Open simulator
-                </paper-button>
-              </a>
-
-              <paper-button disabled raised id="resetbutton" on-tap="_tapReset">
-                  <iron-icon icon="icons:refresh"></iron-icon>
-                  Reset simulation
+                  Launch cloud computer
               </paper-button>
 
               <paper-button disabled raised id="killbutton" on-tap="_tapKill">
                 <iron-icon icon="icons:close"></iron-icon>
-                  Kill
+                  Shutdown cloud computer
               </paper-button>
 
             </div>
@@ -168,9 +152,24 @@
                 icon="icons:settings"
                 title="Advanced machine settings"
                 on-tap="_toggleSystem"
-              ></paper-icon-button> [[machine_ip]]
+                hidden$=[[!advanced]]
+              ></paper-icon-button>
+
+              <template is="dom-if" if="[[idle]]">
+                To start the simulator, you must launch a cloud machine.
+              </template>
+
+              <template is="dom-if" if="[[waiting]]">
+                Waiting for machine to launch... this takes about 2 minutes. A link to the simulator will appear shortly.
+              </template>
+
+              <template is="dom-if" if="[[running]]">
+                The simulator is ready. Follow this link:&nbsp;<a href="http://[[machine_ip]]" target="_blank"> http://[[machine_ip]]</a>
+              </template>
+
               <div class="space"></div>
             </div>
+
             <iron-collapse id="system">
               <div class="content">
                 <div class="vertical">
@@ -180,6 +179,7 @@
                 </div>
               </div>
             </iron-collapse>
+
 
           </paper-material>
 
@@ -197,32 +197,22 @@
 
         <ul>
           <li>
-            To boot up your cloud machine, press the <b>LAUNCH</b> button. The
+            To boot up your cloud machine, press the <b>LAUNCH CLOUD COMPUTER</b> button. The
             launch step takes approximately 2 minutes. This includes booting the
             instance from a preconfigured Amazon Disk Image that contains
             Ubuntu, OpenGL and docker, and running the Prius Challenge docker
             image that is pre-loaded on disk.
           </li>
           <li>
-            Once the 2 minutes are up, you can press the <b>OPEN SIMULATOR</b>
-            button, which will open the Prius simulation in a new browser window.
-            Pressing this button too early shows a blank page that you can refresh
-            later.
-          <li>
-            There, you can use the keyboard (or Joystick or Racing wheel
-            controller) to drive around the track and experiment with energy
-            saving driving strategies.
+            Once the 2 minutes are up, a link to the simulator will appear.
+            Follow it to open the Prius simulator in a new browser window.
           </li>
           <li>
-            The <b>RESET SIMULATION</b> button respawns the Gazebo process to
-            start a new run.
-          </li>
-          <li>
-            Once you are done, please press the <b>KILL</b> button to shutdown
+            Once you are done, please press the <b>SHUTDOWN CLOUD COMPUTER</b> button to shutdown
             the cloud computer and stop the billing process.
           </li>
           <li>
-            If the machine is left running, it will shutdown automatically after 2 hours.
+            If the machine is left running, it will shutdown automatically after 1 hour.
           </li>
         </ul>
 
@@ -248,34 +238,14 @@
       },
 
       _tapKill(e) {
-        console.log('About to kill machine:', this.machine_id)
+        this.running = false
+        this.waiting = false
+        this.idle = true
+        this.$.killbutton.disabled = true
+        this.$.launchbutton.disabled = false
         this.$.resources.del(this.machine_id)
-        this._setRunningMode()
         this.fire('notification',
             {msg: "Request to kill machine has been sent.", type: "msg"})
-      },
-
-      _tapReset(e) {
-        this.$.resetsimulation.headers.authorization = this.token.trim()
-        this.$.resetsimulation.url = 'http://' + this.machine_ip + '/reset'
-        this.$.resetsimulation.generateRequest()
-      },
-
-      // disables button in the ui when a machine is running
-      _setRunningMode() {
-        this.$.launchbutton.disabled = true
-        this.$.killbutton.disabled = false
-        this.$.playbutton.disabled = false
-        this.$.resetbutton.disabled = false
-        this.waiting = false
-      },
-
-      // enables buttons when machine can be launched
-      _setLaunchMode() {
-        this.$.launchbutton.disabled = false
-        this.$.killbutton.disabled = true
-        this.$.playbutton.disabled = true
-        this.$.resetbutton.disabled = true
       },
 
       // When machine list is updated
@@ -300,15 +270,46 @@
 
         // did we find a running instance?
         if (runningMachine) {
+          const launchDate = new Date(runningMachine.data.launch_date)
+
+          const msRunning = Date.now() - launchDate
+          // less than 2 minutes?
+          const msRemaining = 2 * 60 * 1000 - msRunning
+          const that = this
+          if (msRemaining > 0) {
+            this.waiting = true
+            setTimeout(function(){
+              that.refresh()
+            }, msRemaining + 5000 * 10)
+            return
+          }
+          // the machine is ready
           this.machine_id = runningMachine.data.id
           this.machine_ip = runningMachine.data.machine_ip
-          this._setRunningMode()
+          this.running = true
+          this.waiting = false
+          this.idle = false
+          this.$.killbutton.disabled = false
+          this.$.launchbutton.disabled = true
         }
-        else if (!this.waiting) {
-          // no machine running... allow launch
-          this.machine_id = ''
-          this.machine_ip = ''
-          this._setLaunchMode()
+        else {
+          this.running = false
+          if (this.waiting) {
+            // waiting for sim to come up... allow kill
+            this.$.killbutton.disabled = false
+            this.$.launchbutton.disabled = true
+            this.waiting = true
+            this.idle = false
+          }
+          else {
+            this.idle = true
+            this.waiting = false
+            // no machine running... allow launch
+            this.machine_id = ''
+            this.machine_ip = ''
+            this.$.killbutton.disabled = true
+            this.$.launchbutton.disabled = false
+          }
         }
       },
 
@@ -353,17 +354,6 @@
 
         // hack to inject options without a gui
         try {
-          if (ami) {
-            data.image = ami
-            console.log('\n\ncreating machine with ami: ' + ami)
-          }
-        }
-        catch(e) {
-          console.log('no ami')
-        }
-
-        // hack to inject options without a gui
-        try {
           if (options) {
             data.options = options
             console.log('\n\ncreating machine with options')
@@ -378,8 +368,8 @@
         this.fire('notification',
             {msg: "Request to launch a \"" + this.name + "\" has been sent.",
             type: "msg"})
-
-        this.waiting = true;
+        this.idle = false
+        this.waiting = true
       },
 
       // Response that machine has been launched
@@ -425,6 +415,32 @@
           type: String,
           value: ''
         },
+
+        // show gear icon to access advanced settings
+        advanced: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+
+        idle:  {
+          type: Boolean,
+          value: true,
+          notify: true
+        },
+
+        waiting: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+
+        running: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+
         options: {
           type: Object,
           notify: true,
@@ -458,11 +474,6 @@
           notify: true
         },
 
-        waiting: {
-          type: Boolean,
-          value: false,
-          notify: true
-        },
       },
     });
   })();
