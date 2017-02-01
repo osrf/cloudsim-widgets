@@ -43,7 +43,7 @@
       }
       else
       {
-        app.topLevelRoute = 'home';
+        page.redirect(app.baseUrl);
       }
       setTimeout(function () {
         window.dispatchEvent(changeEvent)
