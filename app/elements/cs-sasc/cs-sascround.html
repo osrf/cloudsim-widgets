@@ -161,6 +161,30 @@
       on-created="_onGoldKeyGenerated"
     ></gz-keys>
 
+    <gz-resources
+      id="ssharbiterkeys"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="sshkey"
+      on-created="_onSshArbiterKeyGenerated"
+    ></gz-resources>
+
+    <gz-resources
+      id="sshbluekeys"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="sshkey"
+      on-created="_onSshBlueKeyGenerated"
+    ></gz-resources>
+
+    <gz-resources
+      id="sshgoldkeys"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="sshkey"
+      on-created="_onSshGoldKeyGenerated"
+    ></gz-resources>
+
     <!-- For sharing keys -->
     <gz-grant
       id="keysgrant"
@@ -438,7 +462,7 @@
           !this.rounddata.blueKeyResourceId && !this.rounddata.goldKeyResourceId) {
 
           this.requestedkeys = true
-
+          // The VPN keys are generated on the cloudsim-keys server...
           // blue
           let bluedata = {
             'name': 'blue_' + this.roundid,
@@ -458,6 +482,15 @@
 
           this.$.goldkeys.data = golddata
           this.$.goldkeys._createRequest()
+
+          // the ssh keys are generated on the cloudsim-portal
+          // arbiter
+          this.$.ssharbiterkeys.create({name: this.roundid + ' arbiter'})
+          // blue
+          this.$.sshbluekeys.create({name: this.roundid + ' blue'})
+          // gold
+          this.$.sshgoldkeys.create({name: this.roundid + ' gold'})
+
         }
         if (this.rounddata.bluepayloads && this.rounddata.bluepayloads.length > 0) {
 
@@ -497,12 +530,12 @@
 
       // When arbiter launch button is pressed
       _onLaunchArbiter(e) {
-
         let data =  {
           token: this.token,
           region: "us-west-1",
           image: this.rounddata.arbiterami,
           hardware: this.rounddata.arbiterhardware,
+          sshkey: this.rounddata.sshArbiter,
           options: {
             role: 'arbiter',
             "blue_route": this.rounddata.blueServerRoute,
@@ -511,6 +544,7 @@
             "gold_subnet" : this.goldsubnet,
             "payload_count" : this.rounddata.payloadcount,
             "token": this.token,
+            ssh: this.portalurl + '/sshkeys/' + this.rounddata.sshArbiter,
             resources:
             [
               {
@@ -560,6 +594,32 @@
             "\" has been sent.", type: "msg"})
       },
 
+      _onSshKeyGenerated(propertyName, e) {
+        const keyResourceId = e.detail.id
+        // Share key with all admins
+        const data = { grantee: 'sasc-admins',
+                       resource: keyResourceId,
+                       readonly: false }
+        this.$.portalgrant.grant(data)
+
+        // update rounddata with the portal's ssh key resource
+        this.set(propertyName, keyResourceId)
+        this._onRounddataUpdated()
+        this.fire('rounddataupdated', this.rounddata)
+      },
+
+      _onSshArbiterKeyGenerated: function(e) {
+        this._onSshKeyGenerated('rounddata.sshArbiter', e)
+      },
+
+      _onSshGoldKeyGenerated: function(e) {
+        this._onSshKeyGenerated('rounddata.sshGold', e)
+      },
+
+      _onSshBlueKeyGenerated:  function(e) {
+        this._onSshKeyGenerated('rounddata.sshBlue', e)
+      },
+
       // Response from keys server with resource id
       _onGoldKeyGenerated: function(e) {
 
@@ -568,7 +628,6 @@
                        resource: e.detail.id,
                        readonly: false }
         this.$.keysgrant.grant(data)
-
         const key = e.detail.id
         this.set('rounddata.goldServerRoute', e.detail.serverRoute)
         this.set('rounddata.goldKeyResourceId', key)
@@ -616,6 +675,7 @@
           region: "us-west-1",
           image: this.rounddata.payloadami,
           hardware: this.rounddata.payloadhardware,
+          sshkey: this.rounddata.sshBlue,
           options: {
             role: 'payload',
             team: 'blue',
@@ -624,6 +684,7 @@
             server_ip: this.rounddata.arbiter.secure.machine_ip,
             client_id: id,
             token: this.token,
+            ssh: this.portalurl + '/sshkeys/' + this.rounddata.sshBlue,
             resources:
             [
               {
@@ -709,6 +770,7 @@
           region: "us-west-1",
           image: this.rounddata.payloadami,
           hardware: this.rounddata.payloadhardware,
+          sshkey: this.rounddata.sshGold,
           options: {
             role: 'payload',
             team: 'gold',
@@ -717,6 +779,7 @@
             server_ip: this.rounddata.arbiter.secure.machine_ip,
             client_id: id,
             token: this.token,
+            ssh: this.portalurl + '/sshkeys/' + this.rounddata.sshGold,
             resources:
             [
               {
@@ -906,6 +969,11 @@
             this.$.launchresources.del(this.rounddata.goldpayloads[i].id);
           }
         }
+
+        // remove ssh keys from the portal
+        this.$.ssharbiterkeys.del(this.rounddata.sshArbiter)
+        this.$.sshbluekeys.del(this.rounddata.sshBlue)
+        this.$.sshgoldkeys.del(this.rounddata.sshGold)
 
         // FIXME: This is not forcing the html to reevaluate,
         // "Round is finished" will only show on refresh
