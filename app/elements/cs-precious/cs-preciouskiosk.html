@@ -232,7 +232,7 @@
       // Attached
       attached: function() {
         if (this.token != "") {
-          this.$.resources.connect();
+          this.$.resources.connect()
           this.refresh()
         }
       },
@@ -248,8 +248,23 @@
             {msg: "Request to kill machine has been sent.", type: "msg"})
       },
 
+      _logStateMachine: function(msg) {
+        console.log('++')
+        console.log('++ STATE ++', msg )
+        console.log('++')
+        console.log('++ waiting:', this.waiting)
+        console.log('++ running:', this.running)
+        console.log('++ waiting:', this.waiting)
+        console.log('++ idle:', this.idle)
+        console.log('++')
+        console.log('++ kill disabled:', this.$.killbutton.disabled)
+        console.log('++ launch disabled:', this.$.launchbutton.disabled)
+        console.log('++ END ++')
+      },
+
       // When machine list is updated
       _onQUpdated: function(e) {
+        this._logStateMachine('_onQUpdated start')
         let runningMachine = null
         const items = e.detail
         for (let i in  items) {
@@ -263,6 +278,8 @@
             // is this machine a prius challenge server?
             if(options.role === this.options.role) {
               runningMachine = simulator
+
+              console.log(simulator)
               break;
             }
           }
@@ -311,6 +328,7 @@
             this.$.launchbutton.disabled = false
           }
         }
+        this._logStateMachine('_onQUpdated end')
       },
 
       // Callback when token is changed
