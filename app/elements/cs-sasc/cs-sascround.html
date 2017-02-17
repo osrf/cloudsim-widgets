@@ -453,14 +453,12 @@
           const type = e.type
           const operation = e.detail.operation
           const resource  = e.detail.resource
-          console.log('gz-resources simulators ', type, ' op:',
-            operation, 'res:', resource )
           if(operation === "grant") {
-            // grant operation ignored
+            // all grant operation ignored
             return
           }
           if(resource.indexOf("sshkey") == 0) {
-            // ssh key ignore
+            // all ssh key related updates are ignored
             return
           }
         }
