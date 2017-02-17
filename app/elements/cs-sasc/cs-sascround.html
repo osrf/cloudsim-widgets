@@ -448,7 +448,23 @@
       },
 
       // Ask for new info on machines
-      _refresh() {
+      _refresh(e) {
+        if (e) {
+          const type = e.type
+          const operation = e.detail.operation
+          const resource  = e.detail.resource
+          console.log('gz-resources simulators ', type, ' op:',
+            operation, 'res:', resource )
+          if(operation === "grant") {
+            // grant operation ignored
+            return
+          }
+          if(resource.indexOf("sshkey") == 0) {
+            // ssh key ignore
+            return
+          }
+        }
+        // this should leave create/update/delete simulators
         this.$.launchresources.getAll();
       },
 
