@@ -115,7 +115,7 @@
       <section data-route="secure">
 
         <!-- Drawer / panel -->
-        <paper-drawer-panel>
+        <paper-drawer-panel id="drawerpanel">
 
           <!-- Main Menu -->
           <cs-menu
@@ -126,6 +126,11 @@
 
           <!-- Main Content -->
           <div class="content" main>
+
+            <paper-icon-button
+              icon="menu"
+              paper-drawer-toggle
+            ></paper-icon-button>
 
             <iron-pages attr-for-selected="data-route" selected="[[secureRoute]]">
 
@@ -293,6 +298,8 @@
         this.addEventListener('error', function(e) {
           this._openErrorToast(e);
         });
+
+        this.$.drawerpanel.disableEdgeSwipe = true;
       },
 
       // Open notification toast
