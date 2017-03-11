@@ -133,6 +133,9 @@
               <section data-route="dashboard">
                 <cs-dashboard
                 ></cs-dashboard>
+                <template is="dom-if" if="[[!issrcuser]]">
+                 <cs-srcbanner/>
+                </template>
               </section>
 
               <!-- Profile -->
@@ -363,7 +366,8 @@
         this.issrccompetitor = (!this.issrcorganizer &&
             this.identities.indexOf("src-competitors") > -1);
 
-        this.$.menu.issrcuser = this.issrccompetitor || this.issrcorganizer
+        this.issrcuser = this.issrccompetitor || this.issrcorganizer
+        this.$.menu.issrcuser = this.issrcuser
 
         // ARIAC
         // For now, simulating 3 users:
@@ -481,6 +485,11 @@
           notify: true
         },
         issrcorganizer: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        issrcuser: {
           type: Boolean,
           value: false,
           notify: true
