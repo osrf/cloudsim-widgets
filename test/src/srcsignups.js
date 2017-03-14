@@ -1,6 +1,6 @@
 'use strict';
 
-console.log('test/src/registrations.js')
+console.log('test/src/srcsignups.js')
 
 const should = require('should')
 const supertest = require('supertest')
