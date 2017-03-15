@@ -135,30 +135,6 @@
       }, 100);
     });
 
-    page('/precious', function() {
-      if (app.loggedin)
-      {
-        app.topLevelRoute = 'secure';
-
-        if (app.isprecious)
-        {
-          app.secureRoute = 'precious';
-          app.preciousRoute = 'kiosk';
-        }
-        else
-        {
-          app.secureRoute = 'dashboard';
-        }
-      }
-      else
-      {
-        page.redirect(app.baseUrl);
-      }
-      setTimeout(function () {
-        window.dispatchEvent(changeEvent)
-      }, 100);
-    });
-
     page('/src', function() {
       if (app.loggedin)
       {
@@ -233,86 +209,6 @@
       else
       {
         app.topLevelRoute = 'src-register';
-      }
-      setTimeout(function () {
-        window.dispatchEvent(changeEvent)
-      }, 100);
-    });
-
-    page('/ariac', function() {
-      if (app.loggedin)
-      {
-        app.topLevelRoute = 'secure';
-        app.secureRoute = 'ariac';
-
-        if (app.isariaccompetitor)
-        {
-          app.ariacRoute = 'competitor';
-        }
-        else if (app.isariacorganizer)
-        {
-          app.ariacRoute = 'organizer';
-        }
-        else
-        {
-          app.ariacRoute = 'home';
-        }
-      }
-      else
-      {
-        app.topLevelRoute = 'ariac';
-      }
-      setTimeout(function () {
-        window.dispatchEvent(changeEvent)
-      }, 100);
-    });
-
-    page('/ariac-leaderboard', function() {
-      if (app.loggedin)
-      {
-        app.topLevelRoute = 'secure';
-        app.secureRoute = 'ariac';
-
-        if (app.isariaccompetitor || app.isariacorganizer)
-        {
-          app.ariacRoute = 'leaderboard';
-        }
-        else
-        {
-          app.ariacRoute = 'home';
-        }
-      }
-      else
-      {
-        app.topLevelRoute = 'ariac';
-      }
-      setTimeout(function () {
-        window.dispatchEvent(changeEvent)
-      }, 100);
-    });
-
-    page('/ariac-register', function() {
-      if (app.loggedin)
-      {
-        app.topLevelRoute = 'secure';
-        app.secureRoute = 'ariac';
-
-        if (app.isariaccompetitor)
-        {
-          app.ariacRoute = 'competitor';
-        }
-        else if (app.isariacorganizer)
-        {
-          app.ariacRoute = 'organizer';
-        }
-        else
-        {
-          app.ariacRoute = 'register';
-        }
-      }
-      else
-      {
-        app.topLevelRoute = 'ariac-register';
       }
       setTimeout(function () {
         window.dispatchEvent(changeEvent)
