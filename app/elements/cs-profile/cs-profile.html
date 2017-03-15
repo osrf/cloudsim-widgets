@@ -23,12 +23,6 @@
 
       <div class="space"></div>
 
-      <template is="dom-if" if="{{isadmin}}">
-        <cs-serverstatus
-        ></cs-serverstatus>
-      </template>
-
-      <div class="space"></div>
 
       <cs-groups
         url="[[authurl]]"
@@ -52,11 +46,6 @@
       attached: function() {
       },
 
-      // Callback when the current user has changed
-      _currentUserChanged: function() {
-        this.isadmin = this.currentuser === getConfig().admin
-      },
-
       // Properties
       properties: {
 
@@ -71,17 +60,6 @@
         token: {
           type: String,
           value: '',
-          notify: true
-        },
-        currentuser: {
-          type: String,
-          value: 'current user not set',
-          notify: true,
-          observer: '_currentUserChanged'
-        },
-        isadmin: {
-          type: Boolean,
-          value: false,
           notify: true
         },
       },
