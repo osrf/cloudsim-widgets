@@ -103,23 +103,6 @@
 
       </template>
 
-      <!-- PRECIOUS -->
-      <template is="dom-if" if="[[isprecious]]">
-        <a data-route="precious" href="{{baseUrl}}precious">
-          <paper-item>
-            <iron-icon icon="notification:time-to-leave"></iron-icon>
-            PRIUS CHALLENGE
-          </paper-item>
-        </a>
-
-        <a data-route="precious" href="{{baseUrl}}precious">
-          <paper-item class="subitem">
-            <span>Kiosk</span>
-          </paper-item>
-        </a>
-
-      </template>
-
     </paper-menu>
 
   </template>
@@ -144,12 +127,6 @@
         var path = window.location.pathname
         path = path.substr(1)
         this.$.menu.selected = path
-      },
-
-      isprecious: {
-        type: Boolean,
-        value: false,
-        notify: true
       },
     });
   })();
