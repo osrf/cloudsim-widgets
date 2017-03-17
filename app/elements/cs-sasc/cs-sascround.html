@@ -544,6 +544,22 @@
 
       // When arbiter launch button is pressed
       _onLaunchArbiter(e) {
+        if (!this.rounddata ||
+            !this.rounddata.arbiterami ||
+            !this.rounddata.arbiterhardware ||
+            !this.rounddata.sshArbiter ||
+            !this.rounddata.blueServerRoute ||
+            !this.rounddata.goldServerRoute ||
+            !this.rounddata.payloadcount ||
+            !this.rounddata.name)
+        {
+          this.fire('notification', {msg:
+              "Resources not ready, please wait a moment and try again. " +
+              "Do not refresh your page.",
+              type: "error"})
+          return
+        }
+
         let data =  {
           token: this.token,
           region: "us-west-1",
@@ -668,6 +684,23 @@
 
       // When blue launch button is pressed
       _onLaunchBlue: function(e) {
+        if (!this.rounddata ||
+            !this.rounddata.blueKeyResourceId ||
+            !this.rounddata.payloadami ||
+            !this.rounddata.payloadhardware ||
+            !this.rounddata.sshBlue ||
+            !this.rounddata.arbiter ||
+            !this.rounddata.arbiter.secure.machine_ip ||
+            !this.rounddata.blueuser ||
+            !this.rounddata.name)
+        {
+          this.fire('notification', {msg:
+              "Resources not ready, please wait a moment and try again. " +
+              "Do not refresh your page.",
+              type: "error"})
+          return
+        }
+
         this.hidebluelauncher = true
 
         // Launch each payload machine
@@ -763,6 +796,23 @@
 
       // When gold launch button is pressed
       _onLaunchGold(e) {
+        if (!this.rounddata ||
+            !this.rounddata.goldKeyResourceId ||
+            !this.rounddata.payloadami ||
+            !this.rounddata.payloadhardware ||
+            !this.rounddata.sshGold ||
+            !this.rounddata.arbiter ||
+            !this.rounddata.arbiter.secure.machine_ip ||
+            !this.rounddata.golduser ||
+            !this.rounddata.name)
+        {
+          this.fire('notification', {msg:
+              "Resources not ready, please wait a moment and try again. " +
+              "Do not refresh your page.",
+              type: "error"})
+          return
+        }
+
         this.hidegoldlauncher = true
 
         // Launch each payload machine
