@@ -98,7 +98,7 @@ console.log('\n\n')
 // initial resources
 const resources = {}
 
-csgrant.init(adminUser,
+csgrant.init(/*adminUser,*/
   resources,
   dbName,
   process.env.CLOUDSIM_WIDGETS_DB,
@@ -110,7 +110,7 @@ csgrant.init(adminUser,
     }
     else {
       console.log('resources loaded')
-      csgrant.dump()
+      // csgrant.dump()
       httpServer.listen(port, function(){
         console.log('listening on *:' + port);
       })
