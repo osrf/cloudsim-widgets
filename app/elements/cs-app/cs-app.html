@@ -145,6 +145,16 @@
                   token="[[token]]"
                   currentuser="[[currentuser]]"
                 ></cs-profile>
+
+                <template is="dom-if" if="[[issrcuser]]">
+                  <cs-srcusermetrics
+                    portalurl="[[portalurl]]"
+                    authurl="[[authurl]]"
+                    token="[[token]]"
+                    currentuser="[[currentuser]]"
+                  ></srcusermetrics>
+                </template>
+
               </section>
 
               <!-- SASC secure routes -->
