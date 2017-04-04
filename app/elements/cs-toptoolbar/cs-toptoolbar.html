@@ -56,7 +56,7 @@
       <paper-toolbar id="mainToolbar" class="short">
 
         <a data-route="home" href="{{baseUrl}}home">
-          <img src="images/cloudsim.svg" style="height: 2em">
+          <img src="[[image]]" style="height: 2em">
         </a>
 
         <span class="space"></span>
@@ -116,6 +116,29 @@
         this.fire('logoutrequest')
       },
 
+      // When screen is resized
+      _onIronResize: function() {
+        var windowsize = window.innerWidth ||
+                         document.documentElement.clientWidth ||
+                         document.body.clientWidth;
+
+        if(windowsize > 600) {
+          this.image = this.resolveUrl('images/cloudsim.svg')
+        }
+        else {
+          this.image = this.resolveUrl('images/cloudsim_logo.svg')
+        }
+      },
+
+      behaviors: [
+        Polymer.IronResizableBehavior
+      ],
+
+      // Listeners
+      listeners: {
+        'iron-resize': '_onIronResize'
+      },
+
       // Properties
       properties: {
 
@@ -123,6 +146,13 @@
         loggedin: {
           type: Boolean,
           value: 'false',
+          notify: true
+        },
+
+        // Image to use on the toolbar
+        image: {
+          type: String,
+          value: function() {return this.resolveUrl('images/cloudsim.svg')},
           notify: true
         },
       }
