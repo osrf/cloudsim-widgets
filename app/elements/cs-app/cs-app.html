@@ -100,22 +100,11 @@
         ></cs-srcregister>
       </section>
 
-      <!-- ARIAC public routes -->
-      <section data-route="ariac" style="padding: 0em">
-        <cs-ariachome/>
-      </section>
-
-      <section data-route="ariac-register">
-        <cs-ariacregister
-          loggedin="[[loggedin]]"
-        ></cs-ariacregister>
-      </section>
-
       <!-- Secure routes -->
       <section data-route="secure">
 
         <!-- Drawer / panel -->
-        <paper-drawer-panel>
+        <paper-drawer-panel id="drawerpanel">
 
           <!-- Main Menu -->
           <cs-menu
@@ -126,6 +115,11 @@
 
           <!-- Main Content -->
           <div class="content" main>
+
+            <paper-icon-button
+              icon="menu"
+              paper-drawer-toggle
+            ></paper-icon-button>
 
             <iron-pages attr-for-selected="data-route" selected="[[secureRoute]]">
 
@@ -143,7 +137,6 @@
                 <cs-profile
                   authurl="[[authurl]]"
                   token="[[token]]"
-                  currentuser="[[currentuser]]"
                 ></cs-profile>
 
                 <template is="dom-if" if="[[issrcuser]]">
@@ -184,22 +177,6 @@
 
               </section>
 
-              <!-- PRECIOUS secure routes -->
-              <section data-route="precious">
-
-                <iron-pages attr-for-selected="data-route" selected="{{preciousRoute}}">
-
-                  <section data-route="kiosk">
-                    <cs-preciouskiosk
-                      token="[[token]]"
-                      portalurl="[[portalurl]]"
-                    ></cs-preciouskiosk>
-                  </section>
-
-                </iron-pages>
-
-              </section>
-
               <!-- SRC secure routes -->
               <section data-route="src">
 
@@ -229,38 +206,6 @@
                       loggedin="[[loggedin]]"
                       token="[[token]]"
                     ></cs-srcregister>
-                  </section>
-
-                </iron-pages>
-
-              </section>
-
-              <!-- ARIAC secure routes -->
-              <section data-route="ariac">
-
-                <iron-pages attr-for-selected="data-route" selected="{{ariacRoute}}">
-
-                  <section data-route="home">
-                    <cs-ariachome/>
-                  </section>
-
-                  <section data-route="competitor">
-                    <cs-ariaccompetitor/>
-                  </section>
-
-                  <section data-route="organizer">
-                    <cs-ariacorganizer/>
-                  </section>
-
-                  <section data-route="leaderboard">
-                    <cs-ariacleaderboard/>
-                  </section>
-
-                  <section data-route="register">
-                    <cs-ariacregister
-                      loggedin="[[loggedin]]"
-                      currentuser="[[currentuser]]"
-                    ></cs-ariacregister>
                   </section>
 
                 </iron-pages>
@@ -306,6 +251,8 @@
         this.addEventListener('error', function(e) {
           this._openErrorToast(e);
         });
+
+        this.$.drawerpanel.disableEdgeSwipe = true;
       },
 
       // Open notification toast
@@ -360,12 +307,6 @@
         this.$.menu.issascuser = this.issasccompetitor || this.issascadmin
         this.$.menu.issascadmin = this.issascadmin
 
-        // PRECIOUS
-        this.isprecious = (this.currentuser === getConfig().admin ||
-                           this.identities.indexOf("precious") > -1);
-
-        this.$.menu.isprecious = this.isprecious
-
         // SRC
         // For now, simulating 3 users:
         // -admin is a competition organizer
@@ -378,18 +319,6 @@
 
         this.issrcuser = this.issrccompetitor || this.issrcorganizer
         this.$.menu.issrcuser = this.issrcuser
-
-        // ARIAC
-        // For now, simulating 3 users:
-        // -admin is a competition organizer
-        // -ariac_organizer is also a competition organizer
-        // -ariac_competitor is a competitor
-        this.isariacorganizer = (this.currentuser === getConfig().admin ||
-                               this.identities.indexOf("ariac-admins") > -1);
-        this.isariaccompetitor = (!this.isariacorganizer &&
-            this.identities.indexOf("ariac-competitors") > -1);
-
-        this.$.menu.isariacuser = this.isariaccompetitor || this.isariacorganizer
 
         // Get permissions from gz-grant
         this.$.grant.getall();
@@ -500,16 +429,6 @@
           notify: true
         },
         issrcuser: {
-          type: Boolean,
-          value: false,
-          notify: true
-        },
-        isariaccompetitor: {
-          type: Boolean,
-          value: false,
-          notify: true
-        },
-        isariacorganizer: {
           type: Boolean,
           value: false,
           notify: true
