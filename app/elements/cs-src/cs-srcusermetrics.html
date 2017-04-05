@@ -128,8 +128,8 @@
 
       _createBalanceDetails: function(configsMap) { 
         let metricsMap = {}
-        // HACK
-        this.metrics.push({ 'identity': 'cloudsim@osrfoundation.org', running_time: 5 })
+        // HACK to have some info displayed
+        // this.metrics.push({ 'identity': 'cloudsim@osrfoundation.org', running_time: 5 })
 
         this.metrics.forEach((metric) => {
           metricsMap[metric.identity] = metric
