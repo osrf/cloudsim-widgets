@@ -92,14 +92,6 @@
         <cs-srchome/>
       </section>
 
-      <section data-route="src-register">
-        <cs-srcregister
-          loggedin="[[loggedin]]"
-          token="[[token]]"
-          competitor="[[issrccompetitor]]"
-        ></cs-srcregister>
-      </section>
-
       <!-- Secure routes -->
       <section data-route="secure">
 
@@ -127,9 +119,6 @@
               <section data-route="dashboard">
                 <cs-dashboard
                 ></cs-dashboard>
-                <template is="dom-if" if="[[!issrcuser]]">
-                 <cs-srcbanner/>
-                </template>
               </section>
 
               <!-- Profile -->
@@ -189,13 +178,6 @@
 
                   <section data-route="leaderboard">
                     <cs-srcleaderboard/>
-                  </section>
-
-                  <section data-route="register">
-                    <cs-srcregister
-                      loggedin="[[loggedin]]"
-                      token="[[token]]"
-                    ></cs-srcregister>
                   </section>
 
                 </iron-pages>
