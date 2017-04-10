@@ -103,19 +103,6 @@
   </style>
   <template>
 
-    <!-- For killing the round -->
-    <gz-resources
-      id="resources"
-      url="[[portalurl]]"
-      token="[[token]]"
-      resourcename="srcround"
-      on-deleted="_onDeleted"
-    ></gz-resources>
-
-    <!-- confirmation dialog -->
-    <cs-confirmationdialog id="confirmationdialog">
-    </cs-confirmationdialog>
-
     <center>
 
       <!-- SIMULATOR -->
@@ -186,31 +173,7 @@
 
       // When user presses Finish Round button
       _onFinish: function() {
-
-        this.$.confirmationdialog.open(
-            'Are you sure you\'d like to finish this round? <br>' +
-            'The simulator and field computer will be terminated. <br>' +
-            '<b>This action can\'t be reverted.</b>',
-            this._onFinishConfirmation.bind(this))
-      },
-
-      // On finish confirmation
-      _onFinishConfirmation: function() {
-
-        this.$.resources.del(this.roundid);
-
-        this.fire('notification', {msg:
-            'Requested to kill all machines for round "' +
-            this.roundname +'"', type: "msg"})
-      },
-
-      // Callback from the server when round was deleted
-      _onDeleted: function(e) {
-        if (e.detail.success) {
-          this.fire('notification', {msg:
-              'Round "' + this.roundname +'" successfully deleted.',
-               type: "msg"})
-        }
+        this.fire('finish', this.roundid)
       },
 
       // Properties
