@@ -187,34 +187,6 @@
       }, 100);
     });
 
-    page('/src-register', function() {
-      if (app.loggedin)
-      {
-        app.topLevelRoute = 'secure';
-        app.secureRoute = 'src';
-
-        if (app.issrccompetitor)
-        {
-          app.srcRoute = 'competitor';
-        }
-        else if (app.issrcorganizer)
-        {
-          app.srcRoute = 'organizer';
-        }
-        else
-        {
-          app.srcRoute = 'register';
-        }
-      }
-      else
-      {
-        app.topLevelRoute = 'src-register';
-      }
-      setTimeout(function () {
-        window.dispatchEvent(changeEvent)
-      }, 100);
-    });
-
     // 404
     page('*', function() {
       page.redirect(app.baseUrl);
