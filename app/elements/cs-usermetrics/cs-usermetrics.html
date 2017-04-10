@@ -1,7 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../elements/elements.html">
 
-<dom-module id="cs-srcusermetrics">
+<dom-module id="cs-usermetrics">
   <style>
     :host {
       display: block;
@@ -81,11 +81,11 @@
     'use strict';
 
     Polymer({
-      is: 'cs-srcusermetrics',
+      is: 'cs-usermetrics',
 
       // Attached
       attached: function() {
-        console.log('cs-srcusermetrics Attached!')
+        console.log('cs-usermetrics Attached!')
         let that = this
         if (that.token === "") {
           window.addEventListener('login', function() {
@@ -119,21 +119,21 @@
           // only keep enabled configs. And those whitelisting the user
           return !config.whitelisted && config.check_enabled
         })
-        const configsMap = {}      
+        const configsMap = {}
         allConfigs.forEach((config) => {
           configsMap[config.identity] = config
         })
         this._createBalanceDetails(configsMap)
       },
 
-      _createBalanceDetails: function(configsMap) { 
+      _createBalanceDetails: function(configsMap) {
         let metricsMap = {}
         // HACK to have some info displayed
         // this.metrics.push({ 'identity': 'cloudsim@osrfoundation.org', running_time: 5 })
 
         this.metrics.forEach((metric) => {
           metricsMap[metric.identity] = metric
-          metric['balance'] = 'N/A'        
+          metric['balance'] = 'N/A'
           metric['max_instance_hours'] = 'N/A'
         })
 
@@ -145,10 +145,10 @@
               metric['max_instance_hours'] = config.max_instance_hours
               metric['balance'] = config.max_instance_hours - metric.running_time
             } else {
-              metricsMap[config.identity] = { 
-                identity: config.identity, 
-                running_time: 0, 
-                max_instance_hours: config.max_instance_hours, 
+              metricsMap[config.identity] = {
+                identity: config.identity,
+                running_time: 0,
+                max_instance_hours: config.max_instance_hours,
                 balance: config.max_instance_hours
               }
             }
@@ -182,7 +182,7 @@
           type: String,
           value: '',
           notify: true
-        },        
+        },
         // Authentication token from cloudsim-auth
         token: {
           type: String,
