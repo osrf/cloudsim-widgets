@@ -171,9 +171,18 @@
 
                   <section data-route="organizer">
                     <cs-srcorganizer
-                      token="[[token]]"
-                      authurl="[[authurl]]"
                     ></cs-srcorganizer>
+                  </section>
+
+                  <section data-route="kiosk">
+                    <cs-srckiosk
+                      token="[[token]]"
+                      portalurl="[[portalurl]]"
+                      keysurl="[[keysurl]]"
+                      authurl="[[authurl]]"
+                      currentuser="[[currentuser]]"
+                      issrcadmin="[[issascadmin]]"
+                    ></cs-srckiosk>
                   </section>
 
                   <section data-route="leaderboard">
@@ -286,8 +295,15 @@
         // -src_competitor is a competitor
         this.issrcorganizer = (this.currentuser === getConfig().admin ||
                                this.identities.indexOf("src-admins") > -1);
-        this.issrccompetitor = (!this.issrcorganizer &&
-            this.identities.indexOf("src-competitors") > -1);
+        let that = this
+        this.identities.forEach(function(id){
+          if (id.indexOf("SRC-") > -1)
+            that.issrccompetitor = true
+        })
+
+        // Can't be both competitor and organizer
+        if (this.issrcorganizer)
+          this.issrccompetitor = false
 
         this.issrcuser = this.issrccompetitor || this.issrcorganizer
         this.$.menu.issrcuser = this.issrcuser

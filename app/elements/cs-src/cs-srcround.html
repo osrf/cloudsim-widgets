@@ -1,0 +1,239 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-srcround">
+  <style>
+    .space {
+      @apply(--layout-flex);
+    }
+    .about-half {
+      min-width: 45%;
+      margin-right: 2%;
+      margin-left: 2%;
+      @apply(--layout-self-start);
+    }
+    .start {
+      @apply(--layout-self-start);
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+    .vertical {
+      @apply(--layout-vertical);
+      @apply(--layout-center);
+    }
+    .cloudsim-blue {
+      background-color: rgb(68, 138, 201);
+      color: #fff;
+    }
+    .blue {
+      background-color: rgb(145, 189, 255);
+      color: #595959;
+      --iron-icon-fill-color: #415B90;
+    }
+    .gold {
+      background-color: rgb(240, 223, 161);
+      color: #595959;
+      --iron-icon-fill-color: #897613;
+    }
+    .white {
+      background-color: #fff;
+      color: #222;
+    }
+    .grey {
+      background-color: #d7d7d7;
+      color: rgb(68, 138, 201);
+    }
+    .red {
+      --iron-icon-fill-color: #f00;
+    }
+    .property {
+      font-weight: bold;
+      color: #7a7a7a;
+    }
+    .paper-header {
+      padding: 1em;
+    }
+    .paper-header > h1 {
+      text-align: center;
+    }
+    .paper-header > h4 {
+      margin: 0;
+      text-align: center;
+    }
+    .paper-header > p {
+      margin-bottom: 1em;
+      color: #6f6f6f;
+      text-align: center;
+    }
+    .content {
+      padding: 1em;
+      height: 100%;
+    }
+    .new-content {
+      width: 50%;
+    }
+    .box-header > h4 {
+      color: #eee;
+    }
+    .box-header {
+      background-color: rgb(68, 138, 201);
+      color: #353535;
+      margin: 0;
+      padding-right: 1em;
+      padding-left: 1em;
+    }
+    .box-content {
+      overflow: auto;
+      margin: 0;
+      padding: 1em;
+    }
+    .box {
+      max-width: 70%;
+      min-width: 30%;
+      margin-top: 1em;
+    }
+    .full {
+      min-width: 100%;
+    }
+    #finishbutton {
+      margin-top: 2em;
+    }
+  </style>
+  <template>
+
+    <!-- For killing the round -->
+    <gz-resources
+      id="resources"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="srcround"
+      on-deleted="_onDeleted"
+    ></gz-resources>
+
+    <!-- confirmation dialog -->
+    <cs-confirmationdialog id="confirmationdialog">
+    </cs-confirmationdialog>
+
+    <center>
+
+      <!-- SIMULATOR -->
+      <paper-material elevation="1" class="box">
+        <div class="box-header horizontal">
+          <h4>Simulator</h4>
+          <div class="space"></div>
+        </div>
+        <div class="box-content">
+          <div class="vertical">
+            <div class="horizontal start" title="Username of admin who started this round">
+              <span class="property">Image: </span> [[rounddata.simulator.image]]
+            </div>
+            <div class="horizontal start" title="Username of admin who started this round">
+              <span class="property">Hardware: </span> [[rounddata.simulator.hardware]]
+            </div>
+          </div>
+        </div>
+      </paper-material>
+      <!-- /SIMULATOR -->
+
+      <!-- FIELD COMPUTER -->
+      <paper-material elevation="1" class="box">
+        <div class="box-header horizontal">
+          <h4>Field computer</h4>
+          <div class="space"></div>
+        </div>
+        <div class="box-content">
+          <div class="vertical">
+            <div class="horizontal start" title="Username of admin who started this round">
+              <span class="property">Image: </span> [[rounddata.fieldcomputer.image]]
+            </div>
+            <div class="horizontal start" title="Username of admin who started this round">
+              <span class="property">Hardware: </span> [[rounddata.fieldcomputer.hardware]]
+            </div>
+          </div>
+        </div>
+      </paper-material>
+      <!-- /FIELD COMPUTER -->
+
+      <div class="space"></div>
+
+      <paper-button
+        raised
+        class="white"
+        id="finishbutton"
+        on-tap="_onFinish"
+        title="Kill all machines in this round"
+      >
+        <iron-icon icon="icons:close" class="red"></iron-icon>
+        Finish round
+      </paper-button>
+
+    </center>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-srcround',
+
+      // Attached
+      attached: function() {
+      },
+
+      // When user presses Finish Round button
+      _onFinish: function() {
+
+        this.$.confirmationdialog.open(
+            'Are you sure you\'d like to finish this round? <br>' +
+            'The simulator and field computer will be terminated. <br>' +
+            '<b>This action can\'t be reverted.</b>',
+            this._onFinishConfirmation.bind(this))
+      },
+
+      // On finish confirmation
+      _onFinishConfirmation: function() {
+
+        this.$.resources.del(this.roundid);
+
+        this.fire('notification', {msg:
+            'Requested to kill all machines for round "' +
+            this.roundname +'"', type: "msg"})
+      },
+
+      // Callback from the server when round was deleted
+      _onDeleted: function(e) {
+        if (e.detail.success) {
+          this.fire('notification', {msg:
+              'Round "' + this.roundname +'" successfully deleted.',
+               type: "msg"})
+        }
+      },
+
+      // Properties
+      properties: {
+        rounddata: {
+          type: Object,
+          value: {},
+          notify: true,
+        },
+        // Resource ID for this round
+        roundid: {
+          type: String,
+          value: '',
+          notify: true,
+        },
+        // Widgets-given name for the round
+        roundname: {
+          type: String,
+          value: '',
+          notify: true,
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>
