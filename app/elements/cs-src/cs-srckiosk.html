@@ -220,19 +220,11 @@
           team: this.teamname,
           fieldcomputer: this.fcdata,
           simulator: this.simdata,
-          arbiter: {
-            public: {
-              status: 'NOT LAUNCHED'
-            },
-            secure: {
-              status: 'NOT LAUNCHED'
-            },
-          },
         }
 
         this.$.roundsresources.create(data);
 
-        this.fire('notification', 'Sending request to start round "' + this.dockerurl + '".')
+        this.fire('notification', 'Sending request to start new round.')
       },
 
       // Callback from server when a new round has been created
@@ -293,6 +285,7 @@
           this.fire('notification', {msg: 'Round successfully deleted.',
                type: "msg"})
         }
+        this.currentpage = ""
         this._getRounds()
       },
 
