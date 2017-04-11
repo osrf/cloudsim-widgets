@@ -80,22 +80,13 @@
       on-resourcesupdated="_onGetAllConfigs"
     ></gz-resources>
 
-    <!-- For getting user groups -->
-    <gz-resources
-      id="groups"
-      url="[[authurl]]"
-      token="[[token]]"
-      resourcename="group"
-      on-resourcesupdated="_onGroups"
-    ></gz-resources>
-
     <paper-material elevation="1">
 
       <h1>
         <iron-icon
           icon="av:av-timer"
         ></iron-icon>
-        Instance-Hours metrics
+        Instance-hour metrics
       </h1>
 
       <iron-data-table items="[[balances]]">
@@ -120,10 +111,6 @@
 
       </iron-data-table>
 
-      <template is="dom-if" if="[[nogroups]]">
-        No teams yet
-      </template>
-
     </paper-material>
 
   </template>
@@ -137,23 +124,15 @@
 
       // Attached
       attached: function() {
-        console.log('cs-usermetrics Attached!')
         let that = this
         if (that.token === "") {
           window.addEventListener('login', function() {
-            that.$.groups.getAll();
             that.$.metrics.getAll();
           });
         }
         else {
-          that.$.groups.getAll();
           that.$.metrics.getAll();
         }
-      },
-
-      // Callback when the current user has changed
-      _currentUserChanged: function() {
-        this.isadmin = this.currentuser === getConfig().admin
       },
 
       // Callback when all accessible metrics have been returned
@@ -164,6 +143,7 @@
         this.$.configs.getAll();
       },
 
+      // Callback when all configs have been returned
       _onGetAllConfigs: function(e) {
         // Keep the enabled configs per team with the minimum number of allowed instance-hours
         let allConfigs = e.detail
@@ -180,8 +160,6 @@
 
       _createBalanceDetails: function(configsMap) {
         let metricsMap = {}
-        // HACK to have some info displayed
-        // this.metrics.push({ 'identity': 'cloudsim@osrfoundation.org', running_time: 5 })
 
         this.metrics.forEach((metric) => {
           metricsMap[metric.identity] = metric
@@ -216,12 +194,6 @@
         this.balances = tmpBalances
       },
 
-      // Callback when groups have been updated
-      _onGroups: function() {
-        this.groups = this.$.groups.resources
-        this.nogroups = (this.groups.length == 0)
-      },
-
       // Properties
       properties: {
         portalurl: {
@@ -241,25 +213,8 @@
           value: '',
           notify: true
         },
-        currentuser: {
-          type: String,
-          value: 'current user not set',
-          notify: true,
-          observer: '_currentUserChanged'
-        },
-        isadmin: {
-          type: Boolean,
-          value: false,
-          notify: true
-        },
         // Array of metrics for current user.
         metrics: {
-          type: Array,
-          value: [],
-          notify: true
-        },
-        // Array of groups for current user.
-        groups: {
           type: Array,
           value: [],
           notify: true
