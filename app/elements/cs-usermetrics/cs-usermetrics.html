@@ -7,6 +7,7 @@
       display: block;
       padding-top: 3em;
       @apply(--paper-font-common-base);
+      font-size: 0.8em;
     }
     .horizontal {
       @apply(--layout-horizontal);
@@ -15,6 +16,50 @@
     .space {
       @apply(--layout-flex);
     }
+    paper-material {
+      text-align: center;
+      padding-top: 1em;
+      margin: 1em;
+    }
+    h1 {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    iron-data-table {
+      min-width: 30em;
+      max-height: 20em;
+    }
+    .identity {
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    iron-data-table data-table-row:not([header]) data-table-cell {
+      height: 60px;
+    }
+
+    iron-data-table {
+      --iron-data-table-header: {
+        background-color: rgb(68, 138, 201);
+        color: #fff;
+        font-size: 1em;
+        font-weight: 600;
+      }
+      --iron-data-table-row: {
+        height: 50px;
+        align-items: center;
+      }
+      --iron-data-table-row-odd: {
+        background-color: #f3f3f3;
+      }
+      --iron-data-table-row-even: {
+        background-color: #eaeaea;
+      }
+      --iron-data-table-row-hover: {
+        background-color: #fff !important;
+      }
+    }
+
   </style>
 
   <template>
@@ -44,35 +89,42 @@
       on-resourcesupdated="_onGroups"
     ></gz-resources>
 
-    <div class="horizontal">
+    <paper-material elevation="1">
 
-      <div class="space"></div>
+      <h1>
+        <iron-icon
+          icon="av:av-timer"
+        ></iron-icon>
+        Instance-Hours metrics
+      </h1>
 
-      <template is="dom-if" if="{{isadmin}}">
-          ADMIN
+      <iron-data-table items="[[balances]]">
+
+        <data-table-column name="Identity" width="10em">
+          <template>
+            <span class="identity" title="[[item.identity]]">[[item.identity]]</span>
+          </template>
+        </data-table-column>
+
+        <data-table-column name="Hours used" width="3em">
+          <template>
+            <span title="[[item.identity]]">[[item.running_time]]</span>
+          </template>
+        </data-table-column>
+
+        <data-table-column name="Hours remaining" width="5em">
+          <template>
+            <span title="[[item.identity]]">[[item.balance]]</span>
+          </template>
+        </data-table-column>
+
+      </iron-data-table>
+
+      <template is="dom-if" if="[[nogroups]]">
+        No teams yet
       </template>
 
-      <div class="space"></div>
-      <paper-material elevation="1">
-        <div class="main-content">
-          <h4 class="margintop">Instance-Hours metrics</h4>
-          <div class="my-metrics">
-            <template is="dom-repeat" items="[[balances]]">
-              <div class="group-name">
-                [[item.identity]]: Running [[item.running_time]] hours. Balance: [[item.balance]]
-              </div>
-            </template>
-            <template is="dom-if" if="[[nogroups]]">
-              <div class="group-name">
-                No teams yet
-              </div>
-            </template>
-          </div>
-        </div>
-      </paper-material>
-      <div class="space"></div>
-
-    </div>
+    </paper-material>
 
   </template>
 
