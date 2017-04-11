@@ -12,6 +12,10 @@
       @apply(--layout-horizontal);
       @apply(--layout-center);
     }
+    .vertical {
+      @apply(--layout-vertical);
+      @apply(--layout-center);
+    }
     .space {
       @apply(--layout-flex);
     }
@@ -19,7 +23,7 @@
 
   <template>
 
-    <div class="horizontal">
+    <div class="vertical">
 
       <div class="space"></div>
 
@@ -30,6 +34,11 @@
       ></cs-groups>
 
       <div class="space"></div>
+
+      <cs-usermetrics
+        portalurl="[[portalurl]]"
+        token="[[token]]"
+      ></usermetrics>
 
     </div>
 
@@ -51,6 +60,13 @@
 
         // Auth server URL
         authurl: {
+          type: String,
+          value: '',
+          notify: true
+        },
+
+        // Portal server URL
+        portalurl: {
           type: String,
           value: '',
           notify: true
