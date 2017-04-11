@@ -145,6 +145,7 @@
       on-resourcesupdated="_onMachineTypes"
       on-created="_onMachineTypeCreated"
       on-deleted="_onMachineTypeDeleted"
+      on-updated="_onMachineTypeUpdated"
     ></gz-resources>
 
     <!-- confirmation dialog -->
@@ -159,7 +160,7 @@
         <iron-icon
           icon="hardware:computer"
         ></iron-icon>
-        Machine Types
+        Machine types
       </h1>
 
       <div class="main-content">
@@ -192,6 +193,12 @@
 
         </iron-data-table>
 
+        <template is="dom-if" if="[[nomachinetypes]]">
+          <div class="group-name">
+            No machine types available
+          </div>
+        </template>
+
         <template is="dom-if" if="[[cancreate]]">
           <div class="horizontal center margintop">
             <h4>Create a machine type</h4>
@@ -217,19 +224,19 @@
               <paper-input
                 style="padding-right: 1em"
                 value={{createregion}}
-                label="AWS Region">
+                label="Region">
               </paper-input>
             </div>
             <div class="horizontal center">
               <paper-input
                 style="padding-right: 1em"
                 value={{createimage}}
-                label="AWS AMI">
+                label="Image">
               </paper-input>
               <paper-input
                 style="padding-right: 1em"
                 value={{createhardware}}
-                label="AWS hardware type">
+                label="Hardware">
               </paper-input>
             </div>
             <paper-button
@@ -251,9 +258,46 @@
 
       <div class="content">
 
+        <template is="dom-if" if="[[isselectedadmin]]">
+          <!-- EDIT -->
+          <div class="subcontent">
+            <b class="subheader">Edit</b>
+
+            <div class="vertical center">
+
+              <paper-input
+                style="padding-right: 1em"
+                value={{editimage}}
+                label="Image">
+              </paper-input>
+
+              <paper-input
+                style="padding-right: 1em"
+                value={{edithardware}}
+                label="Hardware">
+              </paper-input>
+
+              <paper-input
+                style="padding-right: 1em"
+                value={{editregion}}
+                label="Region">
+              </paper-input>
+
+              <paper-button
+                raised
+                id="editbutton"
+                on-tap="_onEdit"
+              >
+                <iron-icon icon="image:edit"></iron-icon>
+                Edit
+              </paper-button>
+            </div>
+          </div>
+        </template>
+
         <!-- MEMBERS -->
         <div class="subcontent">
-          <b class="subheader">Members</b>
+          <b class="subheader">Shared with</b>
 
           <template is="dom-repeat" items="[[selectedmembers]]">
             <div class="horizontal center">
@@ -282,7 +326,7 @@
         <template is="dom-if" if="[[isselectedadmin]]">
           <!-- INVITE -->
           <div class="subcontent">
-            <b class="subheader">Invite</b>
+            <b class="subheader">Share</b>
 
             <div class="horizontal">
               <div class="vertical">
@@ -375,8 +419,35 @@
         this.isselectedadmin = !list[0].permissions.readOnly
         this.set('selectedmembers', list);
 
+        // Fill edit
+        this.editimage = this.selectedmachinetype.data.image
+        this.edithardware = this.selectedmachinetype.data.hardware
+        this.editregion = this.selectedmachinetype.data.region
+
         // Open dialog
         this.$.machinetypedialog.open();
+      },
+
+      // Request to edit a machinetype
+      _onEdit() {
+
+        if (!this.editregion || this.editregion.trim() === "" ||
+            !this.edithardware || this.edithardware.trim() === "" ||
+            !this.editimage || this.editimage.trim() === "") {
+
+          this.fire('error', "No fields can be empty!")
+          return
+        }
+
+        const data = {
+          region: this.editregion.trim(),
+          hardware: this.edithardware.trim(),
+          image: this.editimage.trim(),
+        };
+
+        const resource = this.selectedmachinetype.name
+
+        this.$.resources.update(resource, data);
       },
 
       // Request to create a new machinetype
@@ -391,7 +462,7 @@
           return
         }
 
-        let data = {
+        const data = {
           name: this.createname.trim(),
           region: this.createregion.trim(),
           hardware: this.createhardware.trim(),
@@ -466,6 +537,15 @@
         this.$.resources.getAll();
 
         this.fire('notification', 'Deleted machinetype "' + e.detail.resource.data.name
+            + '"');
+      },
+
+      /// Callback when a machinetype has been updated
+      _onMachineTypeUpdated: function(e) {
+        // Get updated list of machinetypes
+        this.$.resources.getAll();
+
+        this.fire('notification', 'Updated machinetype "' + e.detail.result.data.name
             + '"');
       },
 
