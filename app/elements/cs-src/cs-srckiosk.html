@@ -210,14 +210,14 @@
       _onContinue: function() {
 
         // Check for empty fields
-        if (this.dockerurl === "" || this.teamname === "") {
+        if (this.dockerurl.trim() === "" || this.teamname.trim() === "") {
           this.fire('error', 'No fields can be empty.')
           return
         }
 
         let data = {
-          dockerurl: this.dockerurl,
-          team: this.teamname,
+          dockerurl: this.dockerurl.trim(),
+          team: this.teamname.trim(),
           fieldcomputer: this.fcdata,
           simulator: this.simdata,
         }
