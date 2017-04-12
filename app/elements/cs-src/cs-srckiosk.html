@@ -1,0 +1,318 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-srckiosk">
+  <style>
+    :root {
+      --paper-tab-ink: #fff;
+      --paper-tabs-selection-bar-color: #fff;
+      --paper-tabs: {
+        color: #fff;
+      }
+    }
+    .title {
+      font-size: 2em;
+    }
+    .space {
+      @apply(--layout-flex);
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+    .vertical {
+      @apply(--layout-vertical);
+      @apply(--layout-center);
+    }
+    .blue {
+      background-color: rgb(68, 138, 201);
+      color: #fff;
+    }
+    .grey {
+      background-color: #d7d7d7;
+      color: rgb(68, 138, 201);
+    }
+    .floating {
+      margin-bottom: -2em;
+      z-index: 1000;
+    }
+    .paper-header {
+      padding: 1em;
+    }
+    .paper-header > h1 {
+      text-align: center;
+    }
+    .paper-header > h4 {
+      margin: 0;
+      text-align: center;
+    }
+    .paper-header > p {
+      margin-bottom: 0;
+      color: #ddd;
+      text-align: center;
+    }
+    .content {
+      padding: 1em;
+      height: 100%;
+    }
+    paper-tabs {
+      margin-top: -48px;
+      margin-left: 20px;
+    }
+    .new-content {
+      width: 50%;
+    }
+  </style>
+  <template>
+
+    <!-- For managing rounds -->
+    <gz-resources
+      id="roundsresources"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="srcround"
+      on-created="_onNewRound"
+      on-resourcesupdated="_onAllRounds"
+      on-deleted="_onDeleted"
+    ></gz-resources>
+
+    <paper-header-panel class="blue">
+      <div class="paper-header">
+        <h1 class="title">Rounds</h1>
+
+        <paper-fab
+          mini
+          class="grey floating"
+          icon="icons:add"
+          title="Start a new round"
+          on-tap="_onNew"
+        ></paper-fab>
+      </div>
+    </paper-header-panel>
+
+    <paper-tabs scrollable attr-for-selected="value" selected="{{currentpage}}">
+      <template is="dom-repeat" items="{{rounds}}">
+        <paper-tab value="[[_roundName(item)]]">[[_roundName(item)]]</paper-tab>
+      </template>
+    </paper-tabs>
+
+    <iron-pages attr-for-selected="data-route" selected="{{currentpage}}">
+
+      <section data-route="empty">
+        <center>
+          <p style="margin-top: 2em">Your team has no rounds running.</p>
+          <paper-button flat on-tap="_onNew">Start one now</paper-button></p>
+        </center>
+      </section>
+
+      <section data-route="new">
+        <center>
+          <div class="new-content">
+            <p>Start a new round.</p>
+
+            <paper-input value="{{dockerurl}}" label="Docker stuff" required></paper-input>
+
+            <template is="dom-if" if="[[issrcadmin]]">
+              <paper-input value="{{teamname}}" label="Team name" required></paper-input>
+            </template>
+
+            <br>
+
+            <paper-button
+              raised
+              class="blue"
+              on-tap="_onContinue"
+            >Continue</paper-button></p>
+
+          </div>
+        </center>
+      </section>
+
+      <template is="dom-repeat" items="{{rounds}}">
+        <section data-route="[[_roundName(item)]]">
+          <cs-srcround
+            token="[[token]]"
+            rounddata=[[item.data]]
+            roundid=[[item.name]]
+            portalurl="[[portalurl]]"
+            roundname="[[_roundName(item)]]"
+            on-finish="_requestRoundFinish"
+          >
+          </cs-srcround>
+        </section>
+      </template>
+
+    </iron-pages>
+
+    <!-- confirmation dialog -->
+    <cs-confirmationdialog id="confirmationdialog">
+    </cs-confirmationdialog>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-srckiosk',
+
+      // Attached
+      attached: function() {
+        this.simdata = {
+          region: 'us-west-1',
+          hardware: 't2.small',
+          image: 'ami-eea9f38e'
+        }
+        this.fcdata = {
+          region: 'us-west-1',
+          hardware: 't2.small',
+          image: 'ami-eea9f38e'
+        }
+      },
+
+      // Callback when the token has been updated
+      _onTokenUpdated: function() {
+        if (this.token !== "") {
+          this._getRounds()
+        }
+      },
+
+      // Get list of all rounds for this user
+      _getRounds: function() {
+        this.$.roundsresources.getAll()
+      },
+
+      // Callback from widgets server with all rounds for this user
+      _onAllRounds: function(e) {
+
+        // Take only non-finished rounds
+        let temp = []
+        for (var i = 0; i < e.detail.length; ++i) {
+          if (!e.detail[i].data.finished)
+            temp.push(e.detail[i])
+        }
+
+        this.set('rounds', temp)
+
+        if (this.rounds.length == 0)
+          this.currentpage = "empty"
+        else if (this.currentpage == "" || this.currentpage == "empty")
+          this.currentpage = this._roundName(this.rounds[0])
+      },
+
+      // Go to page to start new round
+      _onNew: function() {
+        this.currentpage = "new"
+      },
+
+      // Continue starting new round
+      _onContinue: function() {
+
+        // Check for empty fields
+        if (this.dockerurl.trim() === "" || this.teamname.trim() === "") {
+          this.fire('error', 'No fields can be empty.')
+          return
+        }
+
+        let data = {
+          dockerurl: this.dockerurl.trim(),
+          team: this.teamname.trim(),
+          fieldcomputer: this.fcdata,
+          simulator: this.simdata,
+        }
+
+        this.$.roundsresources.create(data);
+
+        this.fire('notification', 'Sending request to start new round.')
+      },
+
+      // Callback from server when a new round has been created
+      _onNewRound: function(e) {
+        let resp = e.detail
+
+        if (!resp.success) {
+          const msg = 'Could not start round: ' + resp.msg
+
+          console.log(msg)
+          this.fire('error', msg)
+          return
+        }
+
+        // Fill name, it's missing due to inconsistent API
+        resp.result.name = resp.id
+
+        this.push('rounds', resp.result)
+
+        this.currentpage = this._roundName(resp.result)
+
+        this.fire('notification', 'Started round "' + this._roundName(resp.result) + '".')
+      },
+
+      // Generate round name
+      _roundName: function(resource) {
+        if (!resource.name)
+          return "NEW"
+
+        let num = resource.name.substring(9, 12)
+        return resource.data.team + '-' + num
+      },
+
+      // A round is requesting to be finished
+      _requestRoundFinish(e) {
+
+        this.finishId = e.detail
+
+        this.$.confirmationdialog.open(
+            'Are you sure you\'d like to finish this round? <br>' +
+            'The simulator and field computer will be terminated. <br>' +
+            '<b>This action can\'t be reverted.</b>',
+            this._onFinishConfirmation.bind(this))
+      },
+
+      // On finish confirmation
+      _onFinishConfirmation: function() {
+
+        this.$.roundsresources.del(this.finishId);
+
+        this.fire('notification', {msg:
+            'Requested to finish round.', type: "msg"})
+      },
+
+      // Callback from the server when round was deleted
+      _onDeleted: function(e) {
+        if (e.detail.success) {
+          this.fire('notification', {msg: 'Round successfully deleted.',
+               type: "msg"})
+        }
+        this.currentpage = ""
+        this._getRounds()
+      },
+
+      properties: {
+        rounds: {
+          type: Array,
+          value: [],
+          notify: true
+        },
+        currentpage: {
+          type: String,
+          value: 'empty',
+          notify: true
+        },
+        portalurl: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        token: {
+          type: String,
+          value: '',
+          notify: true,
+          observer: '_onTokenUpdated'
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>
