@@ -19,6 +19,18 @@
   </style>
   <template>
 
+    <!-- For toggling practice mode -->
+    <iron-ajax
+      id="ajaxpractice"
+      method="POST"
+      url=[[portalurl]]/srcrounds_practice
+      handle-as="json"
+      on-response="_practiceResponse"
+      on-error="_practiceError"
+      content-type="application/json"
+      debounce-duration="300"
+    ></iron-ajax>
+
     <paper-header-panel class="blue">
       <div class="paper-header">
         <h1 class="title">Competition organizer's kiosk</h1>
@@ -26,10 +38,17 @@
       </div>
     </paper-header-panel>
 
-    <ul>
-      <li>TODO: Widget to change Simulator ami</li>
-      <li>TODO: Widget to change Field computer ami</li>
-    </ul>
+    <template is="dom-if" if="[[competitionmode]]">
+      <paper-button raised id="practicebutton" on-tap="_tapPractice">
+        Turn on practice mode
+      </paper-button>
+    </template>
+
+    <template is="dom-if" if="[[practicemode]]">
+      <paper-button raised id="competitionbutton" on-tap="_tapCompetition">
+        Turn on competition mode
+      </paper-button>
+    </template>
 
   </template>
 
@@ -42,6 +61,44 @@
       // Attached
       attached: function() {
         console.log('cs-srcorganizer widget attached!')
+      },
+
+      // Callback when practice button is pressed
+      _onPractice: function() {
+        data = {'practice' : this.practice}
+
+        this.$.ajaxpractice.headers.authorization = this.token.trim()
+        this.$.ajaxpractice.body = data
+        this.$.ajaxpractice.generateRequest()
+      },
+
+      // response handler for practice
+      _practiceResponse: function(req) {
+        let resp
+        if (req && req.detail && req.detail.response)
+          resp = req.detail.response
+        else
+          resp = this.$.ajaxpractice.lastResponse
+
+        this.log('_practiceResponse:', resp)
+        if (!resp) {
+          console.error('_practiceResponse: no response')
+          return
+        }
+        if (resp.hasOwnProperty('success') && resp.success == false) {
+          const msg = 'Failed to practice ' + this.resourcename
+          console.error(msg)
+          this.fire('error', msg, {bubbles: this.bubbles})
+          return
+        }
+
+        this.fire('notification', resp)
+      },
+
+      // response handler for practice
+      _practiceError: function(err) {
+        console.log(err)
+        this.fire('error', 'Error toggling practice mode.')
       },
       properties: {
       },
