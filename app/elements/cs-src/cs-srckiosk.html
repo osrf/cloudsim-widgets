@@ -210,16 +210,26 @@
       _onContinue: function() {
 
         // Check for empty fields
-        if (this.dockerurl.trim() === "" || this.teamname.trim() === "") {
+        if (this.dockerurl.trim() === "") {
           this.fire('error', 'No fields can be empty.')
           return
         }
 
+        if (this.issrcadmin) {
+          if (this.teamname.trim() === "") {
+            this.fire('error', 'No fields can be empty.')
+            return
+          }
+        }
+
         let data = {
           dockerurl: this.dockerurl.trim(),
-          team: this.teamname.trim(),
           fieldcomputer: this.fcdata,
           simulator: this.simdata,
+        }
+
+        if (this.issrcadmin) {
+          data.team = this.teamname.trim()
         }
 
         this.$.roundsresources.create(data);
