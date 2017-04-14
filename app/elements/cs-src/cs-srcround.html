@@ -53,9 +53,19 @@
       font-weight: bold;
       color: #7a7a7a;
       padding: 1em;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
     }
     .value {
       padding: 1em;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      max-width: 8em;
+      white-space: nowrap;
+    }
+    .noellipsis {
+      text-overflow: unset;
     }
     .paper-header {
       padding: 1em;
@@ -103,7 +113,7 @@
       margin-top: 1em;
     }
     .subbox {
-      max-width: 20em;
+      max-width: 23em;
       margin: 1em;
     }
     .full {
@@ -303,7 +313,7 @@
                 <span class="value">[[rounddata.fieldcomputer.region]]</span>
               </div>
 
-              <div class="horizontal item" title="Docker">
+              <div class="horizontal item" title="[[rounddata.dockerurl]]">
                 <span class="property">Docker</span>
                 <div class="space"></div>
                 <span class="value">[[rounddata.dockerurl]]</span>
@@ -345,7 +355,7 @@
                 <div class="horizontal item">
                   <span class="property">Public IP</span>
                   <div class="space"></div>
-                  <span class="value">[[rounddata.fieldcomputer.data.machine_ip]]</span>
+                  <span class="value noellipsis">[[rounddata.fieldcomputer.data.machine_ip]]</span>
                 </div>
 
                 <div class="horizontal item">

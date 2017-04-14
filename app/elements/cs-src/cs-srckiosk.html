@@ -219,39 +219,26 @@
       _onAllSimulators: function(e) {
 
         const sims = e.detail
-        let temp = []
 
         // Go through each round
         for (let r = 0; r < this.rounds.length; r++) {
 
-          // Copy the round
-          let copy = this.rounds[r]
-
-          let id = copy.data.public.simulator_id
+          // Simulator
+          let id = this.rounds[r].data.public.simulator_id
           let sim = sims.find(function(s) {
             return s.name == id
           })
           if (sim)
-            copy.data.simulator.data = sim.data
+            this.set('rounds.' + r + '.data.simulator.data', sim.data)
 
-          id = copy.data.public.fieldcomputer_id
+          // Field computer
+          id = this.rounds[r].data.public.fieldcomputer_id
           sim = sims.find(function(s) {
             return s.name == id
           })
           if (sim)
-            copy.data.fieldcomputer.data = sim.data
-
-          temp.push(copy)
+            this.set('rounds.' + r + '.data.fieldcomputer.data', sim.data)
         }
-
-        // Getting polymer to update the DOM is incredibly frustrating
-        // This causes blinking, but I don't know how to do it otherwise
-        this.set('rounds', [])
-        let that = this
-        setTimeout(function(){
-          that.set('rounds', temp)
-        }, 10)
-
       },
 
       // Go to page to start new round
