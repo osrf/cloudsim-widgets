@@ -121,6 +121,9 @@
     .blueIcon {
       --iron-icon-fill-color: rgb(68, 138, 201);
     }
+    .worldbutton {
+      width: 3em;
+    }
   </style>
   <template>
 
@@ -189,13 +192,31 @@
 
             <div class="vertical box-content">
 
-              <paper-input value="{{startworld}}" label="World" required></paper-input>
+              <div class="vertical">
 
-              <div class="horizontal">
-
-                <paper-button raised>
+                <paper-button raised class="worldbutton">
                   <iron-icon icon="icons:av:play-arrow" class="blueIcon"></iron-icon>
-                  Start
+                  1
+                </paper-button>
+
+                <paper-button raised class="worldbutton">
+                  <iron-icon icon="icons:av:play-arrow" class="blueIcon"></iron-icon>
+                  2
+                </paper-button>
+
+                <paper-button raised class="worldbutton">
+                  <iron-icon icon="icons:av:play-arrow" class="blueIcon"></iron-icon>
+                  3
+                </paper-button>
+
+                <paper-button raised class="worldbutton">
+                  <iron-icon icon="icons:av:play-arrow" class="blueIcon"></iron-icon>
+                  4
+                </paper-button>
+
+                <paper-button raised class="worldbutton">
+                  <iron-icon icon="icons:av:play-arrow" class="blueIcon"></iron-icon>
+                  5
                 </paper-button>
 
                 <paper-button raised>
