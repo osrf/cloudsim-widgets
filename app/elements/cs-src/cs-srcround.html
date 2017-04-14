@@ -58,6 +58,9 @@
     .paper-header > h1 {
       text-align: center;
     }
+    .subbox > h4 {
+      margin: 0;
+    }
     .paper-header > h4 {
       margin: 0;
       text-align: center;
@@ -94,11 +97,29 @@
       min-width: 30%;
       margin-top: 1em;
     }
+    .subbox {
+      max-width: 15em;
+      margin: 1em;
+    }
     .full {
       min-width: 100%;
     }
     #finishbutton {
       margin-top: 2em;
+    }
+
+    /* SSH button */
+    .miniButton {
+      font-size: 0.8em;
+      width: 5em;
+      height: 1.8em;
+    }
+    .miniButton iron-icon {
+      width: 1.5em;
+      margin-right: 0.2em;
+    }
+    .blueIcon {
+      --iron-icon-fill-color: rgb(68, 138, 201);
     }
   </style>
   <template>
@@ -111,15 +132,83 @@
           <h4>Simulator</h4>
           <div class="space"></div>
         </div>
-        <div class="box-content">
-          <div class="vertical">
-            <div class="horizontal start" title="Username of admin who started this round">
-              <span class="property">Image: </span> [[rounddata.simulator.image]]
+        <div class="box-content horizontal">
+
+          <!-- Machine -->
+          <paper-material elevation="1" class="subbox">
+            <h4>Machine</h4>
+
+            <div class="vertical box-content">
+
+              <div class="horizontal start" title="AMI">
+                <span class="property">Image: </span> [[rounddata.simulator.image]]
+              </div>
+
+              <div class="horizontal start" title="Hardware">
+                <span class="property">Hardware: </span> [[rounddata.simulator.hardware]]
+              </div>
+
+              <div class="horizontal start" title="Region">
+                <span class="property">Region: </span> [[rounddata.simulator.region]]
+              </div>
+
             </div>
-            <div class="horizontal start" title="Username of admin who started this round">
-              <span class="property">Hardware: </span> [[rounddata.simulator.hardware]]
+          </paper-material>
+
+          <!-- Practice -->
+          <template is="dom-if" if="[[rounddata.secure]]">
+            <paper-material elevation="1" class="subbox">
+
+                <div class="vertical box-content">
+
+                  <h4>Practice mode</h4>
+
+                  <div class="horizontal start" title="Docker">
+                    <span class="property">Public IP: </span> [[rounddata.simulator.machine_ip]]
+                  </div>
+
+                  <a
+                    href="[[portalurl]]/sshkeys/[[rounddata.simulator.sshkey]]?token=[[token]]"
+                    target="_blank"
+                    tabindex=""
+                    style="color:inherit"
+                    class="start"
+                  >
+                    <paper-button raised class="miniButton">
+                      <iron-icon icon="icons:cloud-download" class="blueIcon"></iron-icon>
+                      SSH
+                    </paper-button>
+                  </a>
+              </div>
+            </paper-material>
+          </template>
+
+          <!-- Start / Stop -->
+          <paper-material elevation="1" class="subbox">
+            <h4>Run</h4>
+
+            <div class="vertical box-content">
+
+              <paper-input value="{{startworld}}" label="World" required></paper-input>
+
+              <div class="horizontal">
+
+                <paper-button raised>
+                  <iron-icon icon="icons:av:play-arrow" class="blueIcon"></iron-icon>
+                  Start
+                </paper-button>
+
+                <paper-button raised>
+                  <iron-icon icon="icons:av:stop" class="blueIcon"></iron-icon>
+                  Stop
+                </paper-button>
+
+              </div>
+
             </div>
-          </div>
+
+          </paper-material>
+
         </div>
       </paper-material>
       <!-- /SIMULATOR -->
@@ -130,18 +219,98 @@
           <h4>Field computer</h4>
           <div class="space"></div>
         </div>
-        <div class="box-content">
-          <div class="vertical">
-            <div class="horizontal start" title="AMI">
-              <span class="property">Image: </span> [[rounddata.fieldcomputer.image]]
+        <div class="box-content horizontal">
+
+          <!-- Machine -->
+          <paper-material elevation="1" class="subbox">
+            <h4>Machine</h4>
+
+            <div class="vertical box-content">
+
+              <div class="horizontal start" title="AMI">
+                <span class="property">Image: </span> [[rounddata.fieldcomputer.image]]
+              </div>
+
+              <div class="horizontal start" title="Hardware">
+                <span class="property">Hardware: </span> [[rounddata.fieldcomputer.hardware]]
+              </div>
+
+              <div class="horizontal start" title="Region">
+                <span class="property">Region: </span> [[rounddata.fieldcomputer.region]]
+              </div>
+
+              <div class="horizontal start" title="Docker">
+                <span class="property">Docker: </span> [[rounddata.dockerurl]]
+              </div>
+
+              <div class="horizontal start" title="Local IP">
+                <span class="property">Local IP: </span> [[rounddata.fieldcomputer.local_ip]]
+              </div>
+
+              <a
+                href=""
+                target="_blank"
+                tabindex=""
+                style="color:inherit"
+                class="start"
+              >
+                <paper-button raised class="miniButton">
+                  <iron-icon icon="icons:cloud-download" class="blueIcon"></iron-icon>
+                  VPN
+                </paper-button>
+              </a>
+
             </div>
-            <div class="horizontal start" title="Hardware">
-              <span class="property">Hardware: </span> [[rounddata.fieldcomputer.hardware]]
+          </paper-material>
+
+          <!-- Practice -->
+          <template is="dom-if" if="[[rounddata.secure]]">
+            <paper-material elevation="1" class="subbox">
+
+                <div class="vertical box-content">
+
+                  <h4>Practice mode</h4>
+
+                  <div class="horizontal start" title="Docker">
+                    <span class="property">Public IP: </span> [[rounddata.fieldcomputer.machine_ip]]
+                  </div>
+
+                  <a
+                    href="[[portalurl]]/sshkeys/[[rounddata.fieldcomputer.sshkey]]?token=[[token]]"
+                    target="_blank"
+                    tabindex=""
+                    style="color:inherit"
+                    class="start"
+                  >
+                    <paper-button raised class="miniButton">
+                      <iron-icon icon="icons:cloud-download" class="blueIcon"></iron-icon>
+                      SSH
+                    </paper-button>
+                  </a>
+              </div>
+            </paper-material>
+          </template>
+
+          <!-- Start / Stop -->
+          <paper-material elevation="1" class="subbox">
+            <h4>Run</h4>
+
+            <div class="horizontal box-content">
+
+              <paper-button raised>
+                <iron-icon icon="icons:av:play-arrow" class="blueIcon"></iron-icon>
+                Start
+              </paper-button>
+
+              <paper-button raised>
+                <iron-icon icon="icons:av:stop" class="blueIcon"></iron-icon>
+                Stop
+              </paper-button>
+
             </div>
-            <div class="horizontal start" title="Docker">
-              <span class="property">Docker: </span> [[rounddata.dockerurl]]
-            </div>
-          </div>
+
+          </paper-material>
+
         </div>
       </paper-material>
       <!-- /FIELD COMPUTER -->
