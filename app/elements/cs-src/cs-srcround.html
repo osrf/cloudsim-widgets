@@ -12,8 +12,9 @@
       margin-left: 2%;
       @apply(--layout-self-start);
     }
-    .start {
-      @apply(--layout-self-start);
+    .item {
+      height: 2em;
+      width: 100%;
     }
     .horizontal {
       @apply(--layout-horizontal);
@@ -51,6 +52,10 @@
     .property {
       font-weight: bold;
       color: #7a7a7a;
+      padding: 1em;
+    }
+    .value {
+      padding: 1em;
     }
     .paper-header {
       padding: 1em;
@@ -93,12 +98,12 @@
       padding: 1em;
     }
     .box {
-      max-width: 70%;
+      max-width: 80%;
       min-width: 30%;
       margin-top: 1em;
     }
     .subbox {
-      max-width: 15em;
+      max-width: 20em;
       margin: 1em;
     }
     .full {
@@ -118,6 +123,12 @@
       width: 1.5em;
       margin-right: 0.2em;
     }
+    .redIcon {
+      --iron-icon-fill-color: #d45c5c;
+    }
+    .greenIcon {
+      --iron-icon-fill-color: #45d545;
+    }
     .blueIcon {
       --iron-icon-fill-color: rgb(68, 138, 201);
     }
@@ -127,7 +138,7 @@
   </style>
   <template>
 
-    <center>
+    <center class="box-content">
 
       <!-- SIMULATOR -->
       <paper-material elevation="1" class="box">
@@ -143,16 +154,22 @@
 
             <div class="vertical box-content">
 
-              <div class="horizontal start" title="AMI">
-                <span class="property">Image: </span> [[rounddata.simulator.image]]
+              <div class="horizontal item" title="AMI">
+                <span class="property">Image</span>
+                <div class="space"></div>
+                <span class="value">[[rounddata.simulator.image]]</span>
               </div>
 
-              <div class="horizontal start" title="Hardware">
-                <span class="property">Hardware: </span> [[rounddata.simulator.hardware]]
+              <div class="horizontal item" title="Hardware">
+                <span class="property">Hardware: </span>
+                <div class="space"></div>
+                <span class="value">[[rounddata.simulator.hardware]]</span>
               </div>
 
-              <div class="horizontal start" title="Region">
-                <span class="property">Region: </span> [[rounddata.simulator.region]]
+              <div class="horizontal item" title="Region">
+                <span class="property">Region: </span>
+                <div class="space"></div>
+                <span class="value">[[rounddata.simulator.region]]</span>
               </div>
 
             </div>
@@ -161,27 +178,33 @@
           <!-- Practice -->
           <template is="dom-if" if="[[rounddata.secure]]">
             <paper-material elevation="1" class="subbox">
+              <h4>Practice mode</h4>
 
-                <div class="vertical box-content">
+              <div class="vertical box-content">
 
-                  <h4>Practice mode</h4>
+                <div class="horizontal item">
+                  <span class="property">Public IP</span>
+                  <div class="space"></div>
+                  <span class="value">[[rounddata.simulator.machine_ip]]</span>
+                </div>
 
-                  <div class="horizontal start" title="Docker">
-                    <span class="property">Public IP: </span> [[rounddata.simulator.machine_ip]]
-                  </div>
+                <div class="horizontal item">
+                  <span class="property">Keys</span>
+                  <div class="space"></div>
 
                   <a
                     href="[[portalurl]]/sshkeys/[[rounddata.simulator.sshkey]]?token=[[token]]"
                     target="_blank"
                     tabindex=""
                     style="color:inherit"
-                    class="start"
+                    class="value"
                   >
                     <paper-button raised class="miniButton">
                       <iron-icon icon="icons:cloud-download" class="blueIcon"></iron-icon>
                       SSH
                     </paper-button>
                   </a>
+                </div>
               </div>
             </paper-material>
           </template>
@@ -194,35 +217,41 @@
 
               <div class="vertical">
 
-                <paper-button raised class="worldbutton">
-                  <iron-icon icon="icons:av:play-arrow" class="blueIcon"></iron-icon>
-                  1
-                </paper-button>
+                <div class="horizontal">
+                  <paper-button raised class="worldbutton">
+                    <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
+                    1
+                  </paper-button>
 
-                <paper-button raised class="worldbutton">
-                  <iron-icon icon="icons:av:play-arrow" class="blueIcon"></iron-icon>
-                  2
-                </paper-button>
+                  <paper-button raised class="worldbutton">
+                    <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
+                    4
+                  </paper-button>
+                </div>
 
-                <paper-button raised class="worldbutton">
-                  <iron-icon icon="icons:av:play-arrow" class="blueIcon"></iron-icon>
-                  3
-                </paper-button>
+                <div class="horizontal">
+                  <paper-button raised class="worldbutton">
+                    <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
+                    2
+                  </paper-button>
 
-                <paper-button raised class="worldbutton">
-                  <iron-icon icon="icons:av:play-arrow" class="blueIcon"></iron-icon>
-                  4
-                </paper-button>
+                  <paper-button raised class="worldbutton">
+                    <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
+                    5
+                  </paper-button>
+                </div>
 
-                <paper-button raised class="worldbutton">
-                  <iron-icon icon="icons:av:play-arrow" class="blueIcon"></iron-icon>
-                  5
-                </paper-button>
+                <div class="horizontal">
+                  <paper-button raised class="worldbutton">
+                    <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
+                    3
+                  </paper-button>
 
-                <paper-button raised>
-                  <iron-icon icon="icons:av:stop" class="blueIcon"></iron-icon>
-                  Stop
-                </paper-button>
+                  <paper-button raised>
+                    <iron-icon icon="icons:av:stop" class="redIcon"></iron-icon>
+                    Stop
+                  </paper-button>
+                </div>
 
               </div>
 
@@ -248,38 +277,52 @@
 
             <div class="vertical box-content">
 
-              <div class="horizontal start" title="AMI">
-                <span class="property">Image: </span> [[rounddata.fieldcomputer.image]]
+              <div class="horizontal item" title="AMI">
+                <span class="property">Image</span>
+                <div class="space"></div>
+                <span class="value">[[rounddata.fieldcomputer.image]]</span>
               </div>
 
-              <div class="horizontal start" title="Hardware">
-                <span class="property">Hardware: </span> [[rounddata.fieldcomputer.hardware]]
+              <div class="horizontal item" title="Hardware">
+                <span class="property">Hardware</span>
+                <div class="space"></div>
+                <span class="value">[[rounddata.fieldcomputer.hardware]]</span>
               </div>
 
-              <div class="horizontal start" title="Region">
-                <span class="property">Region: </span> [[rounddata.fieldcomputer.region]]
+              <div class="horizontal item" title="Region">
+                <span class="property">Region</span>
+                <div class="space"></div>
+                <span class="value">[[rounddata.fieldcomputer.region]]</span>
               </div>
 
-              <div class="horizontal start" title="Docker">
-                <span class="property">Docker: </span> [[rounddata.dockerurl]]
+              <div class="horizontal item" title="Docker">
+                <span class="property">Docker</span>
+                <div class="space"></div>
+                <span class="value">[[rounddata.dockerurl]]</span>
               </div>
 
-              <div class="horizontal start" title="Local IP">
-                <span class="property">Local IP: </span> [[rounddata.fieldcomputer.local_ip]]
+              <div class="horizontal item" title="Local IP">
+                <span class="property">Local IP</span>
+                <div class="space"></div>
+                <span class="value">[[rounddata.fieldcomputer.local_ip]]</span>
               </div>
 
-              <a
-                href=""
-                target="_blank"
-                tabindex=""
-                style="color:inherit"
-                class="start"
-              >
-                <paper-button raised class="miniButton">
-                  <iron-icon icon="icons:cloud-download" class="blueIcon"></iron-icon>
-                  VPN
-                </paper-button>
-              </a>
+              <div class="horizontal item" title="VPN">
+                <span class="property">Keys</span>
+                <div class="space"></div>
+                <a
+                  href=""
+                  target="_blank"
+                  tabindex=""
+                  style="color:inherit"
+                  class="value"
+                >
+                  <paper-button raised class="miniButton">
+                    <iron-icon icon="icons:cloud-download" class="blueIcon"></iron-icon>
+                    VPN
+                  </paper-button>
+                </a>
+              </div>
 
             </div>
           </paper-material>
@@ -287,27 +330,33 @@
           <!-- Practice -->
           <template is="dom-if" if="[[rounddata.secure]]">
             <paper-material elevation="1" class="subbox">
+              <h4>Practice mode</h4>
 
-                <div class="vertical box-content">
+              <div class="vertical box-content">
 
-                  <h4>Practice mode</h4>
+                <div class="horizontal item">
+                  <span class="property">Public IP</span>
+                  <div class="space"></div>
+                  <span class="value">[[rounddata.fieldcomputer.machine_ip]]</span>
+                </div>
 
-                  <div class="horizontal start" title="Docker">
-                    <span class="property">Public IP: </span> [[rounddata.fieldcomputer.machine_ip]]
-                  </div>
+                <div class="horizontal item">
+                  <span class="property">Keys</span>
+                  <div class="space"></div>
 
                   <a
                     href="[[portalurl]]/sshkeys/[[rounddata.fieldcomputer.sshkey]]?token=[[token]]"
                     target="_blank"
                     tabindex=""
                     style="color:inherit"
-                    class="start"
+                    class="value"
                   >
                     <paper-button raised class="miniButton">
                       <iron-icon icon="icons:cloud-download" class="blueIcon"></iron-icon>
                       SSH
                     </paper-button>
                   </a>
+                </div>
               </div>
             </paper-material>
           </template>
@@ -319,12 +368,12 @@
             <div class="horizontal box-content">
 
               <paper-button raised>
-                <iron-icon icon="icons:av:play-arrow" class="blueIcon"></iron-icon>
+                <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
                 Start
               </paper-button>
 
               <paper-button raised>
-                <iron-icon icon="icons:av:stop" class="blueIcon"></iron-icon>
+                <iron-icon icon="icons:av:stop" class="redIcon"></iron-icon>
                 Stop
               </paper-button>
 
