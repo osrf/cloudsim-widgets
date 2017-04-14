@@ -92,15 +92,15 @@
     .new-content {
       width: 50%;
     }
-    .box-header > h4 {
-      color: #eee;
+    .box-header > iron-icon {
+      padding-right: 1em;
     }
     .box-header {
       background-color: rgb(68, 138, 201);
-      color: #353535;
       margin: 0;
       padding-right: 1em;
       padding-left: 1em;
+      color: #eee;
     }
     .box-content {
       overflow: auto;
@@ -161,8 +161,10 @@
       <!-- SIMULATOR -->
       <paper-material elevation="1" class="box">
         <div class="box-header horizontal">
+          <iron-icon icon="hardware:computer"></iron-icon>
           <h4>Simulator</h4>
           <div class="space"></div>
+          <span class="value noellipsis">[[rounddata.simulator.data.status]]</span>
         </div>
         <div class="box-content horizontal">
 
@@ -284,8 +286,10 @@
       <!-- FIELD COMPUTER -->
       <paper-material elevation="1" class="box">
         <div class="box-header horizontal">
+          <iron-icon icon="hardware:computer"></iron-icon>
           <h4>Field computer</h4>
           <div class="space"></div>
+          <span class="value noellipsis">[[rounddata.fieldcomputer.data.status]]</span>
         </div>
         <div class="box-content horizontal">
 
