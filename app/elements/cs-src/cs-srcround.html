@@ -132,11 +132,19 @@
     .blueIcon {
       --iron-icon-fill-color: rgb(68, 138, 201);
     }
-    .worldbutton {
-      width: 3em;
-    }
   </style>
   <template>
+
+    <!-- For posting to the machines -->
+    <iron-ajax
+      id="ajax"
+      method="POST"
+      handle-as="json"
+      on-response="_ajaxResponse"
+      on-error="_ajaxError"
+      content-type="application/json"
+      debounce-duration="300"
+    ></iron-ajax>
 
     <center class="box-content">
 
@@ -218,36 +226,36 @@
               <div class="vertical">
 
                 <div class="horizontal">
-                  <paper-button raised class="worldbutton">
+                  <paper-button raised on-tap="_onStartSim" data-args="1">
                     <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
                     1
                   </paper-button>
 
-                  <paper-button raised class="worldbutton">
+                  <paper-button raised on-tap="_onStartSim" data-args="2">
                     <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
                     4
                   </paper-button>
                 </div>
 
                 <div class="horizontal">
-                  <paper-button raised class="worldbutton">
+                  <paper-button raised on-tap="_onStartSim" data-args="3">
                     <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
                     2
                   </paper-button>
 
-                  <paper-button raised class="worldbutton">
+                  <paper-button raised on-tap="_onStartSim" data-args="4">
                     <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
                     5
                   </paper-button>
                 </div>
 
                 <div class="horizontal">
-                  <paper-button raised class="worldbutton">
+                  <paper-button raised on-tap="_onStartSim" data-args="5">
                     <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
                     3
                   </paper-button>
 
-                  <paper-button raised>
+                  <paper-button raised on-tap="_onStopSim">
                     <iron-icon icon="icons:av:stop" class="redIcon"></iron-icon>
                     Stop
                   </paper-button>
@@ -304,14 +312,14 @@
               <div class="horizontal item" title="Local IP">
                 <span class="property">Local IP</span>
                 <div class="space"></div>
-                <span class="value">[[rounddata.fieldcomputer.local_ip]]</span>
+                <span class="value">192.168.2.10</span>
               </div>
 
               <div class="horizontal item" title="VPN">
                 <span class="property">Keys</span>
                 <div class="space"></div>
                 <a
-                  href=""
+                  href="[[rounddata.public.vpn]]?id=ocu&serverIp=[[rounddata.simulator.data.machine_ip]]&token=[[token]]"
                   target="_blank"
                   tabindex=""
                   style="color:inherit"
@@ -367,12 +375,12 @@
 
             <div class="horizontal box-content">
 
-              <paper-button raised>
+              <paper-button raised on-tap="_onStartFc">
                 <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
                 Start
               </paper-button>
 
-              <paper-button raised>
+              <paper-button raised on-tap="_onStopFc">
                 <iron-icon icon="icons:av:stop" class="redIcon"></iron-icon>
                 Stop
               </paper-button>
@@ -411,6 +419,100 @@
 
       // Attached
       attached: function() {
+      },
+
+      // Start a world on the simulator
+      _onStartSim: function(e) {
+        var n = e.target.getAttribute('data-args')
+
+        // Check that we have simulator IP
+        if (!this.rounddata ||
+            !this.rounddata.simulator ||
+            !this.rounddata.simulator.data ||
+            !this.rounddata.simulator.data.machine_ip) {
+          this.fire('error', 'Failed to start run, missing simulator IP.')
+          return
+        }
+
+        this.$.ajax.body = {}
+        this.$.ajax.url = 'http://' + this.rounddata.simulator.data.machine_ip + '/start/1'
+        this.$.ajax.headers.authorization = this.token
+        this.$.ajax.generateRequest()
+
+        this.fire('notification', "Requested to start run #" + n + " on simulator")
+      },
+
+      // Stop the current world running on the simulator
+      _onStopSim: function() {
+
+        // Check that we have simulator IP
+        if (!this.rounddata ||
+            !this.rounddata.simulator ||
+            !this.rounddata.simulator.data ||
+            !this.rounddata.simulator.data.machine_ip) {
+          this.fire('error', 'Failed to stop run, missing simulator IP.')
+          return
+        }
+
+        this.$.ajax.body = {}
+        this.$.ajax.url = 'http://' + this.rounddata.simulator.data.machine_ip + '/stop'
+        this.$.ajax.headers.authorization = this.token
+        this.$.ajax.generateRequest()
+
+        this.fire('notification', "Requested to stop simulation")
+      },
+
+      // Start user code on the field computer
+      _onStartFc: function(e) {
+
+        // Check that we have field computer IP
+        if (!this.rounddata ||
+            !this.rounddata.fieldcomputer ||
+            !this.rounddata.fieldcomputer.data ||
+            !this.rounddata.fieldcomputer.data.machine_ip) {
+          this.fire('error', 'Failed to start user code, missing field computer IP.')
+          return
+        }
+
+        this.$.ajax.body = {}
+        this.$.ajax.url = 'http://' + this.rounddata.fieldcomputer.data.machine_ip + '/start'
+        this.$.ajax.headers.authorization = this.token
+        this.$.ajax.generateRequest()
+
+        var n = e.target.getAttribute('data-args')
+        this.fire('notification', "Requested to start user code on the field computer")
+      },
+
+      // Stop user code on the field computer
+      _onStopFc: function(e) {
+
+        // Check that we have field computer IP
+        if (!this.rounddata ||
+            !this.rounddata.fieldcomputer ||
+            !this.rounddata.fieldcomputer.data ||
+            !this.rounddata.fieldcomputer.data.machine_ip) {
+          this.fire('error', 'Failed to stop user code, missing field computer IP.')
+          return
+        }
+
+        this.$.ajax.body = {}
+        this.$.ajax.url = 'http://' + this.rounddata.fieldcomputer.data.machine_ip + '/stop'
+        this.$.ajax.headers.authorization = this.token
+        this.$.ajax.generateRequest()
+
+
+        var n = e.target.getAttribute('data-args')
+        this.fire('notification', "Requested to stop user code on the field computer")
+      },
+
+      // On response when posting to simulator
+      _ajaxResponse: function() {
+        this.fire('notification', "Success")
+      },
+
+      // On error when posting to simulator
+      _ajaxError: function(e) {
+        this.fire('error', "Failed")
       },
 
       // When user presses Finish Round button
