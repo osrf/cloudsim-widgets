@@ -74,6 +74,16 @@
       on-created="_onNewRound"
       on-resourcesupdated="_onAllRounds"
       on-deleted="_onDeleted"
+      on-resource="_onResourceUpdate"
+    ></gz-resources>
+
+    <!-- For simulator info -->
+    <gz-resources
+      id="simulatorsresources"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="simulator"
+      on-resourcesupdated="_onAllSimulators"
     ></gz-resources>
 
     <paper-header-panel class="blue">
@@ -174,6 +184,7 @@
       // Callback when the token has been updated
       _onTokenUpdated: function() {
         if (this.token !== "") {
+          this.$.roundsresources.connect();
           this._getRounds()
         }
       },
@@ -199,6 +210,48 @@
           this.currentpage = "empty"
         else if (this.currentpage == "" || this.currentpage == "empty")
           this.currentpage = this._roundName(this.rounds[0])
+
+        // Get simulators updated data after we have the rounds
+        this.$.simulatorsresources.getAll()
+      },
+
+      // Callback from widgets server with all simulators for this user
+      _onAllSimulators: function(e) {
+
+        const sims = e.detail
+        let temp = []
+
+        // Go through each round
+        for (let r = 0; r < this.rounds.length; r++) {
+
+          // Copy the round
+          let copy = this.rounds[r]
+
+          let id = copy.data.public.simulator_id
+          let sim = sims.find(function(s) {
+            return s.name == id
+          })
+          if (sim)
+            copy.data.simulator.data = sim.data
+
+          id = copy.data.public.fieldcomputer_id
+          sim = sims.find(function(s) {
+            return s.name == id
+          })
+          if (sim)
+            copy.data.fieldcomputer.data = sim.data
+
+          temp.push(copy)
+        }
+
+        // Getting polymer to update the DOM is incredibly frustrating
+        // This causes blinking, but I don't know how to do it otherwise
+        this.set('rounds', [])
+        let that = this
+        setTimeout(function(){
+          that.set('rounds', temp)
+        }, 10)
+
       },
 
       // Go to page to start new round
@@ -296,6 +349,11 @@
                type: "msg"})
         }
         this.currentpage = ""
+        this._getRounds()
+      },
+
+      // Callback from the server when there are any resource changes
+      _onResourceUpdate: function(e) {
         this._getRounds()
       },
 
