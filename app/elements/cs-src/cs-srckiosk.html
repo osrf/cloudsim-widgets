@@ -74,6 +74,16 @@
       on-created="_onNewRound"
       on-resourcesupdated="_onAllRounds"
       on-deleted="_onDeleted"
+      on-resource="_onResourceUpdate"
+    ></gz-resources>
+
+    <!-- For simulator info -->
+    <gz-resources
+      id="simulatorsresources"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="simulator"
+      on-resourcesupdated="_onAllSimulators"
     ></gz-resources>
 
     <paper-header-panel class="blue">
@@ -114,6 +124,21 @@
 
             <template is="dom-if" if="[[issrcadmin]]">
               <paper-input value="{{teamname}}" label="Team name" required></paper-input>
+              <div class="horizontal">
+                <div class="vertical">
+                  <h4>Simulator</h4>
+                  <paper-input value="{{simregion}}" label="Region" required></paper-input>
+                  <paper-input value="{{simhardware}}" label="Hardware" required></paper-input>
+                  <paper-input value="{{simimage}}" label="Image" required></paper-input>
+                </div>
+                <div class="space"></div>
+                <div class="vertical">
+                  <h4>Field computer</h4>
+                  <paper-input value="{{fcregion}}" label="Region" required></paper-input>
+                  <paper-input value="{{fchardware}}" label="Hardware" required></paper-input>
+                  <paper-input value="{{fcimage}}" label="Image" required></paper-input>
+                </div>
+              </div>
             </template>
 
             <br>
@@ -159,21 +184,12 @@
 
       // Attached
       attached: function() {
-        this.simdata = {
-          region: 'us-west-1',
-          hardware: 't2.small',
-          image: 'ami-eea9f38e'
-        }
-        this.fcdata = {
-          region: 'us-west-1',
-          hardware: 't2.small',
-          image: 'ami-eea9f38e'
-        }
       },
 
       // Callback when the token has been updated
       _onTokenUpdated: function() {
         if (this.token !== "") {
+          this.$.roundsresources.connect();
           this._getRounds()
         }
       },
@@ -199,6 +215,35 @@
           this.currentpage = "empty"
         else if (this.currentpage == "" || this.currentpage == "empty")
           this.currentpage = this._roundName(this.rounds[0])
+
+        // Get simulators updated data after we have the rounds
+        this.$.simulatorsresources.getAll()
+      },
+
+      // Callback from widgets server with all simulators for this user
+      _onAllSimulators: function(e) {
+
+        const sims = e.detail
+
+        // Go through each round
+        for (let r = 0; r < this.rounds.length; r++) {
+
+          // Simulator
+          let id = this.rounds[r].data.public.simulator_id
+          let sim = sims.find(function(s) {
+            return s.name == id
+          })
+          if (sim)
+            this.set('rounds.' + r + '.data.simulator.data', sim.data)
+
+          // Field computer
+          id = this.rounds[r].data.public.fieldcomputer_id
+          sim = sims.find(function(s) {
+            return s.name == id
+          })
+          if (sim)
+            this.set('rounds.' + r + '.data.fieldcomputer.data', sim.data)
+        }
       },
 
       // Go to page to start new round
@@ -210,16 +255,48 @@
       _onContinue: function() {
 
         // Check for empty fields
-        if (this.dockerurl.trim() === "" || this.teamname.trim() === "") {
+        if (this.dockerurl.trim() === "") {
           this.fire('error', 'No fields can be empty.')
           return
         }
 
+        // Create data
         let data = {
           dockerurl: this.dockerurl.trim(),
-          team: this.teamname.trim(),
-          fieldcomputer: this.fcdata,
-          simulator: this.simdata,
+        }
+
+        if (this.issrcadmin) {
+
+          // Team name required for admins
+          if (this.teamname.trim() === "") {
+            this.fire('error', 'Admins must define a team name.')
+            return
+          }
+          data.team = this.teamname.trim()
+
+          // Machine data optional for admins
+          if (this.simregion.trim() !== "" &&
+              this.simhardware.trim() !== "" &&
+              this.simimage.trim() !== "") {
+
+            data.simulator = {
+              region: this.simregion.trim(),
+              hardware: this.simhardware.trim(),
+              image: this.simimage.trim()
+            }
+          }
+
+          if (this.fcregion.trim() !== "" &&
+              this.fchardware.trim() !== "" &&
+              this.fcimage.trim() !== "") {
+
+            data.fieldcomputer = {
+              region: this.fcregion.trim(),
+              hardware: this.fchardware.trim(),
+              image: this.fcimage.trim()
+            }
+          }
+
         }
 
         this.$.roundsresources.create(data);
@@ -286,6 +363,11 @@
                type: "msg"})
         }
         this.currentpage = ""
+        this._getRounds()
+      },
+
+      // Callback from the server when there are any resource changes
+      _onResourceUpdate: function(e) {
         this._getRounds()
       },
 
