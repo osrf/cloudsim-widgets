@@ -449,7 +449,7 @@
         }
 
         this.$.ajax.body = {}
-        this.$.ajax.url = 'http://' + this.rounddata.simulator.data.machine_ip + '/start/1'
+        this.$.ajax.url = 'http://' + this.rounddata.simulator.data.machine_ip + '/tasks/start/1'
         this.$.ajax.headers.authorization = this.token
         this.$.ajax.generateRequest()
 
@@ -469,7 +469,7 @@
         }
 
         this.$.ajax.body = {}
-        this.$.ajax.url = 'http://' + this.rounddata.simulator.data.machine_ip + '/stop'
+        this.$.ajax.url = 'http://' + this.rounddata.simulator.data.machine_ip + '/tasks/stop'
         this.$.ajax.headers.authorization = this.token
         this.$.ajax.generateRequest()
 
@@ -489,7 +489,7 @@
         }
 
         this.$.ajax.body = {}
-        this.$.ajax.url = 'http://' + this.rounddata.fieldcomputer.data.machine_ip + '/start'
+        this.$.ajax.url = 'http://' + this.rounddata.fieldcomputer.data.machine_ip + '/fieldcomputer/start'
         this.$.ajax.headers.authorization = this.token
         this.$.ajax.generateRequest()
 
@@ -510,7 +510,7 @@
         }
 
         this.$.ajax.body = {}
-        this.$.ajax.url = 'http://' + this.rounddata.fieldcomputer.data.machine_ip + '/stop'
+        this.$.ajax.url = 'http://' + this.rounddata.fieldcomputer.data.machine_ip + '/fieldcomputer/stop'
         this.$.ajax.headers.authorization = this.token
         this.$.ajax.generateRequest()
 
