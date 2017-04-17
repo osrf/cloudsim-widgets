@@ -124,6 +124,21 @@
 
             <template is="dom-if" if="[[issrcadmin]]">
               <paper-input value="{{teamname}}" label="Team name" required></paper-input>
+              <div class="horizontal">
+                <div class="vertical">
+                  <h4>Simulator</h4>
+                  <paper-input value="{{simregion}}" label="Region" required></paper-input>
+                  <paper-input value="{{simhardware}}" label="Hardware" required></paper-input>
+                  <paper-input value="{{simimage}}" label="Image" required></paper-input>
+                </div>
+                <div class="space"></div>
+                <div class="vertical">
+                  <h4>Field computer</h4>
+                  <paper-input value="{{fcregion}}" label="Region" required></paper-input>
+                  <paper-input value="{{fchardware}}" label="Hardware" required></paper-input>
+                  <paper-input value="{{fcimage}}" label="Image" required></paper-input>
+                </div>
+              </div>
             </template>
 
             <br>
@@ -169,16 +184,6 @@
 
       // Attached
       attached: function() {
-        this.simdata = {
-          region: 'us-west-1',
-          hardware: 't2.small',
-          image: 'ami-eea9f38e'
-        }
-        this.fcdata = {
-          region: 'us-west-1',
-          hardware: 't2.small',
-          image: 'ami-eea9f38e'
-        }
       },
 
       // Callback when the token has been updated
@@ -255,21 +260,43 @@
           return
         }
 
-        if (this.issrcadmin) {
-          if (this.teamname.trim() === "") {
-            this.fire('error', 'No fields can be empty.')
-            return
-          }
-        }
-
+        // Create data
         let data = {
           dockerurl: this.dockerurl.trim(),
-          fieldcomputer: this.fcdata,
-          simulator: this.simdata,
         }
 
         if (this.issrcadmin) {
+
+          // Team name required for admins
+          if (this.teamname.trim() === "") {
+            this.fire('error', 'Admins must define a team name.')
+            return
+          }
           data.team = this.teamname.trim()
+
+          // Machine data optional for admins
+          if (this.simregion.trim() !== "" &&
+              this.simhardware.trim() !== "" &&
+              this.simimage.trim() !== "") {
+
+            data.simulator = {
+              region: this.simregion.trim(),
+              hardware: this.simhardware.trim(),
+              image: this.simimage.trim()
+            }
+          }
+
+          if (this.fcregion.trim() !== "" &&
+              this.fchardware.trim() !== "" &&
+              this.fcimage.trim() !== "") {
+
+            data.fieldcomputer = {
+              region: this.fcregion.trim(),
+              hardware: this.fchardware.trim(),
+              image: this.fcimage.trim()
+            }
+          }
+
         }
 
         this.$.roundsresources.create(data);
