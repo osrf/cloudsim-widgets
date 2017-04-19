@@ -167,12 +167,6 @@
 
         <iron-data-table items="[[s3keys]]" selection-enabled on-selecting-item="_onS3KeyDialog">
 
-          <data-table-column name="Identity" width="3em">
-            <template>
-              <span class="textellipsis" title="[[item.data.identity]]">[[item.data.identity]]</span>
-            </template>
-          </data-table-column>
-
           <data-table-column name="Bucket name" width="3em">
             <template>
               <span class="textellipsis" title="[[item.data.bucket_name]]">[[item.data.bucket_name]]</span>
@@ -218,11 +212,6 @@
             <div class="horizontal center">
               <paper-input
                 style="padding-right: 1em"
-                value={{createidentity}}
-                label="Identity">
-              </paper-input>
-              <paper-input
-                style="padding-right: 1em"
                 value={{createbucket_name}}
                 label="Bucket name">
               </paper-input>
@@ -254,7 +243,7 @@
 
     <!-- dialog -->
     <paper-dialog id="s3keydialog" class="vertical">
-      <h3 class="header">[[selecteds3key.data.identity]]</h3>
+      <h3 class="header">[[selecteds3key.data.bucket_name]]</h3>
 
       <div class="content">
 
@@ -405,7 +394,6 @@
         let s3keyObj = e.detail.item
 
         if (!s3keyObj) {
-          console.error("S3Key [" + s3keyidentity + "] not found in:")
           console.error(this.s3keys)
 
           // Update the list, hopefully it will disappear
@@ -445,7 +433,7 @@
           secret_key: this.editsecret_key.trim(),
         };
 
-        const resource = this.selecteds3key.identity
+        const resource = this.selecteds3key.bucket_name
 
         this.$.resources.update(resource, data);
       },
@@ -453,8 +441,7 @@
       // Request to create a new s3key
       _onCreateS3Key() {
 
-        if (!this.createidentity || this.createidentity.trim() === "" ||
-            !this.createbucket_name || this.createbucket_name.trim() === "" ||
+        if (!this.createbucket_name || this.createbucket_name.trim() === "" ||
             !this.createaccess_key || this.createaccess_key.trim() === "" ||
             !this.createsecret_key || this.createsecret_key.trim() === "") {
 
@@ -463,7 +450,6 @@
         }
 
         const data = {
-          identity: this.createidentity.trim(),
           bucket_name: this.createbucket_name.trim(),
           access_key: this.createaccess_key.trim(),
           secret_key: this.createsecret_key.trim(),
@@ -527,7 +513,7 @@
         // Get updated list of s3keys
         this.$.resources.getAll();
 
-        this.fire('notification', 'Created s3key "' + e.detail.result.data.identity
+        this.fire('notification', 'Created s3key "' + e.detail.result.data.bucket_name
             + '"');
       },
 
@@ -544,14 +530,14 @@
         // Get updated list of s3keys
         this.$.resources.getAll();
 
-        this.fire('notification', 'Updated s3key "' + e.detail.result.data.identity
+        this.fire('notification', 'Updated s3key "' + e.detail.result.data.bucket_name
             + '"');
       },
 
       // Callback when successfully invited someone to a s3key
       _onGranted: function(e) {
         // Get updated info on s3key
-        this.$.grant.get(this.selecteds3key.identity);
+        this.$.grant.get(this.selecteds3key.name);
 
         if (e.detail.success)
           this.fire('notification', 'User successfully invited.')
@@ -560,7 +546,7 @@
       // Callback when successfully removed someone from a s3key
       _onRevoked: function(e) {
         // Get updated info on s3key
-        this.$.grant.get(this.selecteds3key.identity);
+        this.$.grant.get(this.selecteds3key.name);
 
         if (e.detail.success)
           this.fire('notification', 'User successfully removed.')
