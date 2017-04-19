@@ -430,14 +430,18 @@
 
     Polymer({
       is: 'cs-srcround',
-
+      simPort: 4000,
       // Attached
       attached: function() {
       },
 
+      _buildSimUrl: function(ip, query) {
+        return 'http://' + ip + ':' + this.simPort + query
+      },
+
       // Start a world on the simulator
       _onStartSim: function(e) {
-        var n = e.target.getAttribute('data-args')
+        const n = e.target.getAttribute('data-args')
 
         // Check that we have simulator IP
         if (!this.rounddata ||
@@ -448,8 +452,14 @@
           return
         }
 
-        this.$.ajax.body = {}
-        this.$.ajax.url = 'http://' + this.rounddata.simulator.data.machine_ip + '/tasks/start/1'
+        this.$.ajax.body = {
+          cmd: "src_commands/run_gazebo.bash pioneer2dx",
+          stopCmd: "src_commands/stop_gazebo.bash",
+          logCmd: "src_commands/send_logs.bash",
+          auto: true
+        }
+        this.$.ajax.url = this._buildSimUrl(this.rounddata.simulator.data.machine_ip, '/simulations')
+        this.$.ajax.method = 'POST'
         this.$.ajax.headers.authorization = this.token
         this.$.ajax.generateRequest()
 
@@ -469,7 +479,8 @@
         }
 
         this.$.ajax.body = {}
-        this.$.ajax.url = 'http://' + this.rounddata.simulator.data.machine_ip + '/tasks/stop'
+        this.$.ajax.method = 'GET'
+        this.$.ajax.url = this._buildSimUrl(this.rounddata.simulator.data.machine_ip, '/stopsimulation')
         this.$.ajax.headers.authorization = this.token
         this.$.ajax.generateRequest()
 
