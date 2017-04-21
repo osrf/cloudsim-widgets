@@ -1,7 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../elements/elements.html">
 
-<dom-module id="cs-machinetypes">
+<dom-module id="cs-s3keys">
   <style>
     /* common */
     .space {
@@ -51,7 +51,7 @@
       min-width: 30em;
       max-height: 10em;
     }
-    .machinetypename {
+    .textellipsis {
       text-overflow: ellipsis;
       overflow: hidden;
     }
@@ -83,7 +83,7 @@
     }
 
     /* dialog */
-    #machinetypedialog {
+    #s3keydialog {
       max-height: 40%;
       max-width: 30em;
       text-align: left;
@@ -124,7 +124,7 @@
   </style>
   <template>
 
-    <!-- For granting/revoking machinetypes from people -->
+    <!-- For granting/revoking s3keys from people -->
     <gz-grant
       id="grant"
       url="[[url]]"
@@ -135,17 +135,17 @@
       on-got="_onSinglePermission"
     ></gz-grant>
 
-    <!-- For creating/deleting machinetypes -->
+    <!-- For creating/deleting s3keys -->
     <gz-resources
       id="resources"
       url="[[url]]"
       token="[[token]]"
-      resourcename="machinetype"
+      resourcename="s3key"
       data="[[createdata]]"
-      on-resourcesupdated="_onMachineTypes"
-      on-created="_onMachineTypeCreated"
-      on-deleted="_onMachineTypeDeleted"
-      on-updated="_onMachineTypeUpdated"
+      on-resourcesupdated="_onS3Keys"
+      on-created="_onS3KeyCreated"
+      on-deleted="_onS3KeyDeleted"
+      on-updated="_onS3KeyUpdated"
     ></gz-resources>
 
     <!-- confirmation dialog -->
@@ -158,59 +158,53 @@
 
       <h1>
         <iron-icon
-          icon="hardware:computer"
+          icon="device:storage"
         ></iron-icon>
-        Machine types
+        S3 keys
       </h1>
 
       <div class="main-content">
 
-        <iron-data-table items="[[machinetypes]]" selection-enabled on-selecting-item="_onMachineTypeDialog">
+        <iron-data-table items="[[s3keys]]" selection-enabled on-selecting-item="_onS3KeyDialog">
 
-          <data-table-column name="Name" width="5em">
+          <data-table-column name="Bucket name" width="3em">
             <template>
-              <span class="machinetypename" title="[[item.data.name]]">[[item.data.name]]</span>
+              <span class="textellipsis" title="[[item.data.bucket_name]]">[[item.data.bucket_name]]</span>
             </template>
           </data-table-column>
 
-          <data-table-column name="Image" width="4em">
+          <data-table-column name="Access key" width="4em">
             <template>
-              <span title="[[item.data.image]]">[[item.data.image]]</span>
+              <span class="textellipsis" title="[[item.data.access_key]]">[[item.data.access_key]]</span>
             </template>
           </data-table-column>
 
-          <data-table-column name="Hardware" width="2.5em">
+          <data-table-column name="Secret key" width="4em">
             <template>
-              <span title="[[item.data.hardware]]">[[item.data.hardware]]</span>
-            </template>
-          </data-table-column>
-
-          <data-table-column name="Region" width="2.5em">
-            <template>
-              <span title="[[item.data.region]]">[[item.data.region]]</span>
+              <span class="textellipsis" title="[[item.data.secret_key]]">[[item.data.secret_key]]</span>
             </template>
           </data-table-column>
 
         </iron-data-table>
 
-        <template is="dom-if" if="[[nomachinetypes]]">
+        <template is="dom-if" if="[[nos3keys]]">
           <center>
-            No machine types available
+            No S3 keys available
           </center>
         </template>
 
         <template is="dom-if" if="[[cancreate]]">
           <div class="horizontal center margintop">
-            <h4>Create a machine type</h4>
+            <h4>Create an S3 key</h4>
             <cs-sharebutton
               token=[[token]]
-              resource="machinetypes"
+              resource="s3keys"
               url="[[url]]"
-              dialogmessage='Grant permission to create machine types'
-              grant_success_msg='User is now allowed to create machine types.'
-              revoke_success_msg='User is no longer allowed to create machine types.'
-              grant_failure_error='It was not possible to allow user to create machine types.'
-              revoke_failure_error='It was not possible to prevent user from creating machine types.'
+              dialogmessage='Grant permission to create S3 keys'
+              grant_success_msg='User is now allowed to create S3 keys.'
+              revoke_success_msg='User is no longer allowed to create S3 keys.'
+              grant_failure_error='It was not possible to allow user to create S3 keys.'
+              revoke_failure_error='It was not possible to prevent user from creating S3 keys.'
               mini
             ></cs-sharebutton>
           </div>
@@ -218,30 +212,25 @@
             <div class="horizontal center">
               <paper-input
                 style="padding-right: 1em"
-                value={{createname}}
-                label="Name">
-              </paper-input>
-              <paper-input
-                style="padding-right: 1em"
-                value={{createregion}}
-                label="Region">
+                value={{createbucket_name}}
+                label="Bucket name">
               </paper-input>
             </div>
             <div class="horizontal center">
               <paper-input
                 style="padding-right: 1em"
-                value={{createimage}}
-                label="Image">
+                value={{createsecret_key}}
+                label="Secret key">
               </paper-input>
               <paper-input
                 style="padding-right: 1em"
-                value={{createhardware}}
-                label="Hardware">
+                value={{createaccess_key}}
+                label="Access key">
               </paper-input>
             </div>
             <paper-button
               raised
-              on-tap="_onCreateMachineType"
+              on-tap="_onCreateS3Key"
             >
               <iron-icon icon="social:group-add"></iron-icon>
               Create
@@ -253,8 +242,8 @@
     </paper-material>
 
     <!-- dialog -->
-    <paper-dialog id="machinetypedialog" class="vertical">
-      <h3 class="header">[[selectedmachinetype.data.name]]</h3>
+    <paper-dialog id="s3keydialog" class="vertical">
+      <h3 class="header">[[selecteds3key.data.bucket_name]]</h3>
 
       <div class="content">
 
@@ -267,20 +256,20 @@
 
               <paper-input
                 style="padding-right: 1em"
-                value={{editimage}}
-                label="Image">
+                value={{editsecret_key}}
+                label="Secret key">
               </paper-input>
 
               <paper-input
                 style="padding-right: 1em"
-                value={{edithardware}}
-                label="Hardware">
+                value={{editaccess_key}}
+                label="Access key">
               </paper-input>
 
               <paper-input
                 style="padding-right: 1em"
-                value={{editregion}}
-                label="Region">
+                value={{editbucket_name}}
+                label="Bucket name">
               </paper-input>
 
               <paper-button
@@ -363,9 +352,9 @@
           <div class="subcontent center">
             <paper-button
               raised
-              on-tap="_onDeleteMachineType"
+              on-tap="_onDeleteS3Key"
               class="delete-button">
-              Delete machine type
+              Delete S3 key
             </paper-button>
           </div>
         </template>
@@ -379,7 +368,7 @@
     'use strict';
 
     Polymer({
-      is: 'cs-machinetypes',
+      is: 'cs-s3keys',
 
       // Callback when component is attached
       attached: function() {
@@ -399,100 +388,97 @@
         });
       },
 
-      // Open a machinetype dialog
-      _onMachineTypeDialog(e) {
-        // Set selected machinetype
-        let machinetypeObj = e.detail.item
+      // Open a s3key dialog
+      _onS3KeyDialog(e) {
+        // Set selected s3key
+        let s3keyObj = e.detail.item
 
-        if (!machinetypeObj) {
-          console.error("MachineType [" + machinetypename + "] not found in:")
-          console.error(this.machinetypes)
+        if (!s3keyObj) {
+          console.error(this.s3keys)
 
           // Update the list, hopefully it will disappear
           this.$.resources.getAll();
           return
         }
 
-        this.selectedmachinetype = machinetypeObj
-        const list =  machinetypeObj.permissions;
+        this.selecteds3key = s3keyObj
+        const list =  s3keyObj.permissions;
 
         this.isselectedadmin = !list[0].permissions.readOnly
         this.set('selectedmembers', list);
 
         // Fill edit
-        this.editimage = this.selectedmachinetype.data.image
-        this.edithardware = this.selectedmachinetype.data.hardware
-        this.editregion = this.selectedmachinetype.data.region
+        this.editsecret_key = this.selecteds3key.data.secret_key
+        this.editaccess_key = this.selecteds3key.data.access_key
+        this.editbucket_name = this.selecteds3key.data.bucket_name
 
         // Open dialog
-        this.$.machinetypedialog.open();
+        this.$.s3keydialog.open();
       },
 
-      // Request to edit a machinetype
+      // Request to edit a s3key
       _onEdit() {
 
-        if (!this.editregion || this.editregion.trim() === "" ||
-            !this.edithardware || this.edithardware.trim() === "" ||
-            !this.editimage || this.editimage.trim() === "") {
+        if (!this.editbucket_name || this.editbucket_name.trim() === "" ||
+            !this.editaccess_key || this.editaccess_key.trim() === "" ||
+            !this.editsecret_key || this.editsecret_key.trim() === "") {
 
           this.fire('error', "No fields can be empty!")
           return
         }
 
         const data = {
-          region: this.editregion.trim(),
-          hardware: this.edithardware.trim(),
-          image: this.editimage.trim(),
+          bucket_name: this.editbucket_name.trim(),
+          access_key: this.editaccess_key.trim(),
+          secret_key: this.editsecret_key.trim(),
         };
 
-        const resource = this.selectedmachinetype.name
+        const resource = this.selecteds3key.bucket_name
 
         this.$.resources.update(resource, data);
       },
 
-      // Request to create a new machinetype
-      _onCreateMachineType() {
+      // Request to create a new s3key
+      _onCreateS3Key() {
 
-        if (!this.createname || this.createname.trim() === "" ||
-            !this.createregion || this.createregion.trim() === "" ||
-            !this.createhardware || this.createhardware.trim() === "" ||
-            !this.createimage || this.createimage.trim() === "") {
+        if (!this.createbucket_name || this.createbucket_name.trim() === "" ||
+            !this.createaccess_key || this.createaccess_key.trim() === "" ||
+            !this.createsecret_key || this.createsecret_key.trim() === "") {
 
           this.fire('error', "No fields can be empty!")
           return
         }
 
         const data = {
-          name: this.createname.trim(),
-          region: this.createregion.trim(),
-          hardware: this.createhardware.trim(),
-          image: this.createimage.trim(),
+          bucket_name: this.createbucket_name.trim(),
+          access_key: this.createaccess_key.trim(),
+          secret_key: this.createsecret_key.trim(),
         };
         this.$.resources.create(data);
       },
 
-      // Request to delete a machinetype
-      _onDeleteMachineType() {
+      // Request to delete a s3key
+      _onDeleteS3Key() {
 
         this.$.confirmationdialog.open(
-            'Are you sure you\'d like to delete this machine type? <br>' +
+            'Are you sure you\'d like to delete this S3 key? <br>' +
             '<b>This action can\'t be reverted.</b>',
-            this._onDeleteMachineTypeConfirmation.bind(this))
+            this._onDeleteS3KeyConfirmation.bind(this))
       },
 
-      // After user confirms the machinetype should be deleted
-      _onDeleteMachineTypeConfirmation() {
+      // After user confirms the s3key should be deleted
+      _onDeleteS3KeyConfirmation() {
 
-        this.$.resources.del(this.selectedmachinetype.name);
+        this.$.resources.del(this.selecteds3key.name);
 
         // Close dialog
-        this.$.machinetypedialog.close();
+        this.$.s3keydialog.close();
 
-        // Get updated list of machinetypes
+        // Get updated list of s3keys
         this.$.resources.getAll();
       },
 
-      // Request to remove a user from a machinetype
+      // Request to remove a user from a s3key
       _onRemoveUser(e) {
         // The most general case
         let readonly = false;
@@ -503,65 +489,64 @@
           readonly = true;
 
         const data = { grantee: e.target.parentElement.id,
-                       resource: this.selectedmachinetype.name,
+                       resource: this.selecteds3key.name,
                        readonly: readonly }
         this.$.grant.revoke(data);
       },
 
-      // Request to invite a user to a machinetype
+      // Request to invite a user to a s3key
       _onInvite() {
         const data = { grantee: this.inviteusername,
-                       resource: this.selectedmachinetype.name,
+                       resource: this.selecteds3key.name,
                        readonly: !this.inviteadmin}
         this.$.grant.grant(data);
       },
 
-      // Callback when machinetypes have been updated
-      _onMachineTypes: function() {
-        this.machinetypes = this.$.resources.resources
-        this.nomachinetypes = (this.machinetypes.length == 0)
+      // Callback when s3keys have been updated
+      _onS3Keys: function() {
+        this.s3keys = this.$.resources.resources
+        this.nos3keys = (this.s3keys.length == 0)
       },
 
-      /// Callback when a machinetype has been created
-      _onMachineTypeCreated: function(e) {
-        // Get updated list of machinetypes
+      /// Callback when a s3key has been created
+      _onS3KeyCreated: function(e) {
+        // Get updated list of s3keys
         this.$.resources.getAll();
 
-        this.fire('notification', 'Created machinetype "' + e.detail.result.data.name
+        this.fire('notification', 'Created s3key "' + e.detail.result.data.bucket_name
             + '"');
       },
 
-      /// Callback when a machinetype has been deleted
-      _onMachineTypeDeleted: function(e) {
-        // Get updated list of machinetypes
+      /// Callback when a s3key has been deleted
+      _onS3KeyDeleted: function(e) {
+        // Get updated list of s3keys
         this.$.resources.getAll();
 
-        this.fire('notification', 'Deleted machinetype "' + e.detail.resource.data.name
+        this.fire('notification', 'Deleted s3key');
+      },
+
+      /// Callback when a s3key has been updated
+      _onS3KeyUpdated: function(e) {
+        // Get updated list of s3keys
+        this.$.resources.getAll();
+
+        this.fire('notification', 'Updated s3key "' + e.detail.result.data.bucket_name
             + '"');
       },
 
-      /// Callback when a machinetype has been updated
-      _onMachineTypeUpdated: function(e) {
-        // Get updated list of machinetypes
-        this.$.resources.getAll();
-
-        this.fire('notification', 'Updated machinetype "' + e.detail.result.data.name
-            + '"');
-      },
-
-      // Callback when successfully invited someone to a machinetype
+      // Callback when successfully invited someone to a s3key
       _onGranted: function(e) {
-        // Get updated info on machinetype
-        this.$.grant.get(this.selectedmachinetype.name);
+        // Get updated info on s3key
+        this.$.grant.get(this.selecteds3key.name);
 
         if (e.detail.success)
           this.fire('notification', 'User successfully invited.')
       },
 
-      // Callback when successfully removed someone from a machinetype
+      // Callback when successfully removed someone from a s3key
       _onRevoked: function(e) {
-        // Get updated info on machinetype
-        this.$.grant.get(this.selectedmachinetype.name);
+        // Get updated info on s3key
+        this.$.grant.get(this.selecteds3key.name);
 
         if (e.detail.success)
           this.fire('notification', 'User successfully removed.')
@@ -571,73 +556,60 @@
       _onAllPermissions: function() {
         var permissions = this.$.grant.permissions
 
-        const machinetype = permissions.find(function(permission){
-          return permission.name === 'machinetypes'
+        const s3key = permissions.find(function(permission){
+          return permission.name === 's3keys'
         })
 
-        if (!machinetype)
+        if (!s3key)
           return
 
-        this.cancreate = !machinetype.permissions[0].permissions.readOnly
+        this.cancreate = !s3key.permissions[0].permissions.readOnly
       },
 
-      // Callback when a single permissions has been received.
+      // Callback when a single permission has been received.
       _onSinglePermission: function(e) {
 
-        // We asked for the new permissions of the selected machinetype
-        if (e.detail.resource != this.selectedmachinetype.name) {
+        // We asked for the new permissions of the selected s3key
+        if (e.detail.resource != this.selecteds3key.name) {
+          console.error("Error");
           console.error(e.detail);
           return;
         }
 
-        this.selectedmachinetype = e.detail.result
+        this.selecteds3key = e.detail.result
 
-        const list =  this.selectedmachinetype.permissions;
+        const list =  this.selecteds3key.permissions;
         this.isselectedadmin = !list[0].permissions.readOnly
 
         this.set('selectedmembers', list);
       },
 
       /// Returns true if the index corresponds to the current user (0),
-      /// or the user is admin of selected machinetype.
+      /// or the user is admin of selected s3key.
       _currentOrAdmin: function(index) {
         return this.isselectedadmin || !index;
       },
 
       properties: {
 
-        // Array of machinetypes for current user.
-        machinetypes: {
+        // Array of s3keys for current user.
+        s3keys: {
           type: Array,
           value: [],
           notify: true
         },
 
-        // True if current user can create machinetypes.
+        // True if current user can create s3keys.
         cancreate: {
           type: Boolean,
           value: false,
           notify: true
         },
 
-        // True if current user is admin of selected machinetype.
+        // True if current user is admin of selected s3key.
         isselectedadmin: {
           type: Boolean,
           value: false,
-          notify: true
-        },
-
-        // Default AWS region when creating
-        createregion: {
-          type: String,
-          value: 'us-west-1',
-          notify: true
-        },
-
-        // Default AWS hardware when creating
-        createhardware: {
-          type: String,
-          value: 't2.small',
           notify: true
         },
       },
