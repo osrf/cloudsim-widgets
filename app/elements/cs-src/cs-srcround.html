@@ -479,7 +479,7 @@
         }
 
         this.$.ajax.body = {}
-        this.$.ajax.method = 'GET'
+        this.$.ajax.method = 'POST'
         this.$.ajax.url = this._buildSimUrl(this.rounddata.simulator.data.machine_ip, '/stopsimulation')
         this.$.ajax.headers.authorization = this.token
         this.$.ajax.generateRequest()
