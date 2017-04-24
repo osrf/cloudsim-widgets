@@ -435,10 +435,6 @@
       attached: function() {
       },
 
-      _buildSimUrl: function(ip, query) {
-        return 'http://' + ip + ':' + this.simPort + query
-      },
-
       // Start a world on the simulator
       _onStartSim: function(e) {
         const n = e.target.getAttribute('data-args')
@@ -453,12 +449,14 @@
         }
 
         this.$.ajax.body = {
+          host: this.rounddata.simulator.data.machine_ip + ':' + this.simPort,
+          path: '/simulations',
           cmd: "src_commands/run_gazebo.bash",
           stopCmd: "src_commands/stop_gazebo.bash",
           logCmd: "src_commands/send_logs.bash",
           auto: true
         }
-        this.$.ajax.url = this._buildSimUrl(this.rounddata.simulator.data.machine_ip, '/simulations')
+        this.$.ajax.url = this.portalurl + '/srcproxy'
         this.$.ajax.method = 'POST'
         this.$.ajax.headers.authorization = this.token
         this.$.ajax.generateRequest()
@@ -478,9 +476,12 @@
           return
         }
 
-        this.$.ajax.body = {}
+        this.$.ajax.body = {
+          host: this.rounddata.simulator.data.machine_ip + ':' + this.simPort,
+          path: '/stopsimulation'
+        }
         this.$.ajax.method = 'POST'
-        this.$.ajax.url = this._buildSimUrl(this.rounddata.simulator.data.machine_ip, '/stopsimulation')
+        this.$.ajax.url = this.portalurl + '/srcproxy'
         this.$.ajax.headers.authorization = this.token
         this.$.ajax.generateRequest()
 
@@ -564,6 +565,12 @@
           value: '',
           notify: true,
         },
+        // Portal URL
+        portalurl: {
+          type: String,
+          value: '',
+          notify: true,
+        }
       },
     });
   })();
