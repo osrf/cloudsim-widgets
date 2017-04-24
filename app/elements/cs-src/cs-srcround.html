@@ -456,17 +456,13 @@
           return
         }
 
-        const data = {
-          cmd: "src_commands/run_gazebo.bash",
-          stopCmd: "src_commands/stop_gazebo.bash",
-          logCmd: "src_commands/send_logs.bash",
-          auto: true
-        }
-
         this.$.ajax.body = {
           'host': this.rounddata.simulator.data.machine_ip + ':4000',
           'path': '/simulations',
-          'data': data
+          'cmd': "src_commands/run_gazebo.bash",
+          'stopCmd': "src_commands/stop_gazebo.bash",
+          'logCmd': "src_commands/send_logs.bash",
+          'auto': true
         }
         this.$.ajax.url = this.portalurl + '/srcproxy'
         this.$.ajax.method = 'POST'
