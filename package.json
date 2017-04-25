@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "body-parser": "^1.15.2",
-    "cloudsim-grant": "0.3.5",
+    "cloudsim-grant": "0.5.1",
     "cors": "^2.8.1",
     "del": "^2.0.2",
     "dotenv": "^2.0.0",

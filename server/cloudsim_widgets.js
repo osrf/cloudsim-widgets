@@ -96,9 +96,22 @@ console.log('============================================')
 console.log('\n\n')
 
 // initial resources
-const resources = {}
+const resources = [
+  {
+    name: 'root',
+    data : {},
+    permissions: [
+      {
+        username: adminUser,
+        permissions: {
+          readOnly: false
+        }
+      }
+    ]
+  },
+]
 
-csgrant.init(adminUser,
+csgrant.init(
   resources,
   dbName,
   process.env.CLOUDSIM_WIDGETS_DB,
