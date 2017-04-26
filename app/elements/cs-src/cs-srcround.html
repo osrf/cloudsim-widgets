@@ -205,7 +205,9 @@
                 <div class="horizontal item">
                   <span class="property">Public IP</span>
                   <div class="space"></div>
-                  <span class="value">[[rounddata.simulator.data.machine_ip]]</span>
+                  <a target="_blank" href="http://[[rounddata.simulator.data.machine_ip]]:[[simPort]]">
+                    <span class="value noellipsis">[[rounddata.simulator.data.machine_ip]]</span>
+                  </a>
                 </div>
 
                 <div class="horizontal item">
@@ -359,7 +361,9 @@
                 <div class="horizontal item">
                   <span class="property">Public IP</span>
                   <div class="space"></div>
-                  <span class="value noellipsis">[[rounddata.fieldcomputer.data.machine_ip]]</span>
+                  <a target="_blank" href="http://[[rounddata.fieldcomputer.data.machine_ip]]:[[simPort]]">
+                    <span class="value noellipsis">[[rounddata.fieldcomputer.data.machine_ip]]</span>
+                  </a>
                 </div>
 
                 <div class="horizontal item">
@@ -430,13 +434,8 @@
 
     Polymer({
       is: 'cs-srcround',
-      simPort: 4000,
       // Attached
       attached: function() {
-      },
-
-      _buildSimUrl: function(ip, query) {
-        return 'http://' + ip + ':' + this.simPort + query
       },
 
       // Start a world on the simulator
@@ -453,12 +452,14 @@
         }
 
         this.$.ajax.body = {
-          cmd: "src_commands/run_gazebo.bash",
-          stopCmd: "src_commands/stop_gazebo.bash",
-          logCmd: "src_commands/send_logs.bash",
-          auto: true
+          'host': this.rounddata.simulator.data.machine_ip + ':' + this.simPort,
+          'path': '/simulations',
+          'cmd': "src_commands/run_gazebo.bash",
+          'stopCmd': "src_commands/stop_gazebo.bash",
+          'logCmd': "src_commands/send_logs.bash",
+          'auto': true
         }
-        this.$.ajax.url = this._buildSimUrl(this.rounddata.simulator.data.machine_ip, '/simulations')
+        this.$.ajax.url = this.portalurl + '/srcproxy'
         this.$.ajax.method = 'POST'
         this.$.ajax.headers.authorization = this.token
         this.$.ajax.generateRequest()
@@ -478,9 +479,13 @@
           return
         }
 
-        this.$.ajax.body = {}
+        this.$.ajax.body = {
+          'host': this.rounddata.simulator.data.machine_ip + ':' + this.simPort,
+          'path': '/stopsimulation',
+          'data': {}
+        }
+        this.$.ajax.url = this.portalurl + '/srcproxy'
         this.$.ajax.method = 'POST'
-        this.$.ajax.url = this._buildSimUrl(this.rounddata.simulator.data.machine_ip, '/stopsimulation')
         this.$.ajax.headers.authorization = this.token
         this.$.ajax.generateRequest()
 
@@ -499,8 +504,13 @@
           return
         }
 
-        this.$.ajax.body = {}
-        this.$.ajax.url = 'http://' + this.rounddata.fieldcomputer.data.machine_ip + '/fieldcomputer/start'
+        this.$.ajax.body = {
+          'host': this.rounddata.fieldcomputer.data.machine_ip + ':' + this.simPort,
+          'path': '/fieldcomputer/start',
+          'data': {}
+        }
+        this.$.ajax.url = this.portalurl + '/srcproxy'
+        this.$.ajax.method = 'POST'
         this.$.ajax.headers.authorization = this.token
         this.$.ajax.generateRequest()
 
@@ -520,8 +530,13 @@
           return
         }
 
-        this.$.ajax.body = {}
-        this.$.ajax.url = 'http://' + this.rounddata.fieldcomputer.data.machine_ip + '/fieldcomputer/stop'
+        this.$.ajax.body = {
+          'host': this.rounddata.fieldcomputer.data.machine_ip + ':' + this.simPort,
+          'path': '/fieldcomputer/stop',
+          'data': {}
+        }
+        this.$.ajax.url = this.portalurl + '/srcproxy'
+        this.$.ajax.method = 'POST'
         this.$.ajax.headers.authorization = this.token
         this.$.ajax.generateRequest()
 
@@ -532,11 +547,12 @@
 
       // On response when posting to simulator
       _ajaxResponse: function() {
-        this.fire('notification', "Success")
+        this.fire('notification', "Request was succesfull")
       },
 
       // On error when posting to simulator
       _ajaxError: function(e) {
+        console.log(e)
         this.fire('error', "Failed")
       },
 
@@ -562,6 +578,12 @@
         roundname: {
           type: String,
           value: '',
+          notify: true,
+        },
+        // Port for simulation machines
+        simPort: {
+          type: String,
+          value: '4000',
           notify: true,
         },
       },
