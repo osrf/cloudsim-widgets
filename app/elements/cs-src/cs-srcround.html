@@ -506,8 +506,11 @@
 
         this.$.ajax.body = {
           'host': this.rounddata.fieldcomputer.data.machine_ip + ':' + this.simPort,
-          'path': '/fieldcomputer/start',
-          'data': {}
+          'path': '/simulations',
+          'cmd': "src_commands/fc_run_team_docker.bash",
+          'stopCmd': "src_commands/fc_stop_team_docker.bash",
+          'logCmd': "src_commands/send_logs.bash",
+          'auto': true
         }
         this.$.ajax.url = this.portalurl + '/srcproxy'
         this.$.ajax.method = 'POST'
@@ -532,7 +535,7 @@
 
         this.$.ajax.body = {
           'host': this.rounddata.fieldcomputer.data.machine_ip + ':' + this.simPort,
-          'path': '/fieldcomputer/stop',
+          'path': '/stopsimulation',
           'data': {}
         }
         this.$.ajax.url = this.portalurl + '/srcproxy'
