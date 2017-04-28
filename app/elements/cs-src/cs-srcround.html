@@ -596,11 +596,15 @@
       // When user clicks on copy to clipboard button
       _onClipboardSim: function() {
         this.$.clipboardsim.copy()
+
+        this.fire('notification', "Copied to clipboard!")
       },
 
       // When user clicks on copy to clipboard button
       _onClipboardFc: function() {
         this.$.clipboardfc.copy()
+
+        this.fire('notification', "Copied to clipboard!")
       },
 
       // Properties
