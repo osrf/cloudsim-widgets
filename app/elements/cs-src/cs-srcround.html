@@ -58,7 +58,7 @@
       overflow: hidden;
     }
     .value {
-      padding: 1em;
+      margin: 1em;
       text-overflow: ellipsis;
       overflow: hidden;
       max-width: 8em;
@@ -142,6 +142,11 @@
     .blueIcon {
       --iron-icon-fill-color: rgb(68, 138, 201);
     }
+    .copy-btn {
+      max-width: 1em;
+      max-height: 1em;
+      padding: 0;
+    }
   </style>
   <template>
 
@@ -155,6 +160,18 @@
       content-type="application/json"
       debounce-duration="300"
     ></iron-ajax>
+
+    <cbn-copy-clipboard
+      id="clipboardsim"
+      value={{rounddata.simulator.data.machine_ip}}
+    >
+    </cbn-copy-clipboard>
+
+    <cbn-copy-clipboard
+      id="clipboardfc"
+      value={{rounddata.fieldcomputer.data.machine_ip}}
+    >
+    </cbn-copy-clipboard>
 
     <center class="box-content">
 
@@ -208,6 +225,12 @@
                   <a target="_blank" href="http://[[rounddata.simulator.data.machine_ip]]:[[simPort]]">
                     <span class="value noellipsis">[[rounddata.simulator.data.machine_ip]]</span>
                   </a>
+                  <paper-icon-button
+                    icon="icons:content-copy"
+                    on-tap="_onClipboardSim"
+                    class="copy-btn"
+                    title="Copy simulator IP to clipboard"
+                  ></paper-icon-button>
                 </div>
 
                 <div class="horizontal item">
@@ -364,6 +387,12 @@
                   <a target="_blank" href="http://[[rounddata.fieldcomputer.data.machine_ip]]:[[simPort]]">
                     <span class="value noellipsis">[[rounddata.fieldcomputer.data.machine_ip]]</span>
                   </a>
+                  <paper-icon-button
+                    icon="icons:content-copy"
+                    on-tap="_onClipboardFc"
+                    class="copy-btn"
+                    title="Copy FC IP to clipboard"
+                  ></paper-icon-button>
                 </div>
 
                 <div class="horizontal item">
@@ -562,6 +591,16 @@
       // When user presses Finish Round button
       _onFinish: function() {
         this.fire('finish', this.roundid)
+      },
+
+      // When user clicks on copy to clipboard button
+      _onClipboardSim: function() {
+        this.$.clipboardsim.copy()
+      },
+
+      // When user clicks on copy to clipboard button
+      _onClipboardFc: function() {
+        this.$.clipboardfc.copy()
       },
 
       // Properties

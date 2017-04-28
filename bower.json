@@ -2,6 +2,7 @@
   "name": "cloudsim",
   "private": true,
   "dependencies": {
+    "cbn-copy-clipboard": "CBN-IT/cbn-copy-clipboard#1.0.1",
     "gold-email-input": "PolymerElements/gold-email-input#^1.0.7",
     "gz-grant": "osrf/gz-grant#0.0.10",
     "gz-keys": "osrf/gz-keys#0.0.4",
