@@ -141,61 +141,9 @@
         app.topLevelRoute = 'secure';
         app.secureRoute = 'src';
 
-        if (app.issrccompetitor)
-        {
-          app.srcRoute = 'competitor';
-        }
-        else if (app.issrcorganizer)
-        {
-          app.srcRoute = 'organizer';
-        }
-        else
-        {
-          app.srcRoute = 'home';
-        }
-      }
-      else
-      {
-        app.topLevelRoute = 'src';
-      }
-      setTimeout(function () {
-        window.dispatchEvent(changeEvent)
-      }, 100);
-    });
-
-    page('/src-kiosk', function() {
-      if (app.loggedin)
-      {
-        app.topLevelRoute = 'secure';
-        app.secureRoute = 'src';
-
         if (app.issrccompetitor || app.issrcorganizer)
         {
           app.srcRoute = 'kiosk';
-        }
-        else
-        {
-          app.srcRoute = 'home';
-        }
-      }
-      else
-      {
-        app.topLevelRoute = 'src';
-      }
-      setTimeout(function () {
-        window.dispatchEvent(changeEvent)
-      }, 100);
-    });
-
-    page('/src-leaderboard', function() {
-      if (app.loggedin)
-      {
-        app.topLevelRoute = 'secure';
-        app.secureRoute = 'src';
-
-        if (app.issrccompetitor || app.issrcorganizer)
-        {
-          app.srcRoute = 'leaderboard';
         }
         else
         {
