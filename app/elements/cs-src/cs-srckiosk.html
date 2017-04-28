@@ -88,13 +88,13 @@
 
     <paper-header-panel class="blue">
       <div class="paper-header">
-        <h1 class="title">Rounds</h1>
+        <h1 class="title">Constellations</h1>
 
         <paper-fab
           mini
           class="grey floating"
           icon="icons:add"
-          title="Start a new round"
+          title="Start a new constellation"
           on-tap="_onNew"
         ></paper-fab>
       </div>
@@ -110,7 +110,7 @@
 
       <section data-route="empty">
         <center>
-          <p style="margin-top: 2em">Your team has no rounds running.</p>
+          <p style="margin-top: 2em">Your team has no constellations running.</p>
           <paper-button flat on-tap="_onNew">Start one now</paper-button></p>
         </center>
       </section>
@@ -118,10 +118,10 @@
       <section data-route="new">
         <center>
           <div class="new-content">
-            <p>Start a new round.</p>
+            <p>Start a new constellation.</p>
 
             <paper-input value="{{dockerurl}}" label="Github repository" required></paper-input>
-            <paper-textarea value="{{deployKey}}" label="Github Deploy Key" required></paper-textarea>
+            <paper-textarea value="{{deploykey}}" label="Github Deploy Key" required></paper-textarea>
 
             <template is="dom-if" if="[[issrcadmin]]">
               <paper-input value="{{teamname}}" label="Team name" required></paper-input>
@@ -266,9 +266,9 @@
           dockerurl: this.dockerurl.trim(),
         }
 
-        if (this.deployKey.trim() !== "") {
+        if (this.deploykey && this.deploykey.trim() !== "") {
           // Only if the user set something to the field...
-          data.github_deploy_key = this.deployKey.trim().replace( new RegExp( "\n", "g" ),"\\n")
+          data.github_deploy_key = this.deploykey.trim().replace( new RegExp( "\n", "g" ),"\\n")
         }
 
         if (this.issrcadmin) {
@@ -307,7 +307,7 @@
 
         this.$.roundsresources.create(data);
 
-        this.fire('notification', 'Sending request to start new round.')
+        this.fire('notification', 'Sending request to start new constellation.')
       },
 
       // Callback from server when a new round has been created
@@ -329,7 +329,7 @@
 
         this.currentpage = this._roundName(resp.result)
 
-        this.fire('notification', 'Started round "' + this._roundName(resp.result) + '".')
+        this.fire('notification', 'Started constellation "' + this._roundName(resp.result) + '".')
       },
 
       // Generate round name
@@ -347,7 +347,7 @@
         this.finishId = e.detail
 
         this.$.confirmationdialog.open(
-            'Are you sure you\'d like to finish this round? <br>' +
+            'Are you sure you\'d like to finish this constellation? <br>' +
             'The simulator and field computer will be terminated. <br>' +
             '<b>This action can\'t be reverted.</b>',
             this._onFinishConfirmation.bind(this))
@@ -359,13 +359,13 @@
         this.$.roundsresources.del(this.finishId);
 
         this.fire('notification', {msg:
-            'Requested to finish round.', type: "msg"})
+            'Requested to finish constellation.', type: "msg"})
       },
 
       // Callback from the server when round was deleted
       _onDeleted: function(e) {
         if (e.detail.success) {
-          this.fire('notification', {msg: 'Round successfully deleted.',
+          this.fire('notification', {msg: 'Constelation successfully deleted.',
                type: "msg"})
         }
         this.currentpage = ""
