@@ -103,6 +103,23 @@
 
       </template>
 
+      <!-- SRC -->
+      <template is="dom-if" if="[[issrcuser]]">
+        <a data-route="src" href="{{baseUrl}}src">
+          <paper-item>
+            <iron-icon icon="social:public"></iron-icon>
+            SRC
+          </paper-item>
+        </a>
+
+        <a data-route="src" href="{{baseUrl}}src">
+          <paper-item class="subitem">
+            <span>Competition Kiosk</span>
+          </paper-item>
+        </a>
+
+      </template>
+
     </paper-menu>
 
   </template>
@@ -127,6 +144,21 @@
         var path = window.location.pathname
         path = path.substr(1)
         this.$.menu.selected = path
+      },
+      issrcuser: {
+        type: Boolean,
+        value: false,
+        notify: true
+      },
+      issascuser: {
+        type: Boolean,
+        value: false,
+        notify: true
+      },
+      issascadmin: {
+        type: Boolean,
+        value: false,
+        notify: true
       },
     });
   })();
