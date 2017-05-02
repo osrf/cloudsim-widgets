@@ -14,6 +14,7 @@ const csgrant = require('cloudsim-grant')
 // custom routes
 const middleware = require('./middleware')
 const sascrounds = require('./sasc/rounds.js')
+const srcsignups = require('./src/srcsignups.js')
 
 app.use(cors())
 app.use(bodyParser.json())
@@ -34,18 +35,6 @@ app.use(morgan('combined', {
     return false
   }
 }))
-
-// Redirect to HTTPS
-app.use(function (req, res, next) {
-    // Insecure request?
-    /* istanbul ignore if */
-  if (req.get('x-forwarded-proto') == 'http') {
-        // Redirect to https://
-    return res.redirect('https://' + req.get('host') + req.url);
-  }
-
-  next();
-});
 
 // the configuration values are set in the local .env file
 // this loads the .env content and puts it in the process environment.
@@ -69,6 +58,7 @@ app.use("/", express.static(rootDir));
 app.use("/api", express.static(path.join(__dirname, '/../api')));
 
 sascrounds.setRoutes(app);
+srcsignups.setRoutes(app);
 
 app.get('/*', function(req, res, next){
 
@@ -106,9 +96,22 @@ console.log('============================================')
 console.log('\n\n')
 
 // initial resources
-const resources = {}
+const resources = [
+  {
+    name: 'root',
+    data : {},
+    permissions: [
+      {
+        username: adminUser,
+        permissions: {
+          readOnly: false
+        }
+      }
+    ]
+  },
+]
 
-csgrant.init(adminUser,
+csgrant.init(
   resources,
   dbName,
   process.env.CLOUDSIM_WIDGETS_DB,

@@ -4,7 +4,7 @@
     "url": "https://bitbucket.org/osrf/cloudsim-widgets"
   },
   "license": "ISC",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "scripts": {
     "coveralls": "rm -rf coverage/ && mkdir coverage && ./node_modules/lcov-result-merger/bin/lcov-result-merger.js 'coverage*/lcov.info' 'coverage/lcov.info' && istanbul-coveralls",
     "test": "./node_modules/eslint/bin/eslint.js server/ test/ gulpfile.js && export NODE_ENV=test && node ./node_modules/istanbul/lib/cli.js cover --print both --dir ./coverage_server _mocha -- -u exports -R spec --recursive test/ && ./node_modules/web-component-tester/bin/wct",
@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "body-parser": "^1.15.2",
-    "cloudsim-grant": "0.3.5",
+    "cloudsim-grant": "0.5.1",
     "cors": "^2.8.1",
     "del": "^2.0.2",
     "dotenv": "^2.0.0",

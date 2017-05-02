@@ -135,6 +135,30 @@
       }, 100);
     });
 
+    page('/src', function() {
+      if (app.loggedin)
+      {
+        app.topLevelRoute = 'secure';
+        app.secureRoute = 'src';
+
+        if (app.issrccompetitor || app.issrcorganizer)
+        {
+          app.srcRoute = 'kiosk';
+        }
+        else
+        {
+          app.srcRoute = 'home';
+        }
+      }
+      else
+      {
+        app.topLevelRoute = 'src';
+      }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
+    });
+
     // 404
     page('*', function() {
       page.redirect(app.baseUrl);

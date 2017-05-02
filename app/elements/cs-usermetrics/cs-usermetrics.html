@@ -1,0 +1,232 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-usermetrics">
+  <style>
+    :host {
+      display: block;
+      padding-top: 3em;
+      @apply(--paper-font-common-base);
+      font-size: 0.8em;
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+    .space {
+      @apply(--layout-flex);
+    }
+    paper-material {
+      text-align: center;
+      padding-top: 1em;
+      margin: 1em;
+    }
+    h1 {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    iron-data-table {
+      min-width: 30em;
+      max-height: 20em;
+    }
+    .identity {
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    iron-data-table data-table-row:not([header]) data-table-cell {
+      height: 60px;
+    }
+
+    iron-data-table {
+      --iron-data-table-header: {
+        background-color: rgb(68, 138, 201);
+        color: #fff;
+        font-size: 1em;
+        font-weight: 600;
+      }
+      --iron-data-table-row: {
+        height: 50px;
+        align-items: center;
+      }
+      --iron-data-table-row-odd: {
+        background-color: #f3f3f3;
+      }
+      --iron-data-table-row-even: {
+        background-color: #eaeaea;
+      }
+      --iron-data-table-row-hover: {
+        background-color: #fff !important;
+      }
+    }
+
+  </style>
+
+  <template>
+
+    <gz-resources
+      id="metrics"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="metrics/simulator"
+      on-resourcesupdated="_onGetAllMetrics"
+    ></gz-resources>
+
+    <gz-resources
+      id="configs"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="metrics/config"
+      on-resourcesupdated="_onGetAllConfigs"
+    ></gz-resources>
+
+    <paper-material elevation="1">
+
+      <h1>
+        <iron-icon
+          icon="av:av-timer"
+        ></iron-icon>
+        Instance-hour metrics
+      </h1>
+
+      <iron-data-table items="[[balances]]">
+
+        <data-table-column name="Identity" width="10em">
+          <template>
+            <span class="identity" title="[[item.identity]]">[[item.identity]]</span>
+          </template>
+        </data-table-column>
+
+        <data-table-column name="Hours used" width="3em">
+          <template>
+            <span title="[[item.identity]]">[[item.running_time]]</span>
+          </template>
+        </data-table-column>
+
+        <data-table-column name="Hours remaining" width="5em">
+          <template>
+            <span title="[[item.identity]]">[[item.balance]]</span>
+          </template>
+        </data-table-column>
+
+      </iron-data-table>
+
+    </paper-material>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-usermetrics',
+
+      // Attached
+      attached: function() {
+        let that = this
+        if (that.token === "") {
+          window.addEventListener('login', function() {
+            that.$.metrics.getAll();
+          });
+        }
+        else {
+          that.$.metrics.getAll();
+        }
+      },
+
+      // Callback when all accessible metrics have been returned
+      _onGetAllMetrics: function(e) {
+        const metrics = e.detail
+        this.metrics = metrics
+        // let's now get the metric configs
+        this.$.configs.getAll();
+      },
+
+      // Callback when all configs have been returned
+      _onGetAllConfigs: function(e) {
+        // Keep the enabled configs per team with the minimum number of allowed instance-hours
+        let allConfigs = e.detail
+        allConfigs = allConfigs.filter((config) => {
+          // only keep enabled configs. And those whitelisting the user
+          return !config.whitelisted && config.check_enabled
+        })
+        const configsMap = {}
+        allConfigs.forEach((config) => {
+          configsMap[config.identity] = config
+        })
+        this._createBalanceDetails(configsMap)
+      },
+
+      _createBalanceDetails: function(configsMap) {
+        let metricsMap = {}
+
+        this.metrics.forEach((metric) => {
+          metricsMap[metric.identity] = metric
+          metric['balance'] = 'N/A'
+          metric['max_instance_hours'] = 'N/A'
+        })
+
+        for (let configId in configsMap) {
+          if (configsMap.hasOwnProperty(configId)) {
+            let config = configsMap[configId]
+            let metric = metricsMap[config.identity]
+            if (metric) {
+              metric['max_instance_hours'] = config.max_instance_hours
+              metric['balance'] = config.max_instance_hours - metric.running_time
+            } else {
+              metricsMap[config.identity] = {
+                identity: config.identity,
+                running_time: 0,
+                max_instance_hours: config.max_instance_hours,
+                balance: config.max_instance_hours
+              }
+            }
+          }
+        }
+
+        let tmpBalances = []
+        for (let metricId in metricsMap) {
+          if (metricsMap.hasOwnProperty(metricId)) {
+            tmpBalances.push(metricsMap[metricId])
+          }
+        }
+        this.balances = tmpBalances
+      },
+
+      // Properties
+      properties: {
+        portalurl: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        // Auth server URL
+        authurl: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        // Authentication token from cloudsim-auth
+        token: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        // Array of metrics for current user.
+        metrics: {
+          type: Array,
+          value: [],
+          notify: true
+        },
+        // Map with balance per user identity.
+        balances: {
+          type: Array,
+          value: [],
+          notify: true
+        }
+      },
+    });
+  })();
+  </script>
+</dom-module>

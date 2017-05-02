@@ -1,0 +1,648 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-machinetypes">
+  <style>
+    /* common */
+    .space {
+      @apply(--layout-flex);
+    }
+    .blue {
+      color: rgb(68, 138, 201);
+    }
+    .red {
+      --iron-icon-fill-color: #f00;
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+    }
+    .vertical {
+      @apply(--layout-vertical);
+    }
+    .center {
+      @apply(--layout-center);
+      text-align: center;
+    }
+    .margintop {
+      margin-top: 1em;
+    }
+
+    /* main */
+    paper-material {
+      text-align: center;
+      padding-top: 1em;
+      padding-bottom: 1em;
+      margin: 1em;
+      width: 30em;
+    }
+    h1 {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    h4 {
+      margin-bottom: 0;
+      margin-top: 0;
+      padding-left: 1em;
+    }
+    .main-content {
+      text-align: left;
+    }
+    iron-data-table {
+      min-width: 30em;
+      max-height: 10em;
+    }
+    .machinetypename {
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    iron-data-table data-table-row:not([header]) data-table-cell {
+      height: 60px;
+    }
+
+    iron-data-table {
+      --iron-data-table-header: {
+        background-color: rgb(68, 138, 201);
+        color: #fff;
+        font-size: 1em;
+        font-weight: 600;
+      }
+      --iron-data-table-row: {
+        height: 50px;
+        align-items: center;
+      }
+      --iron-data-table-row-odd: {
+        background-color: #f3f3f3;
+      }
+      --iron-data-table-row-even: {
+        background-color: #eaeaea;
+      }
+      --iron-data-table-row-hover: {
+        background-color: #fff !important;
+      }
+    }
+
+    /* dialog */
+    #machinetypedialog {
+      max-height: 40%;
+      max-width: 30em;
+      text-align: left;
+    }
+    .content {
+      overflow: auto;
+      margin: 0;
+      padding: 1em;
+    }
+    .subcontent {
+      padding-bottom: 2em;
+    }
+    .header {
+      background-color: rgb(215, 215, 215);
+      color: #353535;
+      margin: 0;
+      padding: 1em;
+    }
+    .subheader {
+      color: rgb(68, 138, 201);
+    }
+    .username {
+      max-width: 15em;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    .admin-label {
+      font-size: 0.8em;
+      margin-left: 2em;
+    }
+    .miniButton {
+      width: 2.2em;
+    }
+    .delete-button {
+      background-color: #f35046;
+      color: #fff;
+    }
+  </style>
+  <template>
+
+    <!-- For granting/revoking machinetypes from people -->
+    <gz-grant
+      id="grant"
+      url="[[url]]"
+      token="[[token]]"
+      on-permissionsupdated="_onAllPermissions"
+      on-granted="_onGranted"
+      on-revoked="_onRevoked"
+      on-got="_onSinglePermission"
+    ></gz-grant>
+
+    <!-- For creating/deleting machinetypes -->
+    <gz-resources
+      id="resources"
+      url="[[url]]"
+      token="[[token]]"
+      resourcename="machinetype"
+      data="[[createdata]]"
+      on-resourcesupdated="_onMachineTypes"
+      on-created="_onMachineTypeCreated"
+      on-deleted="_onMachineTypeDeleted"
+      on-updated="_onMachineTypeUpdated"
+    ></gz-resources>
+
+    <!-- confirmation dialog -->
+    <cs-confirmationdialog
+      id="confirmationdialog"
+    >
+    </cs-confirmationdialog>
+
+    <paper-material elevation="1">
+
+      <h1>
+        <iron-icon
+          icon="hardware:computer"
+        ></iron-icon>
+        Machine types
+      </h1>
+
+      <div class="main-content">
+
+        <iron-data-table items="[[machinetypes]]" selection-enabled on-selecting-item="_onMachineTypeDialog">
+
+          <data-table-column name="Name" width="5em">
+            <template>
+              <span class="machinetypename" title="[[item.data.name]]">[[item.data.name]]</span>
+            </template>
+          </data-table-column>
+
+          <data-table-column name="Image" width="4em">
+            <template>
+              <span title="[[item.data.image]]">[[item.data.image]]</span>
+            </template>
+          </data-table-column>
+
+          <data-table-column name="Hardware" width="2.5em">
+            <template>
+              <span title="[[item.data.hardware]]">[[item.data.hardware]]</span>
+            </template>
+          </data-table-column>
+
+          <data-table-column name="Region" width="2.5em">
+            <template>
+              <span title="[[item.data.region]]">[[item.data.region]]</span>
+            </template>
+          </data-table-column>
+
+        </iron-data-table>
+
+        <template is="dom-if" if="[[nomachinetypes]]">
+          <center>
+            No machine types available
+          </center>
+        </template>
+
+        <template is="dom-if" if="[[cancreate]]">
+          <div class="horizontal center margintop">
+            <h4>Create a machine type</h4>
+            <cs-sharebutton
+              token=[[token]]
+              resource="machinetypes"
+              url="[[url]]"
+              dialogmessage='Grant permission to create machine types'
+              grant_success_msg='User is now allowed to create machine types.'
+              revoke_success_msg='User is no longer allowed to create machine types.'
+              grant_failure_error='It was not possible to allow user to create machine types.'
+              revoke_failure_error='It was not possible to prevent user from creating machine types.'
+              mini
+            ></cs-sharebutton>
+          </div>
+          <div class="vertical center">
+            <div class="horizontal center">
+              <paper-input
+                style="padding-right: 1em"
+                value={{createname}}
+                label="Name">
+              </paper-input>
+              <paper-input
+                style="padding-right: 1em"
+                value={{createregion}}
+                label="Region">
+              </paper-input>
+            </div>
+            <div class="horizontal center">
+              <paper-input
+                style="padding-right: 1em"
+                value={{createimage}}
+                label="Image">
+              </paper-input>
+              <paper-input
+                style="padding-right: 1em"
+                value={{createhardware}}
+                label="Hardware">
+              </paper-input>
+            </div>
+            <paper-button
+              raised
+              on-tap="_onCreateMachineType"
+            >
+              <iron-icon icon="social:group-add"></iron-icon>
+              Create
+            </paper-button>
+          </div>
+        </template>
+      </div>
+
+    </paper-material>
+
+    <!-- dialog -->
+    <paper-dialog id="machinetypedialog" class="vertical">
+      <h3 class="header">[[selectedmachinetype.data.name]]</h3>
+
+      <div class="content">
+
+        <template is="dom-if" if="[[isselectedadmin]]">
+          <!-- EDIT -->
+          <div class="subcontent">
+            <b class="subheader">Edit</b>
+
+            <div class="vertical center">
+
+              <paper-input
+                style="padding-right: 1em"
+                value={{editimage}}
+                label="Image">
+              </paper-input>
+
+              <paper-input
+                style="padding-right: 1em"
+                value={{edithardware}}
+                label="Hardware">
+              </paper-input>
+
+              <paper-input
+                style="padding-right: 1em"
+                value={{editregion}}
+                label="Region">
+              </paper-input>
+
+              <paper-button
+                raised
+                id="editbutton"
+                on-tap="_onEdit"
+              >
+                <iron-icon icon="image:edit"></iron-icon>
+                Edit
+              </paper-button>
+            </div>
+          </div>
+        </template>
+
+        <!-- MEMBERS -->
+        <div class="subcontent">
+          <b class="subheader">Shared with</b>
+
+          <template is="dom-repeat" items="[[selectedmembers]]">
+            <div class="horizontal center">
+              <span class="username" title="[[item.username]]">[[item.username]]</span>
+              <template is="dom-if" if="[[!index]]">
+                (me)
+              </template>
+
+              <div class="space"></div>
+
+              <template is="dom-if" if="[[!item.permissions.readOnly]]">
+                <span class="admin-label">Admin</span>
+              </template>
+              <template is="dom-if" if="[[_currentOrAdmin(index)]]">
+                <paper-icon-button
+                  class="red miniButton"
+                  icon="icons:close"
+                  id="[[item.username]]"
+                  on-tap="_onRemoveUser">
+                </paper-icon-button>
+              </template>
+            </div>
+          </template>
+        </div>
+
+        <template is="dom-if" if="[[isselectedadmin]]">
+          <!-- INVITE -->
+          <div class="subcontent">
+            <b class="subheader">Share</b>
+
+            <div class="horizontal">
+              <div class="vertical">
+                <!-- USERNAME INPUT-->
+                <paper-input
+                  style="padding-right: 1em"
+                  value={{inviteusername}}
+                  label="Username">
+                </paper-input>
+
+                <!-- ADMIN CHECKBOX-->
+                <paper-checkbox
+                  id="admincheckbox"
+                  checked={{inviteadmin}}
+                >
+                Admin
+                </paper-checkbox>
+              </div>
+
+              <div class="vertical">
+                <div class="space"></div>
+
+                <!-- INVITE BUTTON-->
+                <paper-icon-button
+                  icon="social:person-add"
+                  id="invitebutton"
+                  on-tap="_onInvite">
+                </paper-icon-button>
+              </div>
+            </div>
+          </div>
+
+          <!-- DELETE -->
+          <div class="subcontent center">
+            <paper-button
+              raised
+              on-tap="_onDeleteMachineType"
+              class="delete-button">
+              Delete machine type
+            </paper-button>
+          </div>
+        </template>
+      </div>
+    </paper-dialog>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-machinetypes',
+
+      // Callback when component is attached
+      attached: function() {
+
+        let that = this
+        window.addEventListener('WebComponentsReady', function() {
+          if (that.token === "") {
+            window.addEventListener('login', function() {
+              that.$.resources.getAll();
+              that.$.grant.getall();
+            });
+          }
+          else {
+            that.$.resources.getAll();
+            that.$.grant.getall();
+          }
+        });
+      },
+
+      // Open a machinetype dialog
+      _onMachineTypeDialog(e) {
+        // Set selected machinetype
+        let machinetypeObj = e.detail.item
+
+        if (!machinetypeObj) {
+          console.error("MachineType [" + machinetypename + "] not found in:")
+          console.error(this.machinetypes)
+
+          // Update the list, hopefully it will disappear
+          this.$.resources.getAll();
+          return
+        }
+
+        this.selectedmachinetype = machinetypeObj
+        const list =  machinetypeObj.permissions;
+
+        this.isselectedadmin = !list[0].permissions.readOnly
+        this.set('selectedmembers', list);
+
+        // Fill edit
+        this.editimage = this.selectedmachinetype.data.image
+        this.edithardware = this.selectedmachinetype.data.hardware
+        this.editregion = this.selectedmachinetype.data.region
+
+        // Open dialog
+        this.$.machinetypedialog.open();
+      },
+
+      // Request to edit a machinetype
+      _onEdit() {
+
+        if (!this.editregion || this.editregion.trim() === "" ||
+            !this.edithardware || this.edithardware.trim() === "" ||
+            !this.editimage || this.editimage.trim() === "") {
+
+          this.fire('error', "No fields can be empty!")
+          return
+        }
+
+        const data = {
+          region: this.editregion.trim(),
+          hardware: this.edithardware.trim(),
+          image: this.editimage.trim(),
+        };
+
+        const resource = this.selectedmachinetype.name
+
+        this.$.resources.update(resource, data);
+      },
+
+      // Request to create a new machinetype
+      _onCreateMachineType() {
+
+        if (!this.createname || this.createname.trim() === "" ||
+            !this.createregion || this.createregion.trim() === "" ||
+            !this.createhardware || this.createhardware.trim() === "" ||
+            !this.createimage || this.createimage.trim() === "") {
+
+          this.fire('error', "No fields can be empty!")
+          return
+        }
+
+        const data = {
+          name: this.createname.trim(),
+          region: this.createregion.trim(),
+          hardware: this.createhardware.trim(),
+          image: this.createimage.trim(),
+        };
+        this.$.resources.create(data);
+      },
+
+      // Request to delete a machinetype
+      _onDeleteMachineType() {
+
+        this.$.confirmationdialog.open(
+            'Are you sure you\'d like to delete this machine type? <br>' +
+            '<b>This action can\'t be reverted.</b>',
+            this._onDeleteMachineTypeConfirmation.bind(this))
+      },
+
+      // After user confirms the machinetype should be deleted
+      _onDeleteMachineTypeConfirmation() {
+
+        this.$.resources.del(this.selectedmachinetype.name);
+
+        // Close dialog
+        this.$.machinetypedialog.close();
+
+        // Get updated list of machinetypes
+        this.$.resources.getAll();
+      },
+
+      // Request to remove a user from a machinetype
+      _onRemoveUser(e) {
+        // The most general case
+        let readonly = false;
+
+        // If the user trying to revoke is not admin, they can only revoke read
+        // access
+        if (!this.isselectedadmin)
+          readonly = true;
+
+        const data = { grantee: e.target.parentElement.id,
+                       resource: this.selectedmachinetype.name,
+                       readonly: readonly }
+        this.$.grant.revoke(data);
+      },
+
+      // Request to invite a user to a machinetype
+      _onInvite() {
+        const data = { grantee: this.inviteusername,
+                       resource: this.selectedmachinetype.name,
+                       readonly: !this.inviteadmin}
+        this.$.grant.grant(data);
+      },
+
+      // Callback when machinetypes have been updated
+      _onMachineTypes: function() {
+        this.machinetypes = this.$.resources.resources
+        this.nomachinetypes = (this.machinetypes.length == 0)
+      },
+
+      /// Callback when a machinetype has been created
+      _onMachineTypeCreated: function(e) {
+        // Get updated list of machinetypes
+        this.$.resources.getAll();
+
+        this.fire('notification', 'Created machinetype "' + e.detail.result.data.name
+            + '"');
+      },
+
+      /// Callback when a machinetype has been deleted
+      _onMachineTypeDeleted: function(e) {
+        // Get updated list of machinetypes
+        this.$.resources.getAll();
+
+        this.fire('notification', 'Deleted machinetype "' + e.detail.resource.data.name
+            + '"');
+      },
+
+      /// Callback when a machinetype has been updated
+      _onMachineTypeUpdated: function(e) {
+        // Get updated list of machinetypes
+        this.$.resources.getAll();
+
+        this.fire('notification', 'Updated machinetype "' + e.detail.result.data.name
+            + '"');
+      },
+
+      // Callback when successfully invited someone to a machinetype
+      _onGranted: function(e) {
+        // Get updated info on machinetype
+        this.$.grant.get(this.selectedmachinetype.name);
+
+        if (e.detail.success)
+          this.fire('notification', 'User successfully invited.')
+      },
+
+      // Callback when successfully removed someone from a machinetype
+      _onRevoked: function(e) {
+        // Get updated info on machinetype
+        this.$.grant.get(this.selectedmachinetype.name);
+
+        if (e.detail.success)
+          this.fire('notification', 'User successfully removed.')
+      },
+
+      // Callback when permissions have been updated
+      _onAllPermissions: function() {
+        var permissions = this.$.grant.permissions
+
+        const machinetype = permissions.find(function(permission){
+          return permission.name === 'machinetypes'
+        })
+
+        if (!machinetype)
+          return
+
+        this.cancreate = !machinetype.permissions[0].permissions.readOnly
+      },
+
+      // Callback when a single permissions has been received.
+      _onSinglePermission: function(e) {
+
+        // We asked for the new permissions of the selected machinetype
+        if (e.detail.resource != this.selectedmachinetype.name) {
+          console.error(e.detail);
+          return;
+        }
+
+        this.selectedmachinetype = e.detail.result
+
+        const list =  this.selectedmachinetype.permissions;
+        this.isselectedadmin = !list[0].permissions.readOnly
+
+        this.set('selectedmembers', list);
+      },
+
+      /// Returns true if the index corresponds to the current user (0),
+      /// or the user is admin of selected machinetype.
+      _currentOrAdmin: function(index) {
+        return this.isselectedadmin || !index;
+      },
+
+      properties: {
+
+        // Array of machinetypes for current user.
+        machinetypes: {
+          type: Array,
+          value: [],
+          notify: true
+        },
+
+        // True if current user can create machinetypes.
+        cancreate: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+
+        // True if current user is admin of selected machinetype.
+        isselectedadmin: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+
+        // Default AWS region when creating
+        createregion: {
+          type: String,
+          value: 'us-west-1',
+          notify: true
+        },
+
+        // Default AWS hardware when creating
+        createhardware: {
+          type: String,
+          value: 't2.small',
+          notify: true
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>
+

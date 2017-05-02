@@ -1,0 +1,620 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-s3keys">
+  <style>
+    /* common */
+    .space {
+      @apply(--layout-flex);
+    }
+    .blue {
+      color: rgb(68, 138, 201);
+    }
+    .red {
+      --iron-icon-fill-color: #f00;
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+    }
+    .vertical {
+      @apply(--layout-vertical);
+    }
+    .center {
+      @apply(--layout-center);
+      text-align: center;
+    }
+    .margintop {
+      margin-top: 1em;
+    }
+
+    /* main */
+    paper-material {
+      text-align: center;
+      padding-top: 1em;
+      padding-bottom: 1em;
+      margin: 1em;
+      width: 30em;
+    }
+    h1 {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    h4 {
+      margin-bottom: 0;
+      margin-top: 0;
+      padding-left: 1em;
+    }
+    .main-content {
+      text-align: left;
+    }
+    iron-data-table {
+      min-width: 30em;
+      max-height: 10em;
+    }
+    .textellipsis {
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    iron-data-table data-table-row:not([header]) data-table-cell {
+      height: 60px;
+    }
+
+    iron-data-table {
+      --iron-data-table-header: {
+        background-color: rgb(68, 138, 201);
+        color: #fff;
+        font-size: 1em;
+        font-weight: 600;
+      }
+      --iron-data-table-row: {
+        height: 50px;
+        align-items: center;
+      }
+      --iron-data-table-row-odd: {
+        background-color: #f3f3f3;
+      }
+      --iron-data-table-row-even: {
+        background-color: #eaeaea;
+      }
+      --iron-data-table-row-hover: {
+        background-color: #fff !important;
+      }
+    }
+
+    /* dialog */
+    #s3keydialog {
+      max-height: 40%;
+      max-width: 30em;
+      text-align: left;
+    }
+    .content {
+      overflow: auto;
+      margin: 0;
+      padding: 1em;
+    }
+    .subcontent {
+      padding-bottom: 2em;
+    }
+    .header {
+      background-color: rgb(215, 215, 215);
+      color: #353535;
+      margin: 0;
+      padding: 1em;
+    }
+    .subheader {
+      color: rgb(68, 138, 201);
+    }
+    .username {
+      max-width: 15em;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    .admin-label {
+      font-size: 0.8em;
+      margin-left: 2em;
+    }
+    .miniButton {
+      width: 2.2em;
+    }
+    .delete-button {
+      background-color: #f35046;
+      color: #fff;
+    }
+  </style>
+  <template>
+
+    <!-- For granting/revoking s3keys from people -->
+    <gz-grant
+      id="grant"
+      url="[[url]]"
+      token="[[token]]"
+      on-permissionsupdated="_onAllPermissions"
+      on-granted="_onGranted"
+      on-revoked="_onRevoked"
+      on-got="_onSinglePermission"
+    ></gz-grant>
+
+    <!-- For creating/deleting s3keys -->
+    <gz-resources
+      id="resources"
+      url="[[url]]"
+      token="[[token]]"
+      resourcename="s3key"
+      data="[[createdata]]"
+      on-resourcesupdated="_onS3Keys"
+      on-created="_onS3KeyCreated"
+      on-deleted="_onS3KeyDeleted"
+      on-updated="_onS3KeyUpdated"
+    ></gz-resources>
+
+    <!-- confirmation dialog -->
+    <cs-confirmationdialog
+      id="confirmationdialog"
+    >
+    </cs-confirmationdialog>
+
+    <paper-material elevation="1">
+
+      <h1>
+        <iron-icon
+          icon="device:storage"
+        ></iron-icon>
+        S3 keys
+      </h1>
+
+      <div class="main-content">
+
+        <iron-data-table items="[[s3keys]]" selection-enabled on-selecting-item="_onS3KeyDialog">
+
+          <data-table-column name="Bucket name" width="3em">
+            <template>
+              <span class="textellipsis" title="[[item.data.bucket_name]]">[[item.data.bucket_name]]</span>
+            </template>
+          </data-table-column>
+
+          <data-table-column name="Access key" width="4em">
+            <template>
+              <span class="textellipsis" title="[[item.data.access_key]]">[[item.data.access_key]]</span>
+            </template>
+          </data-table-column>
+
+          <data-table-column name="Secret key" width="4em">
+            <template>
+              <span class="textellipsis" title="[[item.data.secret_key]]">[[item.data.secret_key]]</span>
+            </template>
+          </data-table-column>
+
+        </iron-data-table>
+
+        <template is="dom-if" if="[[nos3keys]]">
+          <center>
+            No S3 keys available
+          </center>
+        </template>
+
+        <template is="dom-if" if="[[cancreate]]">
+          <div class="horizontal center margintop">
+            <h4>Create an S3 key</h4>
+            <cs-sharebutton
+              token=[[token]]
+              resource="s3keys"
+              url="[[url]]"
+              dialogmessage='Grant permission to create S3 keys'
+              grant_success_msg='User is now allowed to create S3 keys.'
+              revoke_success_msg='User is no longer allowed to create S3 keys.'
+              grant_failure_error='It was not possible to allow user to create S3 keys.'
+              revoke_failure_error='It was not possible to prevent user from creating S3 keys.'
+              mini
+            ></cs-sharebutton>
+          </div>
+          <div class="vertical center">
+            <div class="horizontal center">
+              <paper-input
+                style="padding-right: 1em"
+                value={{createbucket_name}}
+                label="Bucket name">
+              </paper-input>
+            </div>
+            <div class="horizontal center">
+              <paper-input
+                style="padding-right: 1em"
+                value={{createsecret_key}}
+                label="Secret key">
+              </paper-input>
+              <paper-input
+                style="padding-right: 1em"
+                value={{createaccess_key}}
+                label="Access key">
+              </paper-input>
+            </div>
+            <paper-button
+              raised
+              on-tap="_onCreateS3Key"
+            >
+              <iron-icon icon="social:group-add"></iron-icon>
+              Create
+            </paper-button>
+          </div>
+        </template>
+      </div>
+
+    </paper-material>
+
+    <!-- dialog -->
+    <paper-dialog id="s3keydialog" class="vertical">
+      <h3 class="header">[[selecteds3key.data.bucket_name]]</h3>
+
+      <div class="content">
+
+        <template is="dom-if" if="[[isselectedadmin]]">
+          <!-- EDIT -->
+          <div class="subcontent">
+            <b class="subheader">Edit</b>
+
+            <div class="vertical center">
+
+              <paper-input
+                style="padding-right: 1em"
+                value={{editsecret_key}}
+                label="Secret key">
+              </paper-input>
+
+              <paper-input
+                style="padding-right: 1em"
+                value={{editaccess_key}}
+                label="Access key">
+              </paper-input>
+
+              <paper-input
+                style="padding-right: 1em"
+                value={{editbucket_name}}
+                label="Bucket name">
+              </paper-input>
+
+              <paper-button
+                raised
+                id="editbutton"
+                on-tap="_onEdit"
+              >
+                <iron-icon icon="image:edit"></iron-icon>
+                Edit
+              </paper-button>
+            </div>
+          </div>
+        </template>
+
+        <!-- MEMBERS -->
+        <div class="subcontent">
+          <b class="subheader">Shared with</b>
+
+          <template is="dom-repeat" items="[[selectedmembers]]">
+            <div class="horizontal center">
+              <span class="username" title="[[item.username]]">[[item.username]]</span>
+              <template is="dom-if" if="[[!index]]">
+                (me)
+              </template>
+
+              <div class="space"></div>
+
+              <template is="dom-if" if="[[!item.permissions.readOnly]]">
+                <span class="admin-label">Admin</span>
+              </template>
+              <template is="dom-if" if="[[_currentOrAdmin(index)]]">
+                <paper-icon-button
+                  class="red miniButton"
+                  icon="icons:close"
+                  id="[[item.username]]"
+                  on-tap="_onRemoveUser">
+                </paper-icon-button>
+              </template>
+            </div>
+          </template>
+        </div>
+
+        <template is="dom-if" if="[[isselectedadmin]]">
+          <!-- INVITE -->
+          <div class="subcontent">
+            <b class="subheader">Share</b>
+
+            <div class="horizontal">
+              <div class="vertical">
+                <!-- USERNAME INPUT-->
+                <paper-input
+                  style="padding-right: 1em"
+                  value={{inviteusername}}
+                  label="Username">
+                </paper-input>
+
+                <!-- ADMIN CHECKBOX-->
+                <paper-checkbox
+                  id="admincheckbox"
+                  checked={{inviteadmin}}
+                >
+                Admin
+                </paper-checkbox>
+              </div>
+
+              <div class="vertical">
+                <div class="space"></div>
+
+                <!-- INVITE BUTTON-->
+                <paper-icon-button
+                  icon="social:person-add"
+                  id="invitebutton"
+                  on-tap="_onInvite">
+                </paper-icon-button>
+              </div>
+            </div>
+          </div>
+
+          <!-- DELETE -->
+          <div class="subcontent center">
+            <paper-button
+              raised
+              on-tap="_onDeleteS3Key"
+              class="delete-button">
+              Delete S3 key
+            </paper-button>
+          </div>
+        </template>
+      </div>
+    </paper-dialog>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-s3keys',
+
+      // Callback when component is attached
+      attached: function() {
+
+        let that = this
+        window.addEventListener('WebComponentsReady', function() {
+          if (that.token === "") {
+            window.addEventListener('login', function() {
+              that.$.resources.getAll();
+              that.$.grant.getall();
+            });
+          }
+          else {
+            that.$.resources.getAll();
+            that.$.grant.getall();
+          }
+        });
+      },
+
+      // Open a s3key dialog
+      _onS3KeyDialog(e) {
+        // Set selected s3key
+        let s3keyObj = e.detail.item
+
+        if (!s3keyObj) {
+          console.error(this.s3keys)
+
+          // Update the list, hopefully it will disappear
+          this.$.resources.getAll();
+          return
+        }
+
+        this.selecteds3key = s3keyObj
+        const list =  s3keyObj.permissions;
+
+        this.isselectedadmin = !list[0].permissions.readOnly
+        this.set('selectedmembers', list);
+
+        // Fill edit
+        this.editsecret_key = this.selecteds3key.data.secret_key
+        this.editaccess_key = this.selecteds3key.data.access_key
+        this.editbucket_name = this.selecteds3key.data.bucket_name
+
+        // Open dialog
+        this.$.s3keydialog.open();
+      },
+
+      // Request to edit a s3key
+      _onEdit() {
+
+        if (!this.editbucket_name || this.editbucket_name.trim() === "" ||
+            !this.editaccess_key || this.editaccess_key.trim() === "" ||
+            !this.editsecret_key || this.editsecret_key.trim() === "") {
+
+          this.fire('error', "No fields can be empty!")
+          return
+        }
+
+        const data = {
+          bucket_name: this.editbucket_name.trim(),
+          access_key: this.editaccess_key.trim(),
+          secret_key: this.editsecret_key.trim(),
+        };
+
+        const resource = this.selecteds3key.bucket_name
+
+        this.$.resources.update(resource, data);
+      },
+
+      // Request to create a new s3key
+      _onCreateS3Key() {
+
+        if (!this.createbucket_name || this.createbucket_name.trim() === "" ||
+            !this.createaccess_key || this.createaccess_key.trim() === "" ||
+            !this.createsecret_key || this.createsecret_key.trim() === "") {
+
+          this.fire('error', "No fields can be empty!")
+          return
+        }
+
+        const data = {
+          bucket_name: this.createbucket_name.trim(),
+          access_key: this.createaccess_key.trim(),
+          secret_key: this.createsecret_key.trim(),
+        };
+        this.$.resources.create(data);
+      },
+
+      // Request to delete a s3key
+      _onDeleteS3Key() {
+
+        this.$.confirmationdialog.open(
+            'Are you sure you\'d like to delete this S3 key? <br>' +
+            '<b>This action can\'t be reverted.</b>',
+            this._onDeleteS3KeyConfirmation.bind(this))
+      },
+
+      // After user confirms the s3key should be deleted
+      _onDeleteS3KeyConfirmation() {
+
+        this.$.resources.del(this.selecteds3key.name);
+
+        // Close dialog
+        this.$.s3keydialog.close();
+
+        // Get updated list of s3keys
+        this.$.resources.getAll();
+      },
+
+      // Request to remove a user from a s3key
+      _onRemoveUser(e) {
+        // The most general case
+        let readonly = false;
+
+        // If the user trying to revoke is not admin, they can only revoke read
+        // access
+        if (!this.isselectedadmin)
+          readonly = true;
+
+        const data = { grantee: e.target.parentElement.id,
+                       resource: this.selecteds3key.name,
+                       readonly: readonly }
+        this.$.grant.revoke(data);
+      },
+
+      // Request to invite a user to a s3key
+      _onInvite() {
+        const data = { grantee: this.inviteusername,
+                       resource: this.selecteds3key.name,
+                       readonly: !this.inviteadmin}
+        this.$.grant.grant(data);
+      },
+
+      // Callback when s3keys have been updated
+      _onS3Keys: function() {
+        this.s3keys = this.$.resources.resources
+        this.nos3keys = (this.s3keys.length == 0)
+      },
+
+      /// Callback when a s3key has been created
+      _onS3KeyCreated: function(e) {
+        // Get updated list of s3keys
+        this.$.resources.getAll();
+
+        this.fire('notification', 'Created s3key "' + e.detail.result.data.bucket_name
+            + '"');
+      },
+
+      /// Callback when a s3key has been deleted
+      _onS3KeyDeleted: function(e) {
+        // Get updated list of s3keys
+        this.$.resources.getAll();
+
+        this.fire('notification', 'Deleted s3key');
+      },
+
+      /// Callback when a s3key has been updated
+      _onS3KeyUpdated: function(e) {
+        // Get updated list of s3keys
+        this.$.resources.getAll();
+
+        this.fire('notification', 'Updated s3key "' + e.detail.result.data.bucket_name
+            + '"');
+      },
+
+      // Callback when successfully invited someone to a s3key
+      _onGranted: function(e) {
+        // Get updated info on s3key
+        this.$.grant.get(this.selecteds3key.name);
+
+        if (e.detail.success)
+          this.fire('notification', 'User successfully invited.')
+      },
+
+      // Callback when successfully removed someone from a s3key
+      _onRevoked: function(e) {
+        // Get updated info on s3key
+        this.$.grant.get(this.selecteds3key.name);
+
+        if (e.detail.success)
+          this.fire('notification', 'User successfully removed.')
+      },
+
+      // Callback when permissions have been updated
+      _onAllPermissions: function() {
+        var permissions = this.$.grant.permissions
+
+        const s3key = permissions.find(function(permission){
+          return permission.name === 's3keys'
+        })
+
+        if (!s3key)
+          return
+
+        this.cancreate = !s3key.permissions[0].permissions.readOnly
+      },
+
+      // Callback when a single permission has been received.
+      _onSinglePermission: function(e) {
+
+        // We asked for the new permissions of the selected s3key
+        if (e.detail.resource != this.selecteds3key.name) {
+          console.error("Error");
+          console.error(e.detail);
+          return;
+        }
+
+        this.selecteds3key = e.detail.result
+
+        const list =  this.selecteds3key.permissions;
+        this.isselectedadmin = !list[0].permissions.readOnly
+
+        this.set('selectedmembers', list);
+      },
+
+      /// Returns true if the index corresponds to the current user (0),
+      /// or the user is admin of selected s3key.
+      _currentOrAdmin: function(index) {
+        return this.isselectedadmin || !index;
+      },
+
+      properties: {
+
+        // Array of s3keys for current user.
+        s3keys: {
+          type: Array,
+          value: [],
+          notify: true
+        },
+
+        // True if current user can create s3keys.
+        cancreate: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+
+        // True if current user is admin of selected s3key.
+        isselectedadmin: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>
+

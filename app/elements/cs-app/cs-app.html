@@ -18,6 +18,11 @@
         background-color: #f3f3f3;
       }
 
+      paper-material {
+        margin: 1em;
+        padding: 1em;
+      }
+
       .pad {
         padding: 3em;
       }
@@ -62,6 +67,7 @@
 
     <!-- Main Toolbar -->
     <cs-toptoolbar
+      id="toptoolbar"
       authurl="[[authurl]]"
       currentuser="[[currentuser]]"
       loggedin="[[loggedin]]"
@@ -81,11 +87,16 @@
         <cs-home/>
       </section>
 
+      <!-- SRC public routes -->
+      <section data-route="src" style="padding: 0em">
+        <cs-srchome/>
+      </section>
+
       <!-- Secure routes -->
       <section data-route="secure">
 
         <!-- Drawer / panel -->
-        <paper-drawer-panel>
+        <paper-drawer-panel id="drawerpanel">
 
           <!-- Main Menu -->
           <cs-menu
@@ -96,6 +107,11 @@
 
           <!-- Main Content -->
           <div class="content" main>
+
+            <paper-icon-button
+              icon="menu"
+              paper-drawer-toggle
+            ></paper-icon-button>
 
             <iron-pages attr-for-selected="data-route" selected="[[secureRoute]]">
 
@@ -108,9 +124,11 @@
               <!-- Profile -->
               <section data-route="profile">
                 <cs-profile
+                  portalurl="[[portalurl]]"
                   authurl="[[authurl]]"
                   token="[[token]]"
                 ></cs-profile>
+
               </section>
 
               <!-- SASC secure routes -->
@@ -132,7 +150,32 @@
                   <section data-route="finished">
                     <cs-sascfinished
                       token="[[token]]"
+                      currentuser="[[currentuser]]"
                     ></cs-sascfinished>
+                  </section>
+
+                </iron-pages>
+
+              </section>
+
+              <!-- SRC secure routes -->
+              <section data-route="src">
+
+                <iron-pages attr-for-selected="data-route" selected="{{srcRoute}}">
+
+                  <section data-route="home">
+                    <cs-srchome/>
+                  </section>
+
+                  <section data-route="kiosk">
+                    <cs-srckiosk
+                      token="[[token]]"
+                      portalurl="[[portalurl]]"
+                      keysurl="[[keysurl]]"
+                      authurl="[[authurl]]"
+                      currentuser="[[currentuser]]"
+                      issrcadmin="[[issrcorganizer]]"
+                    ></cs-srckiosk>
                   </section>
 
                 </iron-pages>
@@ -178,6 +221,8 @@
         this.addEventListener('error', function(e) {
           this._openErrorToast(e);
         });
+
+        this.$.drawerpanel.disableEdgeSwipe = true;
       },
 
       // Open notification toast
@@ -231,6 +276,26 @@
 
         this.$.menu.issascuser = this.issasccompetitor || this.issascadmin
         this.$.menu.issascadmin = this.issascadmin
+
+        // SRC
+        // For now, simulating 3 users:
+        // -admin is a competition organizer
+        // -src_organizer is also a competition organizer
+        // -src_competitor is a competitor
+        this.issrcorganizer = (this.currentuser === getConfig().admin ||
+                               this.identities.indexOf("src-admins") > -1);
+        let that = this
+        this.identities.forEach(function(id){
+          if (id.indexOf("SRC-") > -1)
+            that.issrccompetitor = true
+        })
+
+        // Can't be both competitor and organizer
+        if (this.issrcorganizer)
+          this.issrccompetitor = false
+
+        this.issrcuser = this.issrccompetitor || this.issrcorganizer
+        this.$.menu.issrcuser = this.issrcuser
 
         // Get permissions from gz-grant
         this.$.grant.getall();
@@ -328,6 +393,21 @@
         identities: {
           type: Array,
           value: [],
+          notify: true
+        },
+        issrccompetitor: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        issrcorganizer: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        issrcuser: {
+          type: Boolean,
+          value: false,
           notify: true
         },
       }
