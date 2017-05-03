@@ -128,14 +128,14 @@
               <div class="horizontal">
                 <div class="vertical">
                   <h4>Simulator</h4>
-                  <paper-input value="{{simregion}}" label="Region" required></paper-input>
+                  <cs-amazon-ec2-regions region="{{simregion}}"></cs-amazon-ec2-regions>
                   <paper-input value="{{simhardware}}" label="Hardware" required></paper-input>
                   <paper-input value="{{simimage}}" label="Image" required></paper-input>
                 </div>
                 <div class="space"></div>
                 <div class="vertical">
                   <h4>Field computer</h4>
-                  <paper-input value="{{fcregion}}" label="Region" required></paper-input>
+                  <cs-amazon-ec2-regions region="{{fcregion}}"></cs-amazon-ec2-regions>
                   <paper-input value="{{fchardware}}" label="Hardware" required></paper-input>
                   <paper-input value="{{fcimage}}" label="Image" required></paper-input>
                 </div>
