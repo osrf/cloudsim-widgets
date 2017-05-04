@@ -291,8 +291,13 @@
               image: this.simimage.trim()
             }
           } else {
-            this.fire('error', 'All Simulator fields must be completed.')
-            return
+            // If any field is filled, tell the user to fill the rest.
+            if (this.simregion.trim() !== "" ||
+                this.simhardware.trim() !== "" ||
+                this.simimage.trim() !== "") {
+              this.fire('error', 'Please fill all the fields for the Simulator to work, or leave them all empty to use default values.')
+              return
+            }
           }
 
           if (this.fcregion.trim() !== "" &&
@@ -305,10 +310,14 @@
               image: this.fcimage.trim()
             }
           } else {
-            this.fire('error', 'All Field Computer fields must be completed.')
-            return
+            // If any field is filled, tell the user to fill the rest.
+            if (this.fcregion.trim() !== "" ||
+                this.fchardware.trim() !== "" ||
+                this.fcimage.trim() !== "") {
+              this.fire('error', 'Please fill all the fields for the Field Computer to work, or leave them all empty to use default values.')
+              return
+            }
           }
-
         }
 
         this.$.roundsresources.create(data);
