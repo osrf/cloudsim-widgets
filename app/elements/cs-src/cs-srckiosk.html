@@ -129,14 +129,14 @@
                 <div class="vertical">
                   <h4>Simulator</h4>
                   <paper-input value="{{simregion}}" label="Region" required></paper-input>
-                  <paper-input value="{{simhardware}}" label="Hardware" required></paper-input>
+                  <cs-amazon-ec2-hardware hardware="{{simhardware}}"></cs-amazon-ec2-hardware>
                   <paper-input value="{{simimage}}" label="Image" required></paper-input>
                 </div>
                 <div class="space"></div>
                 <div class="vertical">
                   <h4>Field computer</h4>
                   <paper-input value="{{fcregion}}" label="Region" required></paper-input>
-                  <paper-input value="{{fchardware}}" label="Hardware" required></paper-input>
+                  <cs-amazon-ec2-hardware hardware="{{fchardware}}"></cs-amazon-ec2-hardware>
                   <paper-input value="{{fcimage}}" label="Image" required></paper-input>
                 </div>
               </div>
@@ -290,6 +290,9 @@
               hardware: this.simhardware.trim(),
               image: this.simimage.trim()
             }
+          } else {
+            this.fire('error', 'All Simulator fields must be completed.')
+            return
           }
 
           if (this.fcregion.trim() !== "" &&
@@ -301,6 +304,9 @@
               hardware: this.fchardware.trim(),
               image: this.fcimage.trim()
             }
+          } else {
+            this.fire('error', 'All Field Computer fields must be completed.')
+            return
           }
 
         }

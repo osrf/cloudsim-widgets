@@ -1,0 +1,94 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-amazon-ec2-hardware">
+  <style>
+    paper-dropdown-menu {
+      --paper-input-container: {
+        text-align: center;
+      }
+    }
+  </style>
+  
+  <template>
+    <paper-dropdown-menu label="Hardware" selected-item-label="{{hardware}}" required>
+      <paper-listbox class="dropdown-content">
+        <paper-item>t2.nano</paper-item>
+        <paper-item>t2.micro</paper-item>
+        <paper-item>t2.small</paper-item>
+        <paper-item>t2.medium</paper-item>
+        <paper-item>t2.large</paper-item>
+        <paper-item>t2.xlarge</paper-item>
+        <paper-item>t2.2xlarge</paper-item>
+        <paper-item>m4.large</paper-item>
+        <paper-item>m4.xlarge</paper-item>
+        <paper-item>m4.2xlarge</paper-item>
+        <paper-item>m4.4xlarge</paper-item>
+        <paper-item>m4.10xlarge</paper-item>
+        <paper-item>m4.16xlarge</paper-item>
+        <paper-item>m3.medium</paper-item>
+        <paper-item>m3.large</paper-item>
+        <paper-item>m3.xlarge</paper-item>
+        <paper-item>m3.2xlarge</paper-item>
+        <paper-item>c4.large</paper-item>
+        <paper-item>c4.xlarge</paper-item>
+        <paper-item>c4.2xlarge</paper-item>
+        <paper-item>c4.4xlarge</paper-item>
+        <paper-item>c4.8xlarge</paper-item>
+        <paper-item>c3.large</paper-item>
+        <paper-item>c3.xlarge</paper-item>
+        <paper-item>c3.2xlarge</paper-item>
+        <paper-item>c3.4xlarge</paper-item>
+        <paper-item>c3.8xlarge</paper-item>
+        <paper-item>x1.16large</paper-item>
+        <paper-item>x1.32xlarge</paper-item>
+        <paper-item>r4.large</paper-item>
+        <paper-item>r4.xlarge</paper-item>
+        <paper-item>r4.2xlarge</paper-item>
+        <paper-item>r4.4xlarge</paper-item>
+        <paper-item>r4.8xlarge</paper-item>
+        <paper-item>r4.16xlarge</paper-item>
+        <paper-item>r3.large</paper-item>
+        <paper-item>r3.xlarge</paper-item>
+        <paper-item>r3.2xlarge</paper-item>
+        <paper-item>r3.4xlarge</paper-item>
+        <paper-item>r3.8xlarge</paper-item>
+        <paper-item>p2.xlarge</paper-item>
+        <paper-item>p2.8xlarge</paper-item>
+        <paper-item>p2.16xlarge</paper-item>
+        <paper-item>g2.2xlarge</paper-item>
+        <paper-item>g2.8xlarge</paper-item>
+        <paper-item>f1.2xlarge</paper-item>
+        <paper-item>f1.16xlarge</paper-item>
+        <paper-item>i3.large</paper-item>
+        <paper-item>i3.xlarge</paper-item>
+        <paper-item>i3.2xlarge</paper-item>
+        <paper-item>i3.4xlarge</paper-item>
+        <paper-item>i3.8xlarge</paper-item>
+        <paper-item>i3.16large</paper-item>
+        <paper-item>d2.xlarge</paper-item>
+        <paper-item>d2.2xlarge</paper-item>
+        <paper-item>d2.4xlarge</paper-item>
+        <paper-item>d2.8xlarge</paper-item>
+      </paper-listbox>
+    </paper-dropdown-menu>
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-amazon-ec2-hardware',
+
+      properties: {
+        hardware: {
+          type: String,
+          value: "",
+          notify: true,
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>
