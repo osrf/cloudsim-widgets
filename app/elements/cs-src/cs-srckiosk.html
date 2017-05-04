@@ -290,6 +290,9 @@
               hardware: this.simhardware.trim(),
               image: this.simimage.trim()
             }
+          } else {
+            this.fire('error', 'All Simulator fields must be completed.')
+            return
           }
 
           if (this.fcregion.trim() !== "" &&
@@ -301,6 +304,9 @@
               hardware: this.fchardware.trim(),
               image: this.fcimage.trim()
             }
+          } else {
+            this.fire('error', 'All Field Computer fields must be completed.')
+            return
           }
 
         }
