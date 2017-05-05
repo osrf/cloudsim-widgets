@@ -11,8 +11,9 @@
   </style>
   
   <template>
-    <paper-dropdown-menu label="Hardware" selected-item-label="{{hardware}}" required>
-      <paper-listbox class="dropdown-content">
+    <paper-dropdown-menu label="Hardware" selected-item-label="{{hardware}}" on-iron-select="_itemSelected">
+      <paper-listbox id="hardwareList" class="dropdown-content">
+        <paper-item>Default</paper-item>
         <paper-item>t2.nano</paper-item>
         <paper-item>t2.micro</paper-item>
         <paper-item>t2.small</paper-item>
@@ -88,6 +89,11 @@
           notify: true,
         },
       },
+      _itemSelected: function() {
+        if (this.$.hardwareList.selected == 0) {
+          this.$.hardwareList.select(undefined)
+        }
+      }
     });
   })();
   </script>
