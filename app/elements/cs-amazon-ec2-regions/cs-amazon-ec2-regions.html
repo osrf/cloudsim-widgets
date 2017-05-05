@@ -1,0 +1,57 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-amazon-ec2-regions">
+  <style>
+    paper-dropdown-menu {
+      --paper-input-container: {
+        text-align: center;
+      }
+    }
+  </style>
+  
+  <template>
+    <paper-dropdown-menu label="Region" selected-item-label="{{region}}" on-iron-select="_itemSelected">
+      <paper-listbox id="regionList" class="dropdown-content">
+        <paper-item>Default</paper-item>
+        <paper-item>us-east-1</paper-item>
+        <paper-item>us-east-2</paper-item>
+        <paper-item>us-west-1</paper-item>
+        <paper-item>us-west-2</paper-item>
+        <paper-item>ca-central-1</paper-item>
+        <paper-item>eu-west-1</paper-item>
+        <paper-item>eu-central-1</paper-item>
+        <paper-item>eu-west-2</paper-item>
+        <paper-item>ap-northeast-1</paper-item>
+        <paper-item>ap-northeast-2</paper-item>
+        <paper-item>ap-southeast-1</paper-item>
+        <paper-item>ap-southeast-2</paper-item>
+        <paper-item>ap-south-1</paper-item>
+        <paper-item>sa-east-1</paper-item>
+      </paper-listbox>
+    </paper-dropdown-menu>
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-amazon-ec2-regions',
+
+      properties: {
+        region: {
+          type: String,
+          value: "",
+          notify: true,
+        },
+      },
+      _itemSelected: function() {
+        if (this.$.regionList.selected == 0) {
+          this.$.regionList.select(undefined)
+        }
+      }
+    });
+  })();
+  </script>
+</dom-module>

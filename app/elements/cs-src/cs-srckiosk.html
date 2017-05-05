@@ -128,14 +128,14 @@
               <div class="horizontal">
                 <div class="vertical">
                   <h4>Simulator</h4>
-                  <paper-input value="{{simregion}}" label="Region" required></paper-input>
+                  <cs-amazon-ec2-regions region="{{simregion}}"></cs-amazon-ec2-regions>
                   <paper-input value="{{simhardware}}" label="Hardware" required></paper-input>
                   <paper-input value="{{simimage}}" label="Image" required></paper-input>
                 </div>
                 <div class="space"></div>
                 <div class="vertical">
                   <h4>Field computer</h4>
-                  <paper-input value="{{fcregion}}" label="Region" required></paper-input>
+                  <cs-amazon-ec2-regions region="{{fcregion}}"></cs-amazon-ec2-regions>
                   <paper-input value="{{fchardware}}" label="Hardware" required></paper-input>
                   <paper-input value="{{fcimage}}" label="Image" required></paper-input>
                 </div>
@@ -290,6 +290,14 @@
               hardware: this.simhardware.trim(),
               image: this.simimage.trim()
             }
+          } else {
+            // If any field is filled, tell the user to fill the rest.
+            if (this.simregion.trim() !== "" ||
+                this.simhardware.trim() !== "" ||
+                this.simimage.trim() !== "") {
+              this.fire('error', 'Please fill all the fields for the Simulator to work, or leave them all empty to use default values.')
+              return
+            }
           }
 
           if (this.fcregion.trim() !== "" &&
@@ -301,8 +309,15 @@
               hardware: this.fchardware.trim(),
               image: this.fcimage.trim()
             }
+          } else {
+            // If any field is filled, tell the user to fill the rest.
+            if (this.fcregion.trim() !== "" ||
+                this.fchardware.trim() !== "" ||
+                this.fcimage.trim() !== "") {
+              this.fire('error', 'Please fill all the fields for the Field Computer to work, or leave them all empty to use default values.')
+              return
+            }
           }
-
         }
 
         this.$.roundsresources.create(data);
