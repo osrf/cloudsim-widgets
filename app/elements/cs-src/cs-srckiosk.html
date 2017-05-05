@@ -120,8 +120,19 @@
           <div class="new-content">
             <p>Start a new constellation.</p>
 
-            <paper-input value="{{dockerurl}}" label="Github repository" required></paper-input>
-            <paper-textarea value="{{deploykey}}" label="Github Deploy Key" required></paper-textarea>
+            <paper-input
+              id="dockerurlinput"
+              value="{{dockerurl}}"
+              label="Github repository"
+              title="Clone URL ending in '.git', starting with 'https' for public and 'git' for private repositories."
+              pattern="(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\.git)$"
+              required
+            ></paper-input>
+            <paper-textarea
+              value="{{deploykey}}"
+              label="Github Deploy Key"
+              title="Leave empty for public repositories."
+            ></paper-textarea>
 
             <template is="dom-if" if="[[issrcadmin]]">
               <paper-input value="{{teamname}}" label="Team name" required></paper-input>
@@ -255,9 +266,21 @@
       // Continue starting new round
       _onContinue: function() {
 
-        // Check for empty fields
-        if (this.dockerurl.trim() === "") {
-          this.fire('error', 'No fields can be empty.')
+        // Validate GitHub url
+        if (!this.$.dockerurlinput.validate()) {
+          this.fire('error', 'Not a valid GitHub url. Make sure it ends with ".git"')
+          return
+        }
+
+        if (this.dockerurl.trim().indexOf("git") === 0 &&
+            (!this.deploykey || this.deploykey.trim() === "")) {
+          this.fire('error', 'Please use an https URL for public repositories (empty key).')
+          return
+        }
+
+        if (this.dockerurl.indexOf("http") === 0 &&
+            this.deploykey && this.deploykey.trim() !== "") {
+          this.fire('error', 'Please use a git URL for private repositories.')
           return
         }
 
