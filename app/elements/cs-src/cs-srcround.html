@@ -479,13 +479,13 @@
           this.fire('error', 'Failed to start run, missing simulator IP.')
           return
         }
-
+        const worldName = 'world_' + n + '_' + (new Date().toISOString())
         this.$.ajax.body = {
           'host': this.rounddata.simulator.data.machine_ip + ':' + this.simPort,
           'path': '/simulations',
-          'cmd': "src_commands/run_gazebo.bash",
-          'stopCmd': "src_commands/stop_gazebo.bash",
-          'logCmd': "src_commands/send_logs.bash",
+          'cmd': "src_commands/run_gazebo.bash " + worldName + " " + n,
+          'stopCmd': "src_commands/stop_gazebo.bash " + worldName,
+          'logCmd': "src_commands/send_logs.bash " + worldName,
           'auto': true
         }
         this.$.ajax.url = this.portalurl + '/srcproxy'
@@ -538,7 +538,6 @@
           'path': '/simulations',
           'cmd': "src_commands/fc_run_team_docker.bash",
           'stopCmd': "src_commands/fc_stop_team_docker.bash",
-          'logCmd': "src_commands/send_logs.bash",
           'auto': true
         }
         this.$.ajax.url = this.portalurl + '/srcproxy'
