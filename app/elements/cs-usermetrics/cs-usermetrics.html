@@ -63,6 +63,12 @@
       }
     }
 
+    paper-icon-button {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+
   </style>
 
   <template>
@@ -90,6 +96,7 @@
           icon="av:av-timer"
         ></iron-icon>
         Instance-hour metrics
+        <paper-icon-button title="Refresh" icon="refresh" on-tap="_refreshMetrics"></paper-icon-button>
       </h1>
 
       <iron-data-table items="[[balances]]">
@@ -196,6 +203,10 @@
           }
         }
         this.balances = tmpBalances
+      },
+
+      _refreshMetrics: function() {
+        this.$.metrics.getAll();
       },
 
       // Properties
