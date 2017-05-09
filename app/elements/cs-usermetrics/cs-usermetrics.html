@@ -62,8 +62,13 @@
         background-color: #fff !important;
       }
     }
-    paper-button {
-      margin: 0.5em;
+
+    paper-icon-button {
+      position: absolute;
+      top: 0;
+      right: 0;
+  };
+}
     }
 
   </style>
@@ -93,6 +98,7 @@
           icon="av:av-timer"
         ></iron-icon>
         Instance-hour metrics
+        <paper-icon-button title="Refresh" icon="refresh" on-tap="_refreshMetrics"></paper-icon-button>
       </h1>
 
       <iron-data-table items="[[balances]]">
@@ -116,8 +122,6 @@
         </data-table-column>
 
       </iron-data-table>
-
-      <paper-button raised on-tap="_refreshMetrics">Refresh</paper-button>
 
     </paper-material>
 
