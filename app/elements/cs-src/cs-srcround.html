@@ -479,13 +479,13 @@
           this.fire('error', 'Failed to start run, missing simulator IP.')
           return
         }
-        const taskName = 'task_' + n
+        const worldName = 'world_' + n
         this.$.ajax.body = {
           'host': this.rounddata.simulator.data.machine_ip + ':' + this.simPort,
           'path': '/simulations',
-          'cmd': "src_commands/run_gazebo.bash " + taskName,
-          'stopCmd': "src_commands/stop_gazebo.bash " + taskName,
-          'logCmd': "src_commands/send_logs.bash " + taskName,
+          'cmd': "src_commands/run_gazebo.bash " + worldName,
+          'stopCmd': "src_commands/stop_gazebo.bash " + worldName,
+          'logCmd': "src_commands/send_logs.bash " + worldName,
           'auto': true
         }
         this.$.ajax.url = this.portalurl + '/srcproxy'
