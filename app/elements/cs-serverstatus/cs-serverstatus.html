@@ -22,7 +22,7 @@
       debounce-duration="300"
     ></iron-ajax>
     
-    <a href="[[url]]" target="_blank">[[url]]</a>
+    <a class="url" href="[[url]]" target="_blank">[[url]]</a>
     <iron-icon id="statusIcon" icon="icons:clear"></iron-icon>
 
   </template>
@@ -41,15 +41,11 @@
         this._ajaxRequest();
       },
 
-      // Make a request to the given URL. Interval is given in milliseconds.
-      _ajaxRequest: function(interval) {
-        // Default interval is 30 seconds.
-        if (interval === undefined) {
-          interval = this.refreshInterval;
-        }
+      // Make a request to the given URL.
+      _ajaxRequest: function() {
         this.async(function() {
           this.$.ajax.generateRequest();
-        }, interval);
+        }, this.refreshInterval);
       },
 
       // Response to check the Server Status.
@@ -81,6 +77,7 @@
           readOnly: true,
           reflectToAttribute: true
         },
+        // The refresh interval is in milliseconds.
         refreshInterval: {
           type: Number,
           value: 30000,
