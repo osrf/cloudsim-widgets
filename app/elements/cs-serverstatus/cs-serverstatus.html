@@ -36,21 +36,35 @@
       is: 'cs-serverstatus',
 
       attached: function() {
-        // Make a request to the given URL.
         this.$.ajax.url = this.url;
         this.$.ajax.generateRequest();
+        this._ajaxRequest();
+      },
+
+      // Make a request to the given URL. Interval is given in milliseconds.
+      _ajaxRequest: function(interval) {
+        // Default interval is 30 seconds.
+        if (interval == undefined) {
+          interval = 30000;
+        }
+        console.log(interval)
+        this.async(function() {
+          this.$.ajax.generateRequest();
+        }, interval);
       },
 
       // Response to check the Server Status.
       _ajaxResponse: function(e) {
         this.$.statusIron.icon="icons:check"
         this.status = true
+        this._ajaxRequest();
       },
 
       // Error reaching the Server.
       _ajaxError: function(e) {
         this.$.statusIron.icon="icons:clear"
         this.status = false
+        this._ajaxRequest();
       },
 
       properties: {
