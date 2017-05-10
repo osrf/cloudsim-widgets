@@ -19,6 +19,11 @@
     .space {
       @apply(--layout-flex);
     }
+    paper-material {
+      margin: 1em;
+      padding: 1em;
+      width: auto;
+    }
   </style>
 
   <template>
@@ -27,7 +32,18 @@
 
       <div class="space"></div>
 
-
+      <paper-material elevation="1">
+        <cs-serverstatus
+          url=[[authurl]]
+        ></cs-serverstatus>
+        <br>
+        <cs-serverstatus
+          url=[[portalurl]]
+        ></cs-serverstatus>
+      </paper-material>
+      
+      <div class="space"></div>
+      
       <cs-groups
         url="[[authurl]]"
         token="[[token]]"

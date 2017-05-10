@@ -1,0 +1,72 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-serverstatus">
+  <style>
+    iron-icon {
+      color: red;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    :host([status]) iron-icon {
+      color: green;
+    }
+  </style>
+
+  <template>
+    <iron-ajax
+      id="ajax"
+      method="HEAD"
+      on-response="_ajaxResponse"
+      on-error="_ajaxError"
+      debounce-duration="300"
+    ></iron-ajax>
+    
+    <a href="[[url]]" target="_blank">[[url]]</a>
+    <iron-icon id="statusIron" icon="icons:clear"></iron-icon>
+
+  </template>
+
+  <script>
+
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-serverstatus',
+
+      attached: function() {
+        // Make a request to the given URL.
+        this.$.ajax.url = this.url;
+        this.$.ajax.generateRequest();
+      },
+
+      // Response to check the Server Status.
+      _ajaxResponse: function(e) {
+        this.$.statusIron.icon="icons:check"
+        this.status = true
+      },
+
+      // Error reaching the Server.
+      _ajaxError: function(e) {
+        this.$.statusIron.icon="icons:clear"
+        this.status = false
+      },
+
+      properties: {
+        url: {
+          type: String,
+          value: 'not set',
+          notify: true
+        },
+        status: {
+          type: Boolean,
+          value: false,
+          notify: true,
+          reflectToAttribute: true
+        }
+      },
+    });
+  })();
+  </script>
+</dom-module>
