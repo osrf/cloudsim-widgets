@@ -23,7 +23,7 @@
     ></iron-ajax>
     
     <a href="[[url]]" target="_blank">[[url]]</a>
-    <iron-icon id="statusIron" icon="icons:clear"></iron-icon>
+    <iron-icon id="statusIcon" icon="icons:clear"></iron-icon>
 
   </template>
 
@@ -44,10 +44,9 @@
       // Make a request to the given URL. Interval is given in milliseconds.
       _ajaxRequest: function(interval) {
         // Default interval is 30 seconds.
-        if (interval == undefined) {
-          interval = 30000;
+        if (interval === undefined) {
+          interval = this.refreshInterval;
         }
-        console.log(interval)
         this.async(function() {
           this.$.ajax.generateRequest();
         }, interval);
@@ -55,29 +54,36 @@
 
       // Response to check the Server Status.
       _ajaxResponse: function(e) {
-        this.$.statusIron.icon="icons:check"
-        this.status = true
+        this.$.statusIcon.icon = "icons:check"
+        this._setStatus(true);
         this._ajaxRequest();
       },
 
       // Error reaching the Server.
       _ajaxError: function(e) {
-        this.$.statusIron.icon="icons:clear"
-        this.status = false
+        this.$.statusIcon.icon = "icons:clear"
+        this._setStatus(false);
         this._ajaxRequest();
+      },
+
+      _setStatus: function(value) {
+        this.status = value;
       },
 
       properties: {
         url: {
           type: String,
           value: 'Not set',
-          notify: true
         },
         status: {
           type: Boolean,
           value: false,
-          notify: true,
+          readOnly: true,
           reflectToAttribute: true
+        },
+        refreshInterval: {
+          type: Number,
+          value: 30000,
         }
       },
     });
