@@ -1,0 +1,55 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-serverstatuslist">
+  <style>
+    paper-material {
+      margin: 1em;
+      padding: 1em;
+      width: auto;
+    }
+    h1 {
+      margin-top: 0;
+      margin-bottom: 0;
+      text-align: center;
+    }
+  </style>
+
+  <template>
+    <paper-material elevation="1">
+      <h1>
+        <iron-icon icon="icons:cloud"></iron-icon>
+        Server Status
+      </h1>
+      <content></content>
+    </paper-material>
+  </template>
+
+  <script>
+
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-serverstatuslist',
+
+      attached: function() {
+      },
+
+      properties: {
+        url: {
+          type: String,
+          value: 'not set',
+          notify: true
+        },
+        status: {
+          type: Boolean,
+          value: false,
+          notify: true,
+          reflectToAttribute: true
+        }
+      },
+    });
+  })();
+  </script>
+</dom-module>

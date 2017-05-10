@@ -19,28 +19,16 @@
     .space {
       @apply(--layout-flex);
     }
-    paper-material {
-      margin: 1em;
-      padding: 1em;
-      width: auto;
-    }
   </style>
 
   <template>
 
     <div class="vertical">
 
-      <div class="space"></div>
-
-      <paper-material elevation="1">
-        <cs-serverstatus
-          url=[[authurl]]
-        ></cs-serverstatus>
-        <br>
-        <cs-serverstatus
-          url=[[portalurl]]
-        ></cs-serverstatus>
-      </paper-material>
+      <cs-serverstatuslist>
+        <cs-serverstatus class="stat" url=[[authurl]]></cs-serverstatus><br>
+        <cs-serverstatus class="stat" url=[[portalurl]]></cs-serverstatus><br>
+      </cs-serverstatuslist>
       
       <div class="space"></div>
       
