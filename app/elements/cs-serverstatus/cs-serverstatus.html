@@ -43,9 +43,10 @@
 
       // Make a request to the given URL.
       _ajaxRequest: function() {
+        // Note: async requires milliseconds and refreshInterval is in seconds.
         this.async(function() {
           this.$.ajax.generateRequest();
-        }, this.refreshInterval);
+        }, this.refreshInterval * 1000);
       },
 
       // Response to check the Server Status.
@@ -77,10 +78,10 @@
           readOnly: true,
           reflectToAttribute: true
         },
-        // The refresh interval is in milliseconds.
+        // The refresh interval is in seconds.
         refreshInterval: {
           type: Number,
-          value: 30000,
+          value: 120,
         }
       },
     });
