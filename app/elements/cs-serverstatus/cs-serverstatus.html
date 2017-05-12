@@ -16,6 +16,7 @@
   <template>
     <iron-ajax
       id="ajax"
+      url="[[url]]"
       method="HEAD"
       on-response="_ajaxResponse"
       on-error="_ajaxError"
@@ -36,7 +37,6 @@
       is: 'cs-serverstatus',
 
       attached: function() {
-        this.$.ajax.url = this.url;
         this.$.ajax.generateRequest();
         this._ajaxRequest();
       },

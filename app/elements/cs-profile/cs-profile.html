@@ -27,7 +27,8 @@
 
       <cs-serverstatuslist>
         <cs-serverstatus url=[[authurl]]></cs-serverstatus><br>
-        <cs-serverstatus url=[[portalurl]]></cs-serverstatus>
+        <cs-serverstatus url=[[portalurl]]></cs-serverstatus><br>
+        <cs-serverstatus url=[[keysurl]]></cs-serverstatus>
       </cs-serverstatuslist>
       
       <div class="space"></div>
@@ -83,6 +84,13 @@
 
         // Portal server URL
         portalurl: {
+          type: String,
+          value: '',
+          notify: true
+        },
+
+        // Keys server URL
+        keysurl: {
           type: String,
           value: '',
           notify: true
