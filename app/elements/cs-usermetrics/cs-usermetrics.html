@@ -13,17 +13,34 @@
       @apply(--layout-horizontal);
       @apply(--layout-center);
     }
+    .vertical {
+      @apply(--layout-vertical);
+    }
+    .center {
+      @apply(--layout-center);
+      text-align: center;
+    }
+    .left {
+      @apply(--layout-left);
+      text-align: left;
+    }
     .space {
       @apply(--layout-flex);
     }
     paper-material {
       text-align: center;
       padding-top: 1em;
+      padding-bottom: 1em;
       margin: 1em;
     }
     h1 {
       margin-top: 0;
       margin-bottom: 0;
+    }
+    h4 {
+      margin-top: 0;
+      margin-bottom: 0;
+      padding-left: 1em;
     }
     iron-data-table {
       min-width: 30em;
@@ -63,6 +80,33 @@
       }
     }
 
+    #userMetricConfigDialog {
+      max-height: 40%;
+      max-width: 30em;
+      text-align: left;
+    }
+    .content {
+      overflow: auto;
+      margin: 0;
+      padding: 1em;
+    }
+    .subcontent {
+      padding-bottom: 2em;
+    }
+    .header {
+      background-color: rgb(215, 215, 215);
+      color: #353535;
+      margin: 0;
+      padding: 1em;
+    }
+    .subheader {
+      color: rgb(68, 138, 201);
+    }
+
+    paper-checkbox {
+      --paper-checkbox-checkmark-color: black;
+    }
+
     paper-icon-button {
       position: absolute;
       top: 0;
@@ -87,6 +131,8 @@
       token="[[token]]"
       resourcename="metrics/config"
       on-resourcesupdated="_onGetAllConfigs"
+      on-created="_onMetricConfigCreated"
+      on-updated="_onMetricConfigUpdated"
     ></gz-resources>
 
     <paper-material elevation="1">
@@ -99,7 +145,7 @@
         <paper-icon-button title="Refresh" icon="refresh" on-tap="_refreshMetrics"></paper-icon-button>
       </h1>
 
-      <iron-data-table items="[[balances]]">
+      <iron-data-table items="[[balances]]" selection-enabled on-selecting-item="_onUserConfigDialog">
 
         <data-table-column name="Identity" width="10em">
           <template>
@@ -118,10 +164,81 @@
             <span title="[[item.identity]]" class$="[[item.exhausted]]">[[item.balance]]</span>
           </template>
         </data-table-column>
-
       </iron-data-table>
 
+      <template is="dom-if" if="[[isadmin]]">
+        <div class="horizontal center margintop">
+          <h4>Set an User Budget</h4>
+        </div>
+        <div class="vertical center">
+          <div class="horizontal center">
+            <paper-input
+              style="padding-right: 1em"
+              value={{create_identity}}
+              label="Identity">
+            </paper-input>
+          </div>
+          <div class="horizontal center">
+            <paper-input
+              style="padding-right: 1em"
+              value={{create_max_hours}}
+              label="Max. Instance Hours">
+            </paper-input>
+            <div class="vertical left">
+              <paper-checkbox
+                checked={{create_whitelist}}
+              >Whitelisted</paper-checkbox>
+              <paper-checkbox
+                checked={{create_enabled: true}}
+              >Enabled</paper-checkbox>
+            </div>
+          </div>
+          <paper-button raised on-tap="_onCreateMetricConfig">
+            Create
+          </paper-button>
+        </div>
+      </template>
+
     </paper-material>
+
+    <paper-dialog id="userMetricConfigDialog" class="vertical">
+      <template is="dom-if" if="[[isadmin]]">
+        <h3 class="header">Metric Configuration</h3>
+        <div class="content">
+          <div class="subcontent">
+            <b class="subheader">Edit</b>
+            <div class="vertical center">
+              <paper-input
+                style="padding-right: 1em"
+                value={{edit_identity}}
+                label="Identity">
+              </paper-input>
+              <paper-input
+                style="padding-right: 1em"
+                value={{edit_max_hours}}
+                label="Max. Instance Hours">
+              </paper-input>
+              <div class="vertical left">
+                <paper-checkbox
+                    checked={{edit_whitelisted}}
+                >Whitelisted</paper-checkbox>
+                <paper-checkbox
+                    checked={{edit_enabled: true}}
+                >Enabled</paper-checkbox>
+              </div>
+              <paper-button
+                raised
+                id="editbutton"
+                on-tap="_onEditMetric"
+              >
+                <iron-icon icon="image:edit"></iron-icon>
+                Edit
+              </paper-button>
+            </div>
+          </div>
+        </div>
+      </template>
+    </paper-dialog>
 
   </template>
 
@@ -163,7 +280,8 @@
         })
         const configsMap = {}
         allConfigs.forEach((config) => {
-          configsMap[config.data.identity] = config.data
+          // config contains name and data. We need the name to identify the resource.
+          configsMap[config.data.identity] = config
         })
         this._createBalanceDetails(configsMap)
       },
@@ -175,22 +293,25 @@
           metricsMap[metric.identity] = metric
           metric['balance'] = 'N/A'
           metric['max_instance_hours'] = 'N/A'
+          metric['resource_id'] = 'N/A'
         })
 
         for (let configId in configsMap) {
           if (configsMap.hasOwnProperty(configId)) {
             let config = configsMap[configId]
-            let metric = metricsMap[config.identity]
+            let metric = metricsMap[config.data.identity]
             if (metric) {
-              metric['max_instance_hours'] = config.max_instance_hours
-              metric['balance'] = config.max_instance_hours - metric.running_time
+              metric['max_instance_hours'] = config.data.max_instance_hours
+              metric['balance'] = config.data.max_instance_hours - metric.running_time
               metric['exhausted'] = metric['balance'] < 0 ? 'exhausted' : ''
+              metric['resource_id'] = config.name
             } else {
               metricsMap[config.identity] = {
-                identity: config.identity,
+                identity: config.data.identity,
                 running_time: 0,
-                max_instance_hours: config.max_instance_hours,
-                balance: config.max_instance_hours
+                max_instance_hours: config.data.max_instance_hours,
+                balance: config.data.max_instance_hours,
+                resource_id: config.name
               }
             }
           }
@@ -207,6 +328,71 @@
 
       _refreshMetrics: function() {
         this.$.metrics.getAll();
+      },
+
+      // Edit dialog for user metrics configuration.
+      _onUserConfigDialog: function(e) {
+        // Set selected identity.
+        let metricObject = e.detail.item
+        if (!metricObject) {
+          console.error(this.balances)
+          // Update the list.
+          this.$.metrics.getAll();
+          return
+        }
+        this.selectedMetric = metricObject
+        // Fill the Edit Fields.
+        this.edit_identity = this.selectedMetric.identity
+        this.edit_max_hours = this.selectedMetric.max_instance_hours
+        // Open dialog.
+        this.$.userMetricConfigDialog.open();
+      },
+
+      // Edit a Metrics Config.
+      _onEditMetric() {
+        if (!this.edit_max_hours || this.edit_max_hours.trim() === "") {
+          this.fire('error', "No fields can be empty!")
+          return
+        }
+        this.$.userMetricConfigDialog.close();
+        const resource = this.selectedMetric.resource_id
+        const data = {
+          identity: this.edit_identity.trim(),
+          whitelisted: this.edit_whitelisted,
+          max_instance_hours: this.edit_max_hours.trim(),
+          check_enabled: this.edit_enabled
+        };
+        this.$.configs.update(resource, data);
+      },
+
+      // Create a Metrics Config.
+      _onCreateMetricConfig: function(e) {
+        if (!this.create_identity || this.create_identity.trim() === "" ||
+            !this.create_max_hours || this.create_max_hours.trim() === "") {
+          this.fire('error', "No fields can be empty!")
+          return
+        }
+        const data = {
+          identity: this.create_identity.trim(),
+          whitelisted: this.create_whitelist,
+          max_instance_hours: this.create_max_hours.trim(),
+          check_enabled: this.create_enabled
+        };
+        this.$.configs.create(data);
+      },
+
+      // Callback made when a Metric Config is created.
+      _onMetricConfigCreated: function(e) {
+        // Refresh the list.
+        this.$.metrics.getAll();
+        this.fire('notification', 'Created metric for "' + e.detail.result.data.identity + '"');
+      },
+
+      // Callback made when a Metric Config is updated.
+      _onMetricConfigUpdated: function(e) {
+        // Refresh the list.
+        this.$.metrics.getAll();
+        this.fire('notification', 'Updated metric of "' + e.detail.result.data.identity + '"');
       },
 
       // Properties
