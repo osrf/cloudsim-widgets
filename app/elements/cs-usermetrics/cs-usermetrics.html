@@ -189,7 +189,7 @@
                 checked={{create_whitelist}}
               >Whitelisted</paper-checkbox>
               <paper-checkbox
-                checked={{create_enabled: true}}
+                checked={{create_enabled}}
               >Enabled</paper-checkbox>
             </div>
           </div>
@@ -223,7 +223,7 @@
                     checked={{edit_whitelisted}}
                 >Whitelisted</paper-checkbox>
                 <paper-checkbox
-                    checked={{edit_enabled: true}}
+                    checked={{edit_enabled}}
                 >Enabled</paper-checkbox>
               </div>
               <paper-button
@@ -306,7 +306,7 @@
               metric['exhausted'] = metric['balance'] < 0 ? 'exhausted' : ''
               metric['resource_id'] = config.name
             } else {
-              metricsMap[config.identity] = {
+              metricsMap[config.data.identity] = {
                 identity: config.data.identity,
                 running_time: 0,
                 max_instance_hours: config.data.max_instance_hours,
@@ -362,7 +362,12 @@
           max_instance_hours: this.edit_max_hours.trim(),
           check_enabled: this.edit_enabled
         };
-        this.$.configs.update(resource, data);
+        if (resource === "N/A") {
+          // If the selected item does not have a metric, create it.
+          this.$.configs.create(data);
+        } else {
+          this.$.configs.update(resource, data);
+        }
       },
 
       // Create a Metrics Config.
