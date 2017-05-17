@@ -81,7 +81,7 @@
     }
 
     #userMetricConfigDialog {
-      max-height: 40%;
+      max-height: 50%;
       max-width: 30em;
       text-align: left;
     }
@@ -101,6 +101,10 @@
     }
     .subheader {
       color: rgb(68, 138, 201);
+    }
+    .identityToEdit {
+      font-size: 1.2em;
+      font-weight: bold;
     }
 
     paper-checkbox {
@@ -220,15 +224,11 @@
           <div class="subcontent">
             <b class="subheader">Edit</b>
             <div class="vertical center">
+              <span class="identityToEdit">{{edit_identity}}</span>
               <paper-input
                 style="padding-right: 1em"
                 value={{grantee}}
                 label="Grantee">
-              </paper-input>
-              <paper-input
-                style="padding-right: 1em"
-                value={{edit_identity}}
-                label="Identity">
               </paper-input>
               <paper-input
                 style="padding-right: 1em"
