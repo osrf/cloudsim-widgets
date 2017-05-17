@@ -106,9 +106,13 @@
       font-size: 1.2em;
       font-weight: bold;
     }
+    .buttonMargin {
+      margin-top: 1em;
+    }
 
     paper-checkbox {
       --paper-checkbox-checkmark-color: black;
+      padding-top: 0.5em;
     }
 
     paper-icon-button {
@@ -143,11 +147,7 @@
       id="grant"
       url="[[portalurl]]"
       token="[[token]]"
-      on-permissionsupdated="_onAllPermissions"
       on-granted="_onGranted"
-      on-error="_onGrantError"
-      on-revoked="_onRevoked"
-      on-got="_onSinglePermission"
     ></gz-grant>
 
     <paper-material elevation="1">
@@ -183,21 +183,18 @@
 
       <template is="dom-if" if="[[isadmin]]">
         <div class="horizontal center margintop">
-          <h4>Set an User Budget</h4>
+          <h4>Create new User Budget</h4>
         </div>
         <div class="vertical center">
           <paper-input
-            style="padding-right: 1em"
             value={{create_identity}}
             label="Identity">
           </paper-input>
           <paper-input
-            style="padding-right: 1em width=1em"
             value={{create_max_hours}}
             label="Max. Instance Hours">
           </paper-input>
           <paper-input
-            style="padding-right: 1em width=1em"
             value={{grantee}}
             label="Permission grantee">
           </paper-input>
@@ -209,7 +206,7 @@
               checked={{create_enabled}}
             >Enabled</paper-checkbox>
           </div>
-          <paper-button style="margin-top: 1em" raised on-tap="_onCreateMetricConfig">
+          <paper-button class="buttonMargin" raised on-tap="_onCreateMetricConfig">
             Create
           </paper-button>
         </div>
@@ -226,12 +223,10 @@
             <div class="vertical center">
               <span class="identityToEdit">{{edit_identity}}</span>
               <paper-input
-                style="padding-right: 1em"
                 value={{grantee}}
                 label="Grantee">
               </paper-input>
               <paper-input
-                style="padding-right: 1em"
                 value={{edit_max_hours}}
                 label="Max. Instance Hours">
               </paper-input>
@@ -243,11 +238,7 @@
                     checked={{edit_enabled}}
                 >Enabled</paper-checkbox>
               </div>
-              <paper-button
-                raised
-                id="editbutton"
-                on-tap="_onEditMetric"
-              >
+              <paper-button class="buttonMargin" raised on-tap="_onEditMetric">
                 <iron-icon icon="image:edit"></iron-icon>
                 Edit
               </paper-button>
@@ -277,8 +268,7 @@
         else {
           that.$.metrics.getAll();
         }
-        this.create_whitelist = false;
-        this.create_enabled = true;
+        this._initializeInputFields();
       },
 
       // Callback when all accessible metrics have been returned
@@ -411,11 +401,6 @@
           check_enabled: this.create_enabled
         };
         this.$.configs.create(data);
-        // Restore default inputs.
-        this.create_identity = "";
-        this.create_max_hours = "";
-        this.create_whitelist = false;
-        this.create_enabled = true;
       },
 
       // Callback made when a Metric Config is created.
@@ -423,10 +408,12 @@
         // Grant the permission.
         if (this.grantee.trim() === "") {
           this.fire('notification', 'Created metric for "' + e.detail.result.data.identity + '". No extra permissions were included.');
+          // Restore default inputs.
+          this._initializeInputFields();
         } else {
           const data = { grantee: this.grantee,
-                       resource: e.detail.id,
-                       readonly: false}
+                         resource: e.detail.id,
+                         readonly: false}
           this.$.grant.grant(data);
         }
         // Refresh the list.
@@ -438,6 +425,8 @@
         // Grant the permission.
         if (this.grantee.trim() === "") {
           this.fire('notification', 'Updated metric for "' + e.detail.result.data.identity + '". No extra permissions were included.');
+          // Restore default inputs.
+          this._initializeInputFields();
         } else {
           const resource = this.selectedMetric.resource_id;
           const data = { grantee: this.grantee,
@@ -457,7 +446,17 @@
         } else {
           this.fire('error', 'An error ocurred while granting permission.')
         }
-        this.grantee = "";
+        // Restore the input fields to their initial values.
+        this._initializeInputFields();
+      },
+
+      // Clean the input fields and restore their default values.
+      _initializeInputFields: function() {
+        this.create_identity = "";
+        this.create_max_hours = "";
+        this.create_whitelist = false;
+        this.create_enabled = true;
+        this.grantee = "src-admins";
       },
 
       // Properties
