@@ -148,6 +148,7 @@
       url="[[portalurl]]"
       token="[[token]]"
       on-granted="_onGranted"
+      on-permissionsupdated="_onAllPermissions"
     ></gz-grant>
 
     <paper-material elevation="1">
@@ -181,7 +182,7 @@
         </data-table-column>
       </iron-data-table>
 
-      <template is="dom-if" if="[[isadmin]]">
+      <template is="dom-if" if="[[hasReadWritePermission]]">
         <div class="horizontal center margintop">
           <h4>Create new User Budget</h4>
         </div>
@@ -215,7 +216,7 @@
     </paper-material>
 
     <paper-dialog id="userMetricConfigDialog" class="vertical">
-      <template is="dom-if" if="[[isadmin]]">
+      <template is="dom-if" if="[[hasReadWritePermission]]">
         <h3 class="header">Metric Configuration</h3>
         <div class="content">
           <div class="subcontent">
@@ -263,10 +264,12 @@
         if (that.token === "") {
           window.addEventListener('login', function() {
             that.$.metrics.getAll();
+            that.$.grant.getall();
           });
         }
         else {
           that.$.metrics.getAll();
+          that.$.grant.getall();
         }
         this._initializeInputFields();
       },
@@ -432,10 +435,10 @@
           const data = { grantee: this.grantee,
                          resource: resource,
                          readonly: false}
-          this.$.grant.grant(data);          
+          this.$.grant.grant(data);
+          // Refresh the list.
+          this.$.metrics.getAll();
         }
-        // Refresh the list.
-        this.$.metrics.getAll();
       },
 
       // Callback made when a Permission is granted.
@@ -457,6 +460,18 @@
         this.create_whitelist = false;
         this.create_enabled = true;
         this.grantee = "src-admins";
+      },
+
+      // Callback made when getting all the permissions.
+      _onAllPermissions: function() {
+        var permissions = this.$.grant.permissions
+        const config_permissions = permissions.find(function(permission) {
+          return permission.name === 'metrics-configs'
+        })
+        if (!config_permissions) {
+          return
+        }
+        this.hasReadWritePermission = !config_permissions.permissions[0].permissions.readOnly
       },
 
       // Properties
@@ -489,7 +504,13 @@
           type: Array,
           value: [],
           notify: true
-        }
+        },
+        // If the current user can create and modify metrics-config elements.
+        hasReadWritePermission: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
       },
     });
   })();
