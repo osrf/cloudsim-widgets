@@ -53,6 +53,10 @@
     .exhausted {
       color: red;
     }
+    .createInputField {
+      padding-left: 1em;
+      padding-right: 1em;
+    }
 
     iron-data-table data-table-row:not([header]) data-table-cell {
       height: 60px;
@@ -115,7 +119,7 @@
       padding-top: 0.5em;
     }
 
-    paper-icon-button {
+    .refreshIcon {
       position: absolute;
       top: 0;
       right: 0;
@@ -158,7 +162,8 @@
           icon="av:av-timer"
         ></iron-icon>
         Instance-hour metrics
-        <paper-icon-button title="Refresh" icon="refresh" on-tap="_refreshMetrics"></paper-icon-button>
+        <paper-icon-button class="refreshIcon" title="Refresh" icon="refresh" on-tap="_refreshMetrics">
+        </paper-icon-button>
       </h1>
 
       <iron-data-table items="[[balances]]" selection-enabled on-selecting-item="_onUserConfigDialog">
@@ -191,21 +196,27 @@
             value={{create_identity}}
             label="Identity">
           </paper-input>
-          <paper-input
-            value={{create_max_hours}}
-            label="Max. Instance Hours">
-          </paper-input>
-          <paper-input
-            value={{grantee}}
-            label="Permission grantee">
-          </paper-input>
-          <div class="vertical left">
-            <paper-checkbox
-              checked={{create_whitelist}}
-            >Whitelisted</paper-checkbox>
-            <paper-checkbox
-              checked={{create_enabled}}
-            >Enabled</paper-checkbox>
+          <div class="horizontal center">
+            <paper-input
+              class="createInputField"
+              value={{create_max_hours}}
+              label="Max. Instance Hours">
+            </paper-input>
+            <paper-input
+              class="createInputField"
+              value={{grantee}}
+              label="Permission grantee">
+            </paper-input>
+            <div class="vertical left">
+              <paper-checkbox
+                class="createInputField"
+                checked={{create_whitelist}}
+              >Whitelisted</paper-checkbox>
+              <paper-checkbox
+                class="createInputField"
+                checked={{create_enabled}}
+              >Enabled</paper-checkbox>
+            </div>
           </div>
           <paper-button class="buttonMargin" raised on-tap="_onCreateMetricConfig">
             Create
