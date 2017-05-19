@@ -204,6 +204,8 @@
         if (this.token !== "") {
           this.$.roundsresources.connect();
           this._getRounds()
+          // Fire a refresh in srcround components
+          this.lastUpdatedSrcsimdataid = {}
         }
       },
 

@@ -164,7 +164,6 @@
     <!-- For getting srcsimulation data -->
     <iron-ajax
       id="srcsim_data"
-      url="[[rounddata.simulator.data.options.simulation_data_route]]"
       method="GET"
       handle-as="json"
       content-type="application/json"
@@ -481,6 +480,7 @@
       is: 'cs-srcround',
       // Attached
       attached: function() {
+        this._getSimData()
       },
 
       _onSrcSimDataIdUpdated: function() {
@@ -489,9 +489,15 @@
 
       _getSimData: function() {
         // First check that we have needed info
-        if (!this.rounddata ||
+        if (!this.token ||
+            !this.rounddata ||
             !this.rounddata.public ||
-            !this.rounddata.public.simulation_data_id ||
+            !this.rounddata.public.simulation_data_id) {
+          return
+        }
+        // We should fetch data during initialization (ie. lastUpdatedSrcsimdataid not set yet) or
+        // when the lastUpdatedSrcsimdataid matches the id of this srcround component.
+        if (this.lastUpdatedSrcsimdataid.resource &&
             this.rounddata.public.simulation_data_id != this.lastUpdatedSrcsimdataid.resource) {
           return
         }
@@ -500,7 +506,7 @@
         this.$.srcsim_data.generateRequest()
       },
 
-      // srcsimulator data was received
+      // srcsimulation data was received
       _onSrcSimData: function(e) {
         let resp = e.detail.response
         if (resp.success) {
