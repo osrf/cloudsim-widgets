@@ -171,6 +171,7 @@
             token="[[token]]"
             rounddata=[[item.data]]
             roundid=[[item.name]]
+            last-updated-srcsimdataid=[[lastUpdatedSrcsimdataid]]
             portalurl="[[portalurl]]"
             roundname="[[_roundName(item)]]"
             on-finish="_requestRoundFinish"
@@ -412,7 +413,17 @@
 
       // Callback from the server when there are any resource changes
       _onResourceUpdate: function(e) {
-        this._getRounds()
+        // Check if this is a srcsimulation data update
+        if (e.detail.resource
+          && typeof(e.detail.resource) == "string"
+          && e.detail.resource.startsWith("srcsimulations-")) {
+            // Hack: we need to wrap the resource id in a new object to let Polymer detect the property
+            // was updated (otherwise if it were a plain string the value would have stayed the same)
+            this.set("lastUpdatedSrcsimdataid", { resource: e.detail.resource } )
+        } else {
+          // general case
+          this._getRounds()
+        }
       },
 
       properties: {
@@ -436,6 +447,12 @@
           value: '',
           notify: true,
           observer: '_onTokenUpdated'
+        },
+        // Note: This is not a component parameter. It is a property used internally
+        lastUpdatedSrcsimdataid: {
+          type: String,
+          value: '',
+          notify: true
         },
       },
     });
