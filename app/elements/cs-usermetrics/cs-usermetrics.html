@@ -204,7 +204,7 @@
             </paper-input>
             <paper-input
               class="createInputField"
-              value={{grantee}}
+              value={{create_grantee}}
               label="Permission grantee">
             </paper-input>
             <div class="vertical left">
@@ -399,6 +399,7 @@
         } else {
           this.$.configs.update(resource, data);
         }
+        this._initializeInputFields();
       },
 
       // Create a Metrics Config.
@@ -414,54 +415,34 @@
           max_instance_hours: this.create_max_hours.trim(),
           check_enabled: this.create_enabled
         };
+        if (this.create_grantee.trim() !== "") {
+          data.admin_identity = this.create_grantee.trim()
+        }
         this.$.configs.create(data);
+        this._initializeInputFields();
       },
 
       // Callback made when a Metric Config is created.
       _onMetricConfigCreated: function(e) {
-        // Grant the permission.
-        if (this.grantee.trim() === "") {
-          this.fire('notification', 'Created metric for "' + e.detail.result.data.identity + '". No extra permissions were included.');
-          // Restore default inputs.
-          this._initializeInputFields();
-        } else {
-          const data = { grantee: this.grantee,
-                         resource: e.detail.id,
-                         readonly: false}
-          this.$.grant.grant(data);
-        }
         // Refresh the list.
         this.$.metrics.getAll();
+        this.fire('notification', 'Created metric for "' + e.detail.result.data.identity + '"');
       },
 
       // Callback made when a Metric Config is updated.
       _onMetricConfigUpdated: function(e) {
-        // Grant the permission.
-        if (this.grantee.trim() === "") {
-          this.fire('notification', 'Updated metric for "' + e.detail.result.data.identity + '". No extra permissions were included.');
-          // Restore default inputs.
-          this._initializeInputFields();
-        } else {
-          const resource = this.selectedMetric.resource_id;
-          const data = { grantee: this.grantee,
-                         resource: resource,
-                         readonly: false}
-          this.$.grant.grant(data);
-          // Refresh the list.
-          this.$.metrics.getAll();
-        }
+        // Refresh the list.
+        this.$.metrics.getAll();
+        this.fire('notification', 'Updated the metric "' + e.detail.result.data.identity + '"');
       },
 
-      // Callback made when a Permission is granted.
+      // Callback made when a Permission is explicitly granted.
       _onGranted: function(e) {
         if (e.detail.success) {
-          this.fire('notification', 'Metric Config: "' + this.selectedMetric.identity
-            + '" Permission granted to: "' + this.grantee + '"');
+          this.fire('notification', 'Granted permission to ' + this.grantee + ' over "' + this.selectedMetric.identity + '"')
         } else {
           this.fire('error', 'An error ocurred while granting permission.')
         }
-        // Restore the input fields to their initial values.
-        this._initializeInputFields();
       },
 
       // Clean the input fields and restore their default values.
@@ -470,7 +451,7 @@
         this.create_max_hours = "";
         this.create_whitelist = false;
         this.create_enabled = true;
-        this.grantee = "src-admins";
+        this.create_grantee = "src-admins";
       },
 
       // Callback made when getting all the permissions.
