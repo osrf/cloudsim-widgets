@@ -110,8 +110,12 @@
       font-size: 1.2em;
       font-weight: bold;
     }
-    .buttonMargin {
+    .buttonMarginTop {
       margin-top: 1em;
+    }
+    .buttonMarginVertical {
+      margin-top: 1em;
+      margin-bottom: 1em;
     }
 
     paper-checkbox {
@@ -218,7 +222,7 @@
               >Enabled</paper-checkbox>
             </div>
           </div>
-          <paper-button class="buttonMargin" raised on-tap="_onCreateMetricConfig">
+          <paper-button class="buttonMarginTop" raised on-tap="_onCreateMetricConfig">
             Create
           </paper-button>
         </div>
@@ -235,10 +239,6 @@
             <div class="vertical center">
               <span class="identityToEdit">{{edit_identity}}</span>
               <paper-input
-                value={{grantee}}
-                label="Grantee">
-              </paper-input>
-              <paper-input
                 value={{edit_max_hours}}
                 label="Max. Instance Hours">
               </paper-input>
@@ -250,10 +250,32 @@
                     checked={{edit_enabled}}
                 >Enabled</paper-checkbox>
               </div>
-              <paper-button class="buttonMargin" raised on-tap="_onEditMetric">
+              <paper-button class="buttonMarginVertical" raised on-tap="_onEditMetric">
                 <iron-icon icon="image:edit"></iron-icon>
                 Edit
               </paper-button>
+            </div>
+            <b class="subheader">Grant Permission</b>
+            <div class="horizontal">
+              <div class="vertical">
+                <paper-input
+                  class="createInputField"
+                  value={{edit_grantee}}
+                  label="Username">
+                </paper-input>
+                <paper-checkbox
+                  class="createInputField"
+                  checked={{readWritePermission}}>
+                  Admin
+                </paper-checkbox>
+              </div>
+              <div class="vertical">
+                <div class="space"></div>
+                <paper-icon-button
+                  icon="social:person-add"
+                  on-tap="_onGrantPermission">
+                </paper-icon-button>
+              </div>
             </div>
           </div>
         </div>
@@ -436,13 +458,26 @@
         this.fire('notification', 'Updated the metric "' + e.detail.result.data.identity + '"');
       },
 
+      _onGrantPermission: function() {
+        if (!this.edit_grantee || this.edit_grantee.trim() === "") {
+          this.fire('error', "Username field is empty!")
+          return
+        }
+        const data = { grantee: this.edit_grantee,
+                       resource: this.selectedMetric.resource_id,
+                       readonly: !this.readWritePermission }
+        this.$.grant.grant(data);
+      },
+
       // Callback made when a Permission is explicitly granted.
       _onGranted: function(e) {
         if (e.detail.success) {
-          this.fire('notification', 'Granted permission to ' + this.grantee + ' over "' + this.selectedMetric.identity + '"')
+          this.fire('notification', 'Granted permission to "' + this.edit_grantee + '" over "' + this.selectedMetric.identity + '"')
         } else {
           this.fire('error', 'An error ocurred while granting permission.')
         }
+        // Restore default inputs.
+        this._initializeInputFields();
       },
 
       // Clean the input fields and restore their default values.
@@ -452,6 +487,8 @@
         this.create_whitelist = false;
         this.create_enabled = true;
         this.create_grantee = "src-admins";
+        this.edit_grantee = "";
+        this.readWritePermission = false;
       },
 
       // Callback made when getting all the permissions.
