@@ -515,11 +515,13 @@
       },
 
       _shouldDisableSimulator: function() {
-        return !this.srcsimData || !this.srcsimData.sim || !this.srcsimData.sim.ready
+        // should match intance's options.role
+        return !this.srcsimData || !this.srcsimData.simulator || !this.srcsimData.simulator.ready
       },
 
       _shouldDisableFc: function() {
-        return !this.srcsimData || !this.srcsimData.fc || !this.srcsimData.fc.ready
+        // should match intance's options.role
+        return !this.srcsimData || !this.srcsimData.fieldcomputer || !this.srcsimData.fieldcomputer.ready
       },
 
       // Start a world on the simulator
