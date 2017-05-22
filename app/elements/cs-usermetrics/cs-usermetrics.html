@@ -24,6 +24,9 @@
       @apply(--layout-left);
       text-align: left;
     }
+    .start {
+      @apply(--layout-start);
+    }
     .space {
       @apply(--layout-flex);
     }
@@ -193,33 +196,38 @@
 
       <template is="dom-if" if="[[hasReadWritePermission]]">
         <div class="horizontal center margintop">
-          <h4>Create new User Budget</h4>
+          <h4>Create new user budget</h4>
         </div>
         <div class="vertical center">
-          <paper-input
-            value={{create_identity}}
-            label="Identity">
-          </paper-input>
-          <div class="horizontal center">
-            <paper-input
-              class="createInputField"
-              value={{create_max_hours}}
-              label="Max. Instance Hours">
-            </paper-input>
-            <paper-input
-              class="createInputField"
-              value={{create_grantee}}
-              label="Permission grantee">
-            </paper-input>
-            <div class="vertical left">
-              <paper-checkbox
+          <div class="horizontal start">
+            <div class="vertical">
+              <paper-input
                 class="createInputField"
-                checked={{create_whitelist}}
-              >Whitelisted</paper-checkbox>
-              <paper-checkbox
+                value={{create_identity}}
+                label="Identity">
+              </paper-input>
+              <paper-input
                 class="createInputField"
-                checked={{create_enabled}}
-              >Enabled</paper-checkbox>
+                value={{create_grantee}}
+                label="Permission grantee">
+              </paper-input>
+            </div>
+            <div class="vertical center">
+              <paper-input
+                class="createInputField"
+                value={{create_max_hours}}
+                label="Max. instance hours">
+              </paper-input>
+              <div class="vertical left">
+                <paper-checkbox
+                  class="createInputField"
+                  checked={{create_whitelist}}
+                >Whitelisted</paper-checkbox>
+                <paper-checkbox
+                  class="createInputField"
+                  checked={{create_enabled}}
+                >Enabled</paper-checkbox>
+              </div>
             </div>
           </div>
           <paper-button class="buttonMarginTop" raised on-tap="_onCreateMetricConfig">
@@ -240,7 +248,7 @@
               <span class="identityToEdit">{{edit_identity}}</span>
               <paper-input
                 value={{edit_max_hours}}
-                label="Max. Instance Hours">
+                label="Max. instance hours">
               </paper-input>
               <div class="vertical left">
                 <paper-checkbox
@@ -486,7 +494,7 @@
         this.create_max_hours = "";
         this.create_whitelist = false;
         this.create_enabled = true;
-        this.create_grantee = "src-admins";
+        this.create_grantee = "";
         this.edit_grantee = "";
         this.readWritePermission = false;
       },
