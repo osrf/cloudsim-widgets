@@ -152,7 +152,7 @@
 
     <!-- For posting to the machines -->
     <iron-ajax
-      id="ajax"
+      id="sim_run_cmds"
       method="POST"
       handle-as="json"
       on-response="_ajaxResponse"
@@ -478,10 +478,6 @@
 
     Polymer({
       is: 'cs-srcround',
-      // Attached
-      attached: function() {
-        this._getSimData()
-      },
 
       _onSrcSimDataIdUpdated: function() {
         this._getSimData()
@@ -501,6 +497,12 @@
             this.rounddata.public.simulation_data_id != this.lastUpdatedSrcsimdataid.resource) {
           return
         }
+
+        // NOTE: the "resource == undefined" case from above "IF"" may happen during page refresh.
+        // If resource == undefined it means the parent srckiosk component set
+        // `this.lastUpdatedSrcsimdataid = {}` in its onTokenUpdated() method to force all child
+        // srcround components to fully refresh their srcsimulation data.
+
         this.$.srcsim_data.url = this.portalurl + '/srcsimulations/' + this.rounddata.public.simulation_data_id
         this.$.srcsim_data.headers.authorization = this.token
         this.$.srcsim_data.generateRequest()
@@ -541,8 +543,8 @@
         // We should make the portal define this value. Client invoked commands
         // should be always the same regardless of whether state will be logged
         // in the background.
-        const loggingEnabled = false
-        this.$.ajax.body = {
+        const loggingEnabled = true
+        this.$.sim_run_cmds.body = {
           'host': this.rounddata.simulator.data.machine_ip + ':' + this.simPort,
           'path': '/simulations',
           'cmd': "src_commands/run_gazebo.bash " + worldName + " " + n + " " + loggingEnabled,
@@ -550,10 +552,10 @@
           'logCmd': loggingEnabled && ("src_commands/send_logs.bash " + worldName),
           'auto': true
         }
-        this.$.ajax.url = this.portalurl + '/srcproxy'
-        this.$.ajax.method = 'POST'
-        this.$.ajax.headers.authorization = this.token
-        this.$.ajax.generateRequest()
+        this.$.sim_run_cmds.url = this.portalurl + '/srcproxy'
+        this.$.sim_run_cmds.method = 'POST'
+        this.$.sim_run_cmds.headers.authorization = this.token
+        this.$.sim_run_cmds.generateRequest()
 
         this.fire('notification', "Requested to start run #" + n + " on simulator")
       },
@@ -570,15 +572,15 @@
           return
         }
 
-        this.$.ajax.body = {
+        this.$.sim_run_cmds.body = {
           'host': this.rounddata.simulator.data.machine_ip + ':' + this.simPort,
           'path': '/stopsimulation',
           'data': {}
         }
-        this.$.ajax.url = this.portalurl + '/srcproxy'
-        this.$.ajax.method = 'POST'
-        this.$.ajax.headers.authorization = this.token
-        this.$.ajax.generateRequest()
+        this.$.sim_run_cmds.url = this.portalurl + '/srcproxy'
+        this.$.sim_run_cmds.method = 'POST'
+        this.$.sim_run_cmds.headers.authorization = this.token
+        this.$.sim_run_cmds.generateRequest()
 
         this.fire('notification', "Requested to stop simulation")
       },
@@ -595,17 +597,17 @@
           return
         }
 
-        this.$.ajax.body = {
+        this.$.sim_run_cmds.body = {
           'host': this.rounddata.fieldcomputer.data.machine_ip + ':' + this.simPort,
           'path': '/simulations',
           'cmd': "src_commands/fc_run_team_docker.bash",
           'stopCmd': "src_commands/fc_stop_team_docker.bash",
           'auto': true
         }
-        this.$.ajax.url = this.portalurl + '/srcproxy'
-        this.$.ajax.method = 'POST'
-        this.$.ajax.headers.authorization = this.token
-        this.$.ajax.generateRequest()
+        this.$.sim_run_cmds.url = this.portalurl + '/srcproxy'
+        this.$.sim_run_cmds.method = 'POST'
+        this.$.sim_run_cmds.headers.authorization = this.token
+        this.$.sim_run_cmds.generateRequest()
 
         var n = e.target.getAttribute('data-args')
         this.fire('notification', "Requested to start user code on the field computer")
@@ -623,15 +625,15 @@
           return
         }
 
-        this.$.ajax.body = {
+        this.$.sim_run_cmds.body = {
           'host': this.rounddata.fieldcomputer.data.machine_ip + ':' + this.simPort,
           'path': '/stopsimulation',
           'data': {}
         }
-        this.$.ajax.url = this.portalurl + '/srcproxy'
-        this.$.ajax.method = 'POST'
-        this.$.ajax.headers.authorization = this.token
-        this.$.ajax.generateRequest()
+        this.$.sim_run_cmds.url = this.portalurl + '/srcproxy'
+        this.$.sim_run_cmds.method = 'POST'
+        this.$.sim_run_cmds.headers.authorization = this.token
+        this.$.sim_run_cmds.generateRequest()
 
 
         var n = e.target.getAttribute('data-args')
