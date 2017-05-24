@@ -543,7 +543,7 @@
         // We should make the portal define this value. Client invoked commands
         // should be always the same regardless of whether state will be logged
         // in the background.
-        const loggingEnabled = true
+        const loggingEnabled = false
         this.$.sim_run_cmds.body = {
           'host': this.rounddata.simulator.data.machine_ip + ':' + this.simPort,
           'path': '/simulations',
