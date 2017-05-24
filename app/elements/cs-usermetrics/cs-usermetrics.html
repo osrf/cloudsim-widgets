@@ -13,17 +13,37 @@
       @apply(--layout-horizontal);
       @apply(--layout-center);
     }
+    .vertical {
+      @apply(--layout-vertical);
+    }
+    .center {
+      @apply(--layout-center);
+      text-align: center;
+    }
+    .left {
+      @apply(--layout-left);
+      text-align: left;
+    }
+    .start {
+      @apply(--layout-start);
+    }
     .space {
       @apply(--layout-flex);
     }
     paper-material {
       text-align: center;
       padding-top: 1em;
+      padding-bottom: 1em;
       margin: 1em;
     }
     h1 {
       margin-top: 0;
       margin-bottom: 0;
+    }
+    h4 {
+      margin-top: 0;
+      margin-bottom: 0;
+      padding-left: 1em;
     }
     iron-data-table {
       min-width: 30em;
@@ -35,6 +55,10 @@
     }
     .exhausted {
       color: red;
+    }
+    .createInputField {
+      padding-left: 1em;
+      padding-right: 1em;
     }
 
     iron-data-table data-table-row:not([header]) data-table-cell {
@@ -63,7 +87,46 @@
       }
     }
 
-    paper-icon-button {
+    #userMetricConfigDialog {
+      max-height: 50%;
+      max-width: 30em;
+      text-align: left;
+    }
+    .content {
+      overflow: auto;
+      margin: 0;
+      padding: 1em;
+    }
+    .subcontent {
+      padding-bottom: 2em;
+    }
+    .header {
+      background-color: rgb(215, 215, 215);
+      color: #353535;
+      margin: 0;
+      padding: 1em;
+    }
+    .subheader {
+      color: rgb(68, 138, 201);
+    }
+    .identityToEdit {
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+    .buttonMarginTop {
+      margin-top: 1em;
+    }
+    .buttonMarginVertical {
+      margin-top: 1em;
+      margin-bottom: 1em;
+    }
+
+    paper-checkbox {
+      --paper-checkbox-checkmark-color: black;
+      padding-top: 0.5em;
+    }
+
+    .refreshIcon {
       position: absolute;
       top: 0;
       right: 0;
@@ -87,7 +150,17 @@
       token="[[token]]"
       resourcename="metrics/config"
       on-resourcesupdated="_onGetAllConfigs"
+      on-created="_onMetricConfigCreated"
+      on-updated="_onMetricConfigUpdated"
     ></gz-resources>
+
+    <gz-grant
+      id="grant"
+      url="[[portalurl]]"
+      token="[[token]]"
+      on-granted="_onGranted"
+      on-permissionsupdated="_onAllPermissions"
+    ></gz-grant>
 
     <paper-material elevation="1">
 
@@ -96,10 +169,11 @@
           icon="av:av-timer"
         ></iron-icon>
         Instance-hour metrics
-        <paper-icon-button title="Refresh" icon="refresh" on-tap="_refreshMetrics"></paper-icon-button>
+        <paper-icon-button class="refreshIcon" title="Refresh" icon="refresh" on-tap="_refreshMetrics">
+        </paper-icon-button>
       </h1>
 
-      <iron-data-table items="[[balances]]">
+      <iron-data-table items="[[balances]]" selection-enabled on-selecting-item="_onUserConfigDialog">
 
         <data-table-column name="Identity" width="10em">
           <template>
@@ -118,10 +192,105 @@
             <span title="[[item.identity]]" class$="[[item.exhausted]]">[[item.balance]]</span>
           </template>
         </data-table-column>
-
       </iron-data-table>
 
+      <template is="dom-if" if="[[hasReadWritePermission]]">
+        <div class="horizontal center margintop">
+          <h4>Create new user budget</h4>
+        </div>
+        <div class="vertical center">
+          <div class="horizontal start">
+            <div class="vertical">
+              <paper-input
+                class="createInputField"
+                value={{create_identity}}
+                title="The budget will be aplied to this identity"
+                label="Budget identity">
+              </paper-input>
+              <paper-input
+                class="createInputField"
+                value={{create_grantee}}
+                title="This identity will have write permission to the budget"
+                label="Share with identity">
+              </paper-input>
+            </div>
+            <div class="vertical center">
+              <paper-input
+                class="createInputField"
+                value={{create_max_hours}}
+                label="Max. instance hours">
+              </paper-input>
+              <div class="vertical left">
+                <paper-checkbox
+                  class="createInputField"
+                  checked={{create_whitelist}}
+                >Whitelisted</paper-checkbox>
+                <paper-checkbox
+                  class="createInputField"
+                  checked={{create_enabled}}
+                >Enabled</paper-checkbox>
+              </div>
+            </div>
+          </div>
+          <paper-button class="buttonMarginTop" raised on-tap="_onCreateMetricConfig">
+            Create
+          </paper-button>
+        </div>
+      </template>
+
     </paper-material>
+
+    <paper-dialog id="userMetricConfigDialog" class="vertical">
+      <template is="dom-if" if="[[hasReadWritePermission]]">
+        <h3 class="header">User budget</h3>
+        <div class="content">
+          <div class="subcontent">
+            <b class="subheader">Edit</b>
+            <div class="vertical center">
+              <span class="identityToEdit" title="Identity">{{edit_identity}}</span>
+              <paper-input
+                value={{edit_max_hours}}
+                label="Max. instance hours">
+              </paper-input>
+              <div class="vertical left">
+                <paper-checkbox
+                    checked={{edit_whitelisted}}
+                >Whitelisted</paper-checkbox>
+                <paper-checkbox
+                    checked={{edit_enabled}}
+                >Enabled</paper-checkbox>
+              </div>
+              <paper-button class="buttonMarginVertical" raised on-tap="_onEditMetric">
+                <iron-icon icon="image:edit"></iron-icon>
+                Edit
+              </paper-button>
+            </div>
+            <b class="subheader">Share</b>
+            <div class="horizontal">
+              <div class="vertical">
+                <paper-input
+                  class="createInputField"
+                  value={{edit_grantee}}
+                  label="Username">
+                </paper-input>
+                <paper-checkbox
+                  class="createInputField"
+                  checked={{readWritePermission}}>
+                  Admin
+                </paper-checkbox>
+              </div>
+              <div class="vertical">
+                <div class="space"></div>
+                <paper-icon-button
+                  icon="social:person-add"
+                  on-tap="_onGrantPermission">
+                </paper-icon-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </paper-dialog>
 
   </template>
 
@@ -138,11 +307,14 @@
         if (that.token === "") {
           window.addEventListener('login', function() {
             that.$.metrics.getAll();
+            that.$.grant.getall();
           });
         }
         else {
           that.$.metrics.getAll();
+          that.$.grant.getall();
         }
+        this._initializeInputFields();
       },
 
       // Callback when all accessible metrics have been returned
@@ -163,7 +335,8 @@
         })
         const configsMap = {}
         allConfigs.forEach((config) => {
-          configsMap[config.data.identity] = config.data
+          // config contains name and data. We need the name to identify the resource.
+          configsMap[config.data.identity] = config
         })
         this._createBalanceDetails(configsMap)
       },
@@ -175,22 +348,31 @@
           metricsMap[metric.identity] = metric
           metric['balance'] = 'N/A'
           metric['max_instance_hours'] = 'N/A'
+          metric['resource_id'] = 'N/A'
+          metric['whitelisted'] = false
+          metric['check_enabled'] = false
         })
 
         for (let configId in configsMap) {
           if (configsMap.hasOwnProperty(configId)) {
             let config = configsMap[configId]
-            let metric = metricsMap[config.identity]
+            let metric = metricsMap[config.data.identity]
             if (metric) {
-              metric['max_instance_hours'] = config.max_instance_hours
-              metric['balance'] = config.max_instance_hours - metric.running_time
+              metric['max_instance_hours'] = config.data.max_instance_hours
+              metric['balance'] = config.data.max_instance_hours - metric.running_time
               metric['exhausted'] = metric['balance'] < 0 ? 'exhausted' : ''
+              metric['resource_id'] = config.name
+              metric['whitelisted'] = config.data.whitelisted
+              metric['check_enabled'] = config.data.check_enabled
             } else {
-              metricsMap[config.identity] = {
-                identity: config.identity,
+              metricsMap[config.data.identity] = {
+                identity: config.data.identity,
                 running_time: 0,
-                max_instance_hours: config.max_instance_hours,
-                balance: config.max_instance_hours
+                max_instance_hours: config.data.max_instance_hours,
+                balance: config.data.max_instance_hours,
+                whitelisted: config.data.whitelisted,
+                check_enabled: config.data.check_enabled,
+                resource_id: config.name
               }
             }
           }
@@ -207,6 +389,128 @@
 
       _refreshMetrics: function() {
         this.$.metrics.getAll();
+      },
+
+      // Edit dialog for user metrics configuration.
+      _onUserConfigDialog: function(e) {
+        // Set selected identity.
+        let metricObject = e.detail.item
+        if (!metricObject) {
+          console.error(this.balances)
+          // Update the list.
+          this.$.metrics.getAll();
+          return
+        }
+        this.selectedMetric = metricObject
+        // Fill the Edit Fields.
+        this.edit_identity = this.selectedMetric.identity
+        this.edit_max_hours = this.selectedMetric.max_instance_hours
+        this.edit_whitelisted = this.selectedMetric.whitelisted
+        this.edit_enabled = this.selectedMetric.check_enabled
+        // Open dialog.
+        this.$.userMetricConfigDialog.open();
+      },
+
+      // Edit a Metrics Config.
+      _onEditMetric() {
+        if (!this.edit_max_hours || this.edit_max_hours.trim() === "") {
+          this.fire('error', "No fields can be empty!")
+          return
+        }
+        this.$.userMetricConfigDialog.close();
+        const resource = this.selectedMetric.resource_id
+        const data = {
+          identity: this.edit_identity.trim(),
+          whitelisted: this.edit_whitelisted,
+          max_instance_hours: this.edit_max_hours.trim(),
+          check_enabled: this.edit_enabled
+        };
+        if (resource === "N/A") {
+          // If the selected item does not have a metric, create it.
+          this.$.configs.create(data);
+        } else {
+          this.$.configs.update(resource, data);
+        }
+        this._initializeInputFields();
+      },
+
+      // Create a Metrics Config.
+      _onCreateMetricConfig: function(e) {
+        if (!this.create_identity || this.create_identity.trim() === "" ||
+            !this.create_max_hours || this.create_max_hours.trim() === "") {
+          this.fire('error', "No fields can be empty!")
+          return
+        }
+        const data = {
+          identity: this.create_identity.trim(),
+          whitelisted: this.create_whitelist,
+          max_instance_hours: this.create_max_hours.trim(),
+          check_enabled: this.create_enabled
+        };
+        if (this.create_grantee.trim() !== "") {
+          data.admin_identity = this.create_grantee.trim()
+        }
+        this.$.configs.create(data);
+        this._initializeInputFields();
+      },
+
+      // Callback made when a Metric Config is created.
+      _onMetricConfigCreated: function(e) {
+        // Refresh the list.
+        this.$.metrics.getAll();
+        this.fire('notification', 'Created metric for "' + e.detail.result.data.identity + '"');
+      },
+
+      // Callback made when a Metric Config is updated.
+      _onMetricConfigUpdated: function(e) {
+        // Refresh the list.
+        this.$.metrics.getAll();
+        this.fire('notification', 'Updated the metric "' + e.detail.result.data.identity + '"');
+      },
+
+      _onGrantPermission: function() {
+        if (!this.edit_grantee || this.edit_grantee.trim() === "") {
+          this.fire('error', "Username field is empty!")
+          return
+        }
+        const data = { grantee: this.edit_grantee,
+                       resource: this.selectedMetric.resource_id,
+                       readonly: !this.readWritePermission }
+        this.$.grant.grant(data);
+      },
+
+      // Callback made when a Permission is explicitly granted.
+      _onGranted: function(e) {
+        if (e.detail.success) {
+          this.fire('notification', 'Granted permission to "' + this.edit_grantee + '" over "' + this.selectedMetric.identity + '"')
+        } else {
+          this.fire('error', 'An error ocurred while granting permission.')
+        }
+        // Restore default inputs.
+        this._initializeInputFields();
+      },
+
+      // Clean the input fields and restore their default values.
+      _initializeInputFields: function() {
+        this.create_identity = "";
+        this.create_max_hours = "";
+        this.create_whitelist = false;
+        this.create_enabled = true;
+        this.create_grantee = "";
+        this.edit_grantee = "";
+        this.readWritePermission = false;
+      },
+
+      // Callback made when getting all the permissions.
+      _onAllPermissions: function() {
+        var permissions = this.$.grant.permissions
+        const config_permissions = permissions.find(function(permission) {
+          return permission.name === 'metrics-configs'
+        })
+        if (!config_permissions) {
+          return
+        }
+        this.hasReadWritePermission = !config_permissions.permissions[0].permissions.readOnly
       },
 
       // Properties
@@ -239,7 +543,13 @@
           type: Array,
           value: [],
           notify: true
-        }
+        },
+        // If the current user can create and modify metrics-config elements.
+        hasReadWritePermission: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
       },
     });
   })();
