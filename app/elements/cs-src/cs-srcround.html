@@ -528,8 +528,7 @@
 
       // Start a world on the simulator
       _onStartSim: function(e) {
-        const n = e.target.getAttribute('data-args')
-
+        const n = e.target.getAttribute('data-args') || e.target.parentElement.getAttribute('data-args')
         // Check that we have simulator IP
         if (!this.rounddata ||
             !this.rounddata.simulator ||
