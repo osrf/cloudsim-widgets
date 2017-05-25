@@ -484,33 +484,44 @@
         this._getSimData()
       },
 
+      // Callback when the token has been updated
+      _onTokenUpdated: function() {
+        if (this.token !== "") {
+          this._getSimData()
+        }
+      },
+
+        // This method is invoked whenever the portal sends (via websocket) a
+        // resource updated event related to a srcsimulation.
       _onSrcSimDataIdUpdated: function() {
         this._getSimData()
       },
 
       _getSimData: function() {
-        // First check that we have needed info
+        // First check that we have needed info to build the http request.
+        // If not, we just don't fetch data.
         if (!this.token ||
+            !this.portalurl ||
             !this.rounddata ||
             !this.rounddata.public ||
             !this.rounddata.public.simulation_data_id) {
           return
         }
-        // We should fetch data during initialization (ie. lastUpdatedSrcsimdataid not set yet) or
-        // when the lastUpdatedSrcsimdataid matches the id of this srcround component.
-        if (this.lastUpdatedSrcsimdataid.resource &&
-            this.rounddata.public.simulation_data_id != this.lastUpdatedSrcsimdataid.resource) {
-          return
+
+        // We should also fetch data during initialization (ie. when lastUpdatedSrcsimdataid is not set), or
+        // when the lastUpdatedSrcsimdataid matches our rounddata's srcsimulation ID.
+        if (!this.lastUpdatedSrcsimdataid.resource ||
+            this.lastUpdatedSrcsimdataid.resource == this.rounddata.public.simulation_data_id) {
+          // NOTE: the "!resource" case from above "IF"" may happen during page refresh, or token update.
+
+          // If lastUpdatedSrcsimdataid.resource is undefined then it means the portal didn't send
+          // any resource updated events yet. In this case we still want this component to fetch
+          // its data as this may be the first time it is being displayed to the user.
+
+          this.$.srcsim_data.url = this.portalurl + '/srcsimulations/' + this.rounddata.public.simulation_data_id
+          this.$.srcsim_data.headers.authorization = this.token
+          this.$.srcsim_data.generateRequest()
         }
-
-        // NOTE: the "resource == undefined" case from above "IF"" may happen during page refresh.
-        // If resource == undefined it means the parent srckiosk component set
-        // `this.lastUpdatedSrcsimdataid = {}` in its onTokenUpdated() method to force all child
-        // srcround components to fully refresh their srcsimulation data.
-
-        this.$.srcsim_data.url = this.portalurl + '/srcsimulations/' + this.rounddata.public.simulation_data_id
-        this.$.srcsim_data.headers.authorization = this.token
-        this.$.srcsim_data.generateRequest()
       },
 
       // srcsimulation data was received
@@ -701,16 +712,19 @@
           notify: true,
         },
         // Object parameter with a single property "resource", containing the id of
-        // the associated srcsimulation.
+        // the last srcsimulation for which the portal sent a resource udpated
+        // event (via websocket).
         lastUpdatedSrcsimdataid: {
-          typee: Object,
+          type: Object,
+          value: {},
           notify: true,
           observer: '_onSrcSimDataIdUpdated'
         },
         token: {
           type: String,
           value: '',
-          notify: true
+          notify: true,
+          observer: '_onTokenUpdated'
         },
         portalurl: {
           type: String,
