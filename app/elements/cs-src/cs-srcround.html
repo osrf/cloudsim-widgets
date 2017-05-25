@@ -479,6 +479,11 @@
     Polymer({
       is: 'cs-srcround',
 
+      // Attached
+      attached: function() {
+        this._getSimData()
+      },
+
       _onSrcSimDataIdUpdated: function() {
         this._getSimData()
       },
@@ -703,6 +708,11 @@
           observer: '_onSrcSimDataIdUpdated'
         },
         token: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        portalurl: {
           type: String,
           value: '',
           notify: true
