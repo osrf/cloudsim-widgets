@@ -204,7 +204,9 @@
         if (this.token !== "") {
           this.$.roundsresources.connect();
           this._getRounds()
-          // Fire a refresh in srcround components
+          // If we changed token, then we reset the last updated
+          // srcsimulation ID too. This will make all srcround refetch
+          // their srcsimulation data.
           this.lastUpdatedSrcsimdataid = {}
         }
       },
@@ -450,10 +452,12 @@
           notify: true,
           observer: '_onTokenUpdated'
         },
-        // Note: This is not a component parameter. It is a property used internally
+        // Note: This is not a component parameter. It is a property used internally.
+        // It holds the ID of the last srcsimulation updated at portal (ie. resource
+        // updated event got via websocket). See method: _onResourceUpdate.
         lastUpdatedSrcsimdataid: {
-          type: String,
-          value: '',
+          type: Object,
+          value: {},
           notify: true
         },
       },
