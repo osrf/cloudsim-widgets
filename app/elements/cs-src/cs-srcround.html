@@ -533,13 +533,17 @@
       },
 
       _shouldDisableSimulator: function() {
-        // should match intance's options.role
         return !this.srcsimData || !this.srcsimData.simulator || !this.srcsimData.simulator.ready
       },
 
       _shouldDisableFc: function() {
-        // should match intance's options.role
-        return !this.srcsimData || !this.srcsimData.fieldcomputer || !this.srcsimData.fieldcomputer.ready
+        if (!this.srcsimData || !this.srcsimData.fieldcomputer) {
+          // No data yet. Disable buttons!
+          return true
+        }
+        // Disable buttons if the team's docker image has not been built yet or if the cloudsim-sim
+        // server is not ready.
+        return !this.srcsimData.fieldcomputer.ready || !this.srcsimData.fieldcomputer.fc_docker_image
       },
 
       // Start a world on the simulator
