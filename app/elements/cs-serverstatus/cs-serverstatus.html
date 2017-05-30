@@ -1,0 +1,90 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-serverstatus">
+  <style>
+    iron-icon {
+      color: red;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    :host([status]) iron-icon {
+      color: green;
+    }
+  </style>
+
+  <template>
+    <iron-ajax
+      id="ajax"
+      url="[[url]]"
+      method="HEAD"
+      on-response="_ajaxResponse"
+      on-error="_ajaxError"
+      debounce-duration="300"
+    ></iron-ajax>
+    
+    <a class="url" href="[[url]]" target="_blank">[[url]]</a>
+    <iron-icon id="statusIcon" icon="icons:clear"></iron-icon>
+
+  </template>
+
+  <script>
+
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-serverstatus',
+
+      attached: function() {
+        this.$.ajax.generateRequest();
+        this._ajaxRequest();
+      },
+
+      // Make a request to the given URL.
+      _ajaxRequest: function() {
+        // Note: async requires milliseconds and refreshInterval is in seconds.
+        this.async(function() {
+          this.$.ajax.generateRequest();
+        }, this.refreshInterval * 1000);
+      },
+
+      // Response to check the Server Status.
+      _ajaxResponse: function(e) {
+        this.$.statusIcon.icon = "icons:check"
+        this._setStatus(true);
+        this._ajaxRequest();
+      },
+
+      // Error reaching the Server.
+      _ajaxError: function(e) {
+        this.$.statusIcon.icon = "icons:clear"
+        this._setStatus(false);
+        this._ajaxRequest();
+      },
+
+      _setStatus: function(value) {
+        this.status = value;
+      },
+
+      properties: {
+        url: {
+          type: String,
+          value: 'Not set',
+        },
+        status: {
+          type: Boolean,
+          value: false,
+          readOnly: true,
+          reflectToAttribute: true
+        },
+        // The refresh interval is in seconds.
+        refreshInterval: {
+          type: Number,
+          value: 120,
+        }
+      },
+    });
+  })();
+  </script>
+</dom-module>
