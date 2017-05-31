@@ -1,0 +1,95 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-srcroundresult">
+  <style>
+    .space {
+      @apply(--layout-flex);
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+    }
+    .round-header {
+      padding-left: 1em;
+      padding-top: 0.5em;
+      padding-bottom: 0.5em;
+      font-weight: bold;
+    }
+
+  </style>
+  <template>
+    <div class="round-header">
+      <span on-tap="_toggle" data-args="round-[[number]]">Round #[[_printIncrement(number)]]</span>
+    </div>
+
+    <iron-collapse id="round-[[number]]">
+      <div class="horizontal">
+        <template is="dom-repeat" items="[[tasks]]">
+          <cs-srctasks task="[[item]]" task-number="[[index]]"></cs-srctasks>
+          <div class="space"></div>
+        </template>
+      </div>
+    </iron-collapse>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-srcroundresult',
+
+      // Attached
+      attached: function() {
+      },
+
+      // Toggle collapse elements.
+      _toggle: function(e) {
+        this.$$('#' + e.currentTarget.dataArgs).toggle();
+      },
+
+      // Print an incremented index.
+      _printIncrement: function(number) {
+        var position = number + 1
+        return position
+      },
+
+      // Calculate the array of Tasks
+      _calculateTasks: function(round) {
+        let tasks = []
+        tasks.push(round[1])
+        tasks.push(round[2])
+        tasks.push(round[3])
+        return tasks
+      },
+
+      properties: {
+        tasks: {
+          type: Array,
+          value: [],
+          notify: true,
+          computed: '_calculateTasks(round)'
+        },
+        round: {
+          type: Array,
+          value: [],
+          notify: true,
+        },
+        number: {
+          type: Number,
+          notify: true
+        },
+        score: {
+          type: Number,
+          notify: true
+        },
+        totalTime: {
+          type: Number,
+          notify: true
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>

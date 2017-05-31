@@ -1,0 +1,181 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-srcresults">
+  <style>
+    :root {
+      --paper-tab-ink: #fff;
+      --paper-tabs-selection-bar-color: #fff;
+      --paper-tabs: {
+        color: #fff;
+      }
+    }
+    .title {
+      font-size: 2em;
+    }
+    .space {
+      @apply(--layout-flex);
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+    }
+    .vertical {
+      @apply(--layout-vertical);
+    }
+    .center {
+      @apply(--layout-center);
+    }
+    .blue {
+      background-color: rgb(68, 138, 201);
+      color: #fff;
+    }
+    .grey {
+      background-color: #d7d7d7;
+    }
+    .paper-header {
+      padding: 1em;
+    }
+    .paper-header > h1 {
+      text-align: center;
+    }
+    .paper-header > h4 {
+      margin: 0;
+      text-align: center;
+    }
+    .paper-header > p {
+      margin-bottom: 0;
+      color: #ddd;
+      text-align: center;
+    }
+    .simulation-row {
+      margin: 1em;
+    }
+    .simulation-header {
+      padding-left: 1em;
+      padding-top: 0.5em;
+      padding-bottom: 0.5em;
+      font-weight: bold;
+    }
+    .round-number {
+      padding-left: 1em;
+      padding-top: 0.5em;
+      padding-bottom: 0.5em;
+    }
+
+    .content {
+      width: 60%;
+      padding: 15px;
+      border: 1px solid #dedede;
+      border-top: none;
+      border-bottom-left-radius: 5px;
+      border-bottom-right-radius: 5px;
+      @apply(--shadow-elevation-2dp);
+    }
+
+  </style>
+  <template>
+
+    <!-- Simulations Info -->
+    <gz-resources
+      id="simulations"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="srcsimulation"
+      on-resourcesupdated="_onAllSimulations"
+    ></gz-resources>
+
+    <paper-header-panel class="blue">
+      <div class="paper-header">
+        <h1 class="title">Constellation Results</h1>
+      </div>
+    </paper-header-panel>
+
+    <!-- List the Simulations -->
+    <template is="dom-repeat" items="{{simulations}}">
+      <paper-material elevation="1" class="simulation-row">
+
+        <paper-material elevation="0" class="grey">
+          <div class="simulation-header">
+            <span on-tap="_toggle" data-args="[[item.name]]">[[item.name]]</span>
+          </div>
+        </paper-material>
+
+        <iron-collapse id="[[item.name]]">
+          <template is="dom-repeat" items="[[_getRoundsArray(item)]]" as="round">
+            <cs-srcroundresult round="[[round]]" number="[[index]]"></cs-srcroundresult>
+          </template>
+        </iron-collapse>
+
+      </paper-material>
+    </template>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-srcresults',
+
+      // Attached
+      attached: function() {
+      },
+
+      // Callback when the token has been updated
+      _onTokenUpdated: function() {
+        if (this.token !== "") {
+          this.$.simulations.getAll()
+        }
+      },
+
+      _onAllSimulations: function(e) {
+        this.set('simulations', e.detail)
+      },
+
+      // Store the Rounds into an array, to iterate inside a dom-repeat.
+      _getRoundsArray: function(item) {
+        let rounds = []
+
+        if ((item.data.simulator === undefined) || (item.data.simulator.round === undefined)) {
+          return
+        }
+        if (item.data.simulator.round !== undefined) {
+          rounds.push(item.data.simulator.round)
+        }
+
+        return rounds
+      },
+
+      // Toggle collapse elements.
+      _toggle: function(e) {
+        this.$$('#' + e.currentTarget.dataArgs).toggle();
+      },
+
+      properties: {
+        simulations: {
+          type: Array,
+          value: [],
+          notify: true
+        },
+        currentpage: {
+          type: String,
+          value: 'empty',
+          notify: true
+        },
+        portalurl: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        token: {
+          type: String,
+          value: '',
+          notify: true,
+          observer: '_onTokenUpdated'
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>
