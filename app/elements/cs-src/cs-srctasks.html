@@ -49,14 +49,13 @@
     <!-- Show the Task Results-->
     <div class="horizontal">
       <paper-material elevation="1" class="tasks">
-        <h4>Task [[_printIncrement(taskNumber)]]</h4>
+        <h4>Task [[_printArrayNumber(taskNumber)]]</h4>
 
         <template is="dom-if" if="[[!started]]" restamp>
           <span class="property notification">Waiting.</span>
         </template>
 
         <template is="dom-if" if="[[started]]" restamp>
-
           <div class="horizontal center">
             <span class="property">Finished</span>
             <div class="space"></div>
@@ -88,16 +87,15 @@
           </div>
 
           <p class="checkpoints-header">Checkpoints</p>
+
           <template is="dom-repeat" items="{{task.checkpoints_completion}}">
             <div class="horizontal center">
-              <span class="property">Checkpoint [[_printIncrement(index)]]</span>
+              <span class="property">Checkpoint [[_printArrayNumber(index)]]</span>
               <div class="space"></div>
               <span class="value">[[_printTime(item)]]</span>
             </div>
           </template>
-
         </template>
-
       </paper-material>
     </div>
   </template>
@@ -114,62 +112,61 @@
       },
 
       // Print an incremented index.
-      _printIncrement: function(number) {
-        var position = number + 1
-        return position
+      _printArrayNumber: function(number) {
+        return number + 1;
       },
 
       // Print booleans as Yes or No.
       _printBoolean: function(val) {
         if (val) {
-          return "Yes"
+          return "Yes";
         } else {
-          return "No"
+          return "No";
         }
       },
 
       // Print time in hh:mm:ss.milliseconds format.
       _printTime: function(seconds) {
         if (seconds === undefined) {
-          return "Waiting"
+          return "Waiting";
         }
         // Calculate hh:mm:ss with the given seconds.
-        var hh = Math.floor(seconds/3600)
-        var mm = Math.floor((seconds-(hh*3600))/60)
-        var ss = Math.floor(seconds - hh*3600 - mm*60)
-        var milliseconds = Math.floor((seconds - Math.floor(seconds)) * 1000)
+        var hh = Math.floor(seconds/3600);
+        var mm = Math.floor((seconds-(hh*3600))/60);
+        var ss = Math.floor(seconds - hh*3600 - mm*60);
+        var milliseconds = Math.floor((seconds - Math.floor(seconds)) * 1000);
         // Pad with zeros.
         if (hh < 10) {
-          hh = "0" + hh
+          hh = "0" + hh;
         }
         if (mm < 10) {
-          mm = "0" + mm
+          mm = "0" + mm;
         }
         if (ss < 10) {
-          ss = "0" + ss
+          ss = "0" + ss;
         }
         if (milliseconds < 1) {
           milliseconds = "000"
         } else {
           if (milliseconds < 10) {
-            milliseconds = "00" + milliseconds
+            milliseconds = "00" + milliseconds;
           } else {
             if (milliseconds < 100) {
-              milliseconds = "0" + milliseconds
+              milliseconds = "0" + milliseconds;
             }
           }
         }
-        return hh + ":" + mm + ":" + ss + "." + milliseconds
+        return hh + ":" + mm + ":" + ss + "." + milliseconds;
       },
 
       // Calculate the time left for the current task.
       _calculateTimeLeft: function(task, number, length) {
-        return length[number] - task.elapsed_time
+        return length[number] - task.elapsed_time;
       },
 
       // Check whether the task started or not.
       _hasStarted: function(task) {
-        return (task.length != 0) && (task.start_time !== undefined)
+        return (task.length != 0) && (task.start_time !== undefined);
       },
 
       properties: {

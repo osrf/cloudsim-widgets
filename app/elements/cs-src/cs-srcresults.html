@@ -61,7 +61,6 @@
       padding-top: 0.5em;
       padding-bottom: 0.5em;
     }
-
     .content {
       width: 60%;
       padding: 15px;
@@ -93,7 +92,6 @@
     <!-- List the Simulations -->
     <template is="dom-repeat" items="{{simulations}}">
       <paper-material elevation="1" class="simulation-row">
-
         <paper-material elevation="0" class="grey">
           <div class="simulation-header">
             <span on-tap="_toggle" data-args="[[item.name]]">[[item.name]]</span>
@@ -105,10 +103,8 @@
             <cs-srcroundresult round="[[round]]" number="[[index]]"></cs-srcroundresult>
           </template>
         </iron-collapse>
-
       </paper-material>
     </template>
-
   </template>
 
   <script>
@@ -125,26 +121,23 @@
       // Callback when the token has been updated
       _onTokenUpdated: function() {
         if (this.token !== "") {
-          this.$.simulations.getAll()
+          this.$.simulations.getAll();
         }
       },
 
       _onAllSimulations: function(e) {
-        this.set('simulations', e.detail)
+        this.set('simulations', e.detail);
       },
 
+      // TODO(german-mas) This won't be necessary once the rounds are listed as an array.
+      // If it were an array, we can simply bind the dom-repeat to [[item.data.simulator.round]] 
       // Store the Rounds into an array, to iterate inside a dom-repeat.
       _getRoundsArray: function(item) {
-        let rounds = []
-
-        if ((item.data.simulator === undefined) || (item.data.simulator.round === undefined)) {
-          return
+        if (item.data.simulator && item.data.simulator.round) {
+          return [item.data.simulator.round];
+        } else {
+          return [];
         }
-        if (item.data.simulator.round !== undefined) {
-          rounds.push(item.data.simulator.round)
-        }
-
-        return rounds
       },
 
       // Toggle collapse elements.

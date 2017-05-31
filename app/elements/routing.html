@@ -160,22 +160,15 @@
     });
 
     page('/src-results', function() {
-      if (app.loggedin)
-      {
+      if (app.loggedin) {
         app.topLevelRoute = 'secure';
         app.secureRoute = 'src';
-
-        if (app.issrccompetitor || app.issrcorganizer)
-        {
+        if (app.issrccompetitor || app.issrcorganizer) {
           app.srcRoute = 'results';
-        }
-        else
-        {
+        } else {
           app.srcRoute = 'home';
         }
-      }
-      else
-      {
+      } else {
         app.topLevelRoute = 'src';
       }
       setTimeout(function () {
