@@ -222,7 +222,8 @@
         // Take only non-finished rounds
         let temp = []
         for (var i = 0; i < e.detail.length; ++i) {
-          if (!e.detail[i].data.finished)
+          if (typeof e.detail[i].data.public.terminated !== 'undefined' &&
+          e.detail[i].data.public.terminated === false)
             temp.push(e.detail[i])
         }
 
