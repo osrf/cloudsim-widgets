@@ -15,6 +15,11 @@
       padding-bottom: 0.5em;
       font-weight: bold;
     }
+    .round-scores {
+      padding-left: 1em;
+      padding-bottom: 0.5em;
+      font-weight: bold;
+    }
 
   </style>
   <template>
@@ -29,6 +34,12 @@
           <div class="space"></div>
         </template>
       </div>
+
+      <div class="round-scores">
+        <p>Score: [[score]]</p>
+        <p>Total Time: [[totalTime]]</p>
+      </div>
+
     </iron-collapse>
 
   </template>
