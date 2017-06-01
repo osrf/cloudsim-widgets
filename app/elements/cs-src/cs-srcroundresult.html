@@ -49,7 +49,7 @@
 
     Polymer({
       is: 'cs-srcroundresult',
-      behaviors: [CustomBehaviors.FilterBehavior],
+      behaviors: [CustomBehaviors.FormatterBehavior],
 
       // Attached
       attached: function() {
@@ -86,6 +86,7 @@
           type: Number,
           notify: true
         },
+        // TODO(german-mas): These fields are yet to be received.
         score: {
           type: Number,
           value: 0,
