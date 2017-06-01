@@ -49,50 +49,50 @@
     <!-- Show the Task Results-->
     <div class="horizontal">
       <paper-material elevation="1" class="tasks">
-        <h4>Task [[_printArrayNumber(taskNumber)]]</h4>
+        <h4>Task [[formatArrayIndex(taskNumber)]]</h4>
 
         <template is="dom-if" if="[[!started]]" restamp>
-          <span class="property notification">Waiting.</span>
+          <span class="property notification">Waiting</span>
         </template>
 
         <template is="dom-if" if="[[started]]" restamp>
           <div class="horizontal center">
             <span class="property">Finished</span>
             <div class="space"></div>
-            <span class="value">[[_printBoolean(task.finished)]]</span>
+            <span class="value">[[formatAsYesNo(task.finished)]]</span>
           </div>
 
           <div class="horizontal center">
             <span class="property">Timed out</span>
             <div class="space"></div>
-            <span class="value">[[_printBoolean(task.timed_out)]]</span>
+            <span class="value">[[formatAsYesNo(task.timed_out)]]</span>
           </div>
 
           <div class="horizontal center">
             <span class="property">Start time</span>
             <div class="space"></div>
-            <span class="value">[[_printTime(task.start_time)]]</span>
+            <span class="value">[[formatAsYesNo(task.start_time)]]</span>
           </div>
 
           <div class="horizontal center">
             <span class="property">Elapsed</span>
             <div class="space"></div>
-            <span class="value">[[_printTime(task.elapsed_time)]]</span>
+            <span class="value">[[formatTime(task.elapsed_time)]]</span>
           </div>
 
           <div class="horizontal center">
             <span class="property">Time Left</span>
             <div class="space"></div>
-            <span class="value">[[_printTime(taskTimeLeft)]]</span>
+            <span class="value">[[formatTime(taskTimeLeft)]]</span>
           </div>
 
           <p class="checkpoints-header">Checkpoints</p>
 
           <template is="dom-repeat" items="{{task.checkpoints_completion}}">
             <div class="horizontal center">
-              <span class="property">Checkpoint [[_printArrayNumber(index)]]</span>
+              <span class="property">Checkpoint [[formatArrayIndex(index)]]</span>
               <div class="space"></div>
-              <span class="value">[[_printTime(item)]]</span>
+              <span class="value">[[formatTime(item)]]</span>
             </div>
           </template>
         </template>
@@ -106,57 +106,10 @@
 
     Polymer({
       is: 'cs-srctasks',
+      behaviors: [CustomBehaviors.FilterBehavior],
 
       // Attached
       attached: function() {
-      },
-
-      // Print an incremented index.
-      _printArrayNumber: function(number) {
-        return number + 1;
-      },
-
-      // Print booleans as Yes or No.
-      _printBoolean: function(val) {
-        if (val) {
-          return "Yes";
-        } else {
-          return "No";
-        }
-      },
-
-      // Print time in hh:mm:ss.milliseconds format.
-      _printTime: function(seconds) {
-        if (seconds === undefined) {
-          return "Waiting";
-        }
-        // Calculate hh:mm:ss with the given seconds.
-        var hh = Math.floor(seconds/3600);
-        var mm = Math.floor((seconds-(hh*3600))/60);
-        var ss = Math.floor(seconds - hh*3600 - mm*60);
-        var milliseconds = Math.floor((seconds - Math.floor(seconds)) * 1000);
-        // Pad with zeros.
-        if (hh < 10) {
-          hh = "0" + hh;
-        }
-        if (mm < 10) {
-          mm = "0" + mm;
-        }
-        if (ss < 10) {
-          ss = "0" + ss;
-        }
-        if (milliseconds < 1) {
-          milliseconds = "000"
-        } else {
-          if (milliseconds < 10) {
-            milliseconds = "00" + milliseconds;
-          } else {
-            if (milliseconds < 100) {
-              milliseconds = "0" + milliseconds;
-            }
-          }
-        }
-        return hh + ":" + mm + ":" + ss + "." + milliseconds;
       },
 
       // Calculate the time left for the current task.
@@ -166,7 +119,7 @@
 
       // Check whether the task started or not.
       _hasStarted: function(task) {
-        return (task.length != 0) && (task.start_time !== undefined);
+        return (task.length !== 0) && (task.start_time !== undefined);
       },
 
       properties: {
@@ -181,6 +134,7 @@
         },
         taskLength: {
           type: Array,
+          // Task time of 30m, 1h and 2h in seconds.
           value: [1800, 3600, 7200],
           readOnly: true,
         },

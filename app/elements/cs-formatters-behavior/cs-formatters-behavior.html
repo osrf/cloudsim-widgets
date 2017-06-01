@@ -1,0 +1,53 @@
+<script>
+  var CustomBehaviors = CustomBehaviors || {};
+  CustomBehaviors.FilterBehavior = {
+
+    // Print a Boolean value as Yes or No.
+    formatAsYesNo: function(boolean) {
+      if (boolean) {
+        return "Yes";
+      } else {
+        return "No";
+      }
+    },
+
+    // Increment array index to print.
+    formatArrayIndex: function(index) {
+      return index + 1;
+    },
+
+    // Format time in hh:mm:ss.000
+    formatTime: function(seconds) {
+      if (seconds === undefined) {
+        return "Waiting";
+      }
+      // Calculate hh:mm:ss with the given seconds.
+      var hh = Math.floor(seconds/3600);
+      var mm = Math.floor((seconds-(hh*3600))/60);
+      var ss = Math.floor(seconds - hh*3600 - mm*60);
+      var milliseconds = Math.floor((seconds - Math.floor(seconds)) * 1000);
+      // Pad with zeros.
+      if (hh < 10) {
+        hh = "0" + hh;
+      }
+      if (mm < 10) {
+        mm = "0" + mm;
+      }
+      if (ss < 10) {
+        ss = "0" + ss;
+      }
+      if (milliseconds < 1) {
+        milliseconds = "000";
+      } else {
+        if (milliseconds < 10) {
+          milliseconds = "00" + milliseconds;
+        } else {
+          if (milliseconds < 100) {
+            milliseconds = "0" + milliseconds;
+          }
+        }
+      }
+      return hh + ":" + mm + ":" + ss + "." + milliseconds;
+    },
+  };
+</script>
