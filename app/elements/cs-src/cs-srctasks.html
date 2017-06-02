@@ -71,7 +71,7 @@
           <div class="horizontal center">
             <span class="property">Start time</span>
             <div class="space"></div>
-            <span class="value">[[formatAsYesNo(task.start_time)]]</span>
+            <span class="value">[[formatTime(task.start_time)]]</span>
           </div>
 
           <div class="horizontal center">
@@ -107,10 +107,6 @@
     Polymer({
       is: 'cs-srctasks',
       behaviors: [CustomBehaviors.FormatterBehavior],
-
-      // Attached
-      attached: function() {
-      },
 
       // Calculate the time left for the current task.
       _calculateTimeLeft: function(task, number, length) {

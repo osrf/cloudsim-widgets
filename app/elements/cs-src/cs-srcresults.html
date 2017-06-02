@@ -56,11 +56,6 @@
       padding-bottom: 0.5em;
       font-weight: bold;
     }
-    .round-number {
-      padding-left: 1em;
-      padding-top: 0.5em;
-      padding-bottom: 0.5em;
-    }
     .content {
       width: 60%;
       padding: 15px;
@@ -80,8 +75,8 @@
       url="[[portalurl]]"
       token="[[token]]"
       resourcename="srcsimulation"
-      on-resourcesupdated="_onAllSimulations"
-    ></gz-resources>
+      on-resourcesupdated="_onAllSimulations">
+    </gz-resources>
 
     <paper-header-panel class="blue">
       <div class="paper-header">
@@ -94,13 +89,17 @@
       <paper-material elevation="1" class="simulation-row">
         <paper-material elevation="0" class="grey">
           <div class="simulation-header">
-            <span on-tap="_toggle" data-args="[[item.name]]">[[item.name]]</span>
+            <span on-tap="_toggle" data-args="[[item.name]]">[[_constellationName(item)]]</span>
           </div>
         </paper-material>
 
         <iron-collapse id="[[item.name]]">
           <template is="dom-repeat" items="[[_getRoundsArray(item)]]" as="round">
             <cs-srcroundresult round="[[round]]" number="[[index]]"></cs-srcroundresult>
+          </template>
+
+          <template is="dom-if" if="{{_hasNoRounds(item)}}">
+            <div class="simulation-header">No tasks were run for this constellation.</div>
           </template>
         </iron-collapse>
       </paper-material>
@@ -114,10 +113,6 @@
     Polymer({
       is: 'cs-srcresults',
 
-      // Attached
-      attached: function() {
-      },
-
       // Callback when the token has been updated
       _onTokenUpdated: function() {
         if (this.token !== "") {
@@ -126,7 +121,8 @@
       },
 
       _onAllSimulations: function(e) {
-        this.set('simulations', e.detail);
+        // Reversed to list the most recent simulations first.
+        this.set('simulations', e.detail.reverse());
       },
 
       // TODO(german-mas) This won't be necessary once the rounds are listed as an array.
@@ -138,6 +134,21 @@
         } else {
           return [];
         }
+      },
+
+      // Check if the simulation has no rounds.
+      _hasNoRounds: function(item) {
+        return this._getRoundsArray(item).length === 0;
+      },
+
+      // Parse the name of the simulation.
+      _constellationName: function(simulation) {
+        // Older simulations have no team name data.
+        if (simulation.data.team === undefined) {
+          return simulation.name;
+        }
+        let num = simulation.name.substring(15, 18);
+        return simulation.data.team + '-' + num;
       },
 
       // Toggle collapse elements.
