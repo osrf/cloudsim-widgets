@@ -14,6 +14,11 @@
       padding-top: 0.5em;
       padding-bottom: 0.5em;
       font-weight: bold;
+      --paper-button: {
+        text-transform: none;
+        width: 100%;
+        display: inline-block;
+      }
     }
     .round-scores {
       padding-left: 1em;
@@ -24,9 +29,14 @@
   </style>
 
   <template>
-    <div class="round-header">
-      <span on-tap="_toggle" data-args="round-[[number]]">Round #[[formatArrayIndex(number)]]</span>
-    </div>
+    <paper-button
+      class="round-header"
+      on-tap="_toggle"
+      data-args="round-[[number]]"
+      noink
+      >
+      Round #[[formatArrayIndex(number)]]
+    </paper-button>
 
     <iron-collapse id="round-[[number]]">
       <div class="horizontal">

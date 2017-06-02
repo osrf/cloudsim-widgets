@@ -55,6 +55,11 @@
       padding-top: 0.5em;
       padding-bottom: 0.5em;
       font-weight: bold;
+      --paper-button: {
+        text-transform: none;
+        width: 100%;
+        display: inline-block;
+      }
     }
     .content {
       width: 60%;
@@ -88,9 +93,14 @@
     <template is="dom-repeat" items="{{simulations}}">
       <paper-material elevation="1" class="simulation-row">
         <paper-material elevation="0" class="grey">
-          <div class="simulation-header">
-            <span on-tap="_toggle" data-args="[[item.name]]">[[_constellationName(item)]]</span>
-          </div>
+          <paper-button
+            class="simulation-header"
+            on-tap="_toggle"
+            data-args="[[item.name]]"
+            noink
+            >
+            [[_constellationName(item)]]
+          </paper-button>
         </paper-material>
 
         <iron-collapse id="[[item.name]]">
