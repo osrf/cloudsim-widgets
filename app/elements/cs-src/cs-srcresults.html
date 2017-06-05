@@ -105,7 +105,9 @@
 
         <iron-collapse id="[[item.name]]">
           <template is="dom-repeat" items="[[_getRoundsArray(item)]]" as="round">
-            <cs-srcroundresult round="[[round]]" number="[[index]]"></cs-srcroundresult>
+            <template is="dom-if" if={{round}} restamp>
+              <cs-srcroundresult round="[[round]]" number="[[index]]"></cs-srcroundresult>
+            </template>
           </template>
 
           <template is="dom-if" if="{{_hasNoRounds(item)}}">
@@ -135,20 +137,32 @@
         this.set('simulations', e.detail.reverse());
       },
 
-      // TODO(german-mas) This won't be necessary once the rounds are listed as an array.
-      // If it were an array, we can simply bind the dom-repeat to [[item.data.simulator.round]] 
       // Store the Rounds into an array, to iterate inside a dom-repeat.
       _getRoundsArray: function(item) {
-        if (item.data.simulator && item.data.simulator.round) {
-          return [item.data.simulator.round];
-        } else {
-          return [];
+        let rounds = [];
+        if (item.data.simulator) {
+          rounds.push(item.data.simulator.round_1);
+          rounds.push(item.data.simulator.round_2);
+          rounds.push(item.data.simulator.round_3);
+          rounds.push(item.data.simulator.round_4);
+          rounds.push(item.data.simulator.round_5);
         }
+        return rounds;
       },
 
       // Check if the simulation has no rounds.
       _hasNoRounds: function(item) {
-        return this._getRoundsArray(item).length === 0;
+        let rounds = this._getRoundsArray(item);
+        if (rounds.length !== 0) {
+          // The round array will have 5 elements.
+          // Unless the rounds exists, they will be undefined.
+          for (let r = 0; r < rounds.length; r++) {
+            if (rounds[r] !== undefined) {
+              return false;
+            }
+          }
+        }
+        return true;
       },
 
       // Parse the name of the simulation.

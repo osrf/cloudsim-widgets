@@ -59,25 +59,25 @@
           <div class="horizontal center">
             <span class="property">Finished</span>
             <div class="space"></div>
-            <span class="value">[[formatAsYesNo(task.finished)]]</span>
+            <span class="value">[[formatAsYesNo(finished)]]</span>
           </div>
 
           <div class="horizontal center">
             <span class="property">Timed out</span>
             <div class="space"></div>
-            <span class="value">[[formatAsYesNo(task.timed_out)]]</span>
+            <span class="value">[[formatAsYesNo(timedOut)]]</span>
           </div>
 
           <div class="horizontal center">
             <span class="property">Start time</span>
             <div class="space"></div>
-            <span class="value">[[formatTime(task.start_time)]]</span>
+            <span class="value">[[formatTime(startTime)]]</span>
           </div>
 
           <div class="horizontal center">
             <span class="property">Elapsed</span>
             <div class="space"></div>
-            <span class="value">[[formatTime(task.elapsed_time)]]</span>
+            <span class="value">[[formatTime(elapsedTime)]]</span>
           </div>
 
           <div class="horizontal center">
@@ -88,7 +88,7 @@
 
           <p class="checkpoints-header">Checkpoints</p>
 
-          <template is="dom-repeat" items="{{task.checkpoints_completion}}">
+          <template is="dom-repeat" items="{{checkpointDurations}}">
             <div class="horizontal center">
               <span class="property">Checkpoint [[formatArrayIndex(index)]]</span>
               <div class="space"></div>
@@ -108,14 +108,27 @@
       is: 'cs-srctasks',
       behaviors: [CustomBehaviors.FormatterBehavior],
 
+      // Store the task fields, as a task can be null.
+      attached: function() {
+        if (this.task !== null) {
+          this.set('checkpointDurations', this.task.checkpoint_durations);
+          this.set('checkpointPenalties', this.task.checkpoint_penalties);
+          this.currentCheckpoint = this.task.current_checkpoint;
+          this.startTime = this.task.start_time;
+          this.timedOut = this.task.timed_out;
+          this.elapsedTime = this.task.elapsed_time;
+          this.finished = this.task.finished;
+        }
+      },
+
       // Calculate the time left for the current task.
-      _calculateTimeLeft: function(task, number, length) {
-        return length[number] - task.elapsed_time;
+      _calculateTimeLeft: function(number, length, elapsed) {
+        return length[number] - elapsed;
       },
 
       // Check whether the task started or not.
       _hasStarted: function(task) {
-        return (task.length !== 0) && (task.start_time !== undefined);
+        return (task !== null) && (task.start_time !== undefined);
       },
 
       properties: {
@@ -134,10 +147,45 @@
           value: [1800, 3600, 7200],
           readOnly: true,
         },
+        currentCheckpoint: {
+          type: Array,
+          value: [],
+          notify: true,
+        },
+        startTime: {
+          type: Number,
+          value: 0,
+          notify: true,
+        },
+        timedOut: {
+          type: Boolean,
+          value: 0,
+          notify: true,
+        },
+        elapsedTime: {
+          type: Number,
+          value: 0,
+          notify: true,
+        },
         taskTimeLeft: {
           type: Number,
           notify: true,
-          computed: '_calculateTimeLeft(task, taskNumber, taskLength)'
+          computed: '_calculateTimeLeft(taskNumber, taskLength, elapsedTime)'
+        },
+        finished: {
+          type: Boolean,
+          value: false,
+          notify: true,
+        },
+        checkpointPenalties: {
+          type: Array,
+          value: [],
+          notify: true,
+        },
+        checkpointDurations: {
+          type: Array,
+          value: [],
+          notify: true,
         },
         started: {
           type: Boolean,

@@ -48,7 +48,7 @@
 
       <div class="round-scores">
         <p>Score: [[score]]</p>
-        <p>Total Time: [[totalTime]]</p>
+        <p>Total Time: [[formatTime(totalTime)]]</p>
       </div>
     </iron-collapse>
   </template>
@@ -61,19 +61,15 @@
       is: 'cs-srcroundresult',
       behaviors: [CustomBehaviors.FormatterBehavior],
 
+      attached: function() {
+        this.set('tasks', this.round.tasks);
+        this.score = this.round.score;
+        this.totalTime = this.round.total_completion_time;
+      },
+
       // Toggle collapse elements.
       _toggle: function(e) {
         this.$$('#' + e.currentTarget.dataArgs).toggle();
-      },
-
-      // TODO (german-mas) This won't be necessary when the tasks are stored as an array.
-      // Calculate the array of Tasks
-      _calculateTasks: function(round) {
-        let tasks = [];
-        tasks.push(round[1]);
-        tasks.push(round[2]);
-        tasks.push(round[3]);
-        return tasks;
       },
 
       properties: {
@@ -81,7 +77,6 @@
           type: Array,
           value: [],
           notify: true,
-          computed: '_calculateTasks(round)'
         },
         round: {
           type: Array,
