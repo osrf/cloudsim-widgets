@@ -559,17 +559,12 @@
         }
         const now = (new Date().toISOString()).replace(/\./g,'-').replace(/:/g,'-')
         const worldName = 'world_' + n + '_' + now
-        // TODO: the logging flag should not be defined at the client.
-        // We should make the portal define this value. Client invoked commands
-        // should be always the same regardless of whether state will be logged
-        // in the background.
-        const loggingEnabled = false
         this.$.sim_run_cmds.body = {
           'host': this.rounddata.simulator.data.machine_ip + ':' + this.simPort,
           'path': '/simulations',
-          'cmd': "src_commands/run_gazebo.bash " + worldName + " " + n + " " + loggingEnabled,
+          'cmd': "src_commands/run_gazebo.bash " + worldName + " " + n,
           'stopCmd': "src_commands/stop_gazebo.bash " + worldName,
-          'logCmd': loggingEnabled && ("src_commands/send_logs.bash " + worldName),
+          'logCmd': "src_commands/send_logs.bash " + worldName,
           'auto': true
         }
         this.$.sim_run_cmds.url = this.portalurl + '/srcproxy'
