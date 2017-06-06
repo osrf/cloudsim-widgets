@@ -557,7 +557,8 @@
           this.fire('error', 'Failed to start run, missing simulator IP.')
           return
         }
-        const worldName = 'world_' + n + '_' + (new Date().toISOString())
+        const now = (new Date().toISOString()).replace(/\./g,'-').replace(/:/g,'-')
+        const worldName = 'world_' + n + '_' + now
         // TODO: the logging flag should not be defined at the client.
         // We should make the portal define this value. Client invoked commands
         // should be always the same regardless of whether state will be logged
