@@ -274,36 +274,46 @@
               <div class="vertical">
 
                 <div class="horizontal">
-                  <!-- Dev note: (trick) we need to pass srcsimData property here to fire invocations when
-                  its value changes -->
-                  <paper-button disabled="[[_shouldDisableSimulator(srcsimData)]]" raised on-tap="_onStartSim" data-args="1">
-                    <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
-                    1
-                  </paper-button>
+                  <template is="dom-if" if="[[_hasWorld(srcsimData, 1)]]">
+                    <!-- Dev note: (trick) we need to pass srcsimData property here to fire invocations when
+                    its value changes -->
+                    <paper-button disabled="[[_shouldDisableSimulator(srcsimData)]]" raised on-tap="_onStartSim" data-args="1">
+                      <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
+                      1
+                    </paper-button>
+                  </template>
 
-                  <paper-button disabled="[[_shouldDisableSimulator(srcsimData)]]" raised on-tap="_onStartSim" data-args="4">
-                    <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
-                    4
-                  </paper-button>
+                  <template is="dom-if" if="[[_hasWorld(srcsimData, 4)]]">
+                    <paper-button disabled="[[_shouldDisableSimulator(srcsimData)]]" raised on-tap="_onStartSim" data-args="4">
+                      <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
+                      4
+                    </paper-button>
+                  </template>
                 </div>
 
                 <div class="horizontal">
-                  <paper-button disabled="[[_shouldDisableSimulator(srcsimData)]]" raised on-tap="_onStartSim" data-args="2">
-                    <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
-                    2
-                  </paper-button>
+                  <template is="dom-if" if="[[_hasWorld(srcsimData, 2)]]">
+                    <paper-button disabled="[[_shouldDisableSimulator(srcsimData)]]" raised on-tap="_onStartSim" data-args="2">
+                      <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
+                      2
+                    </paper-button>
+                  </template>
 
-                  <paper-button disabled="[[_shouldDisableSimulator(srcsimData)]]" raised on-tap="_onStartSim" data-args="5">
-                    <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
-                    5
-                  </paper-button>
+                  <template is="dom-if" if="[[_hasWorld(srcsimData, 5)]]">
+                    <paper-button disabled="[[_shouldDisableSimulator(srcsimData)]]" raised on-tap="_onStartSim" data-args="5">
+                      <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
+                      5
+                    </paper-button>
+                  </template>
                 </div>
 
                 <div class="horizontal">
-                  <paper-button disabled="[[_shouldDisableSimulator(srcsimData)]]" raised on-tap="_onStartSim" data-args="3">
-                    <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
-                    3
-                  </paper-button>
+                  <template is="dom-if" if="[[_hasWorld(srcsimData, 3)]]">
+                    <paper-button disabled="[[_shouldDisableSimulator(srcsimData)]]" raised on-tap="_onStartSim" data-args="3">
+                      <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
+                      3
+                    </paper-button>
+                  </template>
 
                   <paper-button disabled="[[_shouldDisableSimulator(srcsimData)]]" raised on-tap="_onStopSim">
                     <iron-icon icon="icons:av:stop" class="redIcon"></iron-icon>
@@ -683,6 +693,28 @@
         this.$.clipboardfc.copy()
 
         this.fire('notification', "Copied to clipboard!")
+      },
+
+      // Whether the world with the given number is enabled for this
+      // constellation
+      _hasWorld: function(dummy, _number) {
+
+        // No data yet
+        if (!this.rounddata)
+          return false
+
+        // Data, but no worlds: old round, enable all worlds for backward
+        // compatibility
+        if (!this.rounddata.worlds)
+          return true
+
+        // Empty array means it's a user practicing, all worlds are enabled
+        if (this.rounddata.worlds.length === 0)
+          return true
+
+        // Otherwise, this is a round started by an admin and only given worlds
+        // are enabled
+        return this.rounddata.worlds.indexOf(_number) >= 0
       },
 
       // Properties
