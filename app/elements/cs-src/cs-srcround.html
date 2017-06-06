@@ -223,6 +223,25 @@
             </div>
           </paper-material>
 
+          <!-- Status Feedback -->
+          <paper-material elevation="1" class="subbox">
+            <h4>Status</h4>
+            <div class="vertical box-content">
+              <div class="horizontal item">
+                <span class="property">Simulator</span>
+                <div class="space"></div>
+                <span class="value">[[_getSimulatorLaunchStatus(srcsimData)]]</span>
+              </div>
+
+              <div class="horizontal item">
+                <span class="property">Process</span>
+                <div class="space"></div>
+                <span class="value">[[_getProcessStatus(srcsimData)]]</span>
+              </div>
+            </div>
+          </paper-material>
+
+
           <!-- Practice -->
           <template is="dom-if" if="[[rounddata.secure]]">
             <paper-material elevation="1" class="subbox">
@@ -724,7 +743,52 @@
         return this.rounddata.worlds.indexOf(_number) >= 0
       },
 
-      // TEST COMMENT
+      // Return the status given the current state.
+      _getProcessStatus: function() {
+        let statusMessage = "Waiting status";
+        if (this.srcsimData && this.srcsimData.simulator) {
+          switch(this.srcsimData.simulator.state_machine) {
+            case "READY":
+              statusMessage = "Ready";
+              break;
+            case "RUNNING":
+              statusMessage = "Running";
+              break;
+            case "FINISHING":
+              statusMessage = "Stopping";
+              break;
+            case "FINISHED":
+              statusMessage = "Stopped";
+              break;
+            case "SENDING LOGS":
+              statusMessage = "Sending logs";
+              break;
+          }
+        }
+        return statusMessage;
+      },
+
+      // Return the status of the simulator initialization.
+      _getSimulatorLaunchStatus: function() {
+        let statusMessage = "Waiting status";
+        if (this.srcsimData && this.srcsimData.simulator) {
+          // TODO(german-mas) This is currently blocked by CLOUD-115.
+          // Once that task is merged, the simulator data will contain simulator_ready.
+          let simulator_ready = 1;
+          switch(simulator_ready) {
+            case -1:
+              statusMessage = "FAILED";
+              break;
+            case 0:
+              statusMessage = "Waiting";
+              break;
+            case 1:
+              statusMessage = "Ready";
+              break;
+          }
+        }
+        return statusMessage;
+      },
 
       // Properties
       properties: {
