@@ -541,6 +541,13 @@
           // No data yet. Disable buttons!
           return true
         }
+
+        if (this.srcsimData.fieldcomputer.fc_docker_image !== undefined &&
+            this.srcsimData.fieldcomputer.fc_docker_image === "") {
+          this.fire('error', 'Failed to build field computer. Please contact administrators.')
+          return true
+        }
+
         // Disable buttons if the team's docker image has not been built yet or if the cloudsim-sim
         // server is not ready.
         return !this.srcsimData.fieldcomputer.ready || !this.srcsimData.fieldcomputer.fc_docker_image
