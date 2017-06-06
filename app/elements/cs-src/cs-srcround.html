@@ -276,36 +276,36 @@
                 <div class="horizontal">
                   <!-- Dev note: (trick) we need to pass srcsimData property here to fire invocations when
                   its value changes -->
-                  <paper-button disabled="[[_shouldDisableSimulator(srcsimData)]]" raised on-tap="_onStartSim" data-args="1">
+                  <paper-button disabled="[[_shouldDisableSimulatorRunButton(1, srcsimData)]]" raised on-tap="_onStartSim" data-args="1">
                     <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
                     1
                   </paper-button>
 
-                  <paper-button disabled="[[_shouldDisableSimulator(srcsimData)]]" raised on-tap="_onStartSim" data-args="4">
+                  <paper-button disabled="[[_shouldDisableSimulatorRunButton(4, srcsimData)]]" raised on-tap="_onStartSim" data-args="4">
                     <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
                     4
                   </paper-button>
                 </div>
 
                 <div class="horizontal">
-                  <paper-button disabled="[[_shouldDisableSimulator(srcsimData)]]" raised on-tap="_onStartSim" data-args="2">
+                  <paper-button disabled="[[_shouldDisableSimulatorRunButton(2, srcsimData)]]" raised on-tap="_onStartSim" data-args="2">
                     <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
                     2
                   </paper-button>
 
-                  <paper-button disabled="[[_shouldDisableSimulator(srcsimData)]]" raised on-tap="_onStartSim" data-args="5">
+                  <paper-button disabled="[[_shouldDisableSimulatorRunButton(5, srcsimData)]]" raised on-tap="_onStartSim" data-args="5">
                     <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
                     5
                   </paper-button>
                 </div>
 
                 <div class="horizontal">
-                  <paper-button disabled="[[_shouldDisableSimulator(srcsimData)]]" raised on-tap="_onStartSim" data-args="3">
+                  <paper-button disabled="[[_shouldDisableSimulatorRunButton(3, srcsimData)]]" raised on-tap="_onStartSim" data-args="3">
                     <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
                     3
                   </paper-button>
 
-                  <paper-button disabled="[[_shouldDisableSimulator(srcsimData)]]" raised on-tap="_onStopSim">
+                  <paper-button disabled="[[_shouldDisableSimulatorStop(srcsimData)]]" raised on-tap="_onStopSim">
                     <iron-icon icon="icons:av:stop" class="redIcon"></iron-icon>
                     Stop
                   </paper-button>
@@ -437,12 +437,12 @@
 
               <!-- Dev note: (trick) we need to pass srcsimData property here to fire invocations when
               its value changes -->
-              <paper-button disabled="[[_shouldDisableFc(srcsimData)]]" raised on-tap="_onStartFc">
+              <paper-button disabled="[[_shouldDisableFcStart(srcsimData)]]" raised on-tap="_onStartFc">
                 <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
                 Start
               </paper-button>
 
-              <paper-button disabled="[[_shouldDisableFc(srcsimData)]]" raised on-tap="_onStopFc">
+              <paper-button disabled="[[_shouldDisableFcStop(srcsimData)]]" raised on-tap="_onStopFc">
                 <iron-icon icon="icons:av:stop" class="redIcon"></iron-icon>
                 Stop
               </paper-button>
@@ -536,6 +536,14 @@
         return !this.srcsimData || !this.srcsimData.simulator || !this.srcsimData.simulator.ready
       },
 
+      _shouldDisableSimulatorRunButton: function(worldNumber) {
+        return this._shouldDisableSimulator() || this.srcsimData.simulator.state_machine != 'READY'
+      },
+
+      _shouldDisableSimulatorStop: function() {
+        return this._shouldDisableSimulator() || this.srcsimData.simulator.state_machine != 'RUNNING'
+      },
+
       _shouldDisableFc: function() {
         if (!this.srcsimData || !this.srcsimData.fieldcomputer) {
           // No data yet. Disable buttons!
@@ -551,6 +559,14 @@
         // Disable buttons if the team's docker image has not been built yet or if the cloudsim-sim
         // server is not ready.
         return !this.srcsimData.fieldcomputer.ready || !this.srcsimData.fieldcomputer.fc_docker_image
+      },
+
+      _shouldDisableFcStart: function() {
+        return this._shouldDisableFc() || this.srcsimData.fieldcomputer.state_machine != 'READY'
+      },
+
+      _shouldDisableFcStop: function() {
+        return this._shouldDisableFc() || this.srcsimData.fieldcomputer.state_machine != 'RUNNING'
       },
 
       // Start a world on the simulator
