@@ -769,21 +769,21 @@
       },
 
       // Return the status of the simulator initialization.
-      _getSimulatorLaunchStatus: function() {
+      _getSimulationStatus: function() {
         let statusMessage = "Waiting status";
         if (this.srcsimData && this.srcsimData.simulator) {
           // TODO(german-mas) This is currently blocked by CLOUD-115.
           // Once that task is merged, the simulator data will contain simulator_ready.
-          let simulator_ready = 1;
-          switch(simulator_ready) {
+          let simulation_ready = 1;
+          switch(simulation_ready) {
             case -1:
-              statusMessage = "FAILED";
+              statusMessage = "Failed";
               break;
             case 0:
-              statusMessage = "Waiting";
+              statusMessage = "Pending";
               break;
             case 1:
-              statusMessage = "Ready";
+              statusMessage = "Success";
               break;
           }
         }
