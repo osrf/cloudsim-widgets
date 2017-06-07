@@ -467,16 +467,19 @@
 
       <div class="space"></div>
 
-      <paper-button
-        raised
-        class="white"
-        id="finishbutton"
-        on-tap="_onFinish"
-        title="Kill all machines in this round"
-      >
-        <iron-icon icon="icons:close" class="red"></iron-icon>
-        Finish constellation
-      </paper-button>
+      <!-- Finish button -->
+      <template is="dom-if" if="[[rounddata.secure]]">
+        <paper-button
+          raised
+          class="white"
+          id="finishbutton"
+          on-tap="_onFinish"
+          title="Kill all machines in this round"
+        >
+          <iron-icon icon="icons:close" class="red"></iron-icon>
+          Finish constellation
+        </paper-button>
+      </template>
 
     </center>
 
