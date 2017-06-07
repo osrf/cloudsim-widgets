@@ -35,6 +35,7 @@
       data-args="round-[[number]]"
       noink
       >
+      <iron-icon icon="[[currenticon]]"></iron-icon>
       Round #[[formatArrayIndex(number)]]
     </paper-button>
 
@@ -69,6 +70,8 @@
 
       // Toggle collapse elements.
       _toggle: function(e) {
+        this.currenticon = this.currenticon === this.expandicon ?
+            this.collapseicon : this.expandicon;
         this.$$('#' + e.currentTarget.dataArgs).toggle();
       },
 
@@ -87,7 +90,6 @@
           type: Number,
           notify: true
         },
-        // TODO(german-mas): These fields are yet to be received.
         score: {
           type: Number,
           value: 0,
@@ -96,6 +98,19 @@
         totalTime: {
           type: Number,
           value: 0,
+          notify: true
+        },
+        expandicon: {
+          type: String,
+          value: "icons:expand-more",
+        },
+        collapseicon: {
+          type: String,
+          value: "icons:expand-less",
+        },
+        currenticon: {
+          type: String,
+          value: "icons:expand-less",
           notify: true
         },
       },
