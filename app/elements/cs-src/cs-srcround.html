@@ -61,7 +61,7 @@
       margin: 1em;
       text-overflow: ellipsis;
       overflow: hidden;
-      max-width: 8em;
+      max-width: 9em;
       white-space: nowrap;
     }
     .noellipsis {
@@ -767,11 +767,11 @@
 
       // Return the status given the current state.
       _getProcessStatus: function() {
-        let statusMessage = "Waiting status";
+        let statusMessage = "N/A";
         if (this.srcsimData && this.srcsimData.simulator) {
           switch(this.srcsimData.simulator.state_machine) {
             case "READY":
-              statusMessage = "Ready";
+              statusMessage = "Waitings simulation";
               break;
             case "RUNNING":
               statusMessage = "Running";
@@ -792,7 +792,7 @@
 
       // Return the status of the simulator initialization.
       _getSimulatorStatus: function() {
-        let statusMessage = "Waiting status";
+        let statusMessage = "N/A";
         if (this.srcsimData && this.srcsimData.simulator) {
           // TODO(german-mas) This is currently blocked by CLOUD-115. Once merged, simulator_ready will be available.
           switch(this.srcsimData.simulator.simulator_ready) {
@@ -812,7 +812,7 @@
 
       // Return the status of the Harness.
       _getHarnessStatus: function() {
-        let statusMessage = "Waiting status";
+        let statusMessage = "N/A";
         if (this.srcsimData && this.srcsimData.simulator) {
           // TODO(german-mas) This is currently blocked by CLOUD-115. Once merged, harness_ready will be available.
           statusMessage = this.srcsimData.simulator.harness_status;
