@@ -61,7 +61,7 @@
       margin: 1em;
       text-overflow: ellipsis;
       overflow: hidden;
-      max-width: 8em;
+      max-width: 9em;
       white-space: nowrap;
     }
     .noellipsis {
@@ -220,6 +220,36 @@
                 <span class="value">[[rounddata.simulator.region]]</span>
               </div>
 
+            </div>
+          </paper-material>
+
+          <!-- Status Feedback -->
+          <paper-material elevation="1" class="subbox">
+            <h4>Status</h4>
+            <div class="vertical box-content">
+              <div class="horizontal item">
+                <span class="property" title="Status of the docker container">
+                  Process
+                </span>
+                <div class="space"></div>
+                <span class="value">[[_getProcessStatus(srcsimData)]]</span>
+              </div>
+
+              <div class="horizontal item">
+                <span class="property" title="Status of the launched simulator process">
+                  Simulator
+                </span>
+                <div class="space"></div>
+                <span class="value">[[_getSimulatorStatus(srcsimData)]]</span>
+              </div>
+
+              <div class="horizontal item">
+                <span class="property" title="Status of the harness in simulation">
+                  Harness
+                </span>
+                <div class="space"></div>
+                <span class="value">[[_getHarnessStatus(srcsimData)]]</span>
+              </div>
             </div>
           </paper-material>
 
@@ -467,16 +497,19 @@
 
       <div class="space"></div>
 
-      <paper-button
-        raised
-        class="white"
-        id="finishbutton"
-        on-tap="_onFinish"
-        title="Kill all machines in this round"
-      >
-        <iron-icon icon="icons:close" class="red"></iron-icon>
-        Finish constellation
-      </paper-button>
+      <!-- Finish button -->
+      <template is="dom-if" if="[[rounddata.secure]]">
+        <paper-button
+          raised
+          class="white"
+          id="finishbutton"
+          on-tap="_onFinish"
+          title="Kill all machines in this round"
+        >
+          <iron-icon icon="icons:close" class="red"></iron-icon>
+          Finish constellation
+        </paper-button>
+      </template>
 
     </center>
 
@@ -761,6 +794,59 @@
         // Otherwise, this is a round started by an admin and only given worlds
         // are enabled
         return this.rounddata.worlds.indexOf(_number) >= 0
+      },
+
+      // Return the status given the current state.
+      _getProcessStatus: function() {
+        let statusMessage = "N/A";
+        if (this.srcsimData && this.srcsimData.simulator) {
+          switch(this.srcsimData.simulator.state_machine) {
+            case "READY":
+              statusMessage = "Waiting simulation";
+              break;
+            case "RUNNING":
+              statusMessage = "Running";
+              break;
+            case "FINISHING":
+              statusMessage = "Stopping";
+              break;
+            case "FINISHED":
+              statusMessage = "Stopped";
+              break;
+            case "SENDING LOGS":
+              statusMessage = "Sending logs";
+              break;
+          }
+        }
+        return statusMessage;
+      },
+
+      // Return the status of the simulator initialization.
+      _getSimulatorStatus: function() {
+        let statusMessage = "N/A";
+        if (this.srcsimData && this.srcsimData.simulator) {
+          switch(this.srcsimData.simulator.simulator_ready) {
+            case -1:
+              statusMessage = "Failed";
+              break;
+            case 0:
+              statusMessage = "Pending";
+              break;
+            case 1:
+              statusMessage = "Success";
+              break;
+          }
+        }
+        return statusMessage;
+      },
+
+      // Return the status of the Harness.
+      _getHarnessStatus: function() {
+        let statusMessage = "N/A";
+        if (this.srcsimData && this.srcsimData.simulator) {
+          statusMessage = this.srcsimData.simulator.harness_status;
+        }
+        return statusMessage;
       },
 
       // Properties
