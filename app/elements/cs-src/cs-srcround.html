@@ -236,7 +236,7 @@
               </div>
 
               <div class="horizontal item">
-                <span class="property" title="Status of the launch process">
+                <span class="property" title="Status of the launched simulator process">
                   Simulator
                 </span>
                 <div class="space"></div>
@@ -800,7 +800,6 @@
       _getSimulatorStatus: function() {
         let statusMessage = "N/A";
         if (this.srcsimData && this.srcsimData.simulator) {
-          // TODO(german-mas) This is currently blocked by CLOUD-115. Once merged, simulator_ready will be available.
           switch(this.srcsimData.simulator.simulator_ready) {
             case -1:
               statusMessage = "Failed";
@@ -820,7 +819,6 @@
       _getHarnessStatus: function() {
         let statusMessage = "N/A";
         if (this.srcsimData && this.srcsimData.simulator) {
-          // TODO(german-mas) This is currently blocked by CLOUD-115. Once merged, harness_ready will be available.
           statusMessage = this.srcsimData.simulator.harness_status;
         }
         return statusMessage;
