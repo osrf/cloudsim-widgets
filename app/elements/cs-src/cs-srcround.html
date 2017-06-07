@@ -562,8 +562,9 @@
 
         if (this.srcsimData.fieldcomputer.fc_docker_image !== undefined &&
             this.srcsimData.fieldcomputer.fc_docker_image === "") {
-          this.fire('error', 'Failed to build field computer. Please contact administrators.')
-          return true
+          this.fire('error', 'Failed to build field computer in ' +
+            this.roundname + '. Please contact administrators.');
+          return true;
         }
 
         // Disable buttons if the team's docker image has not been built yet or if the cloudsim-sim
