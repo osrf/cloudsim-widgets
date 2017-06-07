@@ -238,6 +238,12 @@
                 <div class="space"></div>
                 <span class="value">[[_getProcessStatus(srcsimData)]]</span>
               </div>
+
+              <div class="horizontal item">
+                <span class="property">Harness</span>
+                <div class="space"></div>
+                <span class="value">[[_getHarnessStatus(srcsimData)]]</span>
+              </div>
             </div>
           </paper-material>
 
@@ -788,10 +794,8 @@
       _getSimulatorStatus: function() {
         let statusMessage = "Waiting status";
         if (this.srcsimData && this.srcsimData.simulator) {
-          // TODO(german-mas) This is currently blocked by CLOUD-115.
-          // Once that task is merged, the simulator data will contain simulator_ready.
-          let simulator_ready = 1;
-          switch(simulator_ready) {
+          // TODO(german-mas) This is currently blocked by CLOUD-115. Once merged, simulator_ready will be available.
+          switch(this.srcsimData.simulator.simulator_ready) {
             case -1:
               statusMessage = "Failed";
               break;
@@ -802,6 +806,16 @@
               statusMessage = "Success";
               break;
           }
+        }
+        return statusMessage;
+      },
+
+      // Return the status of the Harness.
+      _getHarnessStatus: function() {
+        let statusMessage = "Waiting status";
+        if (this.srcsimData && this.srcsimData.simulator) {
+          // TODO(german-mas) This is currently blocked by CLOUD-115. Once merged, harness_ready will be available.
+          statusMessage = this.srcsimData.simulator.harness_status;
         }
         return statusMessage;
       },
