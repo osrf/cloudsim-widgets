@@ -119,15 +119,7 @@
 
       // Store the task fields, as a task can be null.
       attached: function() {
-        if (this.task !== null) {
-          this.set('checkpointDurations', this.task.checkpoint_durations);
-          this.set('checkpointPenalties', this.task.checkpoint_penalties);
-          this.currentCheckpoint = this.task.current_checkpoint;
-          this.startTime = this.task.start_time;
-          this.timedOut = this.task.timed_out;
-          this.elapsedTime = this.task.elapsed_time;
-          this.finished = this.task.finished;
-        }
+        this._onTaskUpdated()
       },
 
       // Calculate the time left for the current task.
@@ -145,11 +137,25 @@
         return this.formatTime(this.checkpointPenalties[index]);
       },
 
+      // Callback when task resource is updated
+      _onTaskUpdated: function() {
+        if (this.task !== null) {
+          this.set('checkpointDurations', this.task.checkpoint_durations);
+          this.set('checkpointPenalties', this.task.checkpoint_penalties);
+          this.currentCheckpoint = this.task.current_checkpoint;
+          this.startTime = this.task.start_time;
+          this.timedOut = this.task.timed_out;
+          this.elapsedTime = this.task.elapsed_time;
+          this.finished = this.task.finished;
+        }
+      },
+
       properties: {
         task: {
           type: Array,
           value: [],
           notify: true,
+          observer: '_onTaskUpdated'
         },
         taskNumber: {
           type: Number,

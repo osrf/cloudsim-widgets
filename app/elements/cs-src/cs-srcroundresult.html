@@ -63,9 +63,7 @@
       behaviors: [CustomBehaviors.FormatterBehavior],
 
       attached: function() {
-        this.set('tasks', this.round.tasks);
-        this.score = this.round.score;
-        this.totalTime = this.round.total_completion_time;
+        this._onRoundUpdated()
       },
 
       // Toggle collapse elements.
@@ -73,6 +71,16 @@
         this.currenticon = this.currenticon === this.expandicon ?
             this.collapseicon : this.expandicon;
         this.$$('#' + e.currentTarget.dataArgs).toggle();
+      },
+
+      // Callback when round resource is updated
+      _onRoundUpdated: function() {
+        if (this.round == undefined)
+          return
+
+        this.set('tasks', this.round.tasks);
+        this.score = this.round.score;
+        this.totalTime = this.round.total_completion_time;
       },
 
       properties: {
@@ -85,6 +93,7 @@
           type: Array,
           value: [],
           notify: true,
+          observer: '_onRoundUpdated'
         },
         number: {
           type: Number,
