@@ -843,7 +843,9 @@
       // Return the status of the Harness.
       _getHarnessStatus: function() {
         let statusMessage = "N/A";
-        if (this.srcsimData && this.srcsimData.simulator) {
+        if (this.srcsimData &&
+            this.srcsimData.simulator &&
+            this.srcsimData.simulator.harness_status) {
           statusMessage = this.srcsimData.simulator.harness_status;
         }
         return statusMessage;
