@@ -95,7 +95,7 @@
             <div class="horizontal center">
               <span class="property">Checkpoint [[formatArrayIndex(index)]]</span>
               <div class="space"></div>
-              <span class="value">[[formatTime(item)]]</span>
+              <span class="value">[[_formatDuration(item)]]</span>
             </div>
 
             <div class="horizontal center">
@@ -132,6 +132,12 @@
         return (task !== null) && (task.start_time !== undefined);
       },
 
+      _formatDuration: function(seconds) {
+        // if seconds/duration == -1 then it means it was manually pushed by us to represent current
+        // checkpoint.
+        return (seconds === -1) ? 'Running' : this.formatTime(seconds)
+      },
+
       // Return the corresponding penalty for a given checkpoint.
       _getAssociatedPenalty: function(index) {
         return this.formatTime(this.checkpointPenalties[index]);
@@ -140,6 +146,12 @@
       // Callback when task resource is updated
       _onTaskUpdated: function() {
         if (this.task !== null) {
+          // if the task has more penalties than durations then it means there is a current checkpoint
+          // in progress for which we didn't receive its duration yet (since it wasn't completed).
+          // We mark it with a duration -1.
+          if (this.task.checkpoint_penalties.length == this.task.checkpoint_durations.length + 1) {
+            this.task.checkpoint_durations.push(-1)
+          }
           this.set('checkpointDurations', this.task.checkpoint_durations);
           this.set('checkpointPenalties', this.task.checkpoint_penalties);
           this.currentCheckpoint = this.task.current_checkpoint;

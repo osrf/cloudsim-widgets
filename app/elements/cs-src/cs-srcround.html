@@ -571,8 +571,22 @@
       _onSrcSimData: function(e) {
         let resp = e.detail.response
         if (resp.success) {
+          // this will fire _onSrcSimDataUpdatedInternal observer too
           this.set('srcsimData', resp.result.data)
         }
+      },
+
+      // internal observer function invoked whenever the this.srcsimData is updated
+      _onSrcSimDataUpdatedInternal: function() {
+        if (!this.srcsimData || !this.srcsimData.simulator) {
+          return
+        }
+        // Let the user know if we get a failed status while launching a simulation (but only one time)
+        if (this.srcsimData.simulator.simulator_ready == -1 && this._previousSimulatorReadyValue != -1) {
+          this.fire('error', 'Failed to launch simulation. Please Stop and re-Run the round')
+        }
+        // save the received status for future checks
+        this._previousSimulatorReadyValue = this.srcsimData.simulator.simulator_ready
       },
 
       _shouldDisableSimulator: function() {
@@ -580,7 +594,15 @@
       },
 
       _shouldDisableSimulatorRunButton: function(worldNumber) {
-        return this._shouldDisableSimulator() || this.srcsimData.simulator.state_machine != 'READY'
+        if (this._shouldDisableSimulator()) {
+          return true
+        }
+        // We should enable Run buttons when either the state machine is READY or
+        // when it was marked as RUNNING but the simulation process failed during launch.
+        const shouldEnableRun = this.srcsimData.simulator.state_machine == 'READY'
+          || (this.srcsimData.simulator.state_machine == 'RUNNING' && this.srcsimData.simulator.simulator_ready == -1)
+
+        return !shouldEnableRun
       },
 
       _shouldDisableSimulatorStop: function() {
@@ -780,7 +802,7 @@
         if (this.srcsimData && this.srcsimData.simulator) {
           switch(this.srcsimData.simulator.state_machine) {
             case "READY":
-              statusMessage = "Waiting simulation";
+              statusMessage = "Ready";
               break;
             case "RUNNING":
               statusMessage = "Running";
@@ -878,6 +900,7 @@
           type: Object,
           value: {},
           notify: true,
+          observer: '_onSrcSimDataUpdatedInternal'
         },
       },
     });
