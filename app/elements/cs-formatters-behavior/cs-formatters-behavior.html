@@ -1,0 +1,22 @@
+<script src="../../bower_components/moment/min/moment.min.js"></script>
+
+<script>
+  let CustomBehaviors = {};
+  CustomBehaviors.FormatterBehavior = {
+
+    // Print a Boolean value as Yes or No.
+    formatAsYesNo: function(boolean) {
+      return (boolean) ? "Yes" : "No";
+    },
+
+    // Print array index in base-1 instead of base-0.
+    formatArrayIndex: function(index) {
+      return index + 1;
+    },
+
+    // Format time in H:mm:ss.SSS
+    formatTime: function(seconds) {
+      return moment().startOf('day').milliseconds(seconds*1000).format('H:mm:ss.SSS');
+    },
+  };
+</script>

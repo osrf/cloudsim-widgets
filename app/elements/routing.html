@@ -159,6 +159,23 @@
       }, 100);
     });
 
+    page('/src-results', function() {
+      if (app.loggedin) {
+        app.topLevelRoute = 'secure';
+        app.secureRoute = 'src';
+        if (app.issrccompetitor || app.issrcorganizer) {
+          app.srcRoute = 'results';
+        } else {
+          app.srcRoute = 'home';
+        }
+      } else {
+        app.topLevelRoute = 'src';
+      }
+      setTimeout(function () {
+        window.dispatchEvent(changeEvent)
+      }, 100);
+    });
+
     // 404
     page('*', function() {
       page.redirect(app.baseUrl);

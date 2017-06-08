@@ -61,7 +61,7 @@
       margin: 1em;
       text-overflow: ellipsis;
       overflow: hidden;
-      max-width: 8em;
+      max-width: 9em;
       white-space: nowrap;
     }
     .noellipsis {
@@ -223,6 +223,36 @@
             </div>
           </paper-material>
 
+          <!-- Status Feedback -->
+          <paper-material elevation="1" class="subbox">
+            <h4>Status</h4>
+            <div class="vertical box-content">
+              <div class="horizontal item">
+                <span class="property" title="Status of the docker container">
+                  Process
+                </span>
+                <div class="space"></div>
+                <span class="value">[[_getProcessStatus(srcsimData)]]</span>
+              </div>
+
+              <div class="horizontal item">
+                <span class="property" title="Status of the launched simulator process">
+                  Simulator
+                </span>
+                <div class="space"></div>
+                <span class="value">[[_getSimulatorStatus(srcsimData)]]</span>
+              </div>
+
+              <div class="horizontal item">
+                <span class="property" title="Status of the harness in simulation">
+                  Harness
+                </span>
+                <div class="space"></div>
+                <span class="value">[[_getHarnessStatus(srcsimData)]]</span>
+              </div>
+            </div>
+          </paper-material>
+
           <!-- Practice -->
           <template is="dom-if" if="[[rounddata.secure]]">
             <paper-material elevation="1" class="subbox">
@@ -274,38 +304,48 @@
               <div class="vertical">
 
                 <div class="horizontal">
-                  <!-- Dev note: (trick) we need to pass srcsimData property here to fire invocations when
-                  its value changes -->
-                  <paper-button disabled="[[_shouldDisableSimulator(srcsimData)]]" raised on-tap="_onStartSim" data-args="1">
-                    <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
-                    1
-                  </paper-button>
 
-                  <paper-button disabled="[[_shouldDisableSimulator(srcsimData)]]" raised on-tap="_onStartSim" data-args="4">
-                    <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
-                    4
-                  </paper-button>
+                  <template is="dom-if" if="[[_hasWorld(srcsimData, 1)]]">
+                    <!-- Dev note: (trick) we need to pass srcsimData property here to fire invocations when
+                    its value changes -->
+                    <paper-button disabled="[[_shouldDisableSimulatorRunButton(1, srcsimData)]]" raised on-tap="_onStartSim" data-args="1">
+                      <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
+                      1
+                    </paper-button>
+                  </template>
+
+                  <template is="dom-if" if="[[_hasWorld(srcsimData, 4)]]">
+                    <paper-button disabled="[[_shouldDisableSimulatorRunButton(4, srcsimData)]]" raised on-tap="_onStartSim" data-args="4">
+                      <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
+                      4
+                    </paper-button>
+                  </template>
                 </div>
 
                 <div class="horizontal">
-                  <paper-button disabled="[[_shouldDisableSimulator(srcsimData)]]" raised on-tap="_onStartSim" data-args="2">
-                    <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
-                    2
-                  </paper-button>
-
-                  <paper-button disabled="[[_shouldDisableSimulator(srcsimData)]]" raised on-tap="_onStartSim" data-args="5">
-                    <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
-                    5
-                  </paper-button>
+                  <template is="dom-if" if="[[_hasWorld(srcsimData, 2)]]">
+                    <paper-button disabled="[[_shouldDisableSimulatorRunButton(2, srcsimData)]]" raised on-tap="_onStartSim" data-args="2">
+                      <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
+                      2
+                    </paper-button>
+                  </template>
+                  <template is="dom-if" if="[[_hasWorld(srcsimData, 5)]]">
+                    <paper-button disabled="[[_shouldDisableSimulatorRunButton(5, srcsimData)]]" raised on-tap="_onStartSim" data-args="5">
+                      <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
+                      5
+                    </paper-button>
+                  </template>
                 </div>
 
                 <div class="horizontal">
-                  <paper-button disabled="[[_shouldDisableSimulator(srcsimData)]]" raised on-tap="_onStartSim" data-args="3">
-                    <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
-                    3
-                  </paper-button>
+                  <template is="dom-if" if="[[_hasWorld(srcsimData, 3)]]">
+                    <paper-button disabled="[[_shouldDisableSimulatorRunButton(3, srcsimData)]]" raised on-tap="_onStartSim" data-args="3">
+                      <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
+                      3
+                    </paper-button>
+                  </template>
 
-                  <paper-button disabled="[[_shouldDisableSimulator(srcsimData)]]" raised on-tap="_onStopSim">
+                  <paper-button disabled="[[_shouldDisableSimulatorStop(srcsimData)]]" raised on-tap="_onStopSim">
                     <iron-icon icon="icons:av:stop" class="redIcon"></iron-icon>
                     Stop
                   </paper-button>
@@ -437,12 +477,12 @@
 
               <!-- Dev note: (trick) we need to pass srcsimData property here to fire invocations when
               its value changes -->
-              <paper-button disabled="[[_shouldDisableFc(srcsimData)]]" raised on-tap="_onStartFc">
+              <paper-button disabled="[[_shouldDisableFcStart(srcsimData)]]" raised on-tap="_onStartFc">
                 <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
                 Start
               </paper-button>
 
-              <paper-button disabled="[[_shouldDisableFc(srcsimData)]]" raised on-tap="_onStopFc">
+              <paper-button disabled="[[_shouldDisableFcStop(srcsimData)]]" raised on-tap="_onStopFc">
                 <iron-icon icon="icons:av:stop" class="redIcon"></iron-icon>
                 Stop
               </paper-button>
@@ -457,16 +497,19 @@
 
       <div class="space"></div>
 
-      <paper-button
-        raised
-        class="white"
-        id="finishbutton"
-        on-tap="_onFinish"
-        title="Kill all machines in this round"
-      >
-        <iron-icon icon="icons:close" class="red"></iron-icon>
-        Finish constellation
-      </paper-button>
+      <!-- Finish button -->
+      <template is="dom-if" if="[[rounddata.secure]]">
+        <paper-button
+          raised
+          class="white"
+          id="finishbutton"
+          on-tap="_onFinish"
+          title="Kill all machines in this round"
+        >
+          <iron-icon icon="icons:close" class="red"></iron-icon>
+          Finish constellation
+        </paper-button>
+      </template>
 
     </center>
 
@@ -528,12 +571,42 @@
       _onSrcSimData: function(e) {
         let resp = e.detail.response
         if (resp.success) {
+          // this will fire _onSrcSimDataUpdatedInternal observer too
           this.set('srcsimData', resp.result.data)
         }
       },
 
+      // internal observer function invoked whenever the this.srcsimData is updated
+      _onSrcSimDataUpdatedInternal: function() {
+        if (!this.srcsimData || !this.srcsimData.simulator) {
+          return
+        }
+        // Let the user know if we get a failed status while launching a simulation (but only one time)
+        if (this.srcsimData.simulator.simulator_ready == -1 && this._previousSimulatorReadyValue != -1) {
+          this.fire('error', 'Failed to launch simulation. Please Stop and re-Run the round')
+        }
+        // save the received status for future checks
+        this._previousSimulatorReadyValue = this.srcsimData.simulator.simulator_ready
+      },
+
       _shouldDisableSimulator: function() {
         return !this.srcsimData || !this.srcsimData.simulator || !this.srcsimData.simulator.ready
+      },
+
+      _shouldDisableSimulatorRunButton: function(worldNumber) {
+        if (this._shouldDisableSimulator()) {
+          return true
+        }
+        // We should enable Run buttons when either the state machine is READY or
+        // when it was marked as RUNNING but the simulation process failed during launch.
+        const shouldEnableRun = this.srcsimData.simulator.state_machine == 'READY'
+          || (this.srcsimData.simulator.state_machine == 'RUNNING' && this.srcsimData.simulator.simulator_ready == -1)
+
+        return !shouldEnableRun
+      },
+
+      _shouldDisableSimulatorStop: function() {
+        return this._shouldDisableSimulator() || this.srcsimData.simulator.state_machine != 'RUNNING'
       },
 
       _shouldDisableFc: function() {
@@ -541,9 +614,25 @@
           // No data yet. Disable buttons!
           return true
         }
+
+        if (this.srcsimData.fieldcomputer.fc_docker_image !== undefined &&
+            this.srcsimData.fieldcomputer.fc_docker_image === "") {
+          this.fire('error', 'Failed to build field computer in ' +
+            this.roundname + '. Please contact administrators.');
+          return true;
+        }
+
         // Disable buttons if the team's docker image has not been built yet or if the cloudsim-sim
         // server is not ready.
         return !this.srcsimData.fieldcomputer.ready || !this.srcsimData.fieldcomputer.fc_docker_image
+      },
+
+      _shouldDisableFcStart: function() {
+        return this._shouldDisableFc() || this.srcsimData.fieldcomputer.state_machine != 'READY'
+      },
+
+      _shouldDisableFcStop: function() {
+        return this._shouldDisableFc() || this.srcsimData.fieldcomputer.state_machine != 'RUNNING'
       },
 
       // Start a world on the simulator
@@ -559,17 +648,12 @@
         }
         const now = (new Date().toISOString()).replace(/\./g,'-').replace(/:/g,'-')
         const worldName = 'world_' + n + '_' + now
-        // TODO: the logging flag should not be defined at the client.
-        // We should make the portal define this value. Client invoked commands
-        // should be always the same regardless of whether state will be logged
-        // in the background.
-        const loggingEnabled = false
         this.$.sim_run_cmds.body = {
           'host': this.rounddata.simulator.data.machine_ip + ':' + this.simPort,
           'path': '/simulations',
-          'cmd': "src_commands/run_gazebo.bash " + worldName + " " + n + " " + loggingEnabled,
+          'cmd': "src_commands/run_gazebo.bash " + worldName + " " + n,
           'stopCmd': "src_commands/stop_gazebo.bash " + worldName,
-          'logCmd': loggingEnabled && ("src_commands/send_logs.bash " + worldName),
+          'logCmd': "src_commands/send_logs.bash " + worldName,
           'auto': true
         }
         this.$.sim_run_cmds.url = this.portalurl + '/srcproxy'
@@ -690,6 +774,81 @@
         this.fire('notification', "Copied to clipboard!")
       },
 
+      // Whether the world with the given number is enabled for this
+      // constellation
+      _hasWorld: function(dummy, _number) {
+
+        // No data yet
+        if (!this.rounddata)
+          return false
+
+        // Data, but no worlds: old round, enable all worlds for backward
+        // compatibility
+        if (!this.rounddata.worlds)
+          return true
+
+        // Empty array means it's a user practicing, all worlds are enabled
+        if (this.rounddata.worlds.length === 0)
+          return true
+
+        // Otherwise, this is a round started by an admin and only given worlds
+        // are enabled
+        return this.rounddata.worlds.indexOf(_number) >= 0
+      },
+
+      // Return the status given the current state.
+      _getProcessStatus: function() {
+        let statusMessage = "N/A";
+        if (this.srcsimData && this.srcsimData.simulator) {
+          switch(this.srcsimData.simulator.state_machine) {
+            case "READY":
+              statusMessage = "Ready";
+              break;
+            case "RUNNING":
+              statusMessage = "Running";
+              break;
+            case "FINISHING":
+              statusMessage = "Stopping";
+              break;
+            case "FINISHED":
+              statusMessage = "Stopped";
+              break;
+            case "SENDING LOGS":
+              statusMessage = "Sending logs";
+              break;
+          }
+        }
+        return statusMessage;
+      },
+
+      // Return the status of the simulator initialization.
+      _getSimulatorStatus: function() {
+        let statusMessage = "N/A";
+        if (this.srcsimData && this.srcsimData.simulator) {
+          switch(this.srcsimData.simulator.simulator_ready) {
+            case -1:
+              statusMessage = "Failed";
+              break;
+            case 0:
+              statusMessage = "Pending";
+              break;
+            case 1:
+              statusMessage = "Success";
+              break;
+          }
+        }
+        return statusMessage;
+      },
+
+      // Return the status of the Harness.
+      _getHarnessStatus: function() {
+        let statusMessage = "N/A";
+        if (this.srcsimData && this.srcsimData.simulator) {
+          statusMessage = this.srcsimData.simulator.harness_status;
+        }
+        return statusMessage;
+      },
+
       // Properties
       properties: {
         rounddata: {
@@ -741,6 +900,7 @@
           type: Object,
           value: {},
           notify: true,
+          observer: '_onSrcSimDataUpdatedInternal'
         },
       },
     });
