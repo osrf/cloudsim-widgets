@@ -80,7 +80,9 @@
       url="[[portalurl]]"
       token="[[token]]"
       resourcename="srcsimulation"
-      on-resourcesupdated="_onAllSimulations">
+      on-resourcesupdated="_onAllSimulations"
+      on-resource="_onResourceUpdate"
+    >
     </gz-resources>
 
     <paper-header-panel class="blue">
@@ -90,7 +92,7 @@
     </paper-header-panel>
 
     <!-- List the Simulations -->
-    <template is="dom-repeat" items="{{simulations}}">
+    <template is="dom-repeat" items="[[simulations]]">
       <paper-material elevation="1" class="simulation-row">
         <paper-material elevation="0" class="grey">
           <paper-button
@@ -105,7 +107,7 @@
 
         <iron-collapse id="[[item.name]]">
           <template is="dom-repeat" items="[[_getRoundsArray(item)]]" as="round">
-            <template is="dom-if" if={{round}} restamp>
+            <template is="dom-if" if=[[round]] restamp>
               <cs-srcroundresult round="[[round]]" number="[[index]]"></cs-srcroundresult>
             </template>
           </template>
@@ -128,6 +130,7 @@
       // Callback when the token has been updated
       _onTokenUpdated: function() {
         if (this.token !== "") {
+          this.$.simulations.connect();
           this.$.simulations.getAll();
         }
       },
@@ -178,6 +181,17 @@
       // Toggle collapse elements.
       _toggle: function(e) {
         this.$$('#' + e.currentTarget.dataArgs).toggle();
+      },
+
+      // Callback from the server when there are any resource changes
+      _onResourceUpdate: function(e) {
+        // Check if this is a srcsimulation data update
+        if (e.detail.resource
+          && typeof(e.detail.resource) == "string"
+          && e.detail.resource.startsWith("srcsimulations-")) {
+
+          this.$.simulations.getAll();
+        }
       },
 
       properties: {
