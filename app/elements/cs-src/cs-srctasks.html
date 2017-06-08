@@ -1,0 +1,219 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-srctasks">
+  <style>
+    .space {
+      @apply(--layout-flex);
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+    }
+    .center {
+      @apply(--layout-center);
+    }
+    .tasks {
+      padding: 1em;
+      width: 15em;
+      margin: 1em;
+      flex-direction: column;
+    }
+    .tasks > h4 {
+      text-align: center;
+      margin: 0;
+    }
+    .checkpoints-header {
+      font-weight: bold;
+    }
+    .property {
+      font-weight: bold;
+      color: #7a7a7a;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      /*padding: 0.5em;*/
+    }
+    .red {
+      color: red;
+    }
+    .value {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      max-width: 8em;
+      white-space: nowrap;
+      /*margin: 0.5em;*/
+    }
+    .notification {
+      font-style: italic;
+    }
+  </style>
+  <template>
+
+    <!-- Show the Task Results-->
+    <div class="horizontal">
+      <paper-material elevation="1" class="tasks">
+        <h4>Task [[formatArrayIndex(taskNumber)]]</h4>
+
+        <template is="dom-if" if="[[!started]]" restamp>
+          <span class="property notification">Waiting</span>
+        </template>
+
+        <template is="dom-if" if="[[started]]" restamp>
+          <div class="horizontal center">
+            <span class="property">Finished</span>
+            <div class="space"></div>
+            <span class="value">[[formatAsYesNo(finished)]]</span>
+          </div>
+
+          <div class="horizontal center">
+            <span class="property">Timed out</span>
+            <div class="space"></div>
+            <span class="value">[[formatAsYesNo(timedOut)]]</span>
+          </div>
+
+          <div class="horizontal center">
+            <span class="property">Start time</span>
+            <div class="space"></div>
+            <span class="value">[[formatTime(startTime)]]</span>
+          </div>
+
+          <div class="horizontal center">
+            <span class="property">Elapsed</span>
+            <div class="space"></div>
+            <span class="value">[[formatTime(elapsedTime)]]</span>
+          </div>
+
+          <div class="horizontal center">
+            <span class="property">Time Left</span>
+            <div class="space"></div>
+            <span class="value">[[formatTime(taskTimeLeft)]]</span>
+          </div>
+
+          <p class="checkpoints-header">Checkpoints</p>
+
+          <template is="dom-repeat" items="{{checkpointDurations}}">
+            <div class="horizontal center">
+              <span class="property">Checkpoint [[formatArrayIndex(index)]]</span>
+              <div class="space"></div>
+              <span class="value">[[_formatDuration(item)]]</span>
+            </div>
+
+            <div class="horizontal center">
+              <span class="property">Penalty</span>
+              <div class="space"></div>
+              <span class="value red">[[_getAssociatedPenalty(index)]]</span>
+            </div>
+          </template>
+        </template>
+      </paper-material>
+    </div>
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-srctasks',
+      behaviors: [CustomBehaviors.FormatterBehavior],
+
+      // Store the task fields, as a task can be null.
+      attached: function() {
+        if (this.task !== null) {
+          // if the task has more penalties than durations then it means there is a current checkpoint
+          // in progress for which we didn't receive its duration yet (since it wasn't completed).
+          // We mark it with a duration -1.
+          if (this.task.checkpoint_penalties.length == this.task.checkpoint_durations.length + 1) {
+            this.task.checkpoint_durations.push(-1)
+          }
+          this.set('checkpointDurations', this.task.checkpoint_durations);
+          this.set('checkpointPenalties', this.task.checkpoint_penalties);
+          this.currentCheckpoint = this.task.current_checkpoint;
+          this.startTime = this.task.start_time;
+          this.timedOut = this.task.timed_out;
+          this.elapsedTime = this.task.elapsed_time;
+          this.finished = this.task.finished;
+        }
+      },
+
+      // Calculate the time left for the current task.
+      _calculateTimeLeft: function(number, length, elapsed) {
+        return length[number] - elapsed;
+      },
+
+      // Check whether the task started or not.
+      _hasStarted: function(task) {
+        return (task !== null) && (task.start_time !== undefined);
+      },
+
+      _formatDuration: function(seconds) {
+        // if seconds/duration == -1 then it means it was manually pushed by us to represent current
+        // checkpoint.
+        return (seconds === -1) ? 'Running' : this.formatTime(seconds)
+      },
+
+      // Return the corresponding penalty for a given checkpoint.
+      _getAssociatedPenalty: function(index) {
+        return this.formatTime(this.checkpointPenalties[index]);
+      },
+
+      properties: {
+        task: {
+          type: Array,
+          value: [],
+          notify: true,
+        },
+        taskNumber: {
+          type: Number,
+          notify: true,
+        },
+        taskLength: {
+          type: Array,
+          // Task time of 30m, 1h and 2h in seconds.
+          value: [1800, 3600, 7200],
+          readOnly: true,
+        },
+        currentCheckpoint: {
+          type: Array,
+          value: [],
+        },
+        startTime: {
+          type: Number,
+          value: 0,
+        },
+        timedOut: {
+          type: Boolean,
+          value: 0,
+        },
+        elapsedTime: {
+          type: Number,
+          value: 0,
+        },
+        taskTimeLeft: {
+          type: Number,
+          notify: true,
+          computed: '_calculateTimeLeft(taskNumber, taskLength, elapsedTime)'
+        },
+        finished: {
+          type: Boolean,
+          value: false,
+          notify: true,
+        },
+        checkpointPenalties: {
+          type: Array,
+          value: [],
+        },
+        checkpointDurations: {
+          type: Array,
+          value: [],
+        },
+        started: {
+          type: Boolean,
+          value: false,
+          computed: '_hasStarted(task)'
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>
