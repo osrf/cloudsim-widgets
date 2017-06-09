@@ -121,6 +121,11 @@
       background-color: #f35046;
       color: #fff;
     }
+    .copy-button {
+      max-width: 1em;
+      max-height: 1em;
+      padding: 0;
+    }
     paper-checkbox {
       --paper-checkbox-checkmark-color: black;
     }
@@ -168,7 +173,7 @@
 
       <div class="main-content">
 
-        <iron-data-table items="[[s3keys]]" selection-enabled on-selecting-item="_onS3KeyDialog">
+        <iron-data-table id="dataTable" items="[[s3keys]]" selection-enabled on-selecting-item="_onS3KeyDialog">
 
           <data-table-column name="Bucket name" width="3em">
             <template>
@@ -179,12 +184,32 @@
           <data-table-column name="Access key" width="4em">
             <template>
               <span class="textellipsis" title="[[item.data.access_key]]">[[item.data.access_key]]</span>
+              <cbn-copy-clipboard
+                value="[[item.data.access_key]]">
+                <paper-icon-button
+                  icon="icons:content-copy"
+                  class="copy-button"
+                  title="Copy Access Key to clipboard"
+                  data-args="[[item]]"
+                  on-tap="_copyAndPreventDialog">
+                </paper-icon-button>
+              </cbn-copy-clipboard>
             </template>
           </data-table-column>
 
           <data-table-column name="Secret key" width="4em">
             <template>
               <span class="textellipsis" title="[[item.data.secret_key]]">[[item.data.secret_key]]</span>
+              <cbn-copy-clipboard
+                value="[[item.data.secret_key]]">
+                <paper-icon-button
+                  icon="icons:content-copy"
+                  class="copy-button"
+                  title="Copy Secret Key to clipboard"
+                  data-args="[[item]]"
+                  on-tap="_copyAndPreventDialog">
+                </paper-icon-button>
+              </cbn-copy-clipboard>
             </template>
           </data-table-column>
 
@@ -591,6 +616,12 @@
       /// or the user is admin of selected s3key.
       _currentOrAdmin: function(index) {
         return this.isselectedadmin || !index;
+      },
+
+      // Prevent the dialog from showing up after copy.
+      _copyAndPreventDialog: function(e) {
+        this.$.dataTable.selectItem(e.currentTarget.dataArgs);
+        this.fire('notification', 'Copied key to clipboard.');
       },
 
       properties: {
