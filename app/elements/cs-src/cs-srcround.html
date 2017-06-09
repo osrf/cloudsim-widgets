@@ -647,7 +647,9 @@
           return
         }
         const now = (new Date().toISOString()).replace(/\./g,'-').replace(/:/g,'-')
-        const worldName = 'world_' + n + '_' + now
+        // Replace non valid mount (docker -v) chars in the roundName
+        const round = this.roundname.replace(/\./g,'-').replace(/:/g,'-')
+        const worldName = 'world_' + n + '_' + round + '_' + now
         this.$.sim_run_cmds.body = {
           'host': this.rounddata.simulator.data.machine_ip + ':' + this.simPort,
           'path': '/simulations',
