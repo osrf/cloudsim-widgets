@@ -185,14 +185,14 @@
             <template>
               <span class="textellipsis" title="[[item.data.access_key]]">[[item.data.access_key]]</span>
               <cbn-copy-clipboard
-                id="[[item.data.access_key]]"
+                id="access-key-[[index]]"
                 value="[[item.data.access_key]]">
               </cbn-copy-clipboard>
               <paper-icon-button
                 icon="icons:content-copy"
                 class="copy-button"
                 title="Copy Access Key to clipboard"
-                data-args="[[item.data.access_key]]"
+                data-args="access-key-[[index]]"
                 on-tap="_copyAndPreventDialog">
               </paper-icon-button>
             </template>
@@ -202,14 +202,14 @@
             <template>
               <span class="textellipsis" title="[[item.data.secret_key]]">[[item.data.secret_key]]</span>
               <cbn-copy-clipboard
-                id="[[item.data.secret_key]]"
+                id="secret-key-[[index]]"
                 value="[[item.data.secret_key]]">
               </cbn-copy-clipboard>
               <paper-icon-button
                 icon="icons:content-copy"
                 class="copy-button"
                 title="Copy Secret Key to clipboard"
-                data-args="[[item.data.secret_key]]"
+                data-args="secret-key-[[index]]"
                 on-tap="_copyAndPreventDialog">
               </paper-icon-button>
             </template>
