@@ -173,7 +173,7 @@
 
       <div class="main-content">
 
-        <iron-data-table items="[[s3keys]]" selection-enabled on-selecting-item="_onS3KeyDialog">
+        <iron-data-table id="dataTable" items="[[s3keys]]" selection-enabled on-selecting-item="_onS3KeyDialog">
 
           <data-table-column name="Bucket name" width="3em">
             <template>
@@ -189,7 +189,9 @@
                 <paper-icon-button
                   icon="icons:content-copy"
                   class="copy-button"
-                  title="Copy Access Key to clipboard">
+                  title="Copy Access Key to clipboard"
+                  data-args="[[item]]"
+                  on-tap="_copyAndPreventDialog">
                 </paper-icon-button>
               </cbn-copy-clipboard>
             </template>
@@ -203,7 +205,9 @@
                 <paper-icon-button
                   icon="icons:content-copy"
                   class="copy-button"
-                  title="Copy Secret Key to clipboard">
+                  title="Copy Secret Key to clipboard"
+                  data-args="[[item]]"
+                  on-tap="_copyAndPreventDialog">
                 </paper-icon-button>
               </cbn-copy-clipboard>
             </template>
@@ -416,7 +420,6 @@
       _onS3KeyDialog(e) {
         // Set selected s3key
         let s3keyObj = e.detail.item
-
         if (!s3keyObj) {
           console.error(this.s3keys)
 
@@ -612,6 +615,12 @@
       /// or the user is admin of selected s3key.
       _currentOrAdmin: function(index) {
         return this.isselectedadmin || !index;
+      },
+
+      // Prevent the dialog from showing up after copy.
+      _copyAndPreventDialog: function(e) {
+        this.$.dataTable.selectItem(e.currentTarget.dataArgs);
+        this.fire('notification', 'Copied key to clipboard.');
       },
 
       properties: {
