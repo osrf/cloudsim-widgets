@@ -646,6 +646,9 @@
           this.fire('error', 'Failed to start run, missing simulator IP.')
           return
         }
+        // Disable the pressed button to prevent multiple clicks.
+        e.currentTarget.disabled = true;
+
         const now = (new Date().toISOString()).replace(/\./g,'-').replace(/:/g,'-')
         const worldName = 'world_' + n + '_' + now
         this.$.sim_run_cmds.body = {
@@ -700,6 +703,9 @@
           this.fire('error', 'Failed to start user code, missing field computer IP.')
           return
         }
+
+        // Disable the Start button as soon as it gets clicked.
+        e.currentTarget.disabled = true;
 
         this.$.sim_run_cmds.body = {
           'host': this.rounddata.fieldcomputer.data.machine_ip + ':' + this.simPort,
