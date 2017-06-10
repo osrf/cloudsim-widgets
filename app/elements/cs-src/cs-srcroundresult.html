@@ -35,6 +35,7 @@
       data-args="round-[[number]]"
       noink
       >
+      <iron-icon icon="[[currenticon]]"></iron-icon>
       Round #[[formatArrayIndex(number)]]
     </paper-button>
 
@@ -62,14 +63,24 @@
       behaviors: [CustomBehaviors.FormatterBehavior],
 
       attached: function() {
-        this.set('tasks', this.round.tasks);
-        this.score = this.round.score;
-        this.totalTime = this.round.total_completion_time;
+        this._onRoundUpdated()
       },
 
       // Toggle collapse elements.
       _toggle: function(e) {
+        this.currenticon = this.currenticon === this.expandicon ?
+            this.collapseicon : this.expandicon;
         this.$$('#' + e.currentTarget.dataArgs).toggle();
+      },
+
+      // Callback when round resource is updated
+      _onRoundUpdated: function() {
+        if (this.round == undefined)
+          return
+
+        this.set('tasks', this.round.tasks);
+        this.score = this.round.score;
+        this.totalTime = this.round.total_completion_time;
       },
 
       properties: {
@@ -82,12 +93,12 @@
           type: Array,
           value: [],
           notify: true,
+          observer: '_onRoundUpdated'
         },
         number: {
           type: Number,
           notify: true
         },
-        // TODO(german-mas): These fields are yet to be received.
         score: {
           type: Number,
           value: 0,
@@ -96,6 +107,21 @@
         totalTime: {
           type: Number,
           value: 0,
+          notify: true
+        },
+        expandicon: {
+          type: String,
+          value: "icons:expand-more",
+          readOnly: true,
+        },
+        collapseicon: {
+          type: String,
+          value: "icons:expand-less",
+          readOnly: true,
+        },
+        currenticon: {
+          type: String,
+          value: "icons:expand-less",
           notify: true
         },
       },
