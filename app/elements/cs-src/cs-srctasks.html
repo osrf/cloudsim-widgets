@@ -89,6 +89,24 @@
             <span class="value">[[formatTime(taskTimeLeft)]]</span>
           </div>
 
+          <div class="horizontal center">
+            <span class="property">Uplink</span>
+            <div class="space"></div>
+            <span class="value">[[task.uplink]]</span>
+          </div>
+
+          <div class="horizontal center">
+            <span class="property">Downlink</span>
+            <div class="space"></div>
+            <span class="value">[[task.downlink]]</span>
+          </div>
+
+          <div class="horizontal center">
+            <span class="property">Latency</span>
+            <div class="space"></div>
+            <span class="value">[[task.latency]]</span>
+          </div>
+
           <p class="checkpoints-header">Checkpoints</p>
 
           <template is="dom-repeat" items="{{checkpointDurations}}">
@@ -152,6 +170,14 @@
           if (this.task.checkpoint_penalties.length == this.task.checkpoint_durations.length + 1) {
             this.task.checkpoint_durations.push(-1)
           }
+
+          if (!this.task.uplink)
+            this.task.uplink = "N/A"
+          if (!this.task.downlink)
+            this.task.downlink = "N/A"
+          if (!this.task.latency)
+            this.task.latency = "N/A"
+
           this.set('checkpointDurations', this.task.checkpoint_durations);
           this.set('checkpointPenalties', this.task.checkpoint_penalties);
           this.currentCheckpoint = this.task.current_checkpoint;
