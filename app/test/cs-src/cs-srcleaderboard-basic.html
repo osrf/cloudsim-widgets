@@ -1,26 +1,31 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-  <title>cs-preciouskiosk-basic</title>
+  <title>cs-srcleaderboard-basic</title>
 
   <script src="../../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
   <script src="../../bower_components/web-component-tester/browser.js"></script>
 
   <!-- Import the element to test -->
-  <link rel="import" href="../../elements/cs-precious/cs-preciouskiosk.html">
+  <link rel="import" href="../../elements/cs-src/cs-srcleaderboard.html">
 
 </head>
 <body>
+  <script>
+    function getConfig() {
+      return {auth : 'auth', portal : 'portal'}
+    }
+  </script>
 
   <test-fixture id="basic">
     <template>
-      <cs-preciouskiosk></cs-preciouskiosk>
+      <cs-srcleaderboard></cs-srcleaderboard>
     </template>
   </test-fixture>
 
   <script>
 
-    suite('cs-preciouskiosk tests', function() {
+    suite('cs-srcleaderboard tests', function() {
       setup(function() {
         component = fixture('basic');
       });

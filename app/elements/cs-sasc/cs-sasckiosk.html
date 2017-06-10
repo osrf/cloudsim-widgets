@@ -157,6 +157,23 @@
               </paper-dropdown-menu>
             </div>
 
+            <div class="horizontal">
+              <p>Number of machines per team:</p>
+              <div class="space"></div>
+              <paper-dropdown-menu label="Machine count">
+                <paper-listbox
+                  class="dropdown-content"
+                  attr-for-selected="value"
+                  selected="{{payloadcount}}"
+                 >
+                 <paper-item value="1">1</paper-item>
+                 <paper-item value="2">2</paper-item>
+                 <paper-item value="3">3</paper-item>
+                 <paper-item value="4">4</paper-item>
+                 <paper-item value="5">5</paper-item>
+                </paper-listbox>
+              </paper-dropdown-menu>
+            </div>
 
             <div class="horizontal">
               <paper-icon-button
@@ -272,7 +289,8 @@
         // Check for empty fields
         if (this.roundname === "" ||
             !this.blueuser ||
-            !this.golduser) {
+            !this.golduser ||
+            !this.payloadcount) {
 
           this.fire('error', 'No fields can be empty.')
           return
@@ -302,6 +320,7 @@
           admin: this.currentuser,
           blueuser: this.blueuser,
           golduser: this.golduser,
+          payloadcount: this.payloadcount,
           arbiterami: this.arbiterami,
           payloadami: this.payloadami,
           arbiterhardware: this.arbiterhardware,
@@ -413,11 +432,11 @@
         },
         arbiterami: {
           type: String,
-          value: "ami-38633458" // sasc v1.0.11a
+          value: "ami-4dfeda2d" // sasc v1.0.52
         },
         payloadami: {
           type: String,
-          value: "ami-38633458" // sasc v1.0.11a
+          value: "ami-4dfeda2d" // sasc v1.0.52
         },
         arbiterhardware: {
           type: String,
@@ -430,6 +449,10 @@
         issascadmin: {
           type: Boolean,
           value: false
+        },
+        payloadcount: {
+          type: Number,
+          value: 1
         },
       },
     });

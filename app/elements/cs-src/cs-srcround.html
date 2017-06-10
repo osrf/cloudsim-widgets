@@ -1,0 +1,909 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-srcround">
+  <style>
+    .space {
+      @apply(--layout-flex);
+    }
+    .about-half {
+      min-width: 45%;
+      margin-right: 2%;
+      margin-left: 2%;
+      @apply(--layout-self-start);
+    }
+    .item {
+      height: 2em;
+      width: 100%;
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+    .vertical {
+      @apply(--layout-vertical);
+      @apply(--layout-center);
+    }
+    .cloudsim-blue {
+      background-color: rgb(68, 138, 201);
+      color: #fff;
+    }
+    .blue {
+      background-color: rgb(145, 189, 255);
+      color: #595959;
+      --iron-icon-fill-color: #415B90;
+    }
+    .gold {
+      background-color: rgb(240, 223, 161);
+      color: #595959;
+      --iron-icon-fill-color: #897613;
+    }
+    .white {
+      background-color: #fff;
+      color: #222;
+    }
+    .grey {
+      background-color: #d7d7d7;
+      color: rgb(68, 138, 201);
+    }
+    .red {
+      --iron-icon-fill-color: #f00;
+    }
+    .property {
+      font-weight: bold;
+      color: #7a7a7a;
+      padding: 1em;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    .value {
+      margin: 1em;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      max-width: 9em;
+      white-space: nowrap;
+    }
+    .noellipsis {
+      text-overflow: unset;
+    }
+    .paper-header {
+      padding: 1em;
+    }
+    .paper-header > h1 {
+      text-align: center;
+    }
+    .subbox > h4 {
+      margin: 0;
+    }
+    .paper-header > h4 {
+      margin: 0;
+      text-align: center;
+    }
+    .paper-header > p {
+      margin-bottom: 1em;
+      color: #6f6f6f;
+      text-align: center;
+    }
+    .content {
+      padding: 1em;
+      height: 100%;
+    }
+    .new-content {
+      width: 50%;
+    }
+    .box-header > iron-icon {
+      padding-right: 1em;
+    }
+    .box-header {
+      background-color: rgb(68, 138, 201);
+      margin: 0;
+      padding-right: 1em;
+      padding-left: 1em;
+      color: #eee;
+    }
+    .box-content {
+      overflow: auto;
+      margin: 0;
+      padding: 1em;
+    }
+    .box {
+      max-width: 90%;
+      min-width: 30%;
+      margin-top: 1em;
+    }
+    .subbox {
+      max-width: 23em;
+      margin: 1em;
+    }
+    .full {
+      min-width: 100%;
+    }
+    #finishbutton {
+      margin-top: 2em;
+    }
+
+    /* SSH button */
+    .miniButton {
+      font-size: 0.8em;
+      width: 5em;
+      height: 1.8em;
+    }
+    .miniButton iron-icon {
+      width: 1.5em;
+      margin-right: 0.2em;
+    }
+    .redIcon {
+      --iron-icon-fill-color: #d45c5c;
+    }
+    .greenIcon {
+      --iron-icon-fill-color: #45d545;
+    }
+    .blueIcon {
+      --iron-icon-fill-color: rgb(68, 138, 201);
+    }
+    .copy-btn {
+      max-width: 1em;
+      max-height: 1em;
+      padding: 0;
+    }
+  </style>
+  <template>
+
+    <!-- For posting to the machines -->
+    <iron-ajax
+      id="sim_run_cmds"
+      method="POST"
+      handle-as="json"
+      on-response="_ajaxResponse"
+      on-error="_ajaxError"
+      content-type="application/json"
+      debounce-duration="300"
+    ></iron-ajax>
+
+    <!-- For getting srcsimulation data -->
+    <iron-ajax
+      id="srcsim_data"
+      method="GET"
+      handle-as="json"
+      content-type="application/json"
+      on-response="_onSrcSimData"
+      on-error="_ajaxError"
+      debounce-duration="300"
+    ></iron-ajax>
+
+    <cbn-copy-clipboard
+      id="clipboardsim"
+      value={{rounddata.simulator.data.machine_ip}}
+    >
+    </cbn-copy-clipboard>
+
+    <cbn-copy-clipboard
+      id="clipboardfc"
+      value={{rounddata.fieldcomputer.data.machine_ip}}
+    >
+    </cbn-copy-clipboard>
+
+    <center class="box-content">
+
+      <!-- SIMULATOR -->
+      <paper-material elevation="1" class="box">
+        <div class="box-header horizontal">
+          <iron-icon icon="hardware:computer"></iron-icon>
+          <h4>Simulator</h4>
+          <div class="space"></div>
+          <span class="value noellipsis">[[rounddata.simulator.data.status]]</span>
+        </div>
+        <div class="box-content horizontal">
+
+          <!-- Machine -->
+          <paper-material elevation="1" class="subbox">
+            <h4>Machine</h4>
+
+            <div class="vertical box-content">
+
+              <div class="horizontal item" title="AMI">
+                <span class="property">Image</span>
+                <div class="space"></div>
+                <span class="value">[[rounddata.simulator.image]]</span>
+              </div>
+
+              <div class="horizontal item" title="Hardware">
+                <span class="property">Hardware: </span>
+                <div class="space"></div>
+                <span class="value">[[rounddata.simulator.hardware]]</span>
+              </div>
+
+              <div class="horizontal item" title="Region">
+                <span class="property">Region: </span>
+                <div class="space"></div>
+                <span class="value">[[rounddata.simulator.region]]</span>
+              </div>
+
+            </div>
+          </paper-material>
+
+          <!-- Status Feedback -->
+          <paper-material elevation="1" class="subbox">
+            <h4>Status</h4>
+            <div class="vertical box-content">
+              <div class="horizontal item">
+                <span class="property" title="Status of the docker container">
+                  Process
+                </span>
+                <div class="space"></div>
+                <span class="value">[[_getProcessStatus(srcsimData)]]</span>
+              </div>
+
+              <div class="horizontal item">
+                <span class="property" title="Status of the launched simulator process">
+                  Simulator
+                </span>
+                <div class="space"></div>
+                <span class="value">[[_getSimulatorStatus(srcsimData)]]</span>
+              </div>
+
+              <div class="horizontal item">
+                <span class="property" title="Status of the harness in simulation">
+                  Harness
+                </span>
+                <div class="space"></div>
+                <span class="value">[[_getHarnessStatus(srcsimData)]]</span>
+              </div>
+            </div>
+          </paper-material>
+
+          <!-- Practice -->
+          <template is="dom-if" if="[[rounddata.secure]]">
+            <paper-material elevation="1" class="subbox">
+              <h4>Practice mode</h4>
+
+              <div class="vertical box-content">
+
+                <div class="horizontal item">
+                  <span class="property">Public IP</span>
+                  <div class="space"></div>
+                  <a target="_blank" href="http://[[rounddata.simulator.data.machine_ip]]:[[simPort]]">
+                    <span class="value noellipsis">[[rounddata.simulator.data.machine_ip]]</span>
+                  </a>
+                  <paper-icon-button
+                    icon="icons:content-copy"
+                    on-tap="_onClipboardSim"
+                    class="copy-btn"
+                    title="Copy simulator IP to clipboard"
+                  ></paper-icon-button>
+                </div>
+
+                <div class="horizontal item">
+                  <span class="property">Keys</span>
+                  <div class="space"></div>
+
+                  <a
+                    href="[[rounddata.secure.simulator_ssh]]?token=[[token]]"
+                    target="_blank"
+                    tabindex=""
+                    style="color:inherit"
+                    class="value"
+                  >
+                    <paper-button raised class="miniButton">
+                      <iron-icon icon="icons:cloud-download" class="blueIcon"></iron-icon>
+                      SSH
+                    </paper-button>
+                  </a>
+                </div>
+              </div>
+            </paper-material>
+          </template>
+
+          <!-- Start / Stop -->
+          <paper-material elevation="1" class="subbox">
+            <h4>Run</h4>
+
+            <div class="vertical box-content">
+
+              <div class="vertical">
+
+                <div class="horizontal">
+
+                  <template is="dom-if" if="[[_hasWorld(srcsimData, 1)]]">
+                    <!-- Dev note: (trick) we need to pass srcsimData property here to fire invocations when
+                    its value changes -->
+                    <paper-button disabled="[[_shouldDisableSimulatorRunButton(1, srcsimData)]]" raised on-tap="_onStartSim" data-args="1">
+                      <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
+                      1
+                    </paper-button>
+                  </template>
+
+                  <template is="dom-if" if="[[_hasWorld(srcsimData, 4)]]">
+                    <paper-button disabled="[[_shouldDisableSimulatorRunButton(4, srcsimData)]]" raised on-tap="_onStartSim" data-args="4">
+                      <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
+                      4
+                    </paper-button>
+                  </template>
+                </div>
+
+                <div class="horizontal">
+                  <template is="dom-if" if="[[_hasWorld(srcsimData, 2)]]">
+                    <paper-button disabled="[[_shouldDisableSimulatorRunButton(2, srcsimData)]]" raised on-tap="_onStartSim" data-args="2">
+                      <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
+                      2
+                    </paper-button>
+                  </template>
+                  <template is="dom-if" if="[[_hasWorld(srcsimData, 5)]]">
+                    <paper-button disabled="[[_shouldDisableSimulatorRunButton(5, srcsimData)]]" raised on-tap="_onStartSim" data-args="5">
+                      <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
+                      5
+                    </paper-button>
+                  </template>
+                </div>
+
+                <div class="horizontal">
+                  <template is="dom-if" if="[[_hasWorld(srcsimData, 3)]]">
+                    <paper-button disabled="[[_shouldDisableSimulatorRunButton(3, srcsimData)]]" raised on-tap="_onStartSim" data-args="3">
+                      <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
+                      3
+                    </paper-button>
+                  </template>
+
+                  <paper-button disabled="[[_shouldDisableSimulatorStop(srcsimData)]]" raised on-tap="_onStopSim">
+                    <iron-icon icon="icons:av:stop" class="redIcon"></iron-icon>
+                    Stop
+                  </paper-button>
+                </div>
+
+              </div>
+
+            </div>
+
+          </paper-material>
+
+        </div>
+      </paper-material>
+      <!-- /SIMULATOR -->
+
+      <!-- FIELD COMPUTER -->
+      <paper-material elevation="1" class="box">
+        <div class="box-header horizontal">
+          <iron-icon icon="hardware:computer"></iron-icon>
+          <h4>Field computer</h4>
+          <div class="space"></div>
+          <span class="value noellipsis">[[rounddata.fieldcomputer.data.status]]</span>
+        </div>
+        <div class="box-content horizontal">
+
+          <!-- Machine -->
+          <paper-material elevation="1" class="subbox">
+            <h4>Machine</h4>
+
+            <div class="vertical box-content">
+
+              <div class="horizontal item" title="AMI">
+                <span class="property">Image</span>
+                <div class="space"></div>
+                <span class="value">[[rounddata.fieldcomputer.image]]</span>
+              </div>
+
+              <div class="horizontal item" title="Hardware">
+                <span class="property">Hardware</span>
+                <div class="space"></div>
+                <span class="value">[[rounddata.fieldcomputer.hardware]]</span>
+              </div>
+
+              <div class="horizontal item" title="Region">
+                <span class="property">Region</span>
+                <div class="space"></div>
+                <span class="value">[[rounddata.fieldcomputer.region]]</span>
+              </div>
+
+              <div class="horizontal item" title="[[rounddata.dockerurl]]">
+                <span class="property">Docker</span>
+                <div class="space"></div>
+                <span class="value">[[rounddata.dockerurl]]</span>
+              </div>
+
+              <div class="horizontal item" title="Local IP">
+                <span class="property">Local IP</span>
+                <div class="space"></div>
+                <span class="value">192.168.2.10</span>
+              </div>
+
+              <div class="horizontal item" title="VPN">
+                <span class="property">Keys</span>
+                <div class="space"></div>
+                <a
+                  href="[[rounddata.public.vpn]]?id=ocu&serverIp=[[rounddata.simulator.data.machine_ip]]&token=[[token]]"
+                  target="_blank"
+                  tabindex=""
+                  style="color:inherit"
+                  class="value"
+                >
+                  <paper-button raised class="miniButton">
+                    <iron-icon icon="icons:cloud-download" class="blueIcon"></iron-icon>
+                    VPN
+                  </paper-button>
+                </a>
+              </div>
+
+            </div>
+          </paper-material>
+
+          <!-- Practice -->
+          <template is="dom-if" if="[[rounddata.secure]]">
+            <paper-material elevation="1" class="subbox">
+              <h4>Practice mode</h4>
+
+              <div class="vertical box-content">
+
+                <div class="horizontal item">
+                  <span class="property">Public IP</span>
+                  <div class="space"></div>
+                  <a target="_blank" href="http://[[rounddata.fieldcomputer.data.machine_ip]]:[[simPort]]">
+                    <span class="value noellipsis">[[rounddata.fieldcomputer.data.machine_ip]]</span>
+                  </a>
+                  <paper-icon-button
+                    icon="icons:content-copy"
+                    on-tap="_onClipboardFc"
+                    class="copy-btn"
+                    title="Copy Field Computer IP to clipboard"
+                  ></paper-icon-button>
+                </div>
+
+                <div class="horizontal item">
+                  <span class="property">Keys</span>
+                  <div class="space"></div>
+
+                  <a
+                    href="[[rounddata.secure.fieldcomputer_ssh]]?token=[[token]]"
+                    target="_blank"
+                    tabindex=""
+                    style="color:inherit"
+                    class="value"
+                  >
+                    <paper-button raised class="miniButton">
+                      <iron-icon icon="icons:cloud-download" class="blueIcon"></iron-icon>
+                      SSH
+                    </paper-button>
+                  </a>
+                </div>
+              </div>
+            </paper-material>
+          </template>
+
+          <!-- Start / Stop -->
+          <paper-material elevation="1" class="subbox">
+            <h4>Run</h4>
+
+            <div class="horizontal box-content">
+
+              <!-- Dev note: (trick) we need to pass srcsimData property here to fire invocations when
+              its value changes -->
+              <paper-button disabled="[[_shouldDisableFcStart(srcsimData)]]" raised on-tap="_onStartFc">
+                <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
+                Start
+              </paper-button>
+
+              <paper-button disabled="[[_shouldDisableFcStop(srcsimData)]]" raised on-tap="_onStopFc">
+                <iron-icon icon="icons:av:stop" class="redIcon"></iron-icon>
+                Stop
+              </paper-button>
+
+            </div>
+
+          </paper-material>
+
+        </div>
+      </paper-material>
+      <!-- /FIELD COMPUTER -->
+
+      <div class="space"></div>
+
+      <!-- Finish button -->
+      <template is="dom-if" if="[[rounddata.secure]]">
+        <paper-button
+          raised
+          class="white"
+          id="finishbutton"
+          on-tap="_onFinish"
+          title="Kill all machines in this round"
+        >
+          <iron-icon icon="icons:close" class="red"></iron-icon>
+          Finish constellation
+        </paper-button>
+      </template>
+
+    </center>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-srcround',
+
+      // Attached
+      attached: function() {
+        this._getSimData()
+      },
+
+      // Callback when the token has been updated
+      _onTokenUpdated: function() {
+        if (this.token !== "") {
+          this._getSimData()
+        }
+      },
+
+        // This method is invoked whenever the portal sends (via websocket) a
+        // resource updated event related to a srcsimulation.
+      _onSrcSimDataIdUpdated: function() {
+        this._getSimData()
+      },
+
+      _getSimData: function() {
+        // First check that we have needed info to build the http request.
+        // If not, we just don't fetch data.
+        if (!this.token ||
+            !this.portalurl ||
+            !this.rounddata ||
+            !this.rounddata.public ||
+            !this.rounddata.public.simulation_data_id) {
+          return
+        }
+
+        // We should also fetch data during initialization (ie. when lastUpdatedSrcsimdataid is not set), or
+        // when the lastUpdatedSrcsimdataid matches our rounddata's srcsimulation ID.
+        if (!this.lastUpdatedSrcsimdataid.resource ||
+            this.lastUpdatedSrcsimdataid.resource == this.rounddata.public.simulation_data_id) {
+          // NOTE: the "!resource" case from above "IF"" may happen during page refresh, or token update.
+
+          // If lastUpdatedSrcsimdataid.resource is undefined then it means the portal didn't send
+          // any resource updated events yet. In this case we still want this component to fetch
+          // its data as this may be the first time it is being displayed to the user.
+
+          this.$.srcsim_data.url = this.portalurl + '/srcsimulations/' + this.rounddata.public.simulation_data_id
+          this.$.srcsim_data.headers.authorization = this.token
+          this.$.srcsim_data.generateRequest()
+        }
+      },
+
+      // srcsimulation data was received
+      _onSrcSimData: function(e) {
+        let resp = e.detail.response
+        if (resp.success) {
+          // this will fire _onSrcSimDataUpdatedInternal observer too
+          this.set('srcsimData', resp.result.data)
+        }
+      },
+
+      // internal observer function invoked whenever the this.srcsimData is updated
+      _onSrcSimDataUpdatedInternal: function() {
+        if (!this.srcsimData || !this.srcsimData.simulator) {
+          return
+        }
+        // Let the user know if we get a failed status while launching a simulation (but only one time)
+        if (this.srcsimData.simulator.simulator_ready == -1 && this._previousSimulatorReadyValue != -1) {
+          this.fire('error', 'Failed to launch simulation. Please Stop and re-Run the round')
+        }
+        // save the received status for future checks
+        this._previousSimulatorReadyValue = this.srcsimData.simulator.simulator_ready
+      },
+
+      _shouldDisableSimulator: function() {
+        return !this.srcsimData || !this.srcsimData.simulator || !this.srcsimData.simulator.ready
+      },
+
+      _shouldDisableSimulatorRunButton: function(worldNumber) {
+        if (this._shouldDisableSimulator()) {
+          return true
+        }
+        // We should enable Run buttons when either the state machine is READY or
+        // when it was marked as RUNNING but the simulation process failed during launch.
+        const shouldEnableRun = this.srcsimData.simulator.state_machine == 'READY'
+          || (this.srcsimData.simulator.state_machine == 'RUNNING' && this.srcsimData.simulator.simulator_ready == -1)
+
+        return !shouldEnableRun
+      },
+
+      _shouldDisableSimulatorStop: function() {
+        return this._shouldDisableSimulator() || this.srcsimData.simulator.state_machine != 'RUNNING'
+      },
+
+      _shouldDisableFc: function() {
+        if (!this.srcsimData || !this.srcsimData.fieldcomputer) {
+          // No data yet. Disable buttons!
+          return true
+        }
+
+        if (this.srcsimData.fieldcomputer.fc_docker_image !== undefined &&
+            this.srcsimData.fieldcomputer.fc_docker_image === "") {
+          this.fire('error', 'Failed to build field computer in ' +
+            this.roundname + '. Please contact administrators.');
+          return true;
+        }
+
+        // Disable buttons if the team's docker image has not been built yet or if the cloudsim-sim
+        // server is not ready.
+        return !this.srcsimData.fieldcomputer.ready || !this.srcsimData.fieldcomputer.fc_docker_image
+      },
+
+      _shouldDisableFcStart: function() {
+        return this._shouldDisableFc() || this.srcsimData.fieldcomputer.state_machine != 'READY'
+      },
+
+      _shouldDisableFcStop: function() {
+        return this._shouldDisableFc() || this.srcsimData.fieldcomputer.state_machine != 'RUNNING'
+      },
+
+      // Start a world on the simulator
+      _onStartSim: function(e) {
+        const n = e.target.getAttribute('data-args') || e.target.parentElement.getAttribute('data-args')
+        // Check that we have simulator IP
+        if (!this.rounddata ||
+            !this.rounddata.simulator ||
+            !this.rounddata.simulator.data ||
+            !this.rounddata.simulator.data.machine_ip) {
+          this.fire('error', 'Failed to start run, missing simulator IP.')
+          return
+        }
+        const now = (new Date().toISOString()).replace(/\./g,'-').replace(/:/g,'-')
+        const worldName = 'world_' + n + '_' + now
+        this.$.sim_run_cmds.body = {
+          'host': this.rounddata.simulator.data.machine_ip + ':' + this.simPort,
+          'path': '/simulations',
+          'cmd': "src_commands/run_gazebo.bash " + worldName + " " + n,
+          'stopCmd': "src_commands/stop_gazebo.bash " + worldName,
+          'logCmd': "src_commands/send_logs.bash " + worldName,
+          'auto': true
+        }
+        this.$.sim_run_cmds.url = this.portalurl + '/srcproxy'
+        this.$.sim_run_cmds.method = 'POST'
+        this.$.sim_run_cmds.headers.authorization = this.token
+        this.$.sim_run_cmds.generateRequest()
+
+        this.fire('notification', "Requested to start run #" + n + " on simulator")
+      },
+
+      // Stop the current world running on the simulator
+      _onStopSim: function() {
+
+        // Check that we have simulator IP
+        if (!this.rounddata ||
+            !this.rounddata.simulator ||
+            !this.rounddata.simulator.data ||
+            !this.rounddata.simulator.data.machine_ip) {
+          this.fire('error', 'Failed to stop run, missing simulator IP.')
+          return
+        }
+
+        this.$.sim_run_cmds.body = {
+          'host': this.rounddata.simulator.data.machine_ip + ':' + this.simPort,
+          'path': '/stopsimulation',
+          'data': {}
+        }
+        this.$.sim_run_cmds.url = this.portalurl + '/srcproxy'
+        this.$.sim_run_cmds.method = 'POST'
+        this.$.sim_run_cmds.headers.authorization = this.token
+        this.$.sim_run_cmds.generateRequest()
+
+        this.fire('notification', "Requested to stop simulation")
+      },
+
+      // Start user code on the field computer
+      _onStartFc: function(e) {
+
+        // Check that we have field computer IP
+        if (!this.rounddata ||
+            !this.rounddata.fieldcomputer ||
+            !this.rounddata.fieldcomputer.data ||
+            !this.rounddata.fieldcomputer.data.machine_ip) {
+          this.fire('error', 'Failed to start user code, missing field computer IP.')
+          return
+        }
+
+        this.$.sim_run_cmds.body = {
+          'host': this.rounddata.fieldcomputer.data.machine_ip + ':' + this.simPort,
+          'path': '/simulations',
+          'cmd': "src_commands/fc_run_team_docker.bash",
+          'stopCmd': "src_commands/fc_stop_team_docker.bash",
+          'auto': true
+        }
+        this.$.sim_run_cmds.url = this.portalurl + '/srcproxy'
+        this.$.sim_run_cmds.method = 'POST'
+        this.$.sim_run_cmds.headers.authorization = this.token
+        this.$.sim_run_cmds.generateRequest()
+
+        var n = e.target.getAttribute('data-args')
+        this.fire('notification', "Requested to start user code on the field computer")
+      },
+
+      // Stop user code on the field computer
+      _onStopFc: function(e) {
+
+        // Check that we have field computer IP
+        if (!this.rounddata ||
+            !this.rounddata.fieldcomputer ||
+            !this.rounddata.fieldcomputer.data ||
+            !this.rounddata.fieldcomputer.data.machine_ip) {
+          this.fire('error', 'Failed to stop user code, missing field computer IP.')
+          return
+        }
+
+        this.$.sim_run_cmds.body = {
+          'host': this.rounddata.fieldcomputer.data.machine_ip + ':' + this.simPort,
+          'path': '/stopsimulation',
+          'data': {}
+        }
+        this.$.sim_run_cmds.url = this.portalurl + '/srcproxy'
+        this.$.sim_run_cmds.method = 'POST'
+        this.$.sim_run_cmds.headers.authorization = this.token
+        this.$.sim_run_cmds.generateRequest()
+
+
+        var n = e.target.getAttribute('data-args')
+        this.fire('notification', "Requested to stop user code on the field computer")
+      },
+
+      // On response when posting to simulator
+      _ajaxResponse: function() {
+        this.fire('notification', "Request was successful")
+      },
+
+      // On error when posting to simulator
+      _ajaxError: function(e) {
+        console.log(e)
+        this.fire('error', "Failed")
+      },
+
+      // When user presses Finish Round button
+      _onFinish: function() {
+        this.fire('finish', this.roundid)
+      },
+
+      // When user clicks on copy to clipboard button
+      _onClipboardSim: function() {
+        this.$.clipboardsim.copy()
+
+        this.fire('notification', "Copied to clipboard!")
+      },
+
+      // When user clicks on copy to clipboard button
+      _onClipboardFc: function() {
+        this.$.clipboardfc.copy()
+
+        this.fire('notification', "Copied to clipboard!")
+      },
+
+      // Whether the world with the given number is enabled for this
+      // constellation
+      _hasWorld: function(dummy, _number) {
+
+        // No data yet
+        if (!this.rounddata)
+          return false
+
+        // Data, but no worlds: old round, enable all worlds for backward
+        // compatibility
+        if (!this.rounddata.worlds)
+          return true
+
+        // Empty array means it's a user practicing, all worlds are enabled
+        if (this.rounddata.worlds.length === 0)
+          return true
+
+        // Otherwise, this is a round started by an admin and only given worlds
+        // are enabled
+        return this.rounddata.worlds.indexOf(_number) >= 0
+      },
+
+      // Return the status given the current state.
+      _getProcessStatus: function() {
+        let statusMessage = "N/A";
+        if (this.srcsimData && this.srcsimData.simulator) {
+          switch(this.srcsimData.simulator.state_machine) {
+            case "READY":
+              statusMessage = "Ready";
+              break;
+            case "RUNNING":
+              statusMessage = "Running";
+              break;
+            case "FINISHING":
+              statusMessage = "Stopping";
+              break;
+            case "FINISHED":
+              statusMessage = "Stopped";
+              break;
+            case "SENDING LOGS":
+              statusMessage = "Sending logs";
+              break;
+          }
+        }
+        return statusMessage;
+      },
+
+      // Return the status of the simulator initialization.
+      _getSimulatorStatus: function() {
+        let statusMessage = "N/A";
+        if (this.srcsimData && this.srcsimData.simulator) {
+          switch(this.srcsimData.simulator.simulator_ready) {
+            case -1:
+              statusMessage = "Failed";
+              break;
+            case 0:
+              statusMessage = "Pending";
+              break;
+            case 1:
+              statusMessage = "Success";
+              break;
+          }
+        }
+        return statusMessage;
+      },
+
+      // Return the status of the Harness.
+      _getHarnessStatus: function() {
+        let statusMessage = "N/A";
+        if (this.srcsimData && this.srcsimData.simulator) {
+          statusMessage = this.srcsimData.simulator.harness_status;
+        }
+        return statusMessage;
+      },
+
+      // Properties
+      properties: {
+        rounddata: {
+          type: Object,
+          value: {},
+          notify: true,
+        },
+        // Resource ID for this round
+        roundid: {
+          type: String,
+          value: '',
+          notify: true,
+        },
+        // Widgets-given name for the round
+        roundname: {
+          type: String,
+          value: '',
+          notify: true,
+        },
+        // Port for simulation machines
+        simPort: {
+          type: String,
+          value: '4000',
+          notify: true,
+        },
+        // Object parameter with a single property "resource", containing the id of
+        // the last srcsimulation for which the portal sent a resource udpated
+        // event (via websocket).
+        lastUpdatedSrcsimdataid: {
+          type: Object,
+          value: {},
+          notify: true,
+          observer: '_onSrcSimDataIdUpdated'
+        },
+        token: {
+          type: String,
+          value: '',
+          notify: true,
+          observer: '_onTokenUpdated'
+        },
+        portalurl: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        // Data from GET "srcsimulations/id""
+        // Note: this is not a parameter. It is a property used internally.
+        srcsimData: {
+          type: Object,
+          value: {},
+          notify: true,
+          observer: '_onSrcSimDataUpdatedInternal'
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>

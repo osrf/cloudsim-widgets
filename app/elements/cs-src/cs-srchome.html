@@ -1,0 +1,60 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-srchome">
+  <style>
+    .title {
+      font-size: 2em;
+    }
+    .blue {
+      background-color: rgb(68, 138, 201);
+      color: #fff;
+    }
+    .paper-header {
+      padding: 1em;
+    }
+    .paper-header > h1 {
+      text-align: center;
+    }
+    .content {
+      padding: 3em;
+    }
+    .vertical {
+      @apply(--layout-vertical);
+    }
+  </style>
+  <template>
+
+    <paper-header-panel class="blue">
+      <div class="paper-header">
+        <h1 class="title">Space Robotics Competition</h1>
+      </div>
+    </paper-header-panel>
+
+    <div class="content">
+      <center>
+
+        <p><h4>Welcome to CloudSim!</h4></p>
+
+        <p>Please log in, then follow <a target="_blank" href="https://bitbucket.org/osrf/srcsim/wiki/cloud">these</a> instructions to start simulating!</p>
+
+      </center>
+    </div>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-srchome',
+      // Attached
+      attached: function() {
+      },
+      properties: {
+      },
+    });
+  })();
+  </script>
+</dom-module>

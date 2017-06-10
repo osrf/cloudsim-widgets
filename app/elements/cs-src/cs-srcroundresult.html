@@ -1,0 +1,105 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-srcroundresult">
+  <style>
+    .space {
+      @apply(--layout-flex);
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+    }
+    .round-header {
+      padding-left: 1em;
+      padding-top: 0.5em;
+      padding-bottom: 0.5em;
+      font-weight: bold;
+      --paper-button: {
+        text-transform: none;
+        width: 100%;
+        display: inline-block;
+      }
+    }
+    .round-scores {
+      padding-left: 1em;
+      padding-bottom: 0.5em;
+      font-weight: bold;
+    }
+
+  </style>
+
+  <template>
+    <paper-button
+      class="round-header"
+      on-tap="_toggle"
+      data-args="round-[[number]]"
+      noink
+      >
+      Round #[[formatArrayIndex(number)]]
+    </paper-button>
+
+    <iron-collapse id="round-[[number]]">
+      <div class="horizontal">
+        <template is="dom-repeat" items="[[tasks]]">
+          <cs-srctasks task="[[item]]" task-number="[[index]]"></cs-srctasks>
+          <div class="space"></div>
+        </template>
+      </div>
+
+      <div class="round-scores">
+        <p>Score: [[score]]</p>
+        <p>Total Time: [[formatTime(totalTime)]]</p>
+      </div>
+    </iron-collapse>
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-srcroundresult',
+      behaviors: [CustomBehaviors.FormatterBehavior],
+
+      attached: function() {
+        this.set('tasks', this.round.tasks);
+        this.score = this.round.score;
+        this.totalTime = this.round.total_completion_time;
+      },
+
+      // Toggle collapse elements.
+      _toggle: function(e) {
+        this.$$('#' + e.currentTarget.dataArgs).toggle();
+      },
+
+      properties: {
+        tasks: {
+          type: Array,
+          value: [],
+          notify: true,
+        },
+        round: {
+          type: Array,
+          value: [],
+          notify: true,
+        },
+        number: {
+          type: Number,
+          notify: true
+        },
+        // TODO(german-mas): These fields are yet to be received.
+        score: {
+          type: Number,
+          value: 0,
+          notify: true
+        },
+        totalTime: {
+          type: Number,
+          value: 0,
+          notify: true
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>

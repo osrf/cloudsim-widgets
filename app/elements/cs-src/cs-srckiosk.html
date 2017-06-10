@@ -1,0 +1,505 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-srckiosk">
+  <style>
+    :root {
+      --paper-tab-ink: #fff;
+      --paper-tabs-selection-bar-color: #fff;
+      --paper-tabs: {
+        color: #fff;
+      }
+    }
+    .title {
+      font-size: 2em;
+    }
+    .space {
+      @apply(--layout-flex);
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+    .vertical {
+      @apply(--layout-vertical);
+      @apply(--layout-center);
+    }
+    .blue {
+      background-color: rgb(68, 138, 201);
+      color: #fff;
+    }
+    .grey {
+      background-color: #d7d7d7;
+      color: rgb(68, 138, 201);
+    }
+    .floating {
+      margin-bottom: -2em;
+      z-index: 1000;
+    }
+    .paper-header {
+      padding: 1em;
+    }
+    .paper-header > h1 {
+      text-align: center;
+    }
+    .paper-header > h4 {
+      margin: 0;
+      text-align: center;
+    }
+    .paper-header > p {
+      margin-bottom: 0;
+      color: #ddd;
+      text-align: center;
+    }
+    .content {
+      padding: 1em;
+      height: 100%;
+    }
+    paper-tabs {
+      margin-top: -48px;
+      margin-left: 20px;
+    }
+    .new-content {
+      width: 50%;
+    }
+    .worldbox {
+      --paper-checkbox-checkmark-color: black;
+      padding-right: 1em;
+    }
+    .section {
+      margin: 1em;
+    }
+  </style>
+  <template>
+
+    <!-- For managing rounds -->
+    <gz-resources
+      id="roundsresources"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="srcround"
+      on-created="_onNewRound"
+      on-resourcesupdated="_onAllRounds"
+      on-deleted="_onDeleted"
+      on-resource="_onResourceUpdate"
+    ></gz-resources>
+
+    <!-- For simulator info -->
+    <gz-resources
+      id="simulatorsresources"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="simulator"
+      on-resourcesupdated="_onAllSimulators"
+    ></gz-resources>
+
+    <paper-header-panel class="blue">
+      <div class="paper-header">
+        <h1 class="title">Constellations</h1>
+
+        <paper-fab
+          mini
+          class="grey floating"
+          icon="icons:add"
+          title="Start a new constellation"
+          on-tap="_onNew"
+        ></paper-fab>
+      </div>
+    </paper-header-panel>
+
+    <paper-tabs scrollable attr-for-selected="value" selected="{{currentpage}}">
+      <template is="dom-repeat" items="{{rounds}}">
+        <paper-tab value="[[_roundName(item)]]">[[_roundName(item)]]</paper-tab>
+      </template>
+    </paper-tabs>
+
+    <iron-pages attr-for-selected="data-route" selected="{{currentpage}}">
+
+      <section data-route="empty">
+        <center>
+          <p style="margin-top: 2em">Your team has no constellations running.</p>
+          <paper-button flat on-tap="_onNew">Start one now</paper-button></p>
+        </center>
+      </section>
+
+      <section data-route="new">
+        <center>
+          <div class="new-content">
+            <p>Start a new constellation.</p>
+
+            <paper-input
+              id="dockerurlinput"
+              value="{{dockerurl}}"
+              label="Github repository"
+              title="Clone URL ending in '.git', starting with 'https' for public and 'git' for private repositories."
+              pattern="(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\.git)$"
+              required
+            ></paper-input>
+            <paper-textarea
+              value="{{deploykey}}"
+              label="Github Deploy Key"
+              title="Leave empty for public repositories."
+            ></paper-textarea>
+
+            <template is="dom-if" if="[[issrcadmin]]">
+              <paper-input value="{{teamname}}" label="Team name" required></paper-input>
+
+              <div class="vertical section">
+                <h4>Enabled worlds</h4>
+                <div class="horizontal">
+                  <paper-checkbox class="worldbox" checked={{world1}}>1</paper-checkbox>
+                  <paper-checkbox class="worldbox" checked={{world2}}>2</paper-checkbox>
+                  <paper-checkbox class="worldbox" checked={{world3}}>3</paper-checkbox>
+                  <paper-checkbox class="worldbox" checked={{world4}}>4</paper-checkbox>
+                  <paper-checkbox class="worldbox" checked={{world5}}>5</paper-checkbox>
+                </div>
+              </div>
+              <div class="horizontal">
+                <div class="vertical">
+                  <h4>Simulator</h4>
+                  <cs-amazon-ec2-regions region="{{simregion}}"></cs-amazon-ec2-regions>
+                  <cs-amazon-ec2-hardware hardware="{{simhardware}}"></cs-amazon-ec2-hardware>
+                  <paper-input value="{{simimage}}" label="Image" required></paper-input>
+                </div>
+                <div class="space"></div>
+                <div class="vertical">
+                  <h4>Field computer</h4>
+                  <cs-amazon-ec2-regions region="{{fcregion}}"></cs-amazon-ec2-regions>
+                  <cs-amazon-ec2-hardware hardware="{{fchardware}}"></cs-amazon-ec2-hardware>
+                  <paper-input value="{{fcimage}}" label="Image" required></paper-input>
+                </div>
+              </div>
+            </template>
+
+            <br>
+
+            <paper-button
+              raised
+              class="blue"
+              on-tap="_onContinue"
+            >Continue</paper-button></p>
+
+          </div>
+        </center>
+      </section>
+
+      <template is="dom-repeat" items="{{rounds}}">
+        <section data-route="[[_roundName(item)]]">
+          <cs-srcround
+            token="[[token]]"
+            rounddata=[[item.data]]
+            roundid=[[item.name]]
+            last-updated-srcsimdataid=[[lastUpdatedSrcsimdataid]]
+            portalurl="[[portalurl]]"
+            roundname="[[_roundName(item)]]"
+            on-finish="_requestRoundFinish"
+          >
+          </cs-srcround>
+        </section>
+      </template>
+
+    </iron-pages>
+
+    <!-- confirmation dialog -->
+    <cs-confirmationdialog id="confirmationdialog">
+    </cs-confirmationdialog>
+
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-srckiosk',
+
+      // Attached
+      attached: function() {
+      },
+
+      // Callback when the token has been updated
+      _onTokenUpdated: function() {
+        if (this.token !== "") {
+          this.$.roundsresources.connect();
+          this._getRounds()
+          // If we changed token, then we reset the last updated
+          // srcsimulation ID too. This will make all srcround refetch
+          // their srcsimulation data.
+          this.lastUpdatedSrcsimdataid = {}
+        }
+      },
+
+      // Get list of all rounds for this user
+      _getRounds: function() {
+        this.$.roundsresources.getAll()
+      },
+
+      // Callback from widgets server with all rounds for this user
+      _onAllRounds: function(e) {
+
+        // Take only non-finished rounds
+        let temp = []
+        for (var i = 0; i < e.detail.length; ++i) {
+          if (!e.detail[i].data.finished)
+            temp.push(e.detail[i])
+        }
+
+        this.set('rounds', temp)
+
+        if (this.rounds.length == 0)
+          this.currentpage = "empty"
+        else if (this.currentpage == "" || this.currentpage == "empty")
+          this.currentpage = this._roundName(this.rounds[0])
+
+        // Get simulators updated data after we have the rounds
+        this.$.simulatorsresources.getAll()
+      },
+
+      // Callback from widgets server with all simulators for this user
+      _onAllSimulators: function(e) {
+
+        const sims = e.detail
+
+        // Go through each round
+        for (let r = 0; r < this.rounds.length; r++) {
+
+          // Simulator
+          let id = this.rounds[r].data.public.simulator_id
+          let sim = sims.find(function(s) {
+            return s.name == id
+          })
+          if (sim)
+            this.set('rounds.' + r + '.data.simulator.data', sim.data)
+
+          // Field computer
+          id = this.rounds[r].data.public.fieldcomputer_id
+          sim = sims.find(function(s) {
+            return s.name == id
+          })
+          if (sim)
+            this.set('rounds.' + r + '.data.fieldcomputer.data', sim.data)
+        }
+      },
+
+      // Go to page to start new round
+      _onNew: function() {
+        this.currentpage = "new"
+      },
+
+      // Continue starting new round
+      _onContinue: function() {
+
+        // Validate GitHub url
+        if (!this.$.dockerurlinput.validate()) {
+          this.fire('error', 'Not a valid GitHub url. Make sure it ends with ".git"')
+          return
+        }
+
+        if (this.dockerurl.trim().indexOf("git") === 0 &&
+            (!this.deploykey || this.deploykey.trim() === "")) {
+          this.fire('error', 'Please use an https URL for public repositories (empty key).')
+          return
+        }
+
+        if (this.dockerurl.indexOf("http") === 0 &&
+            this.deploykey && this.deploykey.trim() !== "") {
+          this.fire('error', 'Please use a git URL for private repositories.')
+          return
+        }
+
+        // Create data
+        // During practice rounds started by competitors, the worlds array is
+        // empty
+        let data = {
+          dockerurl: this.dockerurl.trim(),
+          worlds: []
+        }
+
+        if (this.deploykey && this.deploykey.trim() !== "") {
+          // Only if the user set something to the field...
+          data.github_deploy_key = this.deploykey.trim().replace( new RegExp( "\n", "g" ),"\\n")
+        }
+
+        if (this.issrcadmin) {
+
+          // Team name required for admins
+          if (this.teamname.trim() === "") {
+            this.fire('error', 'Admins must define a team name.')
+            return
+          }
+          data.team = this.teamname.trim()
+
+          // Must select at least one world
+          if (this.world1)
+            data.worlds.push(1);
+          if (this.world2)
+            data.worlds.push(2);
+          if (this.world3)
+            data.worlds.push(3);
+          if (this.world4)
+            data.worlds.push(4);
+          if (this.world5)
+            data.worlds.push(5);
+
+          if (data.worlds.length === 0) {
+            this.fire('error', 'Admins must choose which worlds to enable.')
+            return
+          }
+
+          // Machine data optional for admins
+          if (this.simregion.trim() !== "" &&
+              this.simhardware.trim() !== "" &&
+              this.simimage.trim() !== "") {
+
+            data.simulator = {
+              region: this.simregion.trim(),
+              hardware: this.simhardware.trim(),
+              image: this.simimage.trim()
+            }
+          } else {
+            // If any field is filled, tell the user to fill the rest.
+            if (this.simregion.trim() !== "" ||
+                this.simhardware.trim() !== "" ||
+                this.simimage.trim() !== "") {
+              this.fire('error', 'Please fill all the fields for the Simulator to work, or leave them all empty to use default values.')
+              return
+            }
+          }
+
+          if (this.fcregion.trim() !== "" &&
+              this.fchardware.trim() !== "" &&
+              this.fcimage.trim() !== "") {
+
+            data.fieldcomputer = {
+              region: this.fcregion.trim(),
+              hardware: this.fchardware.trim(),
+              image: this.fcimage.trim()
+            }
+          } else {
+            // If any field is filled, tell the user to fill the rest.
+            if (this.fcregion.trim() !== "" ||
+                this.fchardware.trim() !== "" ||
+                this.fcimage.trim() !== "") {
+              this.fire('error', 'Please fill all the fields for the Field Computer to work, or leave them all empty to use default values.')
+              return
+            }
+          }
+        }
+
+        this.$.roundsresources.create(data);
+
+        this.fire('notification', 'Sending request to start new constellation.')
+      },
+
+      // Callback from server when a new round has been created
+      _onNewRound: function(e) {
+        let resp = e.detail
+
+        if (!resp.success) {
+          const msg = 'Could not start round: ' + resp.msg
+
+          console.log(msg)
+          this.fire('error', msg)
+          return
+        }
+
+        // Fill name, it's missing due to inconsistent API
+        resp.result.name = resp.id
+
+        this.push('rounds', resp.result)
+
+        this.currentpage = this._roundName(resp.result)
+
+        this.fire('notification', 'Started constellation "' + this._roundName(resp.result) + '".')
+      },
+
+      // Generate round name
+      _roundName: function(resource) {
+        if (!resource.name)
+          return "NEW"
+
+        let num = resource.name.substring(9, 12)
+        return resource.data.team + '-' + num
+      },
+
+      // A round is requesting to be finished
+      _requestRoundFinish(e) {
+
+        this.finishId = e.detail
+
+        this.$.confirmationdialog.open(
+            'Are you sure you\'d like to finish this constellation? <br>' +
+            'The simulator and field computer will be terminated. <br>' +
+            '<b>This action can\'t be reverted.</b>',
+            this._onFinishConfirmation.bind(this))
+      },
+
+      // On finish confirmation
+      _onFinishConfirmation: function() {
+
+        this.$.roundsresources.del(this.finishId);
+
+        this.fire('notification', {msg:
+            'Requested to finish constellation.', type: "msg"})
+      },
+
+      // Callback from the server when round was deleted
+      _onDeleted: function(e) {
+        if (e.detail.success) {
+          this.fire('notification', {msg: 'Constelation successfully deleted.',
+               type: "msg"})
+        }
+        this.currentpage = ""
+        this._getRounds()
+      },
+
+      // Callback from the server when there are any resource changes
+      _onResourceUpdate: function(e) {
+        // Check if this is a srcsimulation data update
+        if (e.detail.resource
+          && typeof(e.detail.resource) == "string"
+          && e.detail.resource.startsWith("srcsimulations-")) {
+            // Hack: we need to wrap the resource id in a new object to let Polymer detect the property
+            // was updated (otherwise if it were a plain string the value would have stayed the same)
+            this.set("lastUpdatedSrcsimdataid", { resource: e.detail.resource } )
+        } else {
+          // general case
+          this._getRounds()
+        }
+      },
+
+      properties: {
+        rounds: {
+          type: Array,
+          value: [],
+          notify: true
+        },
+        currentpage: {
+          type: String,
+          value: 'empty',
+          notify: true
+        },
+        portalurl: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        token: {
+          type: String,
+          value: '',
+          notify: true,
+          observer: '_onTokenUpdated'
+        },
+        // Note: This is not a component parameter. It is a property used internally.
+        // It holds the ID of the last srcsimulation updated at portal (ie. resource
+        // updated event got via websocket). See method: _onResourceUpdate.
+        lastUpdatedSrcsimdataid: {
+          type: Object,
+          value: {},
+          notify: true
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>

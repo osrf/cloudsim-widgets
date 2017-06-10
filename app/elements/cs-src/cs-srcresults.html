@@ -1,0 +1,209 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../elements/elements.html">
+
+<dom-module id="cs-srcresults">
+  <style>
+    :root {
+      --paper-tab-ink: #fff;
+      --paper-tabs-selection-bar-color: #fff;
+      --paper-tabs: {
+        color: #fff;
+      }
+    }
+    .title {
+      font-size: 2em;
+    }
+    .space {
+      @apply(--layout-flex);
+    }
+    .horizontal {
+      @apply(--layout-horizontal);
+    }
+    .vertical {
+      @apply(--layout-vertical);
+    }
+    .center {
+      @apply(--layout-center);
+    }
+    .blue {
+      background-color: rgb(68, 138, 201);
+      color: #fff;
+    }
+    .grey {
+      background-color: #d7d7d7;
+    }
+    .paper-header {
+      padding: 1em;
+    }
+    .paper-header > h1 {
+      text-align: center;
+    }
+    .paper-header > h4 {
+      margin: 0;
+      text-align: center;
+    }
+    .paper-header > p {
+      margin-bottom: 0;
+      color: #ddd;
+      text-align: center;
+    }
+    .simulation-row {
+      margin: 1em;
+    }
+    .simulation-header {
+      padding-left: 1em;
+      padding-top: 0.5em;
+      padding-bottom: 0.5em;
+      font-weight: bold;
+      --paper-button: {
+        text-transform: none;
+        width: 100%;
+        display: inline-block;
+      }
+    }
+    .content {
+      width: 60%;
+      padding: 15px;
+      border: 1px solid #dedede;
+      border-top: none;
+      border-bottom-left-radius: 5px;
+      border-bottom-right-radius: 5px;
+      @apply(--shadow-elevation-2dp);
+    }
+
+  </style>
+  <template>
+
+    <!-- Simulations Info -->
+    <gz-resources
+      id="simulations"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="srcsimulation"
+      on-resourcesupdated="_onAllSimulations">
+    </gz-resources>
+
+    <paper-header-panel class="blue">
+      <div class="paper-header">
+        <h1 class="title">Constellation Results</h1>
+      </div>
+    </paper-header-panel>
+
+    <!-- List the Simulations -->
+    <template is="dom-repeat" items="{{simulations}}">
+      <paper-material elevation="1" class="simulation-row">
+        <paper-material elevation="0" class="grey">
+          <paper-button
+            class="simulation-header"
+            on-tap="_toggle"
+            data-args="[[item.name]]"
+            noink
+            >
+            [[_constellationName(item)]]
+          </paper-button>
+        </paper-material>
+
+        <iron-collapse id="[[item.name]]">
+          <template is="dom-repeat" items="[[_getRoundsArray(item)]]" as="round">
+            <template is="dom-if" if={{round}} restamp>
+              <cs-srcroundresult round="[[round]]" number="[[index]]"></cs-srcroundresult>
+            </template>
+          </template>
+
+          <template is="dom-if" if="{{_hasNoRounds(item)}}">
+            <div class="simulation-header">No tasks were run for this constellation.</div>
+          </template>
+        </iron-collapse>
+      </paper-material>
+    </template>
+  </template>
+
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'cs-srcresults',
+
+      // Callback when the token has been updated
+      _onTokenUpdated: function() {
+        if (this.token !== "") {
+          this.$.simulations.getAll();
+        }
+      },
+
+      _onAllSimulations: function(e) {
+        // Reversed to list the most recent simulations first.
+        this.set('simulations', e.detail.reverse());
+      },
+
+      // Store the Rounds into an array, to iterate inside a dom-repeat.
+      _getRoundsArray: function(item) {
+        let rounds = [];
+        if (item.data.simulator) {
+          rounds.push(item.data.simulator.round_1);
+          rounds.push(item.data.simulator.round_2);
+          rounds.push(item.data.simulator.round_3);
+          rounds.push(item.data.simulator.round_4);
+          rounds.push(item.data.simulator.round_5);
+        }
+        return rounds;
+      },
+
+      // Check if the simulation has no rounds.
+      _hasNoRounds: function(item) {
+        let rounds = this._getRoundsArray(item);
+        if (rounds.length !== 0) {
+          // The round array will have 5 elements.
+          // Unless the rounds exists, they will be undefined.
+          for (let r = 0; r < rounds.length; r++) {
+            if (rounds[r] !== undefined) {
+              return false;
+            }
+          }
+        }
+        return true;
+      },
+
+      // Parse the name of the simulation.
+      _constellationName: function(simulation) {
+        // Older simulations have no team name data.
+        if (simulation.data.team === undefined) {
+          return simulation.name;
+        }
+        let num = simulation.data.srcround.substring(9, 12);
+        return simulation.data.team + '-' + num;
+      },
+
+      // Toggle collapse elements.
+      _toggle: function(e) {
+        this.$$('#' + e.currentTarget.dataArgs).toggle();
+      },
+
+      properties: {
+        simulations: {
+          type: Array,
+          value: [],
+          notify: true
+        },
+        currentpage: {
+          type: String,
+          value: 'empty',
+          notify: true
+        },
+        portalurl: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        token: {
+          type: String,
+          value: '',
+          notify: true,
+          observer: '_onTokenUpdated'
+        },
+      },
+    });
+  })();
+  </script>
+</dom-module>

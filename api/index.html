@@ -59,6 +59,10 @@
             "name": "sascrounds",
             "description": "Manage rounds for SASC",
           },
+          {
+            "name": "srcsignups",
+            "description": "Manage registrations for SRC",
+          },
         ],
         paths: {
           // /sascrounds
@@ -260,6 +264,150 @@
                     },
                   }
                 },
+              ],
+              "responses": {
+                "200": {
+                  "description": "Success",
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                      },
+                    },
+                  },
+                },
+                "401": {
+                  "description": "Not authorized"
+                }
+              },
+              "security": [
+                {
+                  "token": [],
+                }
+              ]
+            },
+          },
+          // /srcsignups
+          "\/srcsignups": {
+            // GET
+            "get": {
+              "tags": [
+                "srcsignups"
+              ],
+              "summary": "Get all pending requests to participate in SRC",
+              "description": "Competition admins should see all pending requests, while each competitor only sees whether they have a pending request.",
+              "consumes": [
+                "application\/json",
+              ],
+              "produces": [
+                "application\/json"
+              ],
+              "parameters": [],
+              "responses": {
+                "200": {
+                  "description": "Success",
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "boolean",
+                      },
+                      "isAdmin": {
+                        "type": "boolean",
+                      },
+                      "isCompetitor": {
+                        "type": "boolean",
+                      },
+                      "pending": {
+                        "type": "boolean",
+                      },
+                      "pendingList": {
+                        "type" : "array",
+                        "items": {
+                          "type": "string"
+                        },
+                      },
+                    },
+                  },
+                },
+                "401": {
+                  "description": "Not authorized"
+                }
+              },
+              "security": [
+                {
+                  "token": [],
+                }
+              ]
+            },
+            // POST
+            "post": {
+              "tags": [
+                "srcsignups"
+              ],
+              "summary": "Request to participate in SRC",
+              "description": "This is meant to be used by prospective competitors. It adds the requesting user to the pending queue.",
+              "consumes": [
+                "application\/json",
+              ],
+              "produces": [
+                "application\/json"
+              ],
+              "parameters": [],
+              "responses": {
+                "200": {
+                  "description": "Success",
+                  "schema": {
+                    "type": "object",
+                    "properties" : {
+                      "success": {
+                        "type": "boolean",
+                      },
+                      "pending": {
+                        "type": "boolean",
+                      },
+                      "msg": {
+                        "type": "string",
+                        "default": "Case not successful, explanation goes here.",
+                      },
+                    },
+                  },
+                },
+                "401": {
+                  "description": "Not authorized"
+                },
+                "500": {
+                  "description": "Internal error"
+                }
+              },
+              "security": [
+                {
+                  "token": [],
+                }
+              ]
+            },
+            // DELETE
+            "delete": {
+              "tags": [
+                "srcsignups"
+              ],
+              "summary": "Remove a signup request from the list.",
+              "description": "A prospect competitor can use this to cancel their request to participate. Admins can use it to remove anyone from the list, regardless of whether they were accepted into the competition or not.",
+              "consumes": [
+                "application\/json",
+              ],
+              "produces": [
+                "application\/json"
+              ],
+              "parameters": [
+                {
+                  "name": "username",
+                  "in": "query",
+                  "description": "Username to remove from list",
+                  "required": true,
+                  "type": "string",
+                }
               ],
               "responses": {
                 "200": {

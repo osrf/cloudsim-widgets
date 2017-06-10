@@ -161,6 +161,30 @@
       on-created="_onGoldKeyGenerated"
     ></gz-keys>
 
+    <gz-resources
+      id="ssharbiterkeys"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="sshkey"
+      on-created="_onSshArbiterKeyGenerated"
+    ></gz-resources>
+
+    <gz-resources
+      id="sshbluekeys"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="sshkey"
+      on-created="_onSshBlueKeyGenerated"
+    ></gz-resources>
+
+    <gz-resources
+      id="sshgoldkeys"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="sshkey"
+      on-created="_onSshGoldKeyGenerated"
+    ></gz-resources>
+
     <!-- For sharing keys -->
     <gz-grant
       id="keysgrant"
@@ -218,6 +242,9 @@
               <div class="horizontal start" title="Username of admin who started this round">
                 <span class="property">Admin: </span> [[rounddata.admin]]
               </div>
+              <div class="horizontal start" title="Number of payload machines per team">
+                <span class="property">Number of payloads per team: </span> [[rounddata.payloadcount]]
+              </div>
               <div class="horizontal start">
                 <span class="property">Status: </span> [[rounddata.arbiter.secure.status]]
               </div>
@@ -225,6 +252,10 @@
                 <div class="horizontal start">
                   <span class="property">Public IP: </span>
                   [[rounddata.arbiter.secure.machine_ip]]
+                </div>
+                <div class="horizontal start">
+                  <span class="property">Game Director: </span>
+                  <a href="http://[[rounddata.arbiter.secure.machine_ip]]:5001" target="_blank"> web interface</a>
                 </div>
                 <div class="horizontal start">
                   <span class="property">SSH keys: </span>
@@ -265,9 +296,9 @@
                     disabled$=[[launchersdisabled]]
                     hidden$=[[hidebluelauncher]]
                     class="white"
-                    title="Launch a new payload"
+                    title="Launch all blue payloads"
                     on-tap="_onLaunchBlue"
-                  >Launch a payload</paper-button>
+                  >Launch all payloads</paper-button>
                 </template>
 
                 <div class="space"></div>
@@ -307,7 +338,6 @@
             </template>
             <template is="dom-repeat" items="{{bluepayloads}}">
               <cs-sascpayload
-                index="[[index]]"
                 data="[[item]]"
                 team="blue"
                 subnet="[[bluesubnet]]"
@@ -339,9 +369,9 @@
                     disabled$=[[launchersdisabled]]
                     hidden$=[[hidegoldlauncher]]
                     class="white"
-                    title="Launch a new payload"
+                    title="Launch all gold payloads"
                     on-tap="_onLaunchGold"
-                  >Launch a payload</paper-button>
+                  >Launch all payloads</paper-button>
 
                 </template>
 
@@ -382,7 +412,6 @@
             </template>
             <template is="dom-repeat" items="{{goldpayloads}}">
               <cs-sascpayload
-                index="[[index]]"
                 data="[[item]]"
                 team="gold"
                 subnet="[[goldsubnet]]"
@@ -419,7 +448,21 @@
       },
 
       // Ask for new info on machines
-      _refresh() {
+      _refresh(e) {
+        if (e) {
+          const type = e.type
+          const operation = e.detail.operation
+          const resource  = e.detail.resource
+          if(operation === "grant") {
+            // all grant operation ignored
+            return
+          }
+          if(resource.indexOf("sshkey") == 0) {
+            // all ssh key related updates are ignored
+            return
+          }
+        }
+        // this should leave create/update/delete simulators
         this.$.launchresources.getAll();
       },
 
@@ -433,7 +476,7 @@
           !this.rounddata.blueKeyResourceId && !this.rounddata.goldKeyResourceId) {
 
           this.requestedkeys = true
-
+          // The VPN keys are generated on the cloudsim-keys server...
           // blue
           let bluedata = {
             'name': 'blue_' + this.roundid,
@@ -453,6 +496,15 @@
 
           this.$.goldkeys.data = golddata
           this.$.goldkeys._createRequest()
+
+          // the ssh keys are generated on the cloudsim-portal
+          // arbiter
+          this.$.ssharbiterkeys.create({name: this.roundid + ' arbiter'})
+          // blue
+          this.$.sshbluekeys.create({name: this.roundid + ' blue'})
+          // gold
+          this.$.sshgoldkeys.create({name: this.roundid + ' gold'})
+
         }
         if (this.rounddata.bluepayloads && this.rounddata.bluepayloads.length > 0) {
 
@@ -490,29 +542,39 @@
         }
       },
 
-      // Enable / disable all 3 launchers
-      _enableLaunchers(enable) {
-        this.launchersdisabled = !enable
-      },
-
       // When arbiter launch button is pressed
       _onLaunchArbiter(e) {
-
-        // Disable all launchers until we get a response
-        this._enableLaunchers(false)
+        if (!this.rounddata ||
+            !this.rounddata.arbiterami ||
+            !this.rounddata.arbiterhardware ||
+            !this.rounddata.sshArbiter ||
+            !this.rounddata.blueServerRoute ||
+            !this.rounddata.goldServerRoute ||
+            !this.rounddata.payloadcount ||
+            !this.rounddata.name)
+        {
+          this.fire('notification', {msg:
+              "Resources not ready, please wait a moment and try again. " +
+              "Do not refresh your page.",
+              type: "error"})
+          return
+        }
 
         let data =  {
           token: this.token,
           region: "us-west-1",
           image: this.rounddata.arbiterami,
           hardware: this.rounddata.arbiterhardware,
+          sshkey: this.rounddata.sshArbiter,
           options: {
             role: 'arbiter',
             "blue_route": this.rounddata.blueServerRoute,
             "gold_route": this.rounddata.goldServerRoute,
             "blue_subnet" : this.bluesubnet,
             "gold_subnet" : this.goldsubnet,
+            "payload_count" : this.rounddata.payloadcount,
             "token": this.token,
+            ssh: this.portalurl + '/sshkeys/' + this.rounddata.sshArbiter,
             resources:
             [
               {
@@ -556,11 +618,36 @@
             ]
           }
         }
-        this.launching = 'arbiter'
         this.$.launchresources.create(data);
         this.fire('notification', {msg:
             "Request to launch an arbiter for \"" + this.rounddata.name +
             "\" has been sent.", type: "msg"})
+      },
+
+      _onSshKeyGenerated(propertyName, e) {
+        const keyResourceId = e.detail.id
+        // Share key with all admins
+        const data = { grantee: 'sasc-admins',
+                       resource: keyResourceId,
+                       readonly: false }
+        this.$.portalgrant.grant(data)
+
+        // update rounddata with the portal's ssh key resource
+        this.set(propertyName, keyResourceId)
+        this._onRounddataUpdated()
+        this.fire('rounddataupdated', this.rounddata)
+      },
+
+      _onSshArbiterKeyGenerated: function(e) {
+        this._onSshKeyGenerated('rounddata.sshArbiter', e)
+      },
+
+      _onSshGoldKeyGenerated: function(e) {
+        this._onSshKeyGenerated('rounddata.sshGold', e)
+      },
+
+      _onSshBlueKeyGenerated:  function(e) {
+        this._onSshKeyGenerated('rounddata.sshBlue', e)
       },
 
       // Response from keys server with resource id
@@ -571,7 +658,6 @@
                        resource: e.detail.id,
                        readonly: false }
         this.$.keysgrant.grant(data)
-
         const key = e.detail.id
         this.set('rounddata.goldServerRoute', e.detail.serverRoute)
         this.set('rounddata.goldKeyResourceId', key)
@@ -597,23 +683,36 @@
       },
 
       // When blue launch button is pressed
-      _onLaunchBlue(e) {
-
-        // TODO: Change this when supporting multiple payloads
+      _onLaunchBlue: function(e) {
+        if (!this.rounddata ||
+            !this.rounddata.blueKeyResourceId ||
+            !this.rounddata.payloadami ||
+            !this.rounddata.payloadhardware ||
+            !this.rounddata.sshBlue ||
+            !this.rounddata.arbiter ||
+            !this.rounddata.arbiter.secure.machine_ip ||
+            !this.rounddata.blueuser ||
+            !this.rounddata.name)
         {
-          this.hidebluelauncher = true
-
-          if (this.bluepayloads.length > 0) {
-            console.log('Can\'t launch more than one payload at the moment.')
-            return
-          }
-
-          // let id = 'payload-' + this.bluepayloads.length
+          this.fire('notification', {msg:
+              "Resources not ready, please wait a moment and try again. " +
+              "Do not refresh your page.",
+              type: "error"})
+          return
         }
-        let id = 'payload'
 
-        // Disable all launchers until we get a response
-        this._enableLaunchers(false)
+        this.hidebluelauncher = true
+
+        // Launch each payload machine
+        for (var i = 0; i < this.rounddata.payloadcount; ++i) {
+          this._launchBluePayload(i)
+        }
+      },
+
+      // Launch a single blue payload, with a unique number
+      _launchBluePayload: function(number) {
+
+        let id = 'payload' + number
 
         let url = this.keysurl + '/tap/sasc/client/' +
             this.rounddata.blueKeyResourceId
@@ -623,12 +722,16 @@
           region: "us-west-1",
           image: this.rounddata.payloadami,
           hardware: this.rounddata.payloadhardware,
+          sshkey: this.rounddata.sshBlue,
           options: {
             role: 'payload',
+            team: 'blue',
+            count: number,
             client_route: url,
             server_ip: this.rounddata.arbiter.secure.machine_ip,
             client_id: id,
             token: this.token,
+            ssh: this.portalurl + '/sshkeys/' + this.rounddata.sshBlue,
             resources:
             [
               {
@@ -685,7 +788,6 @@
           }
         }
 
-        this.launching = 'blue'
         this.$.launchresources.create(data);
         this.fire('notification', {msg:
             "Request to launch a blue payload for \"" + this.rounddata.name +
@@ -694,22 +796,35 @@
 
       // When gold launch button is pressed
       _onLaunchGold(e) {
-
-        // TODO: Change this when supporting multiple payloads
+        if (!this.rounddata ||
+            !this.rounddata.goldKeyResourceId ||
+            !this.rounddata.payloadami ||
+            !this.rounddata.payloadhardware ||
+            !this.rounddata.sshGold ||
+            !this.rounddata.arbiter ||
+            !this.rounddata.arbiter.secure.machine_ip ||
+            !this.rounddata.golduser ||
+            !this.rounddata.name)
         {
-          this.hidegoldlauncher = true
-
-          if (this.goldpayloads.length > 0) {
-            console.log('Can\'t launch more than one payload at the moment.')
-            return
-          }
-
-          // let id = 'payload-' + this.goldpayloads.length
+          this.fire('notification', {msg:
+              "Resources not ready, please wait a moment and try again. " +
+              "Do not refresh your page.",
+              type: "error"})
+          return
         }
-        let id = 'payload'
 
-        // Disable all launchers until we get a response
-        this._enableLaunchers(false)
+        this.hidegoldlauncher = true
+
+        // Launch each payload machine
+        for (var i = 0; i < this.rounddata.payloadcount; ++i) {
+          this._launchGoldPayload(i)
+        }
+      },
+
+      // Launch a single gold payload, with a unique number
+      _launchGoldPayload: function(number) {
+
+        let id = 'payload' + number
 
         let url = this.keysurl + '/tap/sasc/client/' +
             this.rounddata.goldKeyResourceId
@@ -719,12 +834,16 @@
           region: "us-west-1",
           image: this.rounddata.payloadami,
           hardware: this.rounddata.payloadhardware,
+          sshkey: this.rounddata.sshGold,
           options: {
             role: 'payload',
+            team: 'gold',
+            count: number,
             client_route: url,
             server_ip: this.rounddata.arbiter.secure.machine_ip,
             client_id: id,
             token: this.token,
+            ssh: this.portalurl + '/sshkeys/' + this.rounddata.sshGold,
             resources:
             [
               {
@@ -781,7 +900,6 @@
           }
         }
 
-        this.launching = 'gold'
         this.$.launchresources.create(data);
         this.fire('notification', {msg:
             "Request to launch a gold payload for \"" + this.rounddata.name +
@@ -805,8 +923,11 @@
                        readonly: false }
         this.$.portalgrant.grant(data)
 
+        let role = e.detail.options.role
+        let team = e.detail.options.team
+
         // Arbiter
-        if (this.launching == 'arbiter') {
+        if (role == 'arbiter') {
 
           // Update round info on widgets server
           let arbiter = {
@@ -831,13 +952,16 @@
           this.fire('notification', {msg: 'Arbiter for "' + this.rounddata.name +
               '" has been launched.', type: "msg"})
         }
-        else if (this.launching == 'blue') {
+        else if (role == 'payload' && team == 'blue') {
 
           // Update round info on widgets server
           let data = {
             id: e.detail.id,
             machine_ip: e.detail.machine_ip,
-            status: e.detail.status
+            status: e.detail.status,
+            options: {
+              count: e.detail.options.count
+            },
           }
 
           // Local array
@@ -851,14 +975,18 @@
 
           this.fire('notification', {msg: 'Blue payload for "' + this.rounddata.name +
               '" has been launched.', type: "msg"})
+
         }
-        else if (this.launching == 'gold') {
+        else if (role == 'payload' && team == 'gold') {
 
           // Update round info on widgets server
           let data = {
             id: e.detail.id,
             machine_ip: e.detail.machine_ip,
-            status: e.detail.status
+            status: e.detail.status,
+            options: {
+              count: e.detail.options.count
+            },
           }
 
           // Local array
@@ -872,11 +1000,8 @@
 
           this.fire('notification', {msg: 'Gold payload for "' + this.rounddata.name +
               '" has been launched.', type: "msg"})
-        }
 
-        // Reenable all launchers
-        this._enableLaunchers(true)
-        this.launching = ''
+        }
       },
 
       // When user presses Finish Round button
@@ -908,6 +1033,11 @@
             this.$.launchresources.del(this.rounddata.goldpayloads[i].id);
           }
         }
+
+        // remove ssh keys from the portal
+        this.$.ssharbiterkeys.del(this.rounddata.sshArbiter)
+        this.$.sshbluekeys.del(this.rounddata.sshBlue)
+        this.$.sshgoldkeys.del(this.rounddata.sshGold)
 
         // FIXME: This is not forcing the html to reevaluate,
         // "Round is finished" will only show on refresh
@@ -1059,11 +1189,6 @@
           value: {},
           notify: true,
           observer: '_onRounddataUpdated'
-        },
-        launching: {
-          type: String,
-          value: '',
-          notify: true,
         },
         bluepayloads: {
           type: Array,
