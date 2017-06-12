@@ -866,7 +866,7 @@
         let statusMessage = "N/A";
         if (this.srcsimData &&
             this.srcsimData.simulator &&
-            this.srcsimData.simulator.harness_status) {
+            this.srcsimData.simulator.harness_status != undefined) {
           statusMessage = this.srcsimData.simulator.harness_status;
         }
         return statusMessage;
