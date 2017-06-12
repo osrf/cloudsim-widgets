@@ -582,8 +582,10 @@
           return
         }
 
-        // Stop forcing the buttons to disable when the state is READY.
-        this.forceDisableSimRun = this.srcsimData.simulator.state_machine !== "READY";
+        // Due to delay between "READY" and "RUNNING" status, the Simulator Run buttons are forced to be
+        // disabled. Upon a change from srcsimData, we stop forcing this, and let their disabled status
+        // depend on their state machine.
+        this.forceDisableSimRun = false;
 
         // Let the user know if we get a failed status while launching a simulation (but only one time)
         if (this.srcsimData.simulator.simulator_ready == -1 && this._previousSimulatorReadyValue != -1) {
@@ -597,10 +599,12 @@
         return !this.srcsimData || !this.srcsimData.simulator || !this.srcsimData.simulator.ready
       },
 
-      _shouldDisableSimulatorRunButton: function(worldNumber) {
-        if (this._shouldDisableSimulator() || this.forceDisableSimRun) {
+      _shouldDisableSimulatorRunButton: function(worldNumber, forceDisable) {
+        // Check if the buttons should be disabled by state or if we are forcing them to be disabled.
+        if (this._shouldDisableSimulator() || forceDisable) {
           return true
         }
+
         // We should enable Run buttons when either the state machine is READY or
         // when it was marked as RUNNING but the simulation process failed during launch.
         const shouldEnableRun = this.srcsimData.simulator.state_machine == 'READY'
@@ -651,7 +655,10 @@
           return
         }
 
-        // Disable the run buttons to prevent multiple clicks.
+        // Since there is a delay between a button click and a state change from "READY" to "RUNNING",
+        // the buttons remain enabled and can be clicked multiple times before they get disabled by a
+        // change in the simulation state. To prevent this, we force the buttons to be disabled.
+        // We stop forcing them once this state change occurs.
         this.forceDisableSimRun = true;
 
         const now = (new Date().toISOString()).replace(/\./g,'-').replace(/:/g,'-')
