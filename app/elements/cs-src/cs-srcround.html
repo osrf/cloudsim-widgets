@@ -583,7 +583,7 @@
         }
 
         // Due to delay between "READY" and "RUNNING" status, the Simulator Run buttons are forced to be
-        // disabled. Upon a change from srcsimData, we stop forcing this, and let their disabled status
+        // disabled when clicked. Upon a change from srcsimData, we stop forcing this, and let their disabled status
         // depend on their state machine.
         this.forceDisableSimRun = false;
 
@@ -657,7 +657,7 @@
 
         // Since there is a delay between a button click and a state change from "READY" to "RUNNING",
         // the buttons remain enabled and can be clicked multiple times before they get disabled by a
-        // change in the simulation state. To prevent this, we force the buttons to be disabled.
+        // change in the simulation state. To prevent this, we force the buttons to be disabled on click.
         // We stop forcing them once this state change occurs.
         this.forceDisableSimRun = true;
 
