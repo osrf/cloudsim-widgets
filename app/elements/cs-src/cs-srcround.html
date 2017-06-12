@@ -581,9 +581,10 @@
         if (!this.srcsimData || !this.srcsimData.simulator) {
           return
         }
+
         // Let the user know if we get a failed status while launching a simulation (but only one time)
         if (this.srcsimData.simulator.simulator_ready == -1 && this._previousSimulatorReadyValue != -1) {
-          this.fire('error', 'Failed to launch simulation. Please Stop and re-Run the round')
+          this.fire('error', this.roundname + ': failed to launch simulation. Please Stop and re-run the round')
         }
         // save the received status for future checks
         this._previousSimulatorReadyValue = this.srcsimData.simulator.simulator_ready
@@ -597,10 +598,16 @@
         if (this._shouldDisableSimulator()) {
           return true
         }
-        // We should enable Run buttons when either the state machine is READY or
-        // when it was marked as RUNNING but the simulation process failed during launch.
+
+        if (this.srcsimData.simulator['started_round_' + worldNumber]) {
+          // srcsimulator data already contains this round, meaning it was already run.
+          // So, disable the button
+          return true
+        }
+
+        // We should enable Run buttons when either the state machine is in READY state.
+        // In case of launch failure, the user will need to click Stop.
         const shouldEnableRun = this.srcsimData.simulator.state_machine == 'READY'
-          || (this.srcsimData.simulator.state_machine == 'RUNNING' && this.srcsimData.simulator.simulator_ready == -1)
 
         return !shouldEnableRun
       },
@@ -638,6 +645,12 @@
       // Start a world on the simulator
       _onStartSim: function(e) {
         const n = e.target.getAttribute('data-args') || e.target.parentElement.getAttribute('data-args')
+
+        if (this.srcsimData.simulator['started_round_' + n]) {
+          // run already started
+          return
+        }
+
         // Check that we have simulator IP
         if (!this.rounddata ||
             !this.rounddata.simulator ||
@@ -664,6 +677,12 @@
         this.$.sim_run_cmds.generateRequest()
 
         this.fire('notification', "Requested to start run #" + n + " on simulator")
+
+        // Append a temporal 'started_round_xx' so the round button is disabled until we get new
+        // status from server.
+        this.srcsimData.simulator['started_round_' + n] = "client side tmp value due to button clicked in UI"
+        // Force UI state evaluation
+        this.set('srcsimData', this.srcsimData)
       },
 
       // Stop the current world running on the simulator
