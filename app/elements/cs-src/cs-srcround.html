@@ -876,9 +876,9 @@
       _getUplinkStatus: function() {
         let statusMessage = "N/A";
         if (this.srcsimData &&
-            this.srcsimData.simulator &&
-            this.srcsimData.simulator.current_uplink) {
-          statusMessage = this.srcsimData.simulator.current_uplink;
+            this.srcsimData.fieldcomputer &&
+            this.srcsimData.fieldcomputer.current_uplink) {
+          statusMessage = this.srcsimData.fieldcomputer.current_uplink;
         }
         return statusMessage;
       },
@@ -887,9 +887,9 @@
       _getDownlinkStatus: function() {
         let statusMessage = "N/A";
         if (this.srcsimData &&
-            this.srcsimData.simulator &&
-            this.srcsimData.simulator.current_downlink) {
-          statusMessage = this.srcsimData.simulator.current_downlink;
+            this.srcsimData.fieldcomputer &&
+            this.srcsimData.fieldcomputer.current_downlink) {
+          statusMessage = this.srcsimData.fieldcomputer.current_downlink;
         }
         return statusMessage;
       },
@@ -898,9 +898,9 @@
       _getLatencyStatus: function() {
         let statusMessage = "N/A";
         if (this.srcsimData &&
-            this.srcsimData.simulator &&
-            this.srcsimData.simulator.current_latency) {
-          statusMessage = this.srcsimData.simulator.current_latency;
+            this.srcsimData.fieldcomputer &&
+            this.srcsimData.fieldcomputer.current_latency) {
+          statusMessage = this.srcsimData.fieldcomputer.current_latency;
         }
         return statusMessage;
       },
