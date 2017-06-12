@@ -130,14 +130,14 @@
             <paper-input
               id="dockerurlinput"
               value="{{dockerurl}}"
-              label="Github repository"
+              label="Git repository"
               title="Clone URL ending in '.git', starting with 'https' for public and 'git' for private repositories."
               pattern="(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\.git)$"
               required
             ></paper-input>
             <paper-textarea
               value="{{deploykey}}"
-              label="Github Deploy Key"
+              label="Git repository 'Deploy Key'"
               title="Leave empty for public repositories."
             ></paper-textarea>
 
@@ -289,9 +289,9 @@
       // Continue starting new round
       _onContinue: function() {
 
-        // Validate GitHub url
+        // Validate Git repo url
         if (!this.$.dockerurlinput.validate()) {
-          this.fire('error', 'Not a valid GitHub url. Make sure it ends with ".git"')
+          this.fire('error', 'Not a valid Git url. Make sure it ends with ".git"')
           return
         }
 
