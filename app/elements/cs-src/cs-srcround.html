@@ -228,7 +228,7 @@
             <h4>Status</h4>
             <div class="vertical box-content">
               <div class="horizontal item">
-                <span class="property" title="Status of the docker container">
+                <span class="property" title="Status of the simulation docker container">
                   Process
                 </span>
                 <div class="space"></div>
@@ -236,7 +236,7 @@
               </div>
 
               <div class="horizontal item">
-                <span class="property" title="Status of the launched simulator process">
+                <span class="property" title="Status of the simulation process">
                   Simulator
                 </span>
                 <div class="space"></div>
@@ -291,6 +291,7 @@
                     </paper-button>
                   </a>
                 </div>
+
               </div>
             </paper-material>
           </template>
@@ -422,6 +423,24 @@
                     VPN
                   </paper-button>
                 </a>
+              </div>
+
+              <div class="horizontal item" title="Uplink">
+                <span class="property">Uplink</span>
+                <div class="space"></div>
+                <span class="value">[[_getUplinkStatus(srcsimData)]]</span>
+              </div>
+
+              <div class="horizontal item" title="Downlink">
+                <span class="property">Downlink</span>
+                <div class="space"></div>
+                <span class="value">[[_getDownlinkStatus(srcsimData)]]</span>
+              </div>
+
+              <div class="horizontal item" title="Latency">
+                <span class="property">Latency</span>
+                <div class="space"></div>
+                <span class="value">[[_getLatencyStatus(srcsimData)]]</span>
               </div>
 
             </div>
@@ -884,6 +903,39 @@
             this.srcsimData.simulator &&
             this.srcsimData.simulator.harness_status != undefined) {
           statusMessage = this.srcsimData.simulator.harness_status;
+        }
+        return statusMessage;
+      },
+
+      // Return the current uplink.
+      _getUplinkStatus: function() {
+        let statusMessage = "N/A";
+        if (this.srcsimData &&
+            this.srcsimData.fieldcomputer &&
+            this.srcsimData.fieldcomputer.current_uplink) {
+          statusMessage = this.srcsimData.fieldcomputer.current_uplink;
+        }
+        return statusMessage;
+      },
+
+      // Return the current downlink.
+      _getDownlinkStatus: function() {
+        let statusMessage = "N/A";
+        if (this.srcsimData &&
+            this.srcsimData.fieldcomputer &&
+            this.srcsimData.fieldcomputer.current_downlink) {
+          statusMessage = this.srcsimData.fieldcomputer.current_downlink;
+        }
+        return statusMessage;
+      },
+
+      // Return the current latency.
+      _getLatencyStatus: function() {
+        let statusMessage = "N/A";
+        if (this.srcsimData &&
+            this.srcsimData.fieldcomputer &&
+            this.srcsimData.fieldcomputer.current_latency) {
+          statusMessage = this.srcsimData.fieldcomputer.current_latency;
         }
         return statusMessage;
       },

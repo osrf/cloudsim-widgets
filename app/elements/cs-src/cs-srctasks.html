@@ -152,6 +152,7 @@
           if (this.task.checkpoint_penalties.length == this.task.checkpoint_durations.length + 1) {
             this.task.checkpoint_durations.push(-1)
           }
+
           this.set('checkpointDurations', this.task.checkpoint_durations);
           this.set('checkpointPenalties', this.task.checkpoint_penalties);
           this.currentCheckpoint = this.task.current_checkpoint;
