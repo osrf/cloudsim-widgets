@@ -228,7 +228,7 @@
             <h4>Status</h4>
             <div class="vertical box-content">
               <div class="horizontal item">
-                <span class="property" title="Status of the docker container">
+                <span class="property" title="Status of the simulation docker container">
                   Process
                 </span>
                 <div class="space"></div>
@@ -236,7 +236,7 @@
               </div>
 
               <div class="horizontal item">
-                <span class="property" title="Status of the launched simulator process">
+                <span class="property" title="Status of the simulation process">
                   Simulator
                 </span>
                 <div class="space"></div>
@@ -291,6 +291,7 @@
                     </paper-button>
                   </a>
                 </div>
+
               </div>
             </paper-material>
           </template>
@@ -307,15 +308,15 @@
 
                   <template is="dom-if" if="[[_hasWorld(srcsimData, 1)]]">
                     <!-- Dev note: (trick) we need to pass srcsimData property here to fire invocations when
-                    its value changes -->
-                    <paper-button disabled="[[_shouldDisableSimulatorRunButton(1, srcsimData)]]" raised on-tap="_onStartSim" data-args="1">
+                    its value changes. Same is true for forceDisableSimRun property. -->
+                    <paper-button disabled="[[_shouldDisableSimulatorRunButton(1, forceDisableSimRun, srcsimData)]]" raised on-tap="_onStartSim" data-args="1">
                       <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
                       1
                     </paper-button>
                   </template>
 
                   <template is="dom-if" if="[[_hasWorld(srcsimData, 4)]]">
-                    <paper-button disabled="[[_shouldDisableSimulatorRunButton(4, srcsimData)]]" raised on-tap="_onStartSim" data-args="4">
+                    <paper-button disabled="[[_shouldDisableSimulatorRunButton(4, forceDisableSimRun, srcsimData)]]" raised on-tap="_onStartSim" data-args="4">
                       <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
                       4
                     </paper-button>
@@ -324,13 +325,13 @@
 
                 <div class="horizontal">
                   <template is="dom-if" if="[[_hasWorld(srcsimData, 2)]]">
-                    <paper-button disabled="[[_shouldDisableSimulatorRunButton(2, srcsimData)]]" raised on-tap="_onStartSim" data-args="2">
+                    <paper-button disabled="[[_shouldDisableSimulatorRunButton(2, forceDisableSimRun, srcsimData)]]" raised on-tap="_onStartSim" data-args="2">
                       <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
                       2
                     </paper-button>
                   </template>
                   <template is="dom-if" if="[[_hasWorld(srcsimData, 5)]]">
-                    <paper-button disabled="[[_shouldDisableSimulatorRunButton(5, srcsimData)]]" raised on-tap="_onStartSim" data-args="5">
+                    <paper-button disabled="[[_shouldDisableSimulatorRunButton(5, forceDisableSimRun, srcsimData)]]" raised on-tap="_onStartSim" data-args="5">
                       <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
                       5
                     </paper-button>
@@ -339,7 +340,7 @@
 
                 <div class="horizontal">
                   <template is="dom-if" if="[[_hasWorld(srcsimData, 3)]]">
-                    <paper-button disabled="[[_shouldDisableSimulatorRunButton(3, srcsimData)]]" raised on-tap="_onStartSim" data-args="3">
+                    <paper-button disabled="[[_shouldDisableSimulatorRunButton(3, forceDisableSimRun, srcsimData)]]" raised on-tap="_onStartSim" data-args="3">
                       <iron-icon icon="icons:av:play-arrow" class="greenIcon"></iron-icon>
                       3
                     </paper-button>
@@ -422,6 +423,24 @@
                     VPN
                   </paper-button>
                 </a>
+              </div>
+
+              <div class="horizontal item" title="Uplink">
+                <span class="property">Uplink</span>
+                <div class="space"></div>
+                <span class="value">[[_getUplinkStatus(srcsimData)]]</span>
+              </div>
+
+              <div class="horizontal item" title="Downlink">
+                <span class="property">Downlink</span>
+                <div class="space"></div>
+                <span class="value">[[_getDownlinkStatus(srcsimData)]]</span>
+              </div>
+
+              <div class="horizontal item" title="Latency (one-way)">
+                <span class="property">Latency (one-way)</span>
+                <div class="space"></div>
+                <span class="value">[[_getLatencyStatus(srcsimData)]]</span>
               </div>
 
             </div>
@@ -581,9 +600,15 @@
         if (!this.srcsimData || !this.srcsimData.simulator) {
           return
         }
+
+        // Due to delay between "READY" and "RUNNING" status, the Simulator Run buttons are forced to be
+        // disabled when clicked. Upon a change from srcsimData, we stop forcing this, and let their disabled status
+        // depend on their state machine.
+        this.forceDisableSimRun = false;
+
         // Let the user know if we get a failed status while launching a simulation (but only one time)
         if (this.srcsimData.simulator.simulator_ready == -1 && this._previousSimulatorReadyValue != -1) {
-          this.fire('error', 'Failed to launch simulation. Please Stop and re-Run the round')
+          this.fire('error', this.roundname + ': failed to launch simulation. Please Stop and re-run the round')
         }
         // save the received status for future checks
         this._previousSimulatorReadyValue = this.srcsimData.simulator.simulator_ready
@@ -593,14 +618,21 @@
         return !this.srcsimData || !this.srcsimData.simulator || !this.srcsimData.simulator.ready
       },
 
-      _shouldDisableSimulatorRunButton: function(worldNumber) {
-        if (this._shouldDisableSimulator()) {
+      _shouldDisableSimulatorRunButton: function(worldNumber, forceDisable) {
+        // Check if the buttons should be disabled by state or if we are forcing them to be disabled.
+        if (this._shouldDisableSimulator() || forceDisable) {
           return true
         }
-        // We should enable Run buttons when either the state machine is READY or
-        // when it was marked as RUNNING but the simulation process failed during launch.
+
+        if (this.srcsimData.simulator['started_round_' + worldNumber]) {
+          // srcsimulator data already contains this round, meaning it was already run.
+          // So, disable the button
+          return true
+        }
+
+        // We should enable Run buttons when either the state machine is in READY state.
+        // In case of launch failure, the user will need to click Stop.
         const shouldEnableRun = this.srcsimData.simulator.state_machine == 'READY'
-          || (this.srcsimData.simulator.state_machine == 'RUNNING' && this.srcsimData.simulator.simulator_ready == -1)
 
         return !shouldEnableRun
       },
@@ -638,6 +670,12 @@
       // Start a world on the simulator
       _onStartSim: function(e) {
         const n = e.target.getAttribute('data-args') || e.target.parentElement.getAttribute('data-args')
+
+        if (this.srcsimData.simulator['started_round_' + n]) {
+          // run already started
+          return
+        }
+
         // Check that we have simulator IP
         if (!this.rounddata ||
             !this.rounddata.simulator ||
@@ -646,9 +684,16 @@
           this.fire('error', 'Failed to start run, missing simulator IP.')
           return
         }
+
+        // Since there is a delay between a button click and a state change from "READY" to "RUNNING",
+        // the buttons remain enabled and can be clicked multiple times before they get disabled by a
+        // change in the simulation state. To prevent this, we force the buttons to be disabled on click.
+        // We stop forcing them once this state change occurs.
+        this.forceDisableSimRun = true;
+
         const now = (new Date().toISOString()).replace(/\./g,'-').replace(/:/g,'-')
         // Replace non valid mount (docker -v) chars in the roundName
-        const round = this.roundname.replace(/\./g,'-').replace(/:/g,'-')
+        const round = this.roundname.replace(/:/g,'-')
         const worldName = 'world_' + n + '_' + round + '_' + now
         this.$.sim_run_cmds.body = {
           'host': this.rounddata.simulator.data.machine_ip + ':' + this.simPort,
@@ -664,6 +709,12 @@
         this.$.sim_run_cmds.generateRequest()
 
         this.fire('notification', "Requested to start run #" + n + " on simulator")
+
+        // Append a temporal 'started_round_xx' so the round button is disabled until we get new
+        // status from server.
+        this.srcsimData.simulator['started_round_' + n] = "client side tmp value due to button clicked in UI"
+        // Force UI state evaluation
+        this.set('srcsimData', this.srcsimData)
       },
 
       // Stop the current world running on the simulator
@@ -702,6 +753,9 @@
           this.fire('error', 'Failed to start user code, missing field computer IP.')
           return
         }
+
+        // Disable the Start button as soon as it gets clicked. It will be enabled according to the FC state.
+        e.currentTarget.disabled = true;
 
         this.$.sim_run_cmds.body = {
           'host': this.rounddata.fieldcomputer.data.machine_ip + ':' + this.simPort,
@@ -847,8 +901,41 @@
         let statusMessage = "N/A";
         if (this.srcsimData &&
             this.srcsimData.simulator &&
-            this.srcsimData.simulator.harness_status) {
+            this.srcsimData.simulator.harness_status != undefined) {
           statusMessage = this.srcsimData.simulator.harness_status;
+        }
+        return statusMessage;
+      },
+
+      // Return the current uplink.
+      _getUplinkStatus: function() {
+        let statusMessage = "N/A";
+        if (this.srcsimData &&
+            this.srcsimData.fieldcomputer &&
+            this.srcsimData.fieldcomputer.current_uplink) {
+          statusMessage = this.srcsimData.fieldcomputer.current_uplink;
+        }
+        return statusMessage;
+      },
+
+      // Return the current downlink.
+      _getDownlinkStatus: function() {
+        let statusMessage = "N/A";
+        if (this.srcsimData &&
+            this.srcsimData.fieldcomputer &&
+            this.srcsimData.fieldcomputer.current_downlink) {
+          statusMessage = this.srcsimData.fieldcomputer.current_downlink;
+        }
+        return statusMessage;
+      },
+
+      // Return the current latency.
+      _getLatencyStatus: function() {
+        let statusMessage = "N/A";
+        if (this.srcsimData &&
+            this.srcsimData.fieldcomputer &&
+            this.srcsimData.fieldcomputer.current_latency) {
+          statusMessage = this.srcsimData.fieldcomputer.current_latency;
         }
         return statusMessage;
       },
@@ -905,6 +992,11 @@
           value: {},
           notify: true,
           observer: '_onSrcSimDataUpdatedInternal'
+        },
+        // Used to disable all the simulator run buttons.
+        forceDisableSimRun: {
+          type: Boolean,
+          value: false,
         },
       },
     });
