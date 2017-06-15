@@ -264,7 +264,7 @@
                   Whitelisted
                 </paper-checkbox>
 
-                <paper-checkbox checked={{edit_enabled}} >
+                <paper-checkbox checked={{edit_enabled}}>
                   Enabled
                 </paper-checkbox>
               </div>
@@ -290,7 +290,7 @@
                 <paper-checkbox
                   class="createInputField"
                   checked={{readWritePermission}}>
-                  Admin
+                    Admin
                 </paper-checkbox>
               </div>
 
@@ -310,7 +310,7 @@
               raised
               on-tap="_onDeleteMetric"
               class="delete-button">
-              Delete metric
+                Delete metric
             </paper-button>
           </div>
         </div>
@@ -318,9 +318,7 @@
     </paper-dialog>
 
     <!-- Confirmation Dialog -->
-    <cs-confirmationdialog
-      id="confirmationDialog">
-    </cs-confirmationdialog>
+    <cs-confirmationdialog id="confirmationDialog"></cs-confirmationdialog>
 
   </template>
 
@@ -547,19 +545,20 @@
       _onDeleteMetric: function() {
         // Open the confirmation dialog.
         this.$.confirmationDialog.open(
-            'Are you sure you\'d like to delete this metric configuration?<br>' +
-            '<b>This action can\'t be reverted.</b>',
-            this._onDeleteMetricConfirmation.bind(this))
+          'Are you sure you\'d like to delete this metric configuration?<br>' +
+          '<b>This action can\'t be reverted.</b>',
+          this._onDeleteMetricConfirmation.bind(this));
       },
 
       // Confirmation for deleting a Metrics Config.
       _onDeleteMetricConfirmation: function() {
-        const resource = this.selectedMetric.resource_id
+        const resource = this.selectedMetric.resource_id;
         this.$.configs.del(resource);
         // Refresh the list.
         this.$.metrics.getAll();
         this.$.userMetricConfigDialog.close();
-        this.fire('notification', 'Deleted metric "' + this.selectedMetric.identity + '"');
+        this.fire('notification', 'Deleted metric config for identity: "' +
+          this.selectedMetric.identity + '"');
       },
 
       // Properties
