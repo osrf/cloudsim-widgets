@@ -93,7 +93,7 @@
       text-align: left;
     }
     .content {
-      overflow: auto;
+      overflow: scroll;
       margin: 0;
       padding: 1em;
     }
@@ -129,11 +129,9 @@
       font-size: 0.8em;
       margin-left: 2em;
     }
-    .miniButton {
-      width: 2.2em;
-    }
-    .red {
+    .revokeButton {
       --iron-icon-fill-color: #f00;
+      width: 2.2em;
     }
     paper-checkbox {
       --paper-checkbox-checkmark-color: black;
@@ -172,6 +170,8 @@
       url="[[portalurl]]"
       token="[[token]]"
       on-granted="_onGranted"
+      on-revoked="_onRevoked"
+      on-got="_onGetPermissions"
       on-permissionsupdated="_onAllPermissions"
     ></gz-grant>
 
@@ -305,7 +305,7 @@
                 </template>
 
                 <paper-icon-button
-                  class="red miniButton"
+                  class="revokeButton"
                   icon="icons:close"
                   id="[[item.username]]"
                   on-tap="_onRemoveUser">
@@ -539,12 +539,29 @@
       // Callback made when a Permission is explicitly granted.
       _onGranted: function(e) {
         if (e.detail.success) {
-          this.fire('notification', 'Granted permission to "' + this.edit_grantee + '" over "' + this.selectedMetric.identity + '"')
+          this.fire('notification', 'Granted permission to "' +
+            this.edit_grantee + '" over "' +
+            this.selectedMetric.identity + '"');
+          // Get the updated permissions of the resource.
+          this.$.grant.get(this.selectedMetric.resource_id);
         } else {
           this.fire('error', 'An error ocurred while granting permission.')
         }
         // Restore default inputs.
         this._initializeInputFields();
+      },
+
+      // Callback made when a Permission is revoked.
+      _onRevoked: function(e) {
+        if (e.detail.success) {
+          this.fire('notification', 'Revoked permission of "' +
+            e.target.grantee + '" over "' +
+            this.selectedMetric.identity + '"');
+          // Get the updated permissions of the resource.
+          this.$.grant.get(this.selectedMetric.resource_id);
+        } else {
+          this.fire('error', 'An error ocurred while revoking permission.');
+        }
       },
 
       // Clean the input fields and restore their default values.
@@ -560,7 +577,7 @@
 
       // Callback made when getting all the permissions.
       _onAllPermissions: function() {
-        var permissions = this.$.grant.permissions
+        let permissions = this.$.grant.permissions;
         const config_permissions = permissions.find(function(permission) {
           return permission.name === 'metrics-configs'
         })
@@ -568,6 +585,30 @@
           return
         }
         this.hasReadWritePermission = !config_permissions.permissions[0].permissions.readOnly
+      },
+
+      // Remove an user from the resource.
+      _onRemoveUser: function(e) {
+        const data = {
+          grantee: e.target.parentElement.id,
+          resource: this.selectedMetric.resource_id,
+          readonly: !this.hasReadWritePermission
+        };
+        this.$.grant.revoke(data);
+      },
+
+      // Callback made when we get the permissions of a particular resource.
+      _onGetPermissions: function(e) {
+        // We asked for the new permissions of the selected resource.
+        if (e.detail.resource != this.selectedMetric.resource_id) {
+          console.error("Error");
+          console.error(e.detail);
+          return;
+        }
+        // Update the user list and balances with these new permissions.
+        const list = e.detail.result.permissions;
+        this.set('selectedMembers', list);
+        this._refreshMetrics();
       },
 
       // Properties
