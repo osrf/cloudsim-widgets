@@ -221,12 +221,16 @@
       _onTokenUpdated: function() {
         if (this.token !== "") {
           this.$.roundsresources.connect();
+          this._refreshAll()
+        }
+      },
+
+      _refreshAll: function() {
           this._getRounds()
           // If we changed token, then we reset the last updated
           // srcsimulation ID too. This will make all srcround refetch
           // their srcsimulation data.
           this.lastUpdatedSrcsimdataid = {}
-        }
       },
 
       // Get list of all rounds for this user
@@ -450,7 +454,7 @@
                type: "msg"})
         }
         this.currentpage = ""
-        this._getRounds()
+        this._refreshAll()
       },
 
       // Callback from the server when there are any resource changes
