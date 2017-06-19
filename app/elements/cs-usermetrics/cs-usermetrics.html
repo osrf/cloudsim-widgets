@@ -169,14 +169,14 @@
       id="grant"
       url="[[portalurl]]"
       token="[[token]]"
-      on-granted="_onGranted"
-      on-revoked="_onRevoked"
+      on-granted="_onGrantedPermission"
+      on-revoked="_onRevokedPermission"
       on-got="_onGotPermission"
       on-permissionsupdated="_onAllPermissions"
     ></gz-grant>
 
     <!-- Confirmation Dialog for Permission Revoke -->
-    <cs-confirmationdialog id="permissionRemoveDialog"></cs-confirmationdialog>
+    <cs-confirmationdialog id="permissionRevokeDialog"></cs-confirmationdialog>
 
     <paper-material elevation="1">
 
@@ -540,7 +540,7 @@
       },
 
       // Callback made when a Permission is explicitly granted.
-      _onGranted: function(e) {
+      _onGrantedPermission: function(e) {
         if (e.detail.success) {
           this.fire('notification', 'Granted permission to "' +
             this.edit_grantee + '" over "' +
@@ -555,7 +555,7 @@
       },
 
       // Callback made when a Permission is revoked.
-      _onRevoked: function(e) {
+      _onRevokedPermission: function(e) {
         if (e.detail.success) {
           this.fire('notification', 'Revoked permission of "' +
             e.target.grantee + '" over "' +
@@ -603,7 +603,7 @@
       // Confirmation dialog to remove a user.
       _onRemoveUserDialog: function(e) {
         const targetUsername = e.currentTarget.id;
-        this.$.permissionRemoveDialog.open(
+        this.$.permissionRevokeDialog.open(
           'Are you sure you\'d like to remove "' + targetUsername + '" from "' +
           this.selectedMetric.identity + '"<br> This can\'t be reverted.',
           this._onRemoveUserConfirmation.bind(this, targetUsername));
