@@ -125,7 +125,7 @@
       text-overflow: ellipsis;
       overflow: hidden;
     }
-    .admin-label {
+    .adminLabel {
       font-size: 0.8em;
       margin-left: 2em;
     }
@@ -171,7 +171,7 @@
       token="[[token]]"
       on-granted="_onGranted"
       on-revoked="_onRevoked"
-      on-got="_onGetPermissions"
+      on-got="_onGotPermission"
       on-permissionsupdated="_onAllPermissions"
     ></gz-grant>
 
@@ -304,7 +304,7 @@
                 <div class="space"></div>
 
                 <template is="dom-if" if="[[!item.permissions.readOnly]]">
-                  <span class="admin-label">Admin</span>
+                  <span class="adminLabel">Admin</span>
                 </template>
 
                 <paper-icon-button
@@ -609,7 +609,7 @@
       },
 
       // Callback made when we get the permissions of a particular resource.
-      _onGetPermissions: function(e) {
+      _onGotPermission: function(e) {
         // We asked for the new permissions of the selected resource.
         if (e.detail.resource != this.selectedMetric.resource_id) {
           console.error("Error");
