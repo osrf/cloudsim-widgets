@@ -175,6 +175,9 @@
       on-permissionsupdated="_onAllPermissions"
     ></gz-grant>
 
+    <!-- Confirmation Dialog for Permission Revoke -->
+    <cs-confirmationdialog id="permissionRemoveDialog"></cs-confirmationdialog>
+
     <paper-material elevation="1">
 
       <h1>
@@ -308,7 +311,7 @@
                   class="revokeButton"
                   icon="icons:close"
                   id="[[item.username]]"
-                  on-tap="_onRemoveUser">
+                  on-tap="_onRemoveUserDialog">
                 </paper-icon-button>
               </div>
             </template>
@@ -587,14 +590,22 @@
         this.hasReadWritePermission = !config_permissions.permissions[0].permissions.readOnly
       },
 
-      // Remove an user from the resource.
-      _onRemoveUser: function(e) {
+      // Remove a user from the resource.
+      _onRemoveUserConfirmation: function(e) {
         const data = {
           grantee: e.target.parentElement.id,
           resource: this.selectedMetric.resource_id,
           readonly: !this.hasReadWritePermission
         };
         this.$.grant.revoke(data);
+      },
+
+      // Confirmation dialog to remove a user.
+      _onRemoveUserDialog: function(e) {
+        this.$.permissionRemoveDialog.open(
+          "Are you sure you'd like to remove this user from this resource?" +
+          "<br> This can't be reverted.",
+          this._onRemoveUserConfirmation.bind(this, e));
       },
 
       // Callback made when we get the permissions of a particular resource.
