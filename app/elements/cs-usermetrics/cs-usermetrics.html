@@ -176,7 +176,7 @@
     ></gz-grant>
 
     <!-- Confirmation Dialog for Permission Revoke -->
-    <cs-confirmationdialog id="permissionRevokeDialog"></cs-confirmationdialog>
+    <cs-confirmationdialog id="removeUserDialog"></cs-confirmationdialog>
 
     <paper-material elevation="1">
 
@@ -580,7 +580,7 @@
 
       // Callback made when getting all the permissions.
       _onAllPermissions: function() {
-        let permissions = this.$.grant.permissions
+        const permissions = this.$.grant.permissions
         const config_permissions = permissions.find(function(permission) {
           return permission.name === 'metrics-configs'
         })
@@ -603,7 +603,7 @@
       // Confirmation dialog to remove a user.
       _onRemoveUserDialog: function(e) {
         const targetUsername = e.currentTarget.id
-        this.$.permissionRevokeDialog.open(
+        this.$.removeUserDialog.open(
           'Are you sure you\'d like to remove "' + targetUsername + '" from "' +
           this.selectedMetric.identity + '"<br> This can\'t be reverted.',
           this._onRemoveUserConfirmation.bind(this, targetUsername))
@@ -613,8 +613,7 @@
       _onGotPermission: function(e) {
         // We asked for the new permissions of the selected resource.
         if (e.detail.resource != this.selectedMetric.resource_id) {
-          console.error("Error")
-          console.error(e.detail)
+          this.fire('error', "Error while refreshing the list of permissions.")
           return
         }
         // Update the user list and balances with these new permissions.
