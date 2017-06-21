@@ -362,15 +362,15 @@
         let that = this
         if (that.token === "") {
           window.addEventListener('login', function() {
-            that.$.metrics.getAll();
-            that.$.grant.getall();
-          });
+            that.$.metrics.getAll()
+            that.$.grant.getall()
+          })
         }
         else {
-          that.$.metrics.getAll();
-          that.$.grant.getall();
+          that.$.metrics.getAll()
+          that.$.grant.getall()
         }
-        this._initializeInputFields();
+        this._initializeInputFields()
       },
 
       // Callback when all accessible metrics have been returned
@@ -378,7 +378,7 @@
         const metrics = e.detail
         this.metrics = metrics
         // let's now get the metric configs
-        this.$.configs.getAll();
+        this.$.configs.getAll()
       },
 
       // Callback when all configs have been returned
@@ -411,16 +411,16 @@
 
         for (let configId in configsMap) {
           if (configsMap.hasOwnProperty(configId)) {
-            let config = configsMap[configId];
-            let metric = metricsMap[config.data.identity];
+            let config = configsMap[configId]
+            let metric = metricsMap[config.data.identity]
             if (metric) {
-              metric['max_instance_hours'] = config.data.max_instance_hours;
-              metric['balance'] = config.data.max_instance_hours - metric.running_time;
-              metric['exhausted'] = metric['balance'] < 0 ? 'exhausted' : '';
-              metric['resource_id'] = config.name;
-              metric['whitelisted'] = config.data.whitelisted;
-              metric['check_enabled'] = config.data.check_enabled;
-              metric['permissions'] = config.permissions;
+              metric['max_instance_hours'] = config.data.max_instance_hours
+              metric['balance'] = config.data.max_instance_hours - metric.running_time
+              metric['exhausted'] = metric['balance'] < 0 ? 'exhausted' : ''
+              metric['resource_id'] = config.name
+              metric['whitelisted'] = config.data.whitelisted
+              metric['check_enabled'] = config.data.check_enabled
+              metric['permissions'] = config.permissions
             } else {
               metricsMap[config.data.identity] = {
                 identity: config.data.identity,
@@ -431,7 +431,7 @@
                 check_enabled: config.data.check_enabled,
                 resource_id: config.name,
                 permissions: config.permissions
-              };
+              }
             }
           }
         }
@@ -446,7 +446,7 @@
       },
 
       _refreshMetrics: function() {
-        this.$.metrics.getAll();
+        this.$.metrics.getAll()
       },
 
       // Edit dialog for user metrics configuration.
@@ -456,11 +456,11 @@
         if (!metricObject) {
           console.error(this.balances)
           // Update the list.
-          this.$.metrics.getAll();
+          this.$.metrics.getAll()
           return
         }
-        this.selectedMetric = metricObject;
-        this.set('selectedMembers', metricObject.permissions);
+        this.selectedMetric = metricObject
+        this.set('selectedMembers', metricObject.permissions)
 
         // Fill the Edit Fields.
         this.edit_identity = this.selectedMetric.identity
@@ -468,7 +468,7 @@
         this.edit_whitelisted = this.selectedMetric.whitelisted
         this.edit_enabled = this.selectedMetric.check_enabled
         // Open dialog.
-        this.$.userMetricConfigDialog.open();
+        this.$.userMetricConfigDialog.open()
       },
 
       // Edit a Metrics Config.
@@ -477,21 +477,21 @@
           this.fire('error', "No fields can be empty!")
           return
         }
-        this.$.userMetricConfigDialog.close();
+        this.$.userMetricConfigDialog.close()
         const resource = this.selectedMetric.resource_id
         const data = {
           identity: this.edit_identity.trim(),
           whitelisted: this.edit_whitelisted,
           max_instance_hours: this.edit_max_hours.trim(),
           check_enabled: this.edit_enabled
-        };
+        }
         if (resource === "N/A") {
           // If the selected item does not have a metric, create it.
-          this.$.configs.create(data);
+          this.$.configs.create(data)
         } else {
-          this.$.configs.update(resource, data);
+          this.$.configs.update(resource, data)
         }
-        this._initializeInputFields();
+        this._initializeInputFields()
       },
 
       // Create a Metrics Config.
@@ -506,26 +506,26 @@
           whitelisted: this.create_whitelist,
           max_instance_hours: this.create_max_hours.trim(),
           check_enabled: this.create_enabled
-        };
+        }
         if (this.create_grantee.trim() !== "") {
           data.admin_identity = this.create_grantee.trim()
         }
-        this.$.configs.create(data);
-        this._initializeInputFields();
+        this.$.configs.create(data)
+        this._initializeInputFields()
       },
 
       // Callback made when a Metric Config is created.
       _onMetricConfigCreated: function(e) {
         // Refresh the list.
-        this.$.metrics.getAll();
-        this.fire('notification', 'Created metric for "' + e.detail.result.data.identity + '"');
+        this.$.metrics.getAll()
+        this.fire('notification', 'Created metric for "' + e.detail.result.data.identity + '"')
       },
 
       // Callback made when a Metric Config is updated.
       _onMetricConfigUpdated: function(e) {
         // Refresh the list.
-        this.$.metrics.getAll();
-        this.fire('notification', 'Updated the metric "' + e.detail.result.data.identity + '"');
+        this.$.metrics.getAll()
+        this.fire('notification', 'Updated the metric "' + e.detail.result.data.identity + '"')
       },
 
       _onGrantPermission: function() {
@@ -536,7 +536,7 @@
         const data = { grantee: this.edit_grantee,
                        resource: this.selectedMetric.resource_id,
                        readonly: !this.readWritePermission }
-        this.$.grant.grant(data);
+        this.$.grant.grant(data)
       },
 
       // Callback made when a Permission is explicitly granted.
@@ -544,14 +544,14 @@
         if (e.detail.success) {
           this.fire('notification', 'Granted permission to "' +
             this.edit_grantee + '" over "' +
-            this.selectedMetric.identity + '"');
+            this.selectedMetric.identity + '"')
           // Get the updated permissions of the resource.
-          this.$.grant.get(this.selectedMetric.resource_id);
+          this.$.grant.get(this.selectedMetric.resource_id)
         } else {
           this.fire('error', 'An error ocurred while granting permission.')
         }
         // Restore default inputs.
-        this._initializeInputFields();
+        this._initializeInputFields()
       },
 
       // Callback made when a Permission is revoked.
@@ -559,28 +559,28 @@
         if (e.detail.success) {
           this.fire('notification', 'Revoked permission of "' +
             e.target.grantee + '" over "' +
-            this.selectedMetric.identity + '"');
+            this.selectedMetric.identity + '"')
           // Get the updated permissions of the resource.
-          this.$.grant.get(this.selectedMetric.resource_id);
+          this.$.grant.get(this.selectedMetric.resource_id)
         } else {
-          this.fire('error', 'An error ocurred while revoking permission.');
+          this.fire('error', 'An error ocurred while revoking permission.')
         }
       },
 
       // Clean the input fields and restore their default values.
       _initializeInputFields: function() {
-        this.create_identity = "";
-        this.create_max_hours = "";
-        this.create_whitelist = false;
-        this.create_enabled = true;
-        this.create_grantee = "";
-        this.edit_grantee = "";
-        this.readWritePermission = false;
+        this.create_identity = ""
+        this.create_max_hours = ""
+        this.create_whitelist = false
+        this.create_enabled = true
+        this.create_grantee = ""
+        this.edit_grantee = ""
+        this.readWritePermission = false
       },
 
       // Callback made when getting all the permissions.
       _onAllPermissions: function() {
-        let permissions = this.$.grant.permissions;
+        let permissions = this.$.grant.permissions
         const config_permissions = permissions.find(function(permission) {
           return permission.name === 'metrics-configs'
         })
@@ -596,31 +596,31 @@
           grantee: targetUsername,
           resource: this.selectedMetric.resource_id,
           readonly: !this.hasReadWritePermission
-        };
-        this.$.grant.revoke(data);
+        }
+        this.$.grant.revoke(data)
       },
 
       // Confirmation dialog to remove a user.
       _onRemoveUserDialog: function(e) {
-        const targetUsername = e.currentTarget.id;
+        const targetUsername = e.currentTarget.id
         this.$.permissionRevokeDialog.open(
           'Are you sure you\'d like to remove "' + targetUsername + '" from "' +
           this.selectedMetric.identity + '"<br> This can\'t be reverted.',
-          this._onRemoveUserConfirmation.bind(this, targetUsername));
+          this._onRemoveUserConfirmation.bind(this, targetUsername))
       },
 
       // Callback made when we get the permissions of a particular resource.
       _onGotPermission: function(e) {
         // We asked for the new permissions of the selected resource.
         if (e.detail.resource != this.selectedMetric.resource_id) {
-          console.error("Error");
-          console.error(e.detail);
-          return;
+          console.error("Error")
+          console.error(e.detail)
+          return
         }
         // Update the user list and balances with these new permissions.
-        const list = e.detail.result.permissions;
-        this.set('selectedMembers', list);
-        this._refreshMetrics();
+        const list = e.detail.result.permissions
+        this.set('selectedMembers', list)
+        this._refreshMetrics()
       },
 
       // Properties
@@ -661,7 +661,7 @@
           notify: true
         },
       },
-    });
-  })();
+    })
+  })()
   </script>
 </dom-module>
