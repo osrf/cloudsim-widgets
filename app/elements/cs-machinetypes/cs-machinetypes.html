@@ -83,7 +83,7 @@
     }
 
     /* dialog */
-    #machinetypedialog {
+    #machineTypeDialog {
       max-height: 40%;
       max-width: 30em;
       text-align: left;
@@ -168,7 +168,11 @@
 
       <div class="main-content">
 
-        <iron-data-table items="[[machinetypes]]" selection-enabled on-selecting-item="_onMachineTypeDialog">
+        <iron-data-table
+          id="machineTypeDataTable"
+          items="[[machinetypes]]"
+          selection-enabled
+          on-selecting-item="_onMachineTypeDialog">
 
           <data-table-column name="Name" width="5em">
             <template>
@@ -256,7 +260,7 @@
     </paper-material>
 
     <!-- dialog -->
-    <paper-dialog id="machinetypedialog" class="vertical">
+    <paper-dialog id="machineTypeDialog" class="vertical">
       <h3 class="header">[[selectedmachinetype.data.name]]</h3>
 
       <div class="content">
@@ -426,9 +430,13 @@
         this.editimage = this.selectedmachinetype.data.image
         this.edithardware = this.selectedmachinetype.data.hardware
         this.editregion = this.selectedmachinetype.data.region
-
-        // Open dialog
-        this.$.machinetypedialog.open();
+        // Open dialog. The timeout helps to render these events in the desired
+        // order: The user clicks any row and the dialog opens.
+        setTimeout(function(machineTypeDialog, machineTypeDataTable) {
+          // Selection is cleared to allow a new dialog open with each click.
+          machineTypeDataTable.clearSelection()
+          machineTypeDialog.open()
+        }, 0, this.$.machineTypeDialog, this.$.machineTypeDataTable)
       },
 
       // Request to edit a machinetype
@@ -489,7 +497,7 @@
         this.$.resources.del(this.selectedmachinetype.name);
 
         // Close dialog
-        this.$.machinetypedialog.close();
+        this.$.machineTypeDialog.close()
 
         // Get updated list of machinetypes
         this.$.resources.getAll();
