@@ -173,7 +173,11 @@
         </paper-icon-button>
       </h1>
 
-      <iron-data-table items="[[balances]]" selection-enabled on-selecting-item="_onUserConfigDialog">
+      <iron-data-table
+        id="userMetricDataTable"
+        items="[[balances]]"
+        selection-enabled
+        on-selecting-item="_onUserConfigDialog">
 
         <data-table-column name="Identity" width="10em">
           <template>
@@ -407,8 +411,13 @@
         this.edit_max_hours = this.selectedMetric.max_instance_hours
         this.edit_whitelisted = this.selectedMetric.whitelisted
         this.edit_enabled = this.selectedMetric.check_enabled
-        // Open dialog.
-        this.$.userMetricConfigDialog.open();
+        // Open dialog. The timeout helps to render these events in the desired
+        // order: The user clicks any row and the dialog opens.
+        setTimeout(function(userMetricConfigDialog, userMetricDataTable) {
+          // Selection is cleared to allow a new dialog open with each click.
+          userMetricDataTable.clearSelection()
+          userMetricConfigDialog.open()
+        }, 0, this.$.userMetricConfigDialog, this.$.userMetricDataTable)
       },
 
       // Edit a Metrics Config.
