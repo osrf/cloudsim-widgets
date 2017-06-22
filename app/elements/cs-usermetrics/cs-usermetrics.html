@@ -591,10 +591,10 @@
       },
 
       // Remove a user from the resource.
-      _onRemoveUserConfirmation: function(targetUsername) {
+      _onRemoveUserConfirmation: function(targetUsername, selectedMetric) {
         const data = {
           grantee: targetUsername,
-          resource: this.selectedMetric.resource_id,
+          resource: selectedMetric.resource_id,
           readonly: !this.hasReadWritePermission
         }
         this.$.grant.revoke(data)
@@ -606,7 +606,7 @@
         this.$.removeUserDialog.open(
           'Are you sure you\'d like to remove "' + targetUsername + '" from "' +
           this.selectedMetric.identity + '"<br> This can\'t be reverted.',
-          this._onRemoveUserConfirmation.bind(this, targetUsername))
+          this._onRemoveUserConfirmation.bind(this, targetUsername, this.selectedMetric))
       },
 
       // Callback made when we get the permissions of a particular resource.
