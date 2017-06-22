@@ -83,7 +83,7 @@
     }
 
     /* dialog */
-    #s3keydialog {
+    #s3keyDialog {
       max-height: 40%;
       max-width: 30em;
       text-align: left;
@@ -173,7 +173,11 @@
 
       <div class="main-content">
 
-        <iron-data-table items="[[s3keys]]" selection-enabled on-selecting-item="_onS3KeyDialog">
+        <iron-data-table
+          id="s3keyDataTable"
+          items="[[s3keys]]"
+          selection-enabled
+          on-selecting-item="_onS3KeyDialog">
 
           <data-table-column name="Bucket name" width="3em">
             <template>
@@ -272,7 +276,7 @@
     </paper-material>
 
     <!-- dialog -->
-    <paper-dialog id="s3keydialog" class="vertical">
+    <paper-dialog id="s3keyDialog" class="vertical">
       <h3 class="header">[[selecteds3key.data.bucket_name]]</h3>
 
       <div class="content">
@@ -442,8 +446,13 @@
         this.editaccess_key = this.selecteds3key.data.access_key
         this.editbucket_name = this.selecteds3key.data.bucket_name
 
-        // Open dialog
-        this.$.s3keydialog.open();
+        // Open dialog. The timeout helps to render these events in the desired
+        // order: The user clicks any row and the dialog opens.
+        setTimeout(function(s3keyDialog, s3keyDataTable) {
+          // Selection is cleared to allow a new dialog open with each click.
+          s3keyDataTable.clearSelection()
+          s3keyDialog.open()
+        }, 0, this.$.s3keyDialog, this.$.s3keyDataTable)
       },
 
       // Request to edit a s3key
@@ -502,7 +511,7 @@
         this.$.resources.del(this.selecteds3key.name);
 
         // Close dialog
-        this.$.s3keydialog.close();
+        this.$.s3keyDialog.close()
 
         // Get updated list of s3keys
         this.$.resources.getAll();
