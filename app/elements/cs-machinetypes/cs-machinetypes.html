@@ -427,7 +427,8 @@
         this.edithardware = this.selectedmachinetype.data.hardware
         this.editregion = this.selectedmachinetype.data.region
 
-        // The event is prevented. This stops the Data Table from selecting the row.
+        // Stop the event propagation, thus making the Data Table's default
+        // action (selection of the row) not to happen.
         e.preventDefault()
         // Open dialog.
         this.$.machineTypeDialog.open()
