@@ -173,11 +173,7 @@
 
       <div class="main-content">
 
-        <iron-data-table
-          id="s3keyDataTable"
-          items="[[s3keys]]"
-          selection-enabled
-          on-selecting-item="_onS3KeyDialog">
+        <iron-data-table items="[[s3keys]]" selection-enabled on-selecting-item="_onS3KeyDialog">
 
           <data-table-column name="Bucket name" width="3em">
             <template>
@@ -446,13 +442,10 @@
         this.editaccess_key = this.selecteds3key.data.access_key
         this.editbucket_name = this.selecteds3key.data.bucket_name
 
-        // Open dialog. The timeout helps to render these events in the desired
-        // order: The user clicks any row and the dialog opens.
-        setTimeout(function(s3keyDialog, s3keyDataTable) {
-          // Selection is cleared to allow a new dialog open with each click.
-          s3keyDataTable.clearSelection()
-          s3keyDialog.open()
-        }, 0, this.$.s3keyDialog, this.$.s3keyDataTable)
+        // The event is prevented. This stops the Data Table from selecting the row.
+        e.preventDefault()
+        // Open dialog.
+        this.$.s3keyDialog.open()
       },
 
       // Request to edit a s3key

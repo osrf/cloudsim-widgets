@@ -168,11 +168,7 @@
 
       <div class="main-content">
 
-        <iron-data-table
-          id="machineTypeDataTable"
-          items="[[machinetypes]]"
-          selection-enabled
-          on-selecting-item="_onMachineTypeDialog">
+        <iron-data-table items="[[machinetypes]]" selection-enabled on-selecting-item="_onMachineTypeDialog">
 
           <data-table-column name="Name" width="5em">
             <template>
@@ -430,13 +426,11 @@
         this.editimage = this.selectedmachinetype.data.image
         this.edithardware = this.selectedmachinetype.data.hardware
         this.editregion = this.selectedmachinetype.data.region
-        // Open dialog. The timeout helps to render these events in the desired
-        // order: The user clicks any row and the dialog opens.
-        setTimeout(function(machineTypeDialog, machineTypeDataTable) {
-          // Selection is cleared to allow a new dialog open with each click.
-          machineTypeDataTable.clearSelection()
-          machineTypeDialog.open()
-        }, 0, this.$.machineTypeDialog, this.$.machineTypeDataTable)
+
+        // The event is prevented. This stops the Data Table from selecting the row.
+        e.preventDefault()
+        // Open dialog.
+        this.$.machineTypeDialog.open()
       },
 
       // Request to edit a machinetype
