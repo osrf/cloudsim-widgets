@@ -83,7 +83,7 @@
     }
 
     /* dialog */
-    #s3keydialog {
+    #s3keyDialog {
       max-height: 40%;
       max-width: 30em;
       text-align: left;
@@ -272,7 +272,7 @@
     </paper-material>
 
     <!-- dialog -->
-    <paper-dialog id="s3keydialog" class="vertical">
+    <paper-dialog id="s3keyDialog" class="vertical">
       <h3 class="header">[[selecteds3key.data.bucket_name]]</h3>
 
       <div class="content">
@@ -442,8 +442,11 @@
         this.editaccess_key = this.selecteds3key.data.access_key
         this.editbucket_name = this.selecteds3key.data.bucket_name
 
-        // Open dialog
-        this.$.s3keydialog.open();
+        // Stop the event propagation, thus making the Data Table's default
+        // action (selection of the row) not to happen.
+        e.preventDefault()
+        // Open dialog.
+        this.$.s3keyDialog.open()
       },
 
       // Request to edit a s3key
@@ -502,7 +505,7 @@
         this.$.resources.del(this.selecteds3key.name);
 
         // Close dialog
-        this.$.s3keydialog.close();
+        this.$.s3keyDialog.close()
 
         // Get updated list of s3keys
         this.$.resources.getAll();

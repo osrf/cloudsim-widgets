@@ -83,7 +83,7 @@
     }
 
     /* dialog */
-    #machinetypedialog {
+    #machineTypeDialog {
       max-height: 40%;
       max-width: 30em;
       text-align: left;
@@ -256,7 +256,7 @@
     </paper-material>
 
     <!-- dialog -->
-    <paper-dialog id="machinetypedialog" class="vertical">
+    <paper-dialog id="machineTypeDialog" class="vertical">
       <h3 class="header">[[selectedmachinetype.data.name]]</h3>
 
       <div class="content">
@@ -427,8 +427,11 @@
         this.edithardware = this.selectedmachinetype.data.hardware
         this.editregion = this.selectedmachinetype.data.region
 
-        // Open dialog
-        this.$.machinetypedialog.open();
+        // Stop the event propagation, thus making the Data Table's default
+        // action (selection of the row) not to happen.
+        e.preventDefault()
+        // Open dialog.
+        this.$.machineTypeDialog.open()
       },
 
       // Request to edit a machinetype
@@ -489,7 +492,7 @@
         this.$.resources.del(this.selectedmachinetype.name);
 
         // Close dialog
-        this.$.machinetypedialog.close();
+        this.$.machineTypeDialog.close()
 
         // Get updated list of machinetypes
         this.$.resources.getAll();

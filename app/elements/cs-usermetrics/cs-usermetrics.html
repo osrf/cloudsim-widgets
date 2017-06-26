@@ -467,6 +467,9 @@
         this.edit_max_hours = this.selectedMetric.max_instance_hours
         this.edit_whitelisted = this.selectedMetric.whitelisted
         this.edit_enabled = this.selectedMetric.check_enabled
+        // Stop the event propagation, thus making the Data Table's default
+        // action (selection of the row) not to happen.
+        e.preventDefault()
         // Open dialog.
         this.$.userMetricConfigDialog.open()
       },
