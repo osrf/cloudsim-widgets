@@ -24,6 +24,10 @@
       @apply(--layout-vertical);
       @apply(--layout-center);
     }
+    .center {
+      @apply(--layout-center);
+      text-align: center;
+    }
     .blue {
       background-color: rgb(68, 138, 201);
       color: #fff;
@@ -65,6 +69,9 @@
     .worldbox {
       --paper-checkbox-checkmark-color: black;
       padding-right: 1em;
+    }
+    .top-section {
+      margin-top: 2em;
     }
     .section {
       margin: 1em;
@@ -116,30 +123,29 @@
     <iron-pages attr-for-selected="data-route" selected="{{currentpage}}">
 
       <section data-route="empty">
-        <center>
-          <p style="margin-top: 2em">Your team has no constellations running.</p>
+        <div class="center">
+          <p class="top-section">Your team has no constellations running.</p>
           <paper-button flat on-tap="_onNew">Start one now</paper-button></p>
-        </center>
+        </div>
       </section>
 
       <section data-route="new">
         <center>
           <div class="new-content">
-            <p>Start a new constellation.</p>
-
+            <p class="top-section">Start a new constellation.</p>
             <paper-input
               id="dockerurlinput"
               value="{{dockerurl}}"
               label="Git repository"
               title="Clone URL ending in '.git', starting with 'https' for public and 'git' for private repositories."
               pattern="(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\.git)$"
-              required
-            ></paper-input>
+              required>
+            </paper-input>
             <paper-textarea
               value="{{deploykey}}"
               label="Git repository 'Deploy Key'"
-              title="Leave empty for public repositories."
-            ></paper-textarea>
+              title="Leave empty for public repositories.">
+            </paper-textarea>
 
             <template is="dom-if" if="[[issrcadmin]]">
               <paper-input value="{{teamname}}" label="Team name" required></paper-input>
@@ -171,14 +177,19 @@
               </div>
             </template>
 
-            <br>
+            <paper-button
+              raised
+              class="gray section"
+              on-tap="_onBackButton">
+                Back
+            </paper-button>
 
             <paper-button
               raised
-              class="blue"
-              on-tap="_onContinue"
-            >Continue</paper-button></p>
-
+              class="blue section"
+              on-tap="_onContinue">
+                Continue
+            </paper-button>
           </div>
         </center>
       </section>
@@ -470,6 +481,11 @@
           // general case
           this._getRounds()
         }
+      },
+
+      // Allows the user to go back from a New Constellation Page to the Rounds.
+      _onBackButton: function(e) {
+        this._getRounds()
       },
 
       properties: {
