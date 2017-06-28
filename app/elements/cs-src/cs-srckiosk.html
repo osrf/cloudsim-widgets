@@ -180,8 +180,8 @@
             <paper-button
               raised
               class="gray section"
-              on-tap="_onBackButton">
-                Back
+              on-tap="_onCancelButton">
+                Cancel
             </paper-button>
 
             <paper-button
@@ -484,7 +484,7 @@
       },
 
       // Allows the user to go back from a New Constellation Page to the Rounds.
-      _onBackButton: function(e) {
+      _onCancelButton: function(e) {
         this._getRounds()
       },
 
