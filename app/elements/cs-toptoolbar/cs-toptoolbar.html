@@ -4,14 +4,47 @@
 <dom-module id="cs-toptoolbar">
   <template>
     <style>
-
       paper-button.raised {
         background-color: rgb(68, 138, 201);
         color: rgb(255, 255, 255);
       }
-
       paper-button.flat {
         color: rgb(68, 138, 201);
+      }
+      .horizontal {
+        @apply(--layout-horizontal);
+      }
+      .vertical {
+        @apply(--layout-vertical);
+      }
+      .space {
+        @apply(--layout-flex);
+      }
+      .avatar {
+        width: 64px;
+        height: 64px;
+      }
+      .avatar::content img {
+        border-radius: 50%;
+      }
+      .buttonLink {
+        text-decoration: none;
+      }
+      .profile {
+        margin: 0;
+        width: auto;
+        max-width: 30em;
+        text-align: left;
+      }
+      .profileName {
+        font-weight: bold;
+      }
+      .profileImage {
+        margin-right: 1em;
+        margin-bottom: 1em;
+        border-radius: 50%;
+        --iron-image-width: 96px;
+        --iron-image-height: 96px;
       }
 
       #mainToolbar .middle-container,
@@ -47,10 +80,6 @@
           font-weight: 400;
         }
       }
-
-      .space {
-        @apply(--layout-flex);
-      }
     </style>
 
       <paper-toolbar id="mainToolbar" class="short">
@@ -71,14 +100,12 @@
           </template>
 
           <template is="dom-if" if="[[loggedin]]">
-            <a href="[[baseUrl]]profile">
-              <paper-button flat class="flat" id="usernamelabel">
-                {{currentuser}}
-              </paper-button></a> <!-- Leave /a in same line -->
-            <paper-button raised class="raised" id="logoutbutton" on-tap="_tapLogout">
-              <iron-icon icon="icons:exit-to-app"></iron-icon>
-              Log out
-            </paper-button>
+            <paper-icon-button
+              class="avatar"
+              src="[[profile.picture]]"
+              alt="Default"
+              on-tap="_openProfileDialog">
+            </paper-icon-button>
           </template>
 
         </div>
@@ -91,6 +118,50 @@
           <div class="bottom-title"></div>
         </div>
       </paper-toolbar>
+
+      <!-- Profile floating dialog -->
+      <paper-dialog
+        id="profileDialog"
+        class="profile"
+        no-overlap
+        horizontal-align="right"
+        vertical-align="top">
+          <div class="vertical">
+            <div class="horizontal">
+              <iron-image
+                class="profileImage"
+                alt="Profile"
+                src="[[profile.picture]]">
+              </iron-image>
+
+              <div class="vertical">
+                <span class="profileName">[[profile.name]]</span>
+                <span>[[profile.email]]</span>
+              </div>
+            </div>
+
+            <div class="horizontal">
+              <a class="buttonLink" href="[[baseUrl]]profile">
+              <paper-button
+                dialog-confirm
+                class="raised"
+                raised>
+                  <iron-icon icon="social:person"></iron-icon>
+                  Profile
+              </paper-button></a>
+
+              <div class="space"></div>
+              <paper-button
+                dialog-confirm
+                class="raised"
+                raised
+                on-tap="_tapLogout">
+                  <iron-icon icon="icons:exit-to-app"></iron-icon>
+                  Log out
+              </paper-button>
+            </div>
+          </div>
+      </paper-dialog>
 
   </template>
 
@@ -130,6 +201,12 @@
         }
       },
 
+      _openProfileDialog: function(e) {
+        this.$.profileDialog.open()
+        this.$.profileDialog.positionTarget = e.srcElement;
+        console.log(this.profile)
+      },
+
       behaviors: [
         Polymer.IronResizableBehavior
       ],
@@ -154,6 +231,12 @@
           type: String,
           value: function() {return this.resolveUrl('images/cloudsim.svg')},
           notify: true
+        },
+
+        // Profile of the logged user.
+        profile: {
+          type: Object,
+          value: {}
         },
       }
     });

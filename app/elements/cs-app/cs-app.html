@@ -73,6 +73,7 @@
       loggedin="[[loggedin]]"
       on-loginrequest="_requestLogin"
       on-logoutrequest="_requestLogout"
+      profile="[[profile]]"
     ></cs-toptoolbar>
 
     <!-- Parent pages: secure / public -->
@@ -272,6 +273,7 @@
         this.token = e.detail.token;
         this.currentuser = e.detail.identities[0];
         this.identities = e.detail.identities;
+        this.profile = e.detail.profile;
 
         // SASC
         this.issascadmin = (this.currentuser === getConfig().admin ||
@@ -315,6 +317,7 @@
         this.token = ""
         this.currentuser = ""
         this.identities = []
+        this.profile = null
 
         // Reload page with logged out routes
         page('/');
@@ -385,6 +388,12 @@
           type: String,
           value: '',
           notify: true
+        },
+
+        // Profile obtained from Auth0 login.
+        profile: {
+          type: Object,
+          value: {}
         },
 
         // Permissions for current user
