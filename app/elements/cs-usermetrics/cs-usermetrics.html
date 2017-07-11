@@ -60,6 +60,10 @@
       padding-left: 1em;
       padding-right: 1em;
     }
+    .delete-button {
+      background-color: #f35046;
+      color: #fff;
+    }
 
     iron-data-table data-table-row:not([header]) data-table-cell {
       height: 60px;
@@ -331,7 +335,7 @@
                 <paper-checkbox
                   class="createInputField"
                   checked={{readWritePermission}}>
-                  Admin
+                    Admin
                 </paper-checkbox>
               </div>
 
@@ -344,9 +348,22 @@
               </div>
             </div>
           </div>
+
+          <!-- Delete -->
+          <div class="subcontent center">
+            <paper-button
+              raised
+              on-tap="_onDeleteMetric"
+              class="delete-button">
+                Delete metric
+            </paper-button>
+          </div>
         </div>
       </template>
     </paper-dialog>
+
+    <!-- Confirmation Dialog -->
+    <cs-confirmationdialog id="confirmationDialog"></cs-confirmationdialog>
 
   </template>
 
@@ -591,6 +608,26 @@
           return
         }
         this.hasReadWritePermission = !config_permissions.permissions[0].permissions.readOnly
+      },
+
+      // Delete a Metrics Config.
+      _onDeleteMetric: function() {
+        // Open the confirmation dialog.
+        this.$.confirmationDialog.open(
+          'Are you sure you\'d like to delete this metric configuration?<br>' +
+          '<b>This action can\'t be reverted.</b>',
+          this._onDeleteMetricConfirmation.bind(this));
+      },
+
+      // Confirmation for deleting a Metrics Config.
+      _onDeleteMetricConfirmation: function() {
+        const resource = this.selectedMetric.resource_id;
+        this.$.configs.del(resource);
+        // Refresh the list.
+        this.$.metrics.getAll();
+        this.$.userMetricConfigDialog.close();
+        this.fire('notification', 'Deleted metric config for identity: "' +
+          this.selectedMetric.identity + '"');
       },
 
       // Remove a user from the resource.
