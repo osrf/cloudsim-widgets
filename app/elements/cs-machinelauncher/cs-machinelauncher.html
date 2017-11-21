@@ -33,12 +33,21 @@
 
     <!-- To launch machines -->
     <gz-resources
-      id="resources"
+      id="resources_simulator"
       url="[[portalurl]]"
       token="[[token]]"
       resourcename="simulator"
       data="[[machinedata]]"
       on-created="_onLaunched"
+    ></gz-resources>
+
+    <!-- To get list of machine types -->
+    <gz-resources
+      id="resources_machinetype"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resourcename="machinetype"
+      on-resourcesupdated="_onMachineTypes"
     ></gz-resources>
 
     <paper-material elevation="1">
@@ -71,6 +80,7 @@
 
       </div>
 
+      <!-- If user can launch machines -->
       <div class="horizontal">
 
         <paper-dropdown-menu
@@ -78,9 +88,9 @@
           selected="0"
           on-iron-select="_machineSelected">
 
-          <paper-listbox class="dropdown-content" attr-for-selected="machine" selected="large_v0.1.4">
-            <template is="dom-repeat" items=[[machines]]>
-              <paper-item machine="[[item.id]]">[[item.name]]</paper-item>
+          <paper-listbox class="dropdown-content" attr-for-selected="machine">
+            <template is="dom-repeat" items=[[machinetypes]]>
+              <paper-item machine="[[item.name]]">[[item.data.name]]</paper-item>
             </template>
           </paper-listbox>
 
@@ -90,11 +100,14 @@
         </paper-button>
       </div>
 
-      <div class="description">
-        <div><b>Region</b>: [[machine.region]]</div>
-        <div><b>Hardware</b>: [[machine.hardware]]</div>
-        <div><b>Software</b>: [[machine.image]]</div>
-      </div>
+      <template is="dom-if" if="[[machine]]" class="horizontal">
+        <div class="description">
+          <div><b>Region</b>: [[machine.data.region]]</div>
+          <div><b>Hardware</b>: [[machine.data.hardware]]</div>
+          <div><b>Software</b>: [[machine.data.image]]</div>
+        </div>
+      </template>
+
     </paper-material>
 
   </template>
@@ -109,17 +122,30 @@
       // Attached
       attached: function() {
 
-        window.addEventListener('logout', function(e) {
-          that.token = "";
-        });
+        if (this.token !== "") {
+          this.$.resources_machinetype.getAll();
+        }
+        else {
+          let that = this
+          window.addEventListener('WebComponentsReady', function() {
+            if (that.token === "") {
+              window.addEventListener('login', function() {
+                that.$.resources_machinetype.getAll();
+              });
+            }
+            else {
+              that.$.resources_machinetype.getAll();
+            }
+          });
+        }
       },
 
       // Tap button has been pressed
       _tapLaunch() {
 
-        if (this.machine.region == "" ||
-            this.machine.imagee == "" ||
-            this.machine.hardware == "")
+        if (this.machine.data.region == "" ||
+            this.machine.data.image == "" ||
+            this.machine.data.hardware == "")
         {
           this.fire('notification', {msg:
               "Missing some information. Machine can't be launched.",
@@ -129,35 +155,14 @@
 
         let data =  {
           token: this.token,
-          region: this.machine.region,
-          image: this.machine.image,
-          hardware: this.machine.hardware
-        }
-         // hack to inject options without a gui
-        try {
-          if (ami) {
-            data.image = ami
-            console.log('\n\ncreating machine with ami: ' + ami)
-          }
-        }
-        catch(e) {
-          console.log('no ami')
+          region: this.machine.data.region,
+          image: this.machine.data.image,
+          hardware: this.machine.data.hardware
         }
 
-        // hack to inject options without a gui
-        try {
-          if (options) {
-            data.options = options
-            console.log('\n\ncreating machine with options')
-            console.log(JSON.stringify(data, null, 2))
-          }
-        }
-        catch(e) {
-          console.log('no options')
-        }
-        this.$.resources.create(data);
+        this.$.resources_simulator.create(data);
         this.fire('notification',
-            {msg: "Request to launch a \"" + this.machine.name + "\" has been sent.",
+            {msg: "Request to launch a \"" + this.machine.data.name + "\" has been sent.",
             type: "msg"})
       },
 
@@ -181,12 +186,18 @@
         var selectedItem = e.target.selectedItem;
         if (!selectedItem)
           return
-        var selectedMachineId = e.target.selectedItem.machine
+        var selectedMachineName = e.target.selectedItem.machine
 
         // get machine data from user selection
-        this.machine = this.machines.filter( (item)=>{
-          return (item.id == selectedMachineId)? true: false
+        this.machine = this.machinetypes.filter( (item)=>{
+          return (item.name == selectedMachineName)? true: false
         })[0]
+      },
+
+      // Callback when machinetypes list has been updated
+      _onMachineTypes: function() {
+        this.machinetypes = this.$.resources_machinetype.resources
+        this.nomachinetypes = (this.machinetypes.length == 0)
       },
 
       // Properties
@@ -216,56 +227,15 @@
         // True to show share button
         showshare: {
           type: Boolean,
-          value: false,
+          value: true,
           readonly: true
         },
 
         // Machine options
-        machines: {
+        machinetypes: {
           type: Array,
-          readonly: true,
-          value: [{
-                    id: "sasc_v0.1.6e",
-                    name: "sasc v0.1.6e",
-                    region: "us-west-1",
-                    image: "ami-d1e0b5b1",
-                    hardware: "m4.large"
-                  },
-                  {
-                    id: "large_xenial",
-                    name: "large ubuntu 16.04 (no cloudsim)",
-                    region: "us-west-1",
-                    image: "ami-6e165d0e",
-                    hardware: "m4.large"
-                  },
-                  {
-                    id: "large_v0.1.6c",
-                    name: "large v0.1.6c",
-                    region: "us-west-1",
-                    image: "ami-7b683d1b",
-                    hardware: "m4.large"
-                  },
-
-                  {
-                    id: "large_v0.1.4",
-                    name: "large v0.1.4 gzweb",
-                    region: "us-west-1",
-                    image: "ami-ca4e07aa",
-                    hardware: "m4.large"
-                  },
-
-                  { id: "small_v0.0.4",
-                    name: "small v0.0.4",
-                    region: "us-west-1",
-                    image: "ami-4b37752b",
-                    hardware: "t2.small"},
-
-                  { id: "gear_0.1",
-                    name: "gear v0.1",
-                    region: "us-west-1",
-                    hardware: "g2.2xlarge",
-                    image: "ami-537a3833"}
-                 ]
+          readonly: false,
+          value: []
         }
       },
     });
