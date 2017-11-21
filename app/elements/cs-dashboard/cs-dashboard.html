@@ -24,18 +24,45 @@
 
   <template>
 
-    <div class="horizontal">
+    <!-- To check if user can launch machines -->
+    <gz-grant
+      id="grant"
+      url="[[portalurl]]"
+      token="[[token]]"
+      resource="simulators"
+      on-got="_onPermission"
+    ></gz-grant>
 
-      <div class="space"></div>
+    <template is="dom-if" if="[[!cancreate]]">
 
-      <cs-machinelauncher
-        portalurl="[[portalurl]]"
-        token="[[token]]"
-      ></cs-machinelauncher>
+      <div class="horizontal">
 
-      <div class="space"></div>
+        <div class="space"></div>
 
-    </div>
+        <h3>Welcome to CloudSim!</h3>
+
+        <div class="space"></div>
+
+      </div>
+
+    </template>
+
+    <template is="dom-if" if="[[cancreate]]">
+
+      <div class="horizontal">
+
+        <div class="space"></div>
+
+        <cs-machinelauncher
+          portalurl="[[portalurl]]"
+          token="[[token]]"
+        ></cs-machinelauncher>
+
+        <div class="space"></div>
+
+      </div>
+
+    </template>
 
     <div class="horizontal">
 
@@ -61,10 +88,41 @@
 
       // Attached
       attached: function() {
+
+        let that = this
+        window.addEventListener('WebComponentsReady', function() {
+          if (that.token === "") {
+            window.addEventListener('login', function() {
+              that.$.grant.get();
+            });
+          }
+          else {
+            that.$.grant.get();
+          }
+        });
+      },
+
+      // Callback when a single permission has been received.
+      _onPermission: function(e) {
+
+        // We asked for the permission to launch simulators
+        if (e.detail.resource != 'simulators') {
+          console.error(e.detail);
+          return;
+        }
+
+        this.cancreate = !e.detail.result.permissions[0].permissions.readOnly;
       },
 
       // Properties
       properties: {
+
+        // True if current user can create simulators.
+        cancreate: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
       },
     });
   })();

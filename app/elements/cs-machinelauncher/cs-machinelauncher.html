@@ -81,39 +81,30 @@
       </div>
 
       <!-- If user can launch machines -->
-      <template is="dom-if" if="[[!nomachinetypes]]" class="horizontal">
-        <div class="horizontal">
+      <div class="horizontal">
 
-          <paper-dropdown-menu
-            label="Machine types"
-            selected="0"
-            on-iron-select="_machineSelected">
+        <paper-dropdown-menu
+          label="Machine types"
+          selected="0"
+          on-iron-select="_machineSelected">
 
-            <paper-listbox class="dropdown-content" attr-for-selected="machine">
-              <template is="dom-repeat" items=[[machinetypes]]>
-                <paper-item machine="[[item.name]]">[[item.data.name]]</paper-item>
-              </template>
-            </paper-listbox>
+          <paper-listbox class="dropdown-content" attr-for-selected="machine">
+            <template is="dom-repeat" items=[[machinetypes]]>
+              <paper-item machine="[[item.name]]">[[item.data.name]]</paper-item>
+            </template>
+          </paper-listbox>
 
-          </paper-dropdown-menu>
-          <paper-button raised id="launchbutton" on-tap="_tapLaunch">
-            Launch!
-          </paper-button>
-        </div>
+        </paper-dropdown-menu>
+        <paper-button raised id="launchbutton" on-tap="_tapLaunch">
+          Launch!
+        </paper-button>
+      </div>
 
-        <template is="dom-if" if="[[machine]]" class="horizontal">
-          <div class="description">
-            <div><b>Region</b>: [[machine.data.region]]</div>
-            <div><b>Hardware</b>: [[machine.data.hardware]]</div>
-            <div><b>Software</b>: [[machine.data.image]]</div>
-          </div>
-        </template>
-      </template>
-
-      <!-- If user can't launch machines -->
-      <template is="dom-if" if="[[nomachinetypes]]" class="horizontal">
-        <div class="horizontal">
-          You don't have permission to launch machines.
+      <template is="dom-if" if="[[machine]]" class="horizontal">
+        <div class="description">
+          <div><b>Region</b>: [[machine.data.region]]</div>
+          <div><b>Hardware</b>: [[machine.data.hardware]]</div>
+          <div><b>Software</b>: [[machine.data.image]]</div>
         </div>
       </template>
 
@@ -131,21 +122,22 @@
       // Attached
       attached: function() {
 
-        let that = this
-        window.addEventListener('WebComponentsReady', function() {
-          if (that.token === "") {
-            window.addEventListener('login', function() {
+        if (this.token !== "") {
+          this.$.resources_machinetype.getAll();
+        }
+        else {
+          let that = this
+          window.addEventListener('WebComponentsReady', function() {
+            if (that.token === "") {
+              window.addEventListener('login', function() {
+                that.$.resources_machinetype.getAll();
+              });
+            }
+            else {
               that.$.resources_machinetype.getAll();
-            });
-          }
-          else {
-            that.$.resources_machinetype.getAll();
-          }
-        });
-
-        window.addEventListener('logout', function(e) {
-          that.token = "";
-        });
+            }
+          });
+        }
       },
 
       // Tap button has been pressed
@@ -235,7 +227,7 @@
         // True to show share button
         showshare: {
           type: Boolean,
-          value: false,
+          value: true,
           readonly: true
         },
 
